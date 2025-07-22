@@ -1,3 +1,14 @@
+
+<?php
+
+$transaction_id = $_GET['transaction_id'];
+
+$transaction_query = "SELECT * FROM supplier_transaction WHERE transaction_id = $transaction_id";
+$transaction_result = mysqli_query($conn, $transaction_query);
+$transaction_row = mysqli_fetch_assoc($transaction_result);
+
+?>
+
 <!-- Edit Transaction Modal -->
 <div class="modal fade" id="editTransactionModal" tabindex="-1"
      aria-labelledby="editTransactionModalLabel" aria-hidden="true">
@@ -26,6 +37,7 @@
           <div class="col-md-6">
             <label class="form-label">Sales Type</label>
             <select class="form-select" name="sales_type" id="editSalesType" required>
+              <option value=""><?php echo $sales_type;?></option>
               <option value="Cash Purchased">Cash Purchased</option>
               <option value="Credit Purchased">Credit Purchased</option>
             </select>
