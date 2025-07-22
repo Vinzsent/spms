@@ -58,6 +58,7 @@
           <option value="">-- Select Country --</option>
           <option value="Philippines" selected>Philippines</option>
         </select>
+        
       </div>
     </div>
   </div>
@@ -83,7 +84,7 @@
       </div>
       <div class="col-md-4">
         <label for="edit-website" class="form-label">Website</label>
-        <input type="url" class="form-control" name="website" id="edit-website">
+        <input type="text" class="form-control" name="website" id="edit-website">
       </div>
     </div>
   </div>
@@ -143,7 +144,7 @@
       </div>
       <div class="col-12">
         <label for="edit-notes" class="form-label">Notes (optional)</label>
-        <input type="text" class="form-control" name="notes" id="edit-notes">
+        <textarea class="form-control" name="notes" id="edit-notes" rows="3"></textarea>
       </div>
     </div>
   </div>

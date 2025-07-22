@@ -39,7 +39,7 @@ $result = $conn->query("SELECT * FROM user");
     <h3>User List</h3>
     <div>
       <a href="../dashboard.php" class="btn btn-secondary me-2">
-        <i class="fas fa-arrow-left"></i> Back to Dashboard
+       <i class="fas fa-arrow-left"></i> Back to Dashboard
       </a>
       <button class="btn btn-primary" onclick="document.getElementById('addUser').style.display='block'">➕ Add User</button>
 	  </div>

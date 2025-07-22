@@ -14,7 +14,7 @@
         <div class="modal-body row g-3">
           <div class="col-md-4">
           <label>Date Received</label>
-          <input type="date" name="date_received" class="form-control" id="editDateRecieved" required>
+          <input type="date" name="date_received"  class="form-control" id="editDateRecieved">
         </div>
 		  <!-- Invoice -->
           <div class="col-md-6">

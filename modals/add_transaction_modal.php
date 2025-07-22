@@ -32,7 +32,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
           <select name="supplier_id" class="form-select" required>
             <option value="">-- Select Supplier --</option>
             <?php while($row = $suppliers->fetch_assoc()): ?>
-              <option value="<?= $row['supplier_id'] ?>"><?= htmlspecialchars($row['supplier_name']) ?></option>
+              <option value="<?= $row['supplier_id'] ?>"><?= htmlspecialchars(strtoupper($row['supplier_name'])) ?></option>
             <?php endwhile; ?>
           </select>
         </div>
