@@ -7,6 +7,7 @@ $transaction_query = "SELECT * FROM supplier_transaction WHERE transaction_id = 
 $transaction_result = mysqli_query($conn, $transaction_query);
 $transaction_row = mysqli_fetch_assoc($transaction_result);
 
+
 ?>
 
 <!-- Edit Transaction Modal -->
