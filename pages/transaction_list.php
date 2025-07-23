@@ -1,6 +1,8 @@
 <?php
+$pageTitle = 'Supplier Transactions';
 include '../includes/auth.php';
 include '../includes/db.php';
+include '../includes/header.php';
 
 $sql = "SELECT st.*, s.supplier_name 
         FROM supplier_transaction st
@@ -9,23 +11,7 @@ $sql = "SELECT st.*, s.supplier_name
 $result = $conn->query($sql);
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <title>Supplier Transactions</title>
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- DataTables CSS -->
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
-  <!-- Font Awesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-
-<body class="bg-light">
-  <?php include('../includes/navbar.php'); ?>
+<?php include('../includes/navbar.php'); ?>
   <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3>Supplier Transactions</h3>
@@ -151,24 +137,8 @@ $result = $conn->query($sql);
 
   <?php include '../modals/add_transaction_modal.php'; ?>
   <?php include '../modals/edit_transaction_modal.php'; ?>
-
-  <!-- JS Libraries -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
-  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.pdfmake.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
-
-  <!-- Include total-amount.js for calculation in edit modal -->
-  <script src="../assets/js/total-amount.js"></script>
-
+  
+  <?php include '../includes/footer.php'; ?>
   <script>
     $(document).ready(function() {
       const table = $('#transactionsTable').DataTable({
@@ -337,6 +307,3 @@ $result = $conn->query($sql);
       });
     });
   </script>
-</body>
-
-</html>

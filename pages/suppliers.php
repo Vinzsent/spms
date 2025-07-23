@@ -1,6 +1,8 @@
 <?php
+$pageTitle = 'Supplier List';
 include '../includes/auth.php';
 include '../includes/db.php';
+include '../includes/header.php';
 
 $result = $conn->query("SELECT * FROM supplier");
 if (!$result) {
@@ -9,26 +11,19 @@ if (!$result) {
     header("Location: ../dashboard.php");
     exit();
 }
+
+// Display session messages
+if (isset($_SESSION['message'])) {
+    echo '<div class="alert alert-success">' . htmlspecialchars($_SESSION['message']) . '</div>';
+    unset($_SESSION['message']);
+}
+if (isset($_SESSION['error'])) {
+    echo '<div class="alert alert-danger">' . htmlspecialchars($_SESSION['error']) . '</div>';
+    unset($_SESSION['error']);
+}
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Supplier List</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</head>
-<body class="bg-light">
-  
-  <?php if (isset($_SESSION['message'])): ?>
-    <div class="alert alert-success"><?= htmlspecialchars($_SESSION['message']); unset($_SESSION['message']); ?></div>
-    <?php endif; ?>
-    <?php if (isset($_SESSION['error'])): ?>
-      <div class="alert alert-danger"><?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></div>
-      <?php endif; ?>
-      
-      <?php include('../includes/navbar.php'); ?>
+
+<?php include('../includes/navbar.php'); ?>
       
       <div class="container py-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -76,17 +71,41 @@ if (!$result) {
 </div>
 
 <!-- Modals -->
-<div class="modal fade" id="addSupplierModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content p-3">
+<div class="modal fade" id="addSupplierModal" tabindex="-1" aria-labelledby="addSupplierModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="addModalLabel">Add New Supplier</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title" id="addSupplierModalLabel">Add New Supplier</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-        <p>Please fill out all the information before submitting.</p>
-        <?php include '../modals/add_supplier.php'; ?>
-      </div>
+      <form action="../actions/save_supplier.php" method="post">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="supplierName" class="form-label">Supplier Name</label>
+            <input type="text" class="form-control" id="supplierName" name="supplier_name" required>
+          </div>
+          <div class="mb-3">
+            <label for="contactPerson" class="form-label">Contact Person</label>
+            <input type="text" class="form-control" id="contactPerson" name="contact_person">
+          </div>
+          <div class="mb-3">
+            <label for="contactNo" class="form-label">Contact Number</label>
+            <input type="tel" class="form-control" id="contactNo" name="contact_no">
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email">
+          </div>
+          <div class="mb-3">
+            <label for="address" class="form-label">Address</label>
+            <textarea class="form-control" id="address" name="address" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save Supplier</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -108,9 +127,32 @@ if (!$result) {
   </div>
 </div>
 
-	
-<script src="../assets/js/supplier-modals.js"></script>
-<script src="../assets/js/category-mapping.js"></script>
-</body>
-</html>
+<script>
+// Edit Supplier Modal Handler
+document.addEventListener('DOMContentLoaded', function() {
+  const editButtons = document.querySelectorAll('.edit-btn');
+  const editSupplierModal = new bootstrap.Modal(document.getElementById('editSupplierModal'));
+  
+  editButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      const name = this.getAttribute('data-name');
+      const contact = this.getAttribute('data-contact');
+      const phone = this.getAttribute('data-phone');
+      const email = this.getAttribute('data-email');
+      const address = this.getAttribute('data-address');
+      
+      document.getElementById('edit_id').value = id;
+      document.getElementById('edit_supplier_name').value = name;
+      document.getElementById('edit_contact_person').value = contact;
+      document.getElementById('edit_contact_no').value = phone;
+      document.getElementById('edit_email').value = email;
+      document.getElementById('edit_address').value = address;
+      
+      editSupplierModal.show();
+    });
+  });
+});
+</script>
 
+<?php include('../includes/footer.php'); ?>

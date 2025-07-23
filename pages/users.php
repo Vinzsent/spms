@@ -1,39 +1,57 @@
 <?php
+$pageTitle = 'User Management';
 include '../includes/auth.php';
 include '../includes/db.php';
+include '../includes/header.php';
 
 $result = $conn->query("SELECT * FROM user");
+
+// Display session messages
+if (isset($_SESSION['message'])) {
+    echo '<div class="alert alert-success">' . htmlspecialchars($_SESSION['message']) . '</div>';
+    unset($_SESSION['message']);
+}
+if (isset($_SESSION['error'])) {
+    echo '<div class="alert alert-danger">' . htmlspecialchars($_SESSION['error']) . '</div>';
+    unset($_SESSION['error']);
+}
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>User List</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    .modal-custom {
-      display: none;
-      position: fixed;
-      z-index: 1050;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.5);
-    }
-    .modal-content-custom {
-      background-color: #fff;
-      margin: 10% auto;
-      padding: 20px;
-      border-radius: 8px;
-      max-width: 500px;
-    }
-  </style>
-</head>
-<body class="bg-light">
 <?php include('../includes/navbar.php'); ?>
+
+<style>
+.modal-custom {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content-custom {
+    background-color: var(--bs-body-bg);
+    margin: 10% auto;
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 500px;
+    color: var(--bs-body-color);
+    border: 1px solid var(--bs-border-color);
+}
+
+/* Dark mode specific styles */
+[data-bs-theme="dark"] .modal-content-custom {
+    background-color: var(--bs-tertiary-bg);
+}
+
+[data-bs-theme="dark"] .table {
+    --bs-table-bg: var(--bs-body-bg);
+    --bs-table-color: var(--bs-body-color);
+}
+</style>
 <div class="container py-5">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h3>User List</h3>
@@ -99,50 +117,60 @@ $result = $conn->query("SELECT * FROM user");
       <button class="btn-close" onclick="document.getElementById('editUserModal').style.display='none'"></button>
     </div>
     <form action="../actions/edit_user.php" method="POST">
-      <input type="hidden" name="id" id="edit-id">
-      <div class="mb-2"><input type="text" class="form-control" name="title" id="edit-title" placeholder="Title"></div>
-      <div class="mb-2"><input type="text" class="form-control" name="first_name" id="edit-firstname" placeholder="First Name" required></div>
-      <div class="mb-2"><input type="text" class="form-control" name="middle_name" id="edit-middlename" placeholder="Middle Name"></div>
-      <div class="mb-2"><input type="text" class="form-control" name="last_name" id="edit-lastname" placeholder="Last Name" required></div>
-      <div class="mb-2"><input type="text" class="form-control" name="suffix" id="edit-suffix" placeholder="Suffix"></div>
-      <div class="mb-2"><input type="text" class="form-control" name="academic_title" id="edit-academic-title" placeholder="Academic Title"></div>
-      <div class="mb-2">
-        <select class="form-select" name="user_type" id="edit-usertype" required>
-          <option value="">-- User Type --</option>
-          <option value="admin">Admin</option>
-          <option value="user">User</option>
-        </select>
-      </div>
-      <div class="mb-2"><input type="email" class="form-control" name="email" id="edit-email" placeholder="Email" required></div>
-      <div class="mb-2">
-        <input type="password" class="form-control" name="password" placeholder="New Password (leave blank to keep current)">
-      </div>
-      <button type="submit" class="btn btn-success w-100">💾 Save Changes</button>
-    </form>
   </div>
 </div>
 
 <script>
-  function openEditModal(id, title, firstName, middleName, lastName, suffix, academicTitle, userType, email) {
-    document.getElementById('edit-id').value = id;
-    document.getElementById('edit-title').value = title;
-    document.getElementById('edit-firstname').value = firstName;
-    document.getElementById('edit-middlename').value = middleName;
-    document.getElementById('edit-lastname').value = lastName;
-    document.getElementById('edit-suffix').value = suffix;
-    document.getElementById('edit-academic-title').value = academicTitle;
-    document.getElementById('edit-usertype').value = userType;
-    document.getElementById('edit-email').value = email;
-    document.getElementById('editUserModal').style.display = 'block';
+// Close modals when clicking outside
+window.onclick = function(event) {
+  if (event.target.className === 'modal-custom') {
+    event.target.style.display = 'none';
   }
+}
 
-  window.onclick = function(event) {
-    const addModal = document.getElementById('addUser');
-    const editModal = document.getElementById('editUserModal');
-    if (event.target === addModal) addModal.style.display = "none";
-    if (event.target === editModal) editModal.style.display = "none";
-  };
+function openEditModal(id, title, firstName, middleName, lastName, suffix, academicTitle, userType, email) {
+  document.getElementById('edit-id').value = id;
+  document.getElementById('edit-title').value = title;
+  document.getElementById('edit-firstname').value = firstName;
+  document.getElementById('edit-middlename').value = middleName || '';
+  document.getElementById('edit-lastname').value = lastName;
+  document.getElementById('edit-suffix').value = suffix || '';
+  document.getElementById('edit-academictitle').value = academicTitle || '';
+  document.getElementById('edit-usertype').value = userType;
+  document.getElementById('edit-email').value = email;
+  
+  // Show the edit modal
+  document.getElementById('editUser').style.display = 'block';
+}
+
+// Close modals with Escape key
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    document.querySelectorAll('.modal-custom').forEach(modal => {
+      modal.style.display = 'none';
+    });
+  }
+});
+
+// Initialize DataTable with dark mode support
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize any DataTables if present
+  if ($.fn.DataTable.isDataTable('table')) {
+    $('table').DataTable({
+      responsive: true,
+      pageLength: 10,
+      language: {
+        search: "_INPUT_",
+        searchPlaceholder: "Search..."
+      },
+      dom: 'Bfrtip',
+      buttons: [
+        'copy', 'csv', 'excel', 'pdf', 'print'
+      ]
+    });
+  }
+});
 </script>
 
-</body>
+<?php include('../includes/footer.php'); ?>
 </html>
