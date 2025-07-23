@@ -57,8 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </select>
     <input class="form-control mb-2" type="email" name="email" placeholder="Email">
     <input class="form-control mb-2" type="password" name="password" placeholder="Password">
-    <button type="submit" class="btn btn-success mt-2">Register</button>
-    <p class="text-center mt-3">Already have an account?</p>
     <div class="d-grid mt-3 justify-content-center">
       <a href="login.php"><button class="btn btn-primary" type="button">Login</button></a>
     </div>

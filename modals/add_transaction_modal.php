@@ -130,7 +130,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
         </div>
 		<div class="col-md-3">
   <label>Total</label>
-  <input type="text" id="totalAmount" class="form-control" readonly>
+  <input type="text" id="addTotalAmount" class="form-control" readonly>
 </div>
 
       </div>
@@ -142,17 +142,30 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
   </div>
 </div>
 <script>
-  const quantityInput = document.querySelector('[name="quantity"]');
-  const unitPriceInput = document.querySelector('[name="unit_price"]');
-  const totalAmountInput = document.getElementById('totalAmount');
+  document.addEventListener('DOMContentLoaded', function() {
+    const quantityInput = document.querySelector('#addTransactionModal [name="quantity"]');
+    const unitPriceInput = document.querySelector('#addTransactionModal [name="unit_price"]');
+    const totalAmountInput = document.getElementById('addTotalAmount');
+    const modal = document.getElementById('addTransactionModal');
 
-  function updateTotal() {
-    const quantity = parseFloat(quantityInput.value) || 0;
-    const unitPrice = parseFloat(unitPriceInput.value) || 0;
-    const total = quantity * unitPrice;
-    totalAmountInput.value = total.toFixed(2);
-  }
+    function updateTotal() {
+      const quantity = parseFloat(quantityInput.value) || 0;
+      const unitPrice = parseFloat(unitPriceInput.value) || 0;
+      const total = quantity * unitPrice;
+      totalAmountInput.value = total.toFixed(2);
+    }
 
-  quantityInput.addEventListener('input', updateTotal);
-  unitPriceInput.addEventListener('input', updateTotal);
+    // Update total when quantity or price changes
+    if (quantityInput && unitPriceInput && totalAmountInput) {
+      quantityInput.addEventListener('input', updateTotal);
+      unitPriceInput.addEventListener('input', updateTotal);
+    }
+
+    // Initialize total when modal is shown
+    if (modal) {
+      modal.addEventListener('shown.bs.modal', function() {
+        updateTotal();
+      });
+    }
+  });
 </script>

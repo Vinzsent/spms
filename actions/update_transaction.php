@@ -2,6 +2,7 @@
 include '../includes/db.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $id = $_POST['transaction_id'];
+  $date_received = $_POST['date_received'];
   $invoice_no = $_POST['invoice_no'];
   $sales_type = $_POST['sales_type'];
   $category = $_POST['category'];
@@ -11,8 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $unit_price = $_POST['unit_price'];
   $amount = $quantity * $unit_price;
 
-  $stmt = $conn->prepare("UPDATE supplier_transaction SET invoice_no=?, sales_type=?, category=?, item_description=?, quantity=?, unit=?, unit_price=?, amount=? WHERE transaction_id=?");
-  $stmt->bind_param("ssssisdii", $invoice_no, $sales_type, $category, $description, $quantity, $unit, $unit_price, $amount, $id);
+  $stmt = $conn->prepare("UPDATE supplier_transaction SET date_received=?, invoice_no=?, sales_type=?, category=?, item_description=?, quantity=?, unit=?, unit_price=?, amount=? WHERE transaction_id=?");
+  $stmt->bind_param("sssssisdii", $date_received, $invoice_no, $sales_type, $category, $description, $quantity, $unit, $unit_price, $amount, $id);
 
   if ($stmt->execute()) {
     header("Location: ../pages/transaction_list.php?updated=1");

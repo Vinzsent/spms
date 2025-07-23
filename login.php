@@ -52,10 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <div class="d-grid">
                 <button type="submit" class="btn btn-primary">Login</button>
               </div>
-              <p class="text-center mt-3">You don't have an account?</p>
-              <div class="d-grid mt-3 justify-content-center">
-                <a href="register.php"><button class="btn btn-primary" type="button">Account Registration</button></a>
-              </div>
             </form>
             <?php if (!empty($error)): ?>
               <p class="mt-3 text-danger text-center"><?= $error ?></p>

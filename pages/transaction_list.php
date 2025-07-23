@@ -86,7 +86,7 @@ $result = $conn->query($sql);
     <hr>
     <!-- Transactions Table -->
     <div class="table-responsive">
-      <table id="transactionsTable" class="table table-bordered">
+      <table id="transactionsTable" class="table table-bordered table-striped">
         <thead>
           <tr>
             <th>Date Received</th>
@@ -165,6 +165,9 @@ $result = $conn->query($sql);
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.pdfmake.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+
+  <!-- Include total-amount.js for calculation in edit modal -->
+  <script src="../assets/js/total-amount.js"></script>
 
   <script>
     $(document).ready(function() {
@@ -319,8 +322,9 @@ $result = $conn->query($sql);
       });
 
       $(document).on('click', '.editBtn', function() {
+        console.log('Date Received:', $(this).data('date_received'));
         $('#editTransactionId').val($(this).data('id'));
-        $('#editDateReceived').val($(this).data('date_received'));
+        $('#editDateReceived').val($(this).data('date'));
         $('#editInvoiceNo').val($(this).data('invoice'));
         $('#editDescription').val($(this).data('description'));
         $('#editQuantity').val($(this).data('quantity'));
@@ -328,6 +332,8 @@ $result = $conn->query($sql);
         $('#editPrice').val($(this).data('price'));
         $('#editSalesType').val($(this).data('sales'));
         $('#editCategory').val($(this).data('category'));
+        // Trigger calculation for total
+        $('#editQuantity, #editPrice').trigger('input');
       });
     });
   </script>
