@@ -11,7 +11,7 @@
       <!--<span class="notification-badge"></span>-->
     </div>
     <button id="darkModeToggle" onclick="toggleDarkMode()" class="btn btn-outline-light me-2" aria-label="Toggle dark mode">🌙</button>
-    <a href="logout.php" class="btn btn-outline-light">🔓 Logout</a>
+    <a href="/spms/logout.php" class="btn btn-outline-light">🔓 Logout</a>
   </div>
 </nav>
 <script src="/spms/assets/js/dark-mode.js"></script>

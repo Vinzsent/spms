@@ -26,6 +26,18 @@ include 'includes/header.php';
         </div>
       </div>
     </div>
+    
+    <!-- Request Card -->
+    <div class="col-md-4">
+      <div class="card text-white bg-success">
+        <div class="card-body">
+          <h5 class="card-title text-center">Supply Requesition/Issuance</h5>
+          <p class="card-text">Manage request and services details in the system.</p>
+          <a href="pages/supply_request.php" class="btn btn-light">Go</a>
+        </div>
+      </div>
+    </div>
+
     <!-- Settings Card -->
     <div class="col-md-4">
       <div class="card text-white bg-danger">
