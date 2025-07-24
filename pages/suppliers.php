@@ -1,5 +1,7 @@
 <?php
+$pageTitle = 'Supplier List';
 include '../includes/auth.php';
+include '../includes/header.php';
 include '../includes/db.php';
 
 $result = $conn->query("SELECT * FROM supplier");
@@ -10,27 +12,73 @@ if (!$result) {
     exit();
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Supplier List</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</head>
-<body class="bg-light">
-
-<?php if (isset($_SESSION['message'])): ?>
-  <div class="alert alert-success"><?= htmlspecialchars($_SESSION['message']); unset($_SESSION['message']); ?></div>
-<?php endif; ?>
-<?php if (isset($_SESSION['error'])): ?>
-  <div class="alert alert-danger"><?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></div>
-<?php endif; ?>
-
 <?php include('../includes/navbar.php'); ?>
 
+<?php if (isset($_SESSION['message'])): ?>
+  <div class="alert alert-success m-3"><?= htmlspecialchars($_SESSION['message']); unset($_SESSION['message']); ?></div>
+<?php endif; ?>
+<?php if (isset($_SESSION['error'])): ?>
+  <div class="alert alert-danger m-3"><?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></div>
+<?php endif; ?>
+
 <div class="container py-5">
+  <style>
+    /* Table styling */
+    .table {
+      --bs-table-bg: var(--bs-body-bg);
+      --bs-table-color: var(--bs-body-color);
+      --bs-table-striped-bg: var(--bs-tertiary-bg);
+      --bs-table-striped-color: var(--bs-body-color);
+      --bs-table-hover-bg: var(--bs-secondary-bg);
+      --bs-table-hover-color: var(--bs-body-color);
+    }
+    
+    /* Card styling */
+    .card {
+      --bs-card-bg: var(--bs-body-bg);
+      --bs-card-color: var(--bs-body-color);
+      border-color: var(--bs-border-color);
+    }
+    
+    /* Form controls */
+    .form-control, .form-select, .form-control:focus, .form-select:focus {
+      background-color: var(--bs-body-bg);
+      color: var(--bs-body-color);
+      border-color: var(--bs-border-color);
+    }
+    
+    /* Modal styling */
+    .modal-content {
+      background-color: var(--bs-body-bg);
+      color: var(--bs-body-color);
+      border-color: var(--bs-border-color);
+    }
+    
+    .modal-header, .modal-footer {
+      border-color: var(--bs-border-color);
+    }
+    
+    /* Nav tabs */
+    .nav-tabs .nav-link {
+      color: var(--bs-body-color);
+    }
+    
+    .nav-tabs .nav-link.active {
+      background-color: var(--bs-body-bg);
+      color: var(--bs-primary);
+      border-color: var(--bs-border-color) var(--bs-border-color) var(--bs-body-bg);
+    }
+    
+    .nav-tabs {
+      border-bottom-color: var(--bs-border-color);
+    }
+    
+    /* Text areas */
+    textarea.form-control {
+      background-color: var(--bs-body-bg) !important;
+      color: var(--bs-body-color) !important;
+    }
+  </style>
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h3>Supplier List</h3>
     <div>
@@ -40,7 +88,7 @@ if (!$result) {
   </div>
   <hr>
   <div class="table-responsive">
-    <table class="table table-bordered table-hover bg-white">
+    <table class="table table-bordered table-hover">
       <thead class="table-primary">
         <tr>
           <th>ID</th>
@@ -61,6 +109,8 @@ if (!$result) {
           <td><?= htmlspecialchars($row['email_address']) ?></td>
           <td>
             <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal"
+              data-category="<?= trim($row['category']) ?>"
+              data-business-type="<?= trim($row['business_type']) ?>"
               <?php foreach ($row as $key => $value): ?>
                 data-<?= htmlspecialchars(str_replace('_', '-', $key)) ?>="<?= htmlspecialchars($value) ?>"
               <?php endforeach; ?>>
@@ -109,6 +159,25 @@ if (!$result) {
 
 <script src="../assets/js/supplier-modals.js"></script>
 <script src="../assets/js/category-mapping.js"></script>
+
+<script>
+  $(document).ready(function() {
+    $('#editModal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      
+      // Set business type
+      var businessType = button.data('business-type');
+      $('#business-type').val(businessType);
+      
+      // Set category
+      var category = button.data('category');
+      $('#category').val(category);
+      
+      // Trigger change event to update any dependent fields
+      $('#business-type').trigger('change');
+    });
+  });
+</script>
 </body>
 </html>
 
