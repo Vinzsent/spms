@@ -1,4 +1,3 @@
-
 <form action="../actions/add_supplier.php" method="POST">
   <!-- Tab Navigation -->
   <ul class="nav nav-tabs" id="addSupplierTab" role="tablist">
@@ -23,35 +22,35 @@
     <div class="tab-pane fade show active" id="company" role="tabpanel">
       <div class="row g-2">
         <div class="col-md-8">
-          <label for="supplier-name" class="form-label">Supplier Name </label><span style="color:red;">*</span>
+          <label for="supplier-name" class="form-label">Supplier Name <span style="color: red">*</span></label>
           <input type="text" class="form-control" name="supplier_name" id="supplier-name" required>
         </div>
         <div class="col-md-4">
-          <label for="tin" class="form-label">TIN </label><span style="color:red;">*</span>
+          <label for="tin" class="form-label">TIN <span style="color: red;">*</span></label>
           <input type="text" class="form-control" name="tax_identification_number" id="tin">
         </div>
         <div class="col-md-8">
-          <label for="address" class="form-label">Full Address </label><span style="color:red;">*</span>
+          <label for="address" class="form-label">Full Address <span style="color: red;">*</span></label>
           <input type="text" class="form-control" name="address" id="address">
         </div>
         <div class="col-md-4">
-          <label for="province" class="form-label">Province </label><span style="color:red;">*</span>
+          <label for="province" class="form-label">Province <span style="color: red;">*</span></label>
           <select name="province" id="province" class="form-select" required>
             <option value="">-- Select Province --</option>
           </select>
         </div>
         <div class="col-md-4">
-          <label for="city" class="form-label">City / Municipality </label><span style="color:red;">*</span>
+          <label for="city" class="form-label">City / Municipality <span style="color: red;">*</span></label>
           <select name="city" id="city" class="form-select" required>
             <option value="">-- Select City --</option>
           </select>
         </div>
         <div class="col-md-4">
-          <label for="zip-code" class="form-label">ZIP Code </label><span style="color:red;">*</span>
+          <label for="zip-code" class="form-label">ZIP Code <span style="color: red;">*</span></label>
           <input type="text" class="form-control" value="8000" name="zip_code" id="zip-code" readonly>
         </div>
         <div class="col-md-4">
-          <label for="country" class="form-label">Country </label><span style="color:red;">*</span>
+          <label for="country" class="form-label">Country <span style="color: red;">*</span></label>
           <select name="country" id="country" class="form-select">
             <option value="">-- Select Country --</option>
             <option value="Philippines" selected>Philippines</option>
@@ -64,24 +63,24 @@
     <div class="tab-pane fade" id="contact" role="tabpanel">
       <div class="row g-2">
         <div class="col-md-8">
-          <label for="contact-person" class="form-label">Contact Person </label><span style="color:red;">*</span>
+          <label for="contact-person" class="form-label">Contact Person <span style="color: red;">*</span></label>
           <input type="text" class="form-control" name="contact_person" id="contact-person" required>
         </div>
         <div class="col-md-4">
-          <label for="contact-number" class="form-label">Contact Number </label><span style="color:red;">*</span>
+          <label for="contact-number" class="form-label">Contact Number <span style="color: red;">*</span></label>
           <input type="text" class="form-control" name="contact_number" id="contact-number">
         </div>
         <div class="col-md-4">
-          <label for="email-address" class="form-label">Email Address </label><span style="color:red;">*</span>
+          <label for="email-address" class="form-label">Email Address <span style="color: red;">*</span></label>
           <input type="email" class="form-control" name="email_address" id="email-address">
         </div>
         <div class="col-md-4">
-          <label for="fax-number" class="form-label">Fax Number </label><span style="color:red;">*</span>
+          <label for="fax-number" class="form-label">Fax Number <span style="color: red;">*</span></label>
           <input type="text" class="form-control" name="fax_number" id="fax-number">
         </div>
         <div class="col-md-4">
-          <label for="website" class="form-label">Website </label><span style="color:red;">*</span>
-          <input type="url" class="form-control" name="website" id="website">
+          <label for="website" class="form-label">Website</label>
+          <input type="text" class="form-control" name="website" id="website">
         </div>
       </div>
     </div>
@@ -90,7 +89,7 @@
     <div class="tab-pane fade" id="business" role="tabpanel">
       <div class="row g-2">
         <div class="col-md-6">
-          <label for="business-type" class="form-label">Business Type </label><span style="color:red;">*</span>
+          <label for="business-type" class="form-label">Business Type <span style="color: red;">*</span></label>
           <select name="business_type" id="business-type" class="form-select">
             <option value="">-- Select Business Type --</option>
             <option value="IT Equipment Supplier">IT Equipment Supplier</option>
@@ -110,13 +109,13 @@
           </select>
         </div>
         <div class="col-md-6">
-          <label for="category" class="form-label">Category </label><span style="color:red;">*</span>
-          <select name="product_category" id="category" class="form-select">
+          <label for="product-category" class="form-label">Category <span style="color: red;">*</span></label>
+          <select name="category" id="productcategory" class="form-select">
             <option value="">-- Select Category --</option>
           </select>
         </div>
         <div class="col-md-6">
-          <label for="payment-terms" class="form-label">Payment Terms</label>
+          <label for="payment-terms" class="form-label">Payment Terms <span style="color: red;">*</span></label>
           <input type="text" class="form-control" name="payment_terms" id="payment-terms">
         </div>
       </div>
@@ -126,11 +125,11 @@
     <div class="tab-pane fade" id="extra" role="tabpanel">
       <div class="row g-2">
         <div class="col-md-6">
-          <label for="date-registered" class="form-label">Date Registered </label><span style="color:red;">*</span>
+          <label for="date-registered" class="form-label">Date Registered <span style="color: red;">*</span></label>
           <input type="date" class="form-control" name="date_registered" id="date-registered">
         </div>
         <div class="col-md-6">
-          <label for="status" class="form-label">Status </label><span style="color:red;">*</span>
+          <label for="status" class="form-label">Status <span style="color: red;">*</span></label>
           <select name="status" id="status" class="form-select">
             <option value="">-- Status --</option>
             <option value="Active">Active</option>
@@ -148,122 +147,6 @@
 
   <!-- Submit Button -->
   <div class="mt-3">
-    <button type="submit" class="btn btn-success w-100">💾 Save Supplier Information</button>
+    <button type="submit" class="btn btn-success w-100">💾 Save Supplier</button>
   </div>
 </form>
-
-<script>
-// Category mappings based on business type
-const categoryMappings = {
-  "IT Equipment Supplier": [
-    "ICT Equipment and Devices",
-    "Subcription, License and Software Services"
-  ],
-  "Office Equipment Vendor": [
-    "Office Equipment",
-    "Office Supplies and Materials"
-  ],
-  "Air Conditioning Equipment Supplier": [
-    "Air Conditioning Units and Cooling Systems",
-  ],
-  "Equipment Maintenance Provider": [
-    "Repairs and Maintenance – Equipment and Devices",
-  ],
-  "Furniture Supplier": [
-    "Furniture and Fixtures"
-  ],
-  "Laboratory Equipment Supplier": [
-    "Laboratory Equipment",
-    "Lab Chemicals and Reagents"
-  ],
-  "Construction and Renovation Contractor": [
-    "Contruction Materials",
-    "Renovation Services"
-  ],
-  "Machinery and Equipment Supplier": [
-    "Heavy Machinery",
-    "Production Equipment"
-  ],
-  "Janitorial Services": [
-    "Cleaning Supplies",
-    "Janitorial Services"
-  ],
-  "Educational Materials Supplier": [
-    "Books and Publications",
-    "Teaching Aids"
-  ],
-  "Medical Supplies Provider": [
-    "Medicines",
-    "Medical Equipment"
-  ],
-  "Printing Services": [
-    "Document Printing",
-    "Custom Printing"
-  ],
-  "Logistics and Delivery Services": [
-    "Freight Services",
-    "Courier Services"
-  ],
-  "Electrical Supplies Provider": [
-    "Electrical Components",
-    "Wiring and Cabling"
-  ]
-};
-
-// Add event listener for business type change
-document.getElementById('business-type').addEventListener('change', function() {
-  const categorySelect = document.getElementById('category');
-  categorySelect.innerHTML = '<option value="">-- Select Category --</option>';
-  
-  const selectedBusinessType = this.value;
-  const categories = categoryMappings[selectedBusinessType] || [];
-  
-  categories.forEach(category => {
-    const option = document.createElement('option');
-    option.value = category;
-    option.textContent = category;
-    categorySelect.appendChild(option);
-  });
-});
-</script>
-
-<script>
-$(document).ready(function() {
-  // Form submission handling
-  $('#addSupplierForm').on('submit', function(e) {
-    e.preventDefault();
-    
-    // Form validation
-    if (!this.checkValidity()) {
-      e.stopPropagation();
-      $(this).addClass('was-validated');
-      return;
-    }
-    
-    $.ajax({
-      url: $(this).attr('action'),
-      type: 'POST',
-      data: $(this).serialize(),
-      success: function(response) {
-        // Close modal
-        $('#addSupplierModal').modal('hide');
-        
-        // Show success message
-        alert('Supplier added successfully!');
-        
-        // Reload page to show new supplier
-        location.reload();
-      },
-      error: function(xhr, status, error) {
-        alert('Error adding supplier: ' + error);
-      }
-    });
-  });
-  
-  // Reset form when modal is closed
-  $('#addSupplierModal').on('hidden.bs.modal', function() {
-    $('#addSupplierForm')[0].reset();
-    $('#addSupplierForm').removeClass('was-validated');
-  });
-});
-</script>

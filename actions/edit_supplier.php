@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $zip_code = trim($_POST['zip_code']);
     $country = trim($_POST['country']);
     $business_type = trim($_POST['business_type']);
-    $product_category = trim($_POST['product_category']);
+    $category = trim($_POST['category']);
     $payment_terms = trim($_POST['payment_terms']);
     $tin = trim($_POST['tax_identification_number']);
     $date_registered = trim($_POST['date_registered']);
@@ -27,13 +27,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Prepare SQL query using bind_param to prevent SQL injection
     $stmt = $conn->prepare("UPDATE supplier SET 
         supplier_name=?, contact_person=?, contact_number=?, email_address=?, fax_number=?, website=?, address=?, 
-        city=?, province=?, zip_code=?, country=?, business_type=?, product_category=?, payment_terms=?, 
+        city=?, province=?, zip_code=?, country=?, business_type=?, category=?, payment_terms=?, 
         tax_identification_number=?, date_registered=?, status=?, notes=? 
         WHERE supplier_id=?");
 
     $stmt->bind_param("ssssssssssssssssssi",
         $supplier_name, $contact_person, $contact_number, $email_address, $fax_number, $website, $address,
-        $city, $province, $zip_code, $country, $business_type, $product_category, $payment_terms,
+        $city, $province, $zip_code, $country, $business_type, $category, $payment_terms,
         $tin, $date_registered, $status, $notes, $id
     );
 

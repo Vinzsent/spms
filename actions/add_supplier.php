@@ -10,12 +10,13 @@ if (!isset($_SESSION['user'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    error_log('Form submitted with data: ' . print_r($_POST, true));
     try {
         $supplier_name            = trim($_POST['supplier_name'] ?? '');
         $contact_person           = trim($_POST['contact_person'] ?? '');
         $contact_number           = trim($_POST['contact_number'] ?? '');
         $business_type            = trim($_POST['business_type'] ?? '');
-        $product_category         = trim($_POST['product_category'] ?? '');
+        $category                 = trim($_POST['category'] ?? '');
         $payment_terms            = trim($_POST['payment_terms'] ?? '');
         $date_registered          = $_POST['date_registered'] ?? null;
         $email_address            = trim($_POST['email_address'] ?? '');
@@ -34,10 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $date_created = date('Y-m-d H:i:s');
 
         error_log("Business Type: " . $_POST['business_type']);
-        error_log("Product Category: " . $_POST['product_category']);
+        error_log("Product Category: " . $_POST['category']);
 
         // Validation
-        if (empty($business_type || empty($product_category)) ){
+        if (empty($business_type) || empty($category)) {
             throw new Exception("Business type and product category are required.");
         }
 
@@ -46,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             INSERT INTO supplier (
                 supplier_name, contact_person, contact_number, email_address,
                 fax_number, website, address, city, province, zip_code, country,
-                business_type, product_category, payment_terms, tax_identification_number,
+                business_type, category, payment_terms, tax_identification_number,
                 date_registered, status, created_by, date_created, notes
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
@@ -59,13 +60,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "ssssssssssssssssssss",
             $supplier_name, $contact_person, $contact_number, $email_address,
             $fax_number, $website, $address, $city, $province, $zip_code, $country,
-            $business_type, $product_category, $payment_terms, $tax_identification_number,
+            $business_type, $category, $payment_terms, $tax_identification_number,
             $date_registered, $status, $created_by, $date_created, $notes
         );
 
         if (!$stmt->execute()) {
+            error_log('Database error: ' . $stmt->error);
             throw new Exception("Execute failed: " . $stmt->error);
         }
+        error_log('Supplier added successfully');
 
         $_SESSION['message'] = "Supplier added successfully";
         
