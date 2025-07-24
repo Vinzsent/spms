@@ -4,10 +4,7 @@ include '../includes/auth.php';
 include '../includes/db.php';
 include '../includes/header.php';
 
-$sql = "SELECT st.*, s.supplier_name 
-        FROM supplier_transaction st
-        JOIN supplier s ON s.supplier_id = st.supplier_id
-        ORDER BY st.date_received DESC";
+$sql = "SELECT * FROM supply_request";
 $result = $conn->query($sql);
 ?>
 
@@ -75,16 +72,16 @@ $result = $conn->query($sql);
       <table id="transactionsTable" class="table table-bordered table-striped">
         <thead>
           <tr>
-            <th>Date Received</th>
-            <th>Invoice No.</th>
-            <th>Sales Type</th>
-            <th>Supplier Name</th>
-            <th>Category</th>
-            <th>Item Description</th>
-            <th>Quantity</th>
+            <th>Date Requested</th>
+            <th>Date Needed</th>
+            <th>Department</th>
+            <th>Purpose</th>
+            <th>Unit Cost</th>
+            <th>Total Cost</th>
+            <th>Request Quantity</th>
             <th>Unit</th>
-            <th>Unit Price</th>
-            <th>Amount</th>
+            <th>Description</th>
+            <th>Quality Issued</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -95,28 +92,29 @@ $result = $conn->query($sql);
             $total_sum += $row['amount'];
           ?>
             <tr>
-              <td><?= $row['date_received'] ?></td>
-              <td><?= htmlspecialchars($row['invoice_no']) ?></td>
-              <td><?= $row['sales_type'] ?></td>
-              <td><?= htmlspecialchars($row['supplier_name']) ?></td>
-              <td><?= htmlspecialchars($row['category']) ?></td>
-              <td><?= htmlspecialchars($row['item_description']) ?></td>
-              <td><?= $row['quantity'] ?></td>
+              <td><?= $row['date_requested'] ?></td>
+              <td><?= htmlspecialchars($row['date_needed']) ?></td>
+              <td><?= $row['department'] ?></td>
+              <td><?= htmlspecialchars($row['purpse']) ?></td>
+              <td>₱<?= number_format($row['unit_cost'], 2) ?></td>
+              <td>₱<?= number_format($row['total_cost'], 2) ?></td>
+              <td><?= $row['request_quantity'] ?></td>
               <td><?= $row['unit'] ?></td>
-              <td>₱<?= number_format($row['unit_price'], 2) ?></td>
-              <td>₱<?= number_format($row['amount'], 2) ?></td>
-              <td>
+              <td><?= $row['description'] ?></td>
+              <td><?= $row['quality_issued'] ?></td>
                 <button
                   class="btn btn-sm btn-warning editBtn"
-                  data-id="<?= $row['transaction_id'] ?>"
-                  data-date="<?= htmlspecialchars($row['date_received']) ?>"
-                  data-invoice="<?= htmlspecialchars($row['invoice_no']) ?>"
-                  data-sales="<?= trim($row['sales_type']) ?>"
-                  data-category="<?= trim($row['category']) ?>"
-                  data-description="<?= htmlspecialchars($row['item_description']) ?>"
-                  data-quantity="<?= $row['quantity'] ?>"
-                  data-unit="<?= $row['unit'] ?>"
-                  data-price="<?= $row['unit_price'] ?>"
+                  data-id="<?= $row['request_id'] ?>"
+                  data-date="<?= htmlspecialchars($row['date_requested']) ?>"
+                  data-invoice="<?= htmlspecialchars($row['date_needed']) ?>"
+                  data-sales="<?= trim($row['department']) ?>"
+                  data-category="<?= trim($row['purpose']) ?>"
+                  data-description="<?= htmlspecialchars($row['unit_cost']) ?>"
+                  data-quantity="<?= $row['total_cost'] ?>"
+                  data-unit="<?= $row['request_quantity'] ?>"
+                  data-price="<?= $row['unit'] ?>"
+                  data-description="<?= $row['description'] ?>"
+                  data-quality_issued="<?= $row['quality_issued'] ?>"
                   data-bs-toggle="modal"
                   data-bs-target="#editTransactionModal">
                   Edit
