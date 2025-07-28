@@ -1,6 +1,23 @@
 <?php
 $pageTitle = 'User Management';
 include '../includes/auth.php';
+
+// Check if admin is verified (password was entered correctly)
+if (!isset($_SESSION['admin_verified']) || $_SESSION['admin_verified'] !== true) {
+    $_SESSION['error'] = 'Admin access required. Please enter the admin password.';
+    header("Location: ../dashboard.php");
+    exit;
+}
+
+// Check if admin session is still valid (30 minutes timeout)
+if (isset($_SESSION['admin_verified_time']) && (time() - $_SESSION['admin_verified_time']) > 1800) {
+    unset($_SESSION['admin_verified']);
+    unset($_SESSION['admin_verified_time']);
+    $_SESSION['error'] = 'Admin session expired. Please re-enter the password.';
+    header("Location: ../dashboard.php");
+    exit;
+}
+
 include '../includes/db.php';
 include '../includes/header.php';
 
@@ -68,7 +85,7 @@ if (isset($_SESSION['error'])) {
       <thead class="table-primary">
         <tr>
           <th>Name</th>
-          <th>User Type</th>
+          <th>Position</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -76,7 +93,7 @@ if (isset($_SESSION['error'])) {
         <?php while ($row = $result->fetch_assoc()): ?>
         <tr>
           <td><?= htmlspecialchars($row['first_name'] . ' ' . $row['last_name']) ?></td>
-          <td><?= htmlspecialchars($row['user_type']) ?></td>
+          <td><?= htmlspecialchars(strtoupper($row['user_type'])) ?></td>
           <td>
             <button class="btn btn-sm btn-warning"
               onclick="openEditModal(
@@ -90,6 +107,19 @@ if (isset($_SESSION['error'])) {
                 '<?= addslashes($row['user_type']) ?>',
                 '<?= addslashes($row['email']) ?>'
               )">✏️ Edit</button>
+
+            <button type="submit" class="btn btn-sm btn-danger"
+              onclick="openDeleteModal(
+                <?= $row['id'] ?>,
+                '<?= addslashes($row['title']) ?>',
+                '<?= addslashes($row['first_name']) ?>',
+                '<?= addslashes($row['middle_name']) ?>',
+                '<?= addslashes($row['last_name']) ?>',
+                '<?= addslashes($row['suffix']) ?>',
+                '<?= addslashes($row['academic_title']) ?>',
+                '<?= addslashes ($row['user_type']) ?>',
+                '<?= addslashes($row['email']) ?>'
+              )">❌ Delete</button>
           </td>
         </tr>
         <?php endwhile; ?>
@@ -110,13 +140,24 @@ if (isset($_SESSION['error'])) {
 </div>
 
 <!-- Edit User Modal -->
-<div id="editUserModal" class="modal-custom">
+<div id="editUser" class="modal-custom">
   <div class="modal-content-custom shadow">
     <div class="d-flex justify-content-between mb-3">
       <h5 class="mb-0">Edit User</h5>
-      <button class="btn-close" onclick="document.getElementById('editUserModal').style.display='none'"></button>
+      <button class="btn-close" onclick="document.getElementById('editUser').style.display='none'"></button>
     </div>
-    <form action="../actions/edit_user.php" method="POST">
+    <?php include '../modals/edit_user.php'; ?>
+  </div>
+</div>
+
+<!-- Delete User Modal -->
+<div id="deleteUser" class="modal-custom">
+  <div class="modal-content-custom shadow">
+    <div class="d-flex justify-content-between mb-3">
+      <h5 class="mb-0">Delete User</h5>
+      <button class="btn-close" onclick="document.getElementById('deleteUser').style.display='none'"></button>
+    </div>
+    <?php include '../modals/delete_user.php'; ?>
   </div>
 </div>
 
@@ -141,6 +182,11 @@ function openEditModal(id, title, firstName, middleName, lastName, suffix, acade
   
   // Show the edit modal
   document.getElementById('editUser').style.display = 'block';
+}
+
+function openDeleteModal(id) {
+  document.getElementById('delete-id').value = id;
+  document.getElementById('deleteUser').style.display = 'block';
 }
 
 // Close modals with Escape key

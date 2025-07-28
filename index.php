@@ -18,6 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user'] = $user;
             header("Location: dashboard.php");
             exit;
+            if ($user['user_type'] == 'Staff') {
+              header("Location: dashboard.php");
+              exit;
+          }
         } else {
             $error = "Incorrect password.";
         }
@@ -39,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="col-md-5">
         <div class="card shadow">
           <div class="card-body">
-            <h4 class="card-title mb-4 text-center">Admin Login</h4>
+            <h4 class="card-title mb-4 text-center">Login</h4>
             <form method="POST">
               <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
@@ -53,10 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="submit" class="btn btn-primary">Login</button>
               </div>
             </form>
-            <?php if (!empty($error)): ?>
-              <p class="mt-3 text-danger text-center"><?= $error ?></p>
-            <?php endif; ?>
-          </div>
         </div>
       </div>
     </div>

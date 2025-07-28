@@ -4,6 +4,11 @@ include '../includes/auth.php';
 include '../includes/db.php';
 include '../includes/header.php';
 
+
+$user_type = $_SESSION['user_type']?? '';
+
+$dashboard_link = ($user_type == 'Admin') ? '../admin_dashboard.php' : '../dashboard.php';
+
 $sql = "SELECT st.*, s.supplier_name 
         FROM supplier_transaction st
         JOIN supplier s ON s.supplier_id = st.supplier_id
@@ -11,12 +16,14 @@ $sql = "SELECT st.*, s.supplier_name
 $result = $conn->query($sql);
 ?>
 
+
+
 <?php include('../includes/navbar.php'); ?>
   <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h3>Supplier Transactions</h3>
+      <h3>Recieved Items</h3>
       <div>
-        <a href="../dashboard.php" class="btn btn-secondary me-2">
+        <a href="<?= $dashboard_link ?>" class="btn btn-secondary me-2">
           <i class="fas fa-arrow-left"></i> Back to Dashboard
         </a>
         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTransactionModal">+ New Transaction</button>
@@ -25,14 +32,19 @@ $result = $conn->query($sql);
     <hr>
     <!-- Filter Row -->
     <div class="row align-items-end mb-4 g-2">
-      <div class="col-md-3">
+      <div class="col-md-2">
         <label for="dtSearch" class="form-label">Search</label>
         <input type="search" id="dtSearch" class="form-control" placeholder="Search...">
       </div>
 
-      <div class="col-md-3">
-        <label for="filterDate" class="form-label">Filter by Date</label>
-        <input type="date" id="filterDate" class="form-control">
+      <div class="col-md-2">
+        <label for="filterDateStart" class="form-label">Date Range (From)</label>
+        <input type="date" id="filterDateStart" class="form-control">
+      </div>
+
+      <div class="col-md-2">
+        <label for="filterDateEnd" class="form-label">Date Range (To)</label>
+        <input type="date" id="filterDateEnd" class="form-control">
       </div>
 
       <div class="col-md-4">
@@ -67,6 +79,20 @@ $result = $conn->query($sql);
       <div class="col-md-2">
         <label class="form-label d-block">Export</label>
         <div id="exportContainer"></div>
+      </div>
+    </div>
+    
+    <!-- Quick Date Filters -->
+    <div class="row mb-3">
+      <div class="col-12">
+        <label class="form-label">Quick Date Filters:</label>
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-outline-primary btn-sm" id="currentMonth">Current Month</button>
+          <button type="button" class="btn btn-outline-primary btn-sm" id="currentYear">Current Year</button>
+          <button type="button" class="btn btn-outline-primary btn-sm" id="lastMonth">Last Month</button>
+          <button type="button" class="btn btn-outline-primary btn-sm" id="lastYear">Last Year</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" id="clearDateFilter">Clear Date Filter</button>
+        </div>
       </div>
     </div>
     <hr>
@@ -275,9 +301,107 @@ $result = $conn->query($sql);
         updateGrandTotal(table);
       });
 
-      $('#filterDate').on('change', function() {
-        const val = this.value;
-        table.column(0).search(val ? '^' + val : '', true, false).draw();
+      // Date range filtering function
+      function filterByDateRange() {
+        const startDate = $('#filterDateStart').val();
+        const endDate = $('#filterDateEnd').val();
+        
+        // Custom filtering function for date range
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+          const dateReceived = data[0]; // Date Received column
+          
+          if (!startDate && !endDate) {
+            return true; // No filter applied
+          }
+          
+          const transactionDate = new Date(dateReceived);
+          
+          if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            return transactionDate >= start && transactionDate <= end;
+          } else if (startDate) {
+            const start = new Date(startDate);
+            return transactionDate >= start;
+          } else if (endDate) {
+            const end = new Date(endDate);
+            return transactionDate <= end;
+          }
+          
+          return true;
+        });
+        
+        table.draw();
+        updateGrandTotal(table);
+      }
+
+      // Date range filter event handlers
+      $('#filterDateStart, #filterDateEnd').on('change', function() {
+        // Clear previous custom filters
+        $.fn.dataTable.ext.search.pop();
+        filterByDateRange();
+      });
+
+      // Quick date filter buttons
+      $('#currentMonth').on('click', function() {
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        
+        $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
+        $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
+        
+        // Clear previous custom filters
+        $.fn.dataTable.ext.search.pop();
+        filterByDateRange();
+      });
+
+      $('#currentYear').on('click', function() {
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), 0, 1);
+        const lastDay = new Date(now.getFullYear(), 11, 31);
+        
+        $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
+        $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
+        
+        // Clear previous custom filters
+        $.fn.dataTable.ext.search.pop();
+        filterByDateRange();
+      });
+
+      $('#lastMonth').on('click', function() {
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
+        
+        $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
+        $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
+        
+        // Clear previous custom filters
+        $.fn.dataTable.ext.search.pop();
+        filterByDateRange();
+      });
+
+      $('#lastYear').on('click', function() {
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear() - 1, 0, 1);
+        const lastDay = new Date(now.getFullYear() - 1, 11, 31);
+        
+        $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
+        $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
+        
+        // Clear previous custom filters
+        $.fn.dataTable.ext.search.pop();
+        filterByDateRange();
+      });
+
+      $('#clearDateFilter').on('click', function() {
+        $('#filterDateStart').val('');
+        $('#filterDateEnd').val('');
+        
+        // Clear previous custom filters
+        $.fn.dataTable.ext.search.pop();
+        table.draw();
         updateGrandTotal(table);
       });
 

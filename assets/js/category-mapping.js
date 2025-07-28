@@ -1,26 +1,4 @@
-// category-mapping.js
-
-// Function to populate category options based on business type
-function populateCategoryOptions(businessType, categorySelectId) {
-  const categorySelect = document.getElementById(categorySelectId);
-  if (!categorySelect) return;
-
-  // Clear existing options
-  categorySelect.innerHTML = '<option value="">-- Select Category --</option>';
-
-  // Get categories for the selected business type
-  const categories = categoryMap[businessType] || [];
-  
-  // Add new options
-  categories.forEach(category => {
-    const option = document.createElement('option');
-    option.value = category;
-    option.textContent = category;
-    categorySelect.appendChild(option);
-  });
-}
-
-// Category mapping object
+// Category mapping for both add and edit supplier modals
 const categoryMap = {
   "IT Equipment Supplier": [
     "ICT Equipment and Devices",
@@ -77,30 +55,80 @@ const categoryMap = {
   ]
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Function to initialize business type change handlers for a specific form
-  function initBusinessTypeHandlers(prefix = '') {
-    const businessTypeId = prefix ? `${prefix}-business-type` : 'business-type';
-    const categoryId = prefix === 'edit' ? 'edit-product-category' : 'productcategory';
-    
-    const businessTypeSelect = document.getElementById(businessTypeId);
-    const categorySelect = document.getElementById(categoryId);
+// Function to populate category options based on business type
+function populateCategoryOptions(businessType, categorySelectId = 'productcategory', selectedCategory = '') {
+  const categorySelect = document.getElementById(categorySelectId);
+  if (!categorySelect) return;
 
-    if (businessTypeSelect && categorySelect) {
-      businessTypeSelect.addEventListener('change', function() {
-        populateCategoryOptions(this.value, categoryId);
+  // Clear existing options
+  categorySelect.innerHTML = '<option value="">-- Select Category --</option>';
+
+  // Get categories for the selected business type
+  const categories = categoryMap[businessType] || [];
+
+  // Add new options
+  categories.forEach(category => {
+    const option = document.createElement('option');
+    option.value = category;
+    option.textContent = category;
+    if (category === selectedCategory) option.selected = true;
+    categorySelect.appendChild(option);
+  });
+}
+
+// Initialize when the document is ready
+document.addEventListener('DOMContentLoaded', () => {
+  // Handle Add Supplier Modal
+  const addBusinessTypeSelect = document.getElementById('business-type');
+  const addCategorySelect = document.getElementById('productcategory');
+  const addModal = document.getElementById('addModal');
+  
+  if (addBusinessTypeSelect && addCategorySelect) {
+    // Add change event listener for Add modal
+    addBusinessTypeSelect.addEventListener('change', function() {
+      populateCategoryOptions(this.value, 'productcategory');
+    });
+    
+    // Handle when Add modal is shown
+    if (addModal) {
+      addModal.addEventListener('show.bs.modal', function() {
+        if (addBusinessTypeSelect.value) {
+          populateCategoryOptions(addBusinessTypeSelect.value, 'productcategory');
+        } else {
+          populateCategoryOptions('', 'productcategory');
+        }
       });
-      
-      // Trigger change event if business type is already selected
-      if (businessTypeSelect.value) {
-        businessTypeSelect.dispatchEvent(new Event('change'));
-      }
     }
   }
 
-  // Initialize handlers for add modal
-  initBusinessTypeHandlers('add');
+  // Handle Edit Supplier Modal
+  const editBusinessTypeSelect = document.getElementById('edit-business-type');
+  const editCategorySelect = document.getElementById('edit-category');
+  const editModal = document.getElementById('editModal');
   
-  // Initialize handlers for edit modal
-  initBusinessTypeHandlers('edit');
+  if (editBusinessTypeSelect && editCategorySelect) {
+    // Add change event listener for Edit modal
+    editBusinessTypeSelect.addEventListener('change', function() {
+      populateCategoryOptions(this.value, 'edit-category');
+    });
+    
+    // Handle when Edit modal is shown
+    if (editModal) {
+      editModal.addEventListener('show.bs.modal', function(event) {
+        // Get the button that triggered the modal
+        const button = event.relatedTarget;
+        if (!button) return;
+        
+        // Get the current business type and category from data attributes
+        const businessType = button.getAttribute('data-business-type') || '';
+        const category = button.getAttribute('data-category') || '';
+        
+        // Set the business type value
+        editBusinessTypeSelect.value = businessType;
+        
+        // Populate and select the category
+        populateCategoryOptions(businessType, 'edit-category', category);
+      });
+    }
+  }
 });

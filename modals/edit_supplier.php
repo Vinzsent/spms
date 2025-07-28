@@ -93,8 +93,8 @@
   <div class="tab-pane fade" id="edit-business" role="tabpanel" aria-labelledby="edit-business-tab">
     <div class="row g-2">
       <div class="col-md-6">
-        <label for="business-type" class="form-label">Business Type</label>
-        <select id="business-type" name="business_type" class="form-select">
+        <label for="edit-business-type" class="form-label">Business Type</label>
+        <select id="edit-business-type" name="business_type" class="form-select">
           <option value="">-- Select Business Type --</option>
           <option value="IT Equipment Supplier">IT Equipment Supplier</option>
           <option value="Office Equipment Vendor">Office Equipment Vendor</option>
@@ -114,8 +114,8 @@
       </div>
 
       <div class="col-md-6">
-        <label for="category" class="form-label">Category</label>
-        <select id="category" name="category" class="form-select">
+        <label for="edit-category" class="form-label">Category</label>
+        <select id="edit-category" name="category" class="form-select">
           <option value="">-- Select Category --</option>
         </select>
       </div>

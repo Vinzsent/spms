@@ -7,12 +7,12 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
   <div class="modal-dialog modal-lg">
     <form class="modal-content" action="../actions/save_transaction.php" method="POST">
       <div class="modal-header">
-        <h5 class="modal-title">New Supplier Transaction</h5>
+        <h5 class="modal-title">New Supply Request</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body row g-3">
         <div class="col-md-4">
-          <label>Date Received</label>
+          <label>Quantity Requested</label>
           <input type="date" name="date_received" class="form-control" required>
         </div>
         <div class="col-md-4">
@@ -65,12 +65,12 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
           </select>
         </div>
         <div class="col-md-12">
-		  <label>Item Description</label>
+		  <label>Description</label>
 		  <textarea name="item_description" class="form-control" rows="3" required></textarea>
 		</div>
 
         <div class="col-md-3">
-          <label>Quantity</label>
+          <label>Quantity Issued</label>
           <input type="number" name="quantity" class="form-control" required>
         </div>
         <div class="col-md-3">
@@ -125,17 +125,17 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
 </div>
 
         <div class="col-md-3">
-          <label>Unit Price</label>
+          <label>Unit Cost</label>
           <input type="number" name="unit_price" step="0.01" class="form-control" required>
         </div>
 		<div class="col-md-3">
-  <label>Total</label>
+  <label>Total Cost</label>
   <input type="text" id="addTotalAmount" class="form-control" readonly>
 </div>
 
       </div>
       <div class="modal-footer">
-        <button type="submit" class="btn btn-primary">Save Transaction</button>
+        <button type="submit" class="btn btn-primary">Save Request</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
       </div>
     </form>
