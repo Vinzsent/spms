@@ -22,14 +22,21 @@ if (isset($_SESSION['error'])) {
     unset($_SESSION['error']);
 }
 ?>
+<style>
+  .card {
+    height: 250px; /* Set your preferred fixed height */
+    overflow-y: auto;
+    background-color: green;
+}
+</style>
 
 <div class="container">
-  <h2 class="mb-4 text-center mt-5">Dashboard</h2>
+  <h2 class="mb-4 text-center mt-5">Dashboard Menu</h2>
   <div class="row g-4">
     <div class="col-md-4">
       <div class="card text-white bg-dark">
         <div class="card-body">
-          <h5 class="card-title text-center">Supplier</h5>
+          <h3 class="card-title text-center">Supplier</h3>
           <p class="card-text">Register a new supplier into the system.</p>
           <a href="pages/suppliers.php" class="btn btn-light">Go</a>
         </div>
@@ -39,7 +46,7 @@ if (isset($_SESSION['error'])) {
     <div class="col-md-4">
       <div class="card text-white bg-primary">
         <div class="card-body">
-          <h5 class="card-title text-center">Recieved Items</h5>
+          <h3 class="card-title text-center">Recieved Items</h3>
           <p class="card-text">Record new supplier transactions.</p>
           <a href="pages/transaction_list.php" class="btn btn-light">Go</a>
         </div>
@@ -50,18 +57,107 @@ if (isset($_SESSION['error'])) {
     <div class="col-md-4">
       <div class="card text-white bg-success">
         <div class="card-body">
-          <h5 class="card-title text-center">Supply Requisition/Issuance</h5>
-          <p class="card-text">Manage request and services details in the system.</p>
+          <h3 class="card-title text-center">Supply Requisition/Issuance</h3>
+          <p class="card-text">Allows users to request assets, supplies, or materials, and lets managers approve, reject, or track each request.</p>
           <a href="pages/supply_request.php" class="btn btn-light">Go</a>
         </div>
       </div>
     </div>
 
+    <!-- Puchase Card -->
+    <div class="col-md-4">
+      <div class="card text-black bg-warning">
+        <div class="card-body">
+          <h3 class="card-title text-center">Procurement/Aquisition</h3>
+          <p class="card-text">Records purchased items with details like supplier, cost, and receipt, and marks them as officially received into the system.</p>
+          <a href="pages/supply_request.php" class="btn btn-light">Go</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inventory Card -->
+    <div class="col-md-4">
+      <div class="card text-white bg-info">
+        <div class="card-body">
+          <h3 class="card-title text-center">Inventory Supplies</h3>
+          <p class="card-text">Monitors real-time stock levels of supplies and materials, with stock-in/out logs and alerts for low inventory.</p>
+          <a href="pages/supply_request.php" class="btn btn-light">Go</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Asset Registration Card -->
+    <div class="col-md-4">
+      <div class="card text-white bg-dark">
+        <div class="card-body">
+          <h3 class="card-title text-center">Asset Registration</h3>
+          <p class="card-text">Registers acquired assets with details such as item specs, value, documents, and auto-generated asset tags or barcodes.</p>
+          <a href="pages/supply_request.php" class="btn btn-light">Go</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assignment/Issuance Card -->
+    <div class="col-md-4">
+      <div class="card text-white bg-primary">
+        <div class="card-body">
+          <h3 class="card-title text-center">Assignment/Issuance</h3>
+          <p class="card-text">Manages the assignment of assets to users and departments, and handles issuance of supplies and materials with quantity logs.</p>
+          <a href="pages/supply_request.php" class="btn btn-light">Go</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Maintenance Module Card -->
+    <div class="col-md-4">
+      <div class="card text-white bg-success">
+        <div class="card-body">
+          <h3 class="card-title text-center">Maintenance</h3>
+          <p class="card-text">Schedules and logs maintenance or repairs for assets, keeping a record of service history and associated costs.</p>
+          <a href="pages/supply_request.php" class="btn btn-light">Go</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Audit Module Card -->
+    <div class="col-md-4">
+      <div class="card text-dark bg-warning">
+        <div class="card-body">
+          <h3 class="card-title text-center">Audit</h3>
+          <p class="card-text">Supports periodic inventory checks, comparing system data with actual physical counts for assets and supplies.</p>
+          <a href="pages/supply_request.php" class="btn btn-light">Go</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Disposal Module Card -->
+    <div class="col-md-4">
+      <div class="card text-white bg-info">
+        <div class="card-body">
+          <h3 class="card-title text-center">Disposal</h3>
+          <p class="card-text">Handles the disposal process of obsolete, broken, or unused items with approval workflows and reason tracking.</p>
+          <a href="pages/supply_request.php" class="btn btn-light">Go</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reports Module Card -->
+    <div class="col-md-4">
+      <div class="card text-white bg-dark">
+        <div class="card-body">
+          <h3 class="card-title text-center">Reports</h3>
+          <p class="card-text">Generates system-wide reports such as requisition history, inventory levels, maintenance logs, and disposal summaries.</p>
+          <a href="pages/supply_request.php" class="btn btn-light">Go</a>
+        </div>
+      </div>
+    </div>
+    
+
     <!-- Settings Card -->
     <div class="col-md-4">
       <div class="card text-white bg-danger">
         <div class="card-body">
-          <h5 class="card-title text-center">Settings</h5>
+          <h3 class="card-title text-center">Settings</h3>
           <p class="card-text">Manage system settings and user preferences. Admin only</p>
           <button onclick="showPasswordModal()" class="btn btn-light">Go</button>
         </div>

@@ -54,11 +54,14 @@ $result = $conn->query($sql);
           <optgroup label="Capital Outlay (CO)">
             <option value="ICT Equipment and Devices">ICT Equipment and Devices</option>
             <option value="Office Equipment">Office Equipment</option>
+            <option value="Office Supplies and Materials">Office Supplies and Materials</option>
             <option value="Air Conditioning Units and Cooling Systems">Air Conditioning Units and Cooling Systems</option>
             <option value="Furniture and Fixtures">Furniture and Fixtures</option>
             <option value="Laboratory Equipment">Laboratory Equipment</option>
             <option value="School Building Improvements">School Building Improvements</option>
             <option value="Other Machinery and Equipment">Other Machinery and Equipment</option>
+            <option value="Subscription, License, and Software Services">Subscription, License, and Software Services</option>
+            <option value="Furniture and Fixtures">Furniture and Fixtures</option>
           </optgroup>
           <optgroup label="Maintenance and Other Operating Expenses (MOOE)">
             <option value="Office Supplies and Materials">Office Supplies and Materials</option>
@@ -72,6 +75,9 @@ $result = $conn->query($sql);
             <option value="Subscription, License, and Software Services">Subscription, License, and Software Services</option>
             <option value="Utilities and Facility Services">Utilities and Facility Services</option>
             <option value="Transportation or Delivery Services">Transportation or Delivery Services</option>
+            <option value="Construction Materials">Construction Materials</option>
+            <option value="Renovation Services">Renovation Services</option>
+            <option value="Repairs and Maintenance – Equipment and Devices">Repairs and Maintenance – Equipment and Devices</option>
           </optgroup>
         </select>
       </div>

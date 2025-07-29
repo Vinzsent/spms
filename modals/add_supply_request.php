@@ -1,269 +1,195 @@
+<?php
+$suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER BY supplier_name ASC");
+?>
 
-<form action="../actions/add_supplier.php" method="POST">
-  <!-- Tab Navigation -->
-  <ul class="nav nav-tabs" id="addSupplierTab" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="company-tab" data-bs-toggle="tab" data-bs-target="#company" type="button" role="tab">Company Info</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab">Contact</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="business-tab" data-bs-toggle="tab" data-bs-target="#business" type="button" role="tab">Business</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="extra-tab" data-bs-toggle="tab" data-bs-target="#extra" type="button" role="tab">Additional Info</button>
-    </li>
-  </ul>
-
-  <!-- Tab Content -->
-  <div class="tab-content pt-3" id="addSupplierTabContent">
-
-    <!-- Company Info -->
-    <div class="tab-pane fade show active" id="company" role="tabpanel">
-      <div class="row g-2">
-        <div class="col-md-8">
-          <label for="supplier-name" class="form-label">Supplier Name </label><span style="color:red;">*</span>
-          <input type="text" class="form-control" name="supplier_name" id="supplier-name" required>
-        </div>
-        <div class="col-md-4">
-          <label for="tin" class="form-label">TIN </label><span style="color:red;">*</span>
-          <input type="text" class="form-control" name="tax_identification_number" id="tin">
-        </div>
-        <div class="col-md-8">
-          <label for="address" class="form-label">Full Address </label><span style="color:red;">*</span>
-          <input type="text" class="form-control" name="address" id="address">
-        </div>
-        <div class="col-md-4">
-          <label for="province" class="form-label">Province </label><span style="color:red;">*</span>
-          <select name="province" id="province" class="form-select" required>
-            <option value="">-- Select Province --</option>
-          </select>
-        </div>
-        <div class="col-md-4">
-          <label for="city" class="form-label">City / Municipality </label><span style="color:red;">*</span>
-          <select name="city" id="city" class="form-select" required>
-            <option value="">-- Select City --</option>
-          </select>
-        </div>
-        <div class="col-md-4">
-          <label for="zip-code" class="form-label">ZIP Code </label><span style="color:red;">*</span>
-          <input type="text" class="form-control" value="8000" name="zip_code" id="zip-code" readonly>
-        </div>
-        <div class="col-md-4">
-          <label for="country" class="form-label">Country </label><span style="color:red;">*</span>
-          <select name="country" id="country" class="form-select">
-            <option value="">-- Select Country --</option>
-            <option value="Philippines" selected>Philippines</option>
-          </select>
-        </div>
+<!-- Modal -->
+<div class="modal fade" id="addSupplyModal" tabindex="-1" aria-labelledby="transactionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <form class="modal-content" action="../actions/add_supply_request.php" method="POST">
+      <div class="modal-header">
+        <h5 class="modal-title">New Supply Request</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-    </div>
+      <div class="modal-body row g-3">
+        <div class="col-md-4">
+          <label>Date Requested</label>
+          <input type="date" name="date_requested" class="form-control" required>
+        </div>
 
-    <!-- Contact Tab -->
-    <div class="tab-pane fade" id="contact" role="tabpanel">
-      <div class="row g-2">
-        <div class="col-md-8">
-          <label for="contact-person" class="form-label">Contact Person </label><span style="color:red;">*</span>
-          <input type="text" class="form-control" name="contact_person" id="contact-person" required>
-        </div>
         <div class="col-md-4">
-          <label for="contact-number" class="form-label">Contact Number </label><span style="color:red;">*</span>
-          <input type="text" class="form-control" name="contact_number" id="contact-number">
+          <label>Date Needed</label>
+          <input type="date" name="date_needed" class="form-control" required>
         </div>
-        <div class="col-md-4">
-          <label for="email-address" class="form-label">Email Address </label><span style="color:red;">*</span>
-          <input type="email" class="form-control" name="email_address" id="email-address">
-        </div>
-        <div class="col-md-4">
-          <label for="fax-number" class="form-label">Fax Number </label><span style="color:red;">*</span>
-          <input type="text" class="form-control" name="fax_number" id="fax-number">
-        </div>
-        <div class="col-md-4">
-          <label for="website" class="form-label">Website </label><span style="color:red;">*</span>
-          <input type="url" class="form-control" name="website" id="website">
-        </div>
-      </div>
-    </div>
 
-    <!-- Business Tab -->
-    <div class="tab-pane fade" id="business" role="tabpanel">
-      <div class="row g-2">
-        <div class="col-md-6">
-          <label for="business-type" class="form-label">Business Type </label><span style="color:red;">*</span>
-          <select name="business_type" id="business-type" class="form-select">
-            <option value="">-- Select Business Type --</option>
-            <option value="IT Equipment Supplier">IT Equipment Supplier</option>
-            <option value="Office Equipment Vendor">Office Equipment Vendor</option>
-            <option value="Air Conditioning Equipment Supplier">Air Conditioning Equipment Supplier</option>
-            <option value="Equipment Maintenance Provider">Equipment Maintenance Provider</option>
-            <option value="Furniture Supplier">Furniture Supplier</option>
-            <option value="Laboratory Equipment Supplier">Laboratory Equipment Supplier</option>
-            <option value="Construction and Renovation Contractor">Construction and Renovation Contractor</option>
-            <option value="Machinery and Equipment Supplier">Machinery and Equipment Supplier</option>
-            <option value="Janitorial Services">Janitorial Services</option>
-            <option value="Educational Materials Supplier">Educational Materials Supplier</option>
-            <option value="Medical Supplies Provider">Medical Supplies Provider</option>
-            <option value="Printing Services">Printing Services</option>
-            <option value="Logistics and Delivery Services">Logistics and Delivery Services</option>
-            <option value="Electrical Supplies Provider">Electrical Supplies Provider</option>
+        <div class="col-md-4">
+          <label>Department/Unit</label>
+          <input type="text" name="department_unit" class="form-control" required>
+        </div>
+
+        <div class="col-md-4">
+          <label>Quality Issued</label>
+          <input type="text" name="quality_issued" class="form-control" required>
+        </div>
+
+        <div class="col-md-4">
+          <label>Purpose of the Request</label>
+          <textarea type="text" name="purpose" class="form-control row-3" required></textarea>
+        </div>
+
+        <div class="col-md-4">
+          <label>Sales Type</label>
+          <select name="sales_type" class="form-select" required>
+            <option value="">-- Select Purchased Type --</option>
+            <option value="Cash">Cash Purchased</option>
+            <option value="Credit">Credit Purchased</option>
           </select>
         </div>
+
         <div class="col-md-6">
-          <label for="category" class="form-label">Category </label><span style="color:red;">*</span>
-          <select name="product_category" id="category" class="form-select">
+          <label>Category</label>
+          <select name="category" class="form-select" required>
             <option value="">-- Select Category --</option>
+            <optgroup label="Capital Outlay (CO)">
+              <option>ICT Equipment and Devices</option>
+              <option>Office Equipment</option>
+              <option>Air Conditioning Units and Cooling Systems</option>
+              <option>Furniture and Fixtures</option>
+              <option>Laboratory Equipment</option>
+              <option>School Building Improvements</option>
+              <option>Other Machinery and Equipment</option>
+            </optgroup>
+            <optgroup label="Maintenance and Other Operating Expenses (MOOE)">
+              <option>Office Supplies and Materials</option>
+              <option>Instructional and Learning Materials</option>
+              <option>Janitorial and Sanitation Supplies</option>
+              <option>Repairs and Maintenance – Buildings and Facilities</option>
+              <option>Repairs and Maintenance – Equipment and Devices</option>
+              <option>Electrical and Lighting Supplies</option>
+              <option>Medical and First Aid Supplies</option>
+              <option>Printing and Reproduction Services</option>
+              <option>Subscription, License, and Software Services</option>
+              <option>Utilities and Facility Services</option>
+              <option>Transportation or Delivery Services</option>
+            </optgroup>
           </select>
         </div>
-        <div class="col-md-6">
-          <label for="payment-terms" class="form-label">Payment Terms</label>
-          <input type="text" class="form-control" name="payment_terms" id="payment-terms">
+        <div class="col-md-12">
+          <label>Description</label>
+          <textarea name="request_description" class="form-control" rows="3" required></textarea>
         </div>
-      </div>
-    </div>
 
-    <!-- Additional Info -->
-    <div class="tab-pane fade" id="extra" role="tabpanel">
-      <div class="row g-2">
-        <div class="col-md-6">
-          <label for="date-registered" class="form-label">Date Registered </label><span style="color:red;">*</span>
-          <input type="date" class="form-control" name="date_registered" id="date-registered">
+        <div class="col-md-3">
+          <label>Quantity Requested</label>
+          <input type="number" name="quantity_requested" class="form-control" required>
         </div>
-        <div class="col-md-6">
-          <label for="status" class="form-label">Status </label><span style="color:red;">*</span>
-          <select name="status" id="status" class="form-select">
-            <option value="">-- Status --</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
+        <div class="col-md-3">
+          <label>Unit</label>
+          <select name="unit" class="form-select" required>
+            <option value="">-- Select Unit --</option>
+
+            <!-- Common Units for Supplies -->
+            <option value="pc">Piece (pc)</option>
+            <option value="box">Box</option>
+            <option value="pack">Pack</option>
+            <option value="pad">Pad</option>
+            <option value="ream">Ream</option>
+            <option value="dozen">Dozen</option>
+
+            <!-- Liquid and Cleaning -->
+            <option value="bottle">Bottle</option>
+            <option value="gallon">Gallon</option>
+            <option value="liter">Liter (L)</option>
+            <option value="ml">Milliliter (ml)</option>
+            <option value="roll">Roll</option>
+            <option value="bar">Bar</option>
+
+            <!-- Measurement -->
+            <option value="meter">Meter</option>
+            <option value="cm">Centimeter (cm)</option>
+            <option value="ft">Foot (ft)</option>
+            <option value="kg">Kilogram (kg)</option>
+            <option value="g">Gram (g)</option>
+            <option value="ton">Ton</option>
+            <option value="tube">Tube</option>
+            <option value="can">Can</option>
+
+            <!-- Laboratory / Medical -->
+            <option value="vial">Vial</option>
+            <option value="sachet">Sachet</option>
+
+            <!-- Equipment -->
+            <option value="unit">Unit</option>
+            <option value="set">Set</option>
+            <option value="kit">Kit</option>
+            <option value="pair">Pair</option>
+            <option value="lot">Lot</option>
+            <option value="package">Package</option>
+
+            <!-- Services -->
+            <option value="trip">Trip</option>
+            <option value="hour">Hour</option>
+            <option value="day">Day</option>
+            <option value="service">Service</option>
           </select>
         </div>
-        <div class="col-12">
-          <label for="notes" class="form-label">Notes (optional)</label>
-          <textarea class="form-control" name="notes" id="notes" rows="2"></textarea>
+
+        <div class="col-md-3">
+          <label>Unit Cost</label>
+          <input type="number" name="unit_cost" step="0.01" class="form-control" required>
         </div>
+        <div class="col-md-3">
+          <label>Total Cost</label>
+          <input type="text" id="addTotalAmount" class="form-control" readonly>
+          <input type="hidden" name="total_cost" id="hiddenTotalCost">
+          <input type="hidden" name="amount" id="hiddenAmount">
+        </div>
+
       </div>
-    </div>
-
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Save Request</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
   </div>
-
-  <!-- Submit Button -->
-  <div class="mt-3">
-    <button type="submit" class="btn btn-success w-100">💾 Save Supplier Information</button>
-  </div>
-</form>
+</div>
 
 <script>
-// Category mappings based on business type
-const categoryMappings = {
-  "IT Equipment Supplier": [
-    "ICT Equipment and Devices",
-    "Subcription, License and Software Services"
-  ],
-  "Office Equipment Vendor": [
-    "Office Equipment",
-    "Office Supplies and Materials"
-  ],
-  "Air Conditioning Equipment Supplier": [
-    "Air Conditioning Units and Cooling Systems",
-  ],
-  "Equipment Maintenance Provider": [
-    "Repairs and Maintenance – Equipment and Devices",
-  ],
-  "Furniture Supplier": [
-    "Furniture and Fixtures"
-  ],
-  "Laboratory Equipment Supplier": [
-    "Laboratory Equipment",
-    "Lab Chemicals and Reagents"
-  ],
-  "Construction and Renovation Contractor": [
-    "Contruction Materials",
-    "Renovation Services"
-  ],
-  "Machinery and Equipment Supplier": [
-    "Heavy Machinery",
-    "Production Equipment"
-  ],
-  "Janitorial Services": [
-    "Cleaning Supplies",
-    "Janitorial Services"
-  ],
-  "Educational Materials Supplier": [
-    "Books and Publications",
-    "Teaching Aids"
-  ],
-  "Medical Supplies Provider": [
-    "Medicines",
-    "Medical Equipment"
-  ],
-  "Printing Services": [
-    "Document Printing",
-    "Custom Printing"
-  ],
-  "Logistics and Delivery Services": [
-    "Freight Services",
-    "Courier Services"
-  ],
-  "Electrical Supplies Provider": [
-    "Electrical Components",
-    "Wiring and Cabling"
-  ]
-};
+  document.addEventListener('DOMContentLoaded', function() {
+    const quantityInput = document.querySelector('#addSupplyModal [name="quantity_requested"]');
+    const unitPriceInput = document.querySelector('#addSupplyModal [name="unit_cost"]');
+    const totalAmountInput = document.getElementById('addTotalAmount');
+    const hiddenTotalCost = document.getElementById('hiddenTotalCost');
+    const hiddenAmount = document.getElementById('hiddenAmount');
+    const modal = document.getElementById('addSupplyModal');
+    const form = modal.querySelector('form');
 
-// Add event listener for business type change
-document.getElementById('business-type').addEventListener('change', function() {
-  const categorySelect = document.getElementById('category');
-  categorySelect.innerHTML = '<option value="">-- Select Category --</option>';
-  
-  const selectedBusinessType = this.value;
-  const categories = categoryMappings[selectedBusinessType] || [];
-  
-  categories.forEach(category => {
-    const option = document.createElement('option');
-    option.value = category;
-    option.textContent = category;
-    categorySelect.appendChild(option);
-  });
-});
-</script>
-
-<script>
-$(document).ready(function() {
-  // Form submission handling
-  $('#addSupplierForm').on('submit', function(e) {
-    e.preventDefault();
-    
-    // Form validation
-    if (!this.checkValidity()) {
-      e.stopPropagation();
-      $(this).addClass('was-validated');
-      return;
+    function updateTotal() {
+      const quantity = parseFloat(quantityInput.value) || 0;
+      const unitPrice = parseFloat(unitPriceInput.value) || 0;
+      const total = quantity * unitPrice;
+      totalAmountInput.value = total.toFixed(2);
+      if (hiddenTotalCost) hiddenTotalCost.value = total.toFixed(2);
+      if (hiddenAmount) hiddenAmount.value = total.toFixed(2); // Set amount same as total_cost for now
     }
-    
-    $.ajax({
-      url: $(this).attr('action'),
-      type: 'POST',
-      data: $(this).serialize(),
-      success: function(response) {
-        // Close modal
-        $('#addSupplierModal').modal('hide');
-        
-        // Show success message
-        alert('Supplier added successfully!');
-        
-        // Reload page to show new supplier
-        location.reload();
-      },
-      error: function(xhr, status, error) {
-        alert('Error adding supplier: ' + error);
-      }
-    });
+
+    // Update total when quantity or price changes
+    if (quantityInput && unitPriceInput && totalAmountInput) {
+      quantityInput.addEventListener('input', updateTotal);
+      unitPriceInput.addEventListener('input', updateTotal);
+    }
+
+    // Initialize total when modal is shown
+    if (modal) {
+      modal.addEventListener('shown.bs.modal', function() {
+        updateTotal();
+      });
+    }
+
+    // Ensure hidden fields are set before submit
+    if (form) {
+      form.addEventListener('submit', function() {
+        updateTotal();
+      });
+    }
   });
-  
-  // Reset form when modal is closed
-  $('#addSupplierModal').on('hidden.bs.modal', function() {
-    $('#addSupplierForm')[0].reset();
-    $('#addSupplierForm').removeClass('was-validated');
-  });
-});
 </script>

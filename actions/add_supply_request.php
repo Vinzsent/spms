@@ -10,45 +10,28 @@ if (!isset($_SESSION['user'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    error_log('Form submitted with data: ' . print_r($_POST, true));
     try {
-        $supplier_name            = trim($_POST['supplier_name'] ?? '');
-        $contact_person           = trim($_POST['contact_person'] ?? '');
-        $contact_number           = trim($_POST['contact_number'] ?? '');
-        $business_type            = trim($_POST['business_type'] ?? '');
-        $product_category         = trim($_POST['product_category'] ?? '');
-        $payment_terms            = trim($_POST['payment_terms'] ?? '');
-        $date_registered          = $_POST['date_registered'] ?? null;
-        $email_address            = trim($_POST['email_address'] ?? '');
-        $fax_number               = trim($_POST['fax_number'] ?? '');
-        $website                  = trim($_POST['website'] ?? '');
-        $status                   = trim($_POST['status'] ?? '');
-        $notes                    = trim($_POST['notes'] ?? '');
-        $address                  = trim($_POST['address'] ?? '');
-        $city                     = trim($_POST['city'] ?? '');
-        $province                 = trim($_POST['province'] ?? '');
-        $zip_code                 = trim($_POST['zip_code'] ?? '');
-        $country                  = trim($_POST['country'] ?? '');
-        $tax_identification_number = trim($_POST['tax_identification_number'] ?? '');
 
-        $created_by = $_SESSION['user']['id'] ?? null;
-        $date_created = date('Y-m-d H:i:s');
+        $date_requested           = trim($_POST['date_requested'] ?? '');
+        $date_needed              = trim($_POST['date_needed'] ?? '');
+        $department_unit          = trim($_POST['department_unit'] ?? '');
+        $purpose                  = trim($_POST['purpose'] ?? '');
+        $sales_type               = trim($_POST['sales_type'] ?? '');
+        $category                 = trim($_POST['category'] ?? '');
+        $request_description      = trim($_POST['request_description'] ?? '');
+        $unit_cost                = trim($_POST['unit_cost'] ?? '');
+        $total_cost               = trim($_POST['total_cost'] ?? '');
+        $quantity_requested       = trim($_POST['quantity_requested'] ?? '');
+        $unit                     = trim($_POST['unit'] ?? '');
+        $description              = trim($_POST['description'] ?? '');
+        $quality_issued           = trim($_POST['quality_issued'] ?? '');
 
-        error_log("Business Type: " . $_POST['business_type']);
-        error_log("Product Category: " . $_POST['product_category']);
-
-        // Validation
-        if (empty($business_type || empty($product_category)) ){
-            throw new Exception("Business type and product category are required.");
-        }
-
-        // Prepare and execute SQL statement
+        // Prepare and execute SQL statement for supply_request table
         $stmt = $conn->prepare("
-            INSERT INTO supplier (
-                supplier_name, contact_person, contact_number, email_address,
-                fax_number, website, address, city, province, zip_code, country,
-                business_type, product_category, payment_terms, tax_identification_number,
-                date_registered, status, created_by, date_created, notes
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO supply_request (
+                date_requested, date_needed, department_unit, purpose, sales_type, category, request_description, unit_cost, total_cost, quantity_requested, unit, description, quality_issued
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         if (!$stmt) {
@@ -56,42 +39,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $stmt->bind_param(
-            "ssssssssssssssssssss",
-            $supplier_name, $contact_person, $contact_number, $email_address,
-            $fax_number, $website, $address, $city, $province, $zip_code, $country,
-            $business_type, $product_category, $payment_terms, $tax_identification_number,
-            $date_registered, $status, $created_by, $date_created, $notes
+            "sssssssssssss",
+            $date_requested,
+            $date_needed,
+            $department_unit,
+            $purpose,
+            $sales_type,
+            $category,
+            $request_description,
+            $unit_cost,
+            $total_cost,
+            $quantity_requested,
+            $unit,
+            $description,
+            $quality_issued
         );
 
-        if (!$stmt->execute()) {
-            throw new Exception("Execute failed: " . $stmt->error);
-        }
 
-        $_SESSION['message'] = "Supplier added successfully";
-        
+
+        $_SESSION['request_success'] = true;
+
+        $_SESSION['message'] = "Supply request added successfully";
+
         // If AJAX request
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        if (
+            !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'
+        ) {
             echo json_encode(['status' => 'success']);
             exit;
         }
-        
-        header("Location: ../pages/suppliers.php");
-        exit;
 
+        echo "<script>alert('Request Successful!'); window.location.href='../pages/supply_request.php';</script>";
+        exit;
     } catch (Exception $e) {
         $_SESSION['error'] = $e->getMessage();
-        
+
         // If AJAX request
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        if (
+            !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'
+        ) {
             http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
             exit;
         }
-        
-        header("Location: ../pages/suppliers.php");
+
+        header("Location: ../pages/supply_request.php");
         exit;
     }
 }
-?>

@@ -1,35 +1,48 @@
+
 <?php
-$pageTitle = 'Supply Request';
+$pageTitle = 'Supplier Transactions';
 include '../includes/auth.php';
 include '../includes/db.php';
 include '../includes/header.php';
 
+
+$user_type = $_SESSION['user_type']?? '';
+
+$dashboard_link = ($user_type == 'Admin') ? '../admin_dashboard.php' : '../dashboard.php';
+
 $sql = "SELECT * FROM supply_request";
 $result = $conn->query($sql);
 ?>
+
+
 
 <?php include('../includes/navbar.php'); ?>
   <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3>Supply Request</h3>
       <div>
-        <a href="../dashboard.php" class="btn btn-secondary me-2">
+        <a href="<?= $dashboard_link ?>" class="btn btn-secondary me-2">
           <i class="fas fa-arrow-left"></i> Back to Dashboard
         </a>
-        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTransactionModal">+ New Transaction</button>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSupplyModal">+ New Request</button>
       </div>
     </div>
     <hr>
     <!-- Filter Row -->
     <div class="row align-items-end mb-4 g-2">
-      <div class="col-md-3">
+      <div class="col-md-2">
         <label for="dtSearch" class="form-label">Search</label>
         <input type="search" id="dtSearch" class="form-control" placeholder="Search...">
       </div>
 
-      <div class="col-md-3">
-        <label for="filterDate" class="form-label">Filter by Date</label>
-        <input type="date" id="filterDate" class="form-control">
+      <div class="col-md-2">
+        <label for="filterDateStart" class="form-label">Date Range (From)</label>
+        <input type="date" id="filterDateStart" class="form-control">
+      </div>
+
+      <div class="col-md-2">
+        <label for="filterDateEnd" class="form-label">Date Range (To)</label>
+        <input type="date" id="filterDateEnd" class="form-control">
       </div>
 
       <div class="col-md-4">
@@ -57,6 +70,8 @@ $result = $conn->query($sql);
             <option value="Subscription, License, and Software Services">Subscription, License, and Software Services</option>
             <option value="Utilities and Facility Services">Utilities and Facility Services</option>
             <option value="Transportation or Delivery Services">Transportation or Delivery Services</option>
+            <option value="Construction Materials">Construction Materials</option>
+            <option value="Renovation Services">Renovation Services</option>
           </optgroup>
         </select>
       </div>
@@ -64,6 +79,20 @@ $result = $conn->query($sql);
       <div class="col-md-2">
         <label class="form-label d-block">Export</label>
         <div id="exportContainer"></div>
+      </div>
+    </div>
+    
+    <!-- Quick Date Filters -->
+    <div class="row mb-3">
+      <div class="col-12">
+        <label class="form-label">Quick Date Filters:</label>
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-outline-primary btn-sm" id="currentMonth">Current Month</button>
+          <button type="button" class="btn btn-outline-primary btn-sm" id="currentYear">Current Year</button>
+          <button type="button" class="btn btn-outline-primary btn-sm" id="lastMonth">Last Month</button>
+          <button type="button" class="btn btn-outline-primary btn-sm" id="lastYear">Last Year</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" id="clearDateFilter">Clear Date Filter</button>
+        </div>
       </div>
     </div>
     <hr>
@@ -74,14 +103,14 @@ $result = $conn->query($sql);
           <tr>
             <th>Date Requested</th>
             <th>Date Needed</th>
-            <th>Department</th>
-            <th>Purpose</th>
-            <th>Unit Cost</th>
-            <th>Total Cost</th>
-            <th>Request Quantity</th>
+            <th>Department/Unit</th>
+            <th>Purpose of the request</th>
+            <th>Quantity Requested</th>
             <th>Unit</th>
             <th>Description</th>
             <th>Quality Issued</th>
+            <th>Unit Cost</th>
+            <th>Total Cost</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -89,34 +118,35 @@ $result = $conn->query($sql);
           <?php 
           $total_sum = 0;
           while ($row = $result->fetch_assoc()): 
-            $total_sum += $row['amount'];
+            $quantity = (float)($row['quantity_requested'] ?? 0);
+            $unit_cost = (float)($row['unit_cost'] ?? 0);
+            $computed_total_cost = $quantity * $unit_cost;
+            $total_sum += $computed_total_cost;
           ?>
             <tr>
               <td><?= $row['date_requested'] ?></td>
               <td><?= htmlspecialchars($row['date_needed']) ?></td>
-              <td><?= $row['department'] ?></td>
-              <td><?= htmlspecialchars($row['purpse']) ?></td>
-              <td>₱<?= number_format($row['unit_cost'], 2) ?></td>
-              <td>₱<?= number_format($row['total_cost'], 2) ?></td>
-              <td><?= $row['request_quantity'] ?></td>
-              <td><?= $row['unit'] ?></td>
-              <td><?= $row['description'] ?></td>
+              <td><?= $row['department_unit'] ?></td>
+              <td><?= htmlspecialchars($row['purpose']) ?></td>
+              <td><?= htmlspecialchars($row['quantity_requested']) ?></td>
+              <td><?= htmlspecialchars($row['unit']) ?></td>
+              <td><?= $row['request_description'] ?></td>
               <td><?= $row['quality_issued'] ?></td>
+              <td>₱<?= number_format($unit_cost, 2) ?></td>
+              <td>₱<?= number_format($computed_total_cost, 2) ?></td>
+              <td>
                 <button
                   class="btn btn-sm btn-warning editBtn"
                   data-id="<?= $row['request_id'] ?>"
-                  data-date="<?= htmlspecialchars($row['date_requested']) ?>"
-                  data-invoice="<?= htmlspecialchars($row['date_needed']) ?>"
-                  data-sales="<?= trim($row['department']) ?>"
-                  data-category="<?= trim($row['purpose']) ?>"
-                  data-description="<?= htmlspecialchars($row['unit_cost']) ?>"
-                  data-quantity="<?= $row['total_cost'] ?>"
-                  data-unit="<?= $row['request_quantity'] ?>"
-                  data-price="<?= $row['unit'] ?>"
-                  data-description="<?= $row['description'] ?>"
-                  data-quality_issued="<?= $row['quality_issued'] ?>"
+                  data-date-requested="<?= htmlspecialchars($row['date_requested']) ?>"
+                  data-date-needed="<?= htmlspecialchars($row['date_needed']) ?>"
+                  data-department-unit="<?= trim($row['department_unit']) ?>"
+                  data-purpose="<?= trim($row['purpose']) ?>"
+                  data-quantity-requested="<?= htmlspecialchars($row['quantity_requested']) ?>"
+                  data-unit="<?= $row['unit'] ?>"
+                  data-total-cost="<?= $computed_total_cost ?>"
                   data-bs-toggle="modal"
-                  data-bs-target="#editTransactionModal">
+                  data-bs-target="#editSupplynModal">
                   Edit
                 </button>
               </td>
@@ -126,14 +156,15 @@ $result = $conn->query($sql);
         <tfoot>
           <tr>
             <td colspan="9" class="text-end fw-bold">Total:</td>
-            <td colspan="2" class="fw-bold" id="grandTotalCell">₱<?= number_format($total_sum, 2) ?></td>
+            <td class="fw-bold" id="grandTotalCell">₱<?= number_format($total_sum, 2) ?></td>
+            <td></td>
           </tr>
         </tfoot>
       </table>
     </div>
   </div>
 
-  <?php include '../modals/add_transaction_modal.php'; ?>
+  <?php include '../modals/add_supply_request.php'; ?>
   <?php include '../modals/edit_transaction_modal.php'; ?>
   
   <?php include '../includes/footer.php'; ?>
@@ -273,9 +304,107 @@ $result = $conn->query($sql);
         updateGrandTotal(table);
       });
 
-      $('#filterDate').on('change', function() {
-        const val = this.value;
-        table.column(0).search(val ? '^' + val : '', true, false).draw();
+      // Date range filtering function
+      function filterByDateRange() {
+        const startDate = $('#filterDateStart').val();
+        const endDate = $('#filterDateEnd').val();
+        
+        // Custom filtering function for date range
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+          const dateReceived = data[0]; // Date Received column
+          
+          if (!startDate && !endDate) {
+            return true; // No filter applied
+          }
+          
+          const transactionDate = new Date(dateReceived);
+          
+          if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            return transactionDate >= start && transactionDate <= end;
+          } else if (startDate) {
+            const start = new Date(startDate);
+            return transactionDate >= start;
+          } else if (endDate) {
+            const end = new Date(endDate);
+            return transactionDate <= end;
+          }
+          
+          return true;
+        });
+        
+        table.draw();
+        updateGrandTotal(table);
+      }
+
+      // Date range filter event handlers
+      $('#filterDateStart, #filterDateEnd').on('change', function() {
+        // Clear previous custom filters
+        $.fn.dataTable.ext.search.pop();
+        filterByDateRange();
+      });
+
+      // Quick date filter buttons
+      $('#currentMonth').on('click', function() {
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        
+        $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
+        $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
+        
+        // Clear previous custom filters
+        $.fn.dataTable.ext.search.pop();
+        filterByDateRange();
+      });
+
+      $('#currentYear').on('click', function() {
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), 0, 1);
+        const lastDay = new Date(now.getFullYear(), 11, 31);
+        
+        $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
+        $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
+        
+        // Clear previous custom filters
+        $.fn.dataTable.ext.search.pop();
+        filterByDateRange();
+      });
+
+      $('#lastMonth').on('click', function() {
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
+        
+        $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
+        $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
+        
+        // Clear previous custom filters
+        $.fn.dataTable.ext.search.pop();
+        filterByDateRange();
+      });
+
+      $('#lastYear').on('click', function() {
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear() - 1, 0, 1);
+        const lastDay = new Date(now.getFullYear() - 1, 11, 31);
+        
+        $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
+        $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
+        
+        // Clear previous custom filters
+        $.fn.dataTable.ext.search.pop();
+        filterByDateRange();
+      });
+
+      $('#clearDateFilter').on('click', function() {
+        $('#filterDateStart').val('');
+        $('#filterDateEnd').val('');
+        
+        // Clear previous custom filters
+        $.fn.dataTable.ext.search.pop();
+        table.draw();
         updateGrandTotal(table);
       });
 
