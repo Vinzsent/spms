@@ -39,7 +39,7 @@ if (!$result) {
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="text-dark">Supplier List</h3>
     <div>
-      <a href="../dashboard.php" class="btn btn-secondary me-2"><i class="fas fa-arrow-left"></i> Back</a>
+      <button class="btn btn-secondary me-2" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Back</button>
       <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">➕ Add Supplier</button>
     </div>
   </div>
