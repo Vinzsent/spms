@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-success px-3">
+<nav class="navbar navbar-expand-lg navbar-dark bg-success px-3 fixed-top">
   <a class="navbar-brand" href="#">Asset Management</a>
   <div class="ms-auto d-flex align-items-center">
     <div class="d-flex align-items-center me-3 position-relative">
