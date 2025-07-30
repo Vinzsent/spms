@@ -704,6 +704,11 @@ body {
 
 <script>
 $(document).ready(function() {
+    // Debug mode - set to false for production
+    const DEBUG = true;
+    
+    if (DEBUG) console.log('Document ready, initializing modals...');
+    
     // Mobile sidebar toggle
     $('.sidebar-toggle').on('click', function() {
         $('.sidebar').toggleClass('show');
@@ -717,43 +722,122 @@ $(document).ready(function() {
         // You can add a total display field if needed
     });
     
-    // View Modal functionality
-    $('.view-btn').on('click', function() {
+    // View Modal functionality with event delegation
+    $(document).on('click', '.view-btn', function(e) {
+        e.preventDefault();
+        if (DEBUG) console.log('View button clicked');
+        
         const button = $(this);
-        $('#view-date').text(button.data('date'));
-        $('#view-item').text(button.data('item'));
-        $('#view-quantity').text(button.data('quantity') + ' ' + button.data('unit'));
-        $('#view-supplier').text(button.data('supplier'));
-        $('#view-price').text('₱' + parseFloat(button.data('price')).toLocaleString('en-US', {minimumFractionDigits: 2}));
-        $('#view-total').text('₱' + parseFloat(button.data('total')).toLocaleString('en-US', {minimumFractionDigits: 2}));
         
-        // Status with badge styling
-        const status = button.data('status');
-        const statusBadge = status === 'Received' ? 
-            '<span class="badge bg-success">' + status + '</span>' : 
-            '<span class="badge bg-warning">' + status + '</span>';
-        $('#view-status').html(statusBadge);
+        // Test if modal exists
+        if ($('#viewModal').length === 0) {
+            console.error('View modal not found in DOM');
+            return;
+        }
         
-        $('#view-notes').text(button.data('notes') || 'No notes available');
+        // Get all data attributes
+        const buttonData = {
+            date: button.attr('data-date'),
+            item: button.attr('data-item'),
+            quantity: button.attr('data-quantity'),
+            unit: button.attr('data-unit'),
+            supplier: button.attr('data-supplier'),
+            price: button.attr('data-price'),
+            total: button.attr('data-total'),
+            status: button.attr('data-status'),
+            notes: button.attr('data-notes')
+        };
+        
+        if (DEBUG) console.log('Button data:', buttonData);
+        
+        // Populate modal fields safely
+        try {
+            $('#view-date').text(buttonData.date || 'N/A');
+            $('#view-item').text(buttonData.item || 'N/A');
+            $('#view-quantity').text((buttonData.quantity || '0') + ' ' + (buttonData.unit || ''));
+            $('#view-supplier').text(buttonData.supplier || 'N/A');
+            
+            // Format price and total safely
+            const price = parseFloat(buttonData.price) || 0;
+            const total = parseFloat(buttonData.total) || 0;
+            $('#view-price').text('₱' + price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+            $('#view-total').text('₱' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+            
+            // Status with badge styling
+            const status = buttonData.status || 'Pending';
+            const statusBadge = status === 'Received' ? 
+                '<span class="badge bg-success">' + status + '</span>' : 
+                '<span class="badge bg-warning">' + status + '</span>';
+            $('#view-status').html(statusBadge);
+            
+            // Notes
+            const notes = buttonData.notes;
+            $('#view-notes').text(notes && notes.trim() !== '' && notes !== 'null' ? notes : 'No notes available');
+            
+            if (DEBUG) console.log('Modal populated successfully');
+            
+        } catch (error) {
+            console.error('Error populating modal:', error);
+        }
     });
     
-    // Edit Modal functionality
-    $('.edit-btn').on('click', function() {
+    // Edit Modal functionality with event delegation
+    $(document).on('click', '.edit-btn', function(e) {
+        e.preventDefault();
+        if (DEBUG) console.log('Edit button clicked');
+        
         const button = $(this);
-        $('#edit-id').val(button.data('id'));
-        $('#edit-item').val(button.data('item'));
-        $('#edit-quantity').val(button.data('quantity'));
-        $('#edit-unit').val(button.data('unit'));
-        $('#edit-supplier').val(button.data('supplier'));
-        $('#edit-price').val(button.data('price'));
-        $('#edit-notes').val(button.data('notes'));
+        
+        // Get data using attr method for consistency
+        const buttonData = {
+            id: button.attr('data-id'),
+            item: button.attr('data-item'),
+            quantity: button.attr('data-quantity'),
+            unit: button.attr('data-unit'),
+            supplier: button.attr('data-supplier'),
+            price: button.attr('data-price'),
+            notes: button.attr('data-notes')
+        };
+        
+        if (DEBUG) console.log('Edit button data:', buttonData);
+        
+        try {
+            $('#edit-id').val(buttonData.id || '');
+            $('#edit-item').val(buttonData.item || '');
+            $('#edit-quantity').val(buttonData.quantity || '');
+            $('#edit-unit').val(buttonData.unit || '');
+            $('#edit-supplier').val(buttonData.supplier || '');
+            $('#edit-price').val(buttonData.price || '');
+            $('#edit-notes').val(buttonData.notes || '');
+            
+            if (DEBUG) console.log('Edit modal populated successfully');
+        } catch (error) {
+            console.error('Error populating edit modal:', error);
+        }
     });
     
-    // Approve Modal functionality
-    $('.approve-btn').on('click', function() {
+    // Approve Modal functionality with event delegation
+    $(document).on('click', '.approve-btn', function(e) {
+        e.preventDefault();
+        if (DEBUG) console.log('Approve button clicked');
+        
         const button = $(this);
-        $('#approve-id').val(button.data('id'));
-        $('#approve-item-name').text(button.data('item'));
+        
+        const buttonData = {
+            id: button.attr('data-id'),
+            item: button.attr('data-item')
+        };
+        
+        if (DEBUG) console.log('Approve button data:', buttonData);
+        
+        try {
+            $('#approve-id').val(buttonData.id || '');
+            $('#approve-item-name').text(buttonData.item || 'Unknown Item');
+            
+            if (DEBUG) console.log('Approve modal populated successfully');
+        } catch (error) {
+            console.error('Error populating approve modal:', error);
+        }
     });
     
     // Auto-calculate total in edit modal
@@ -763,6 +847,38 @@ $(document).ready(function() {
         const total = quantity * unitPrice;
         // You can add a total display field if needed
     });
+    
+    // Debug: Check if view buttons exist
+    if (DEBUG) {
+        console.log('View buttons found:', $('.view-btn').length);
+        console.log('Edit buttons found:', $('.edit-btn').length);
+        console.log('Approve buttons found:', $('.approve-btn').length);
+        console.log('View modal exists:', $('#viewModal').length > 0);
+        console.log('Edit modal exists:', $('#editModal').length > 0);
+        console.log('Approve modal exists:', $('#approveModal').length > 0);
+    }
+    
+    // Initialize Bootstrap modals
+    try {
+        var viewModal = new bootstrap.Modal(document.getElementById('viewModal'));
+        var editModal = new bootstrap.Modal(document.getElementById('editModal'));
+        var approveModal = new bootstrap.Modal(document.getElementById('approveModal'));
+        
+        if (DEBUG) console.log('Bootstrap modals initialized successfully');
+    } catch (error) {
+        console.error('Error initializing Bootstrap modals:', error);
+    }
+    
+    // Additional debugging for modal events
+    if (DEBUG) {
+        document.getElementById('viewModal').addEventListener('show.bs.modal', function (event) {
+            console.log('View modal about to show');
+        });
+        
+        document.getElementById('viewModal').addEventListener('shown.bs.modal', function (event) {
+            console.log('View modal shown');
+        });
+    }
 });
 </script>
 
