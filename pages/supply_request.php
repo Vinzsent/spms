@@ -1,6 +1,6 @@
 
 <?php
-$pageTitle = 'Supplier Transactions';
+$pageTitle = 'Supplier Request';
 include '../includes/auth.php';
 include '../includes/db.php';
 include '../includes/header.php';
@@ -12,6 +12,24 @@ $dashboard_link = ($user_type == 'Admin') ? '../admin_dashboard.php' : '../dashb
 
 $sql = "SELECT * FROM supply_request";
 $result = $conn->query($sql);
+
+
+// Display session messages
+if (isset($_SESSION['message'])) {
+  echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+          ' . htmlspecialchars($_SESSION['message']) . '
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>';
+  unset($_SESSION['message']);
+}
+if (isset($_SESSION['error'])) {
+  echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
+          ' . htmlspecialchars($_SESSION['error']) . '
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>';
+  unset($_SESSION['error']);
+}
+
 ?>
 
 
@@ -107,7 +125,7 @@ $result = $conn->query($sql);
             <th>Purpose of the request</th>
             <th>Quantity Requested</th>
             <th>Unit</th>
-            <th>Description</th>
+            <th>Request Description</th>
             <th>Quality Issued</th>
             <th>Unit Cost</th>
             <th>Total Cost</th>
@@ -137,17 +155,22 @@ $result = $conn->query($sql);
               <td>
                 <button
                   class="btn btn-sm btn-warning editBtn"
-                  data-id="<?= $row['request_id'] ?>"
+                  data-request-id="<?= $row['request_id'] ?>"
                   data-date-requested="<?= htmlspecialchars($row['date_requested']) ?>"
                   data-date-needed="<?= htmlspecialchars($row['date_needed']) ?>"
                   data-department-unit="<?= trim($row['department_unit']) ?>"
                   data-purpose="<?= trim($row['purpose']) ?>"
+                  data-sales-type="<?= htmlspecialchars($row['sales_type']) ?>"
+                  data-category="<?= htmlspecialchars($row['category']) ?>"
                   data-quantity-requested="<?= htmlspecialchars($row['quantity_requested']) ?>"
                   data-unit="<?= $row['unit'] ?>"
+                  data-request-description="<?= htmlspecialchars($row['request_description'])?>"
+                  data-quality-issued="<?= htmlspecialchars($row['quality_issued'])?>"
+                  data-unit-cost="<?= $unit_cost ?>"
                   data-total-cost="<?= $computed_total_cost ?>"
                   data-bs-toggle="modal"
-                  data-bs-target="#editSupplynModal">
-                  Edit
+                  data-bs-target="#editSupplyModal">
+                  Edit Request Details
                 </button>
               </td>
             </tr>
@@ -165,7 +188,7 @@ $result = $conn->query($sql);
   </div>
 
   <?php include '../modals/add_supply_request.php'; ?>
-  <?php include '../modals/edit_transaction_modal.php'; ?>
+  <?php include '../modals/edit_supply_request.php'; ?>
   
   <?php include '../includes/footer.php'; ?>
   <script>
@@ -186,7 +209,7 @@ $result = $conn->query($sql);
             text: '<i class="fa-solid fa-file-pdf"></i>',
             orientation: 'landscape',
             pageSize: 'A4',
-            title: 'Supplier Transactions',
+            title: 'Supplier Request',
             className: 'btn btn-sm',
             footer: true, // <-- include the footer (TOTAL row)
             exportOptions: {
@@ -242,7 +265,7 @@ $result = $conn->query($sql);
           {
             extend: 'print',
             text: '<i class="fa-solid fa-print"></i>',
-            title: 'Supplier Transactions',
+            title: 'Supplier Request',
             className: 'btn btn-sm',
             footer: true, // <-- include the footer (TOTAL row)
             exportOptions: {
@@ -418,19 +441,36 @@ $result = $conn->query($sql);
         updateGrandTotal(table);
       });
 
+
+      //edit button
       $(document).on('click', '.editBtn', function() {
-        console.log('Date Received:', $(this).data('date_received'));
-        $('#editTransactionId').val($(this).data('id'));
-        $('#editDateReceived').val($(this).data('date'));
-        $('#editInvoiceNo').val($(this).data('invoice'));
-        $('#editDescription').val($(this).data('description'));
-        $('#editQuantity').val($(this).data('quantity'));
-        $('#editUnit').val($(this).data('unit'));
-        $('#editPrice').val($(this).data('price'));
-        $('#editSalesType').val($(this).data('sales'));
+        console.log('Date Requested:', $(this).data('date-requested'));
+        console.log('Request ID:', $(this).data('request-id'));
+        
+        $('#editRequestId').val($(this).data('request-id'));
+        $('#editDateRequest').val($(this).data('date-requested'));
+        $('#editDateNeeded').val($(this).data('date-needed'));
+        $('#editDepartmentUnit').val($(this).data('department-unit'));
+        $('#editPurpose').val($(this).data('purpose'));
+        $('#editSalesType').val($(this).data('sales-type'));
         $('#editCategory').val($(this).data('category'));
+        $('#editRequestDescription').val($(this).data('request-description'));
+        $('#editQualityIssued').val($(this).data('quality-issued'));
+        $('#editQuantity').val($(this).data('quantity-requested'));
+        $('#editUnit').val($(this).data('unit'));
+        $('#editPrice').val($(this).data('unit-cost'));
+        $('#editTotalAmount').val($(this).data('total-cost'));
+        
         // Trigger calculation for total
         $('#editQuantity, #editPrice').trigger('input');
+        
+        // Debug: Log form data before submission
+        $('#editSupplyModal form').on('submit', function(e) {
+          console.log('Form submitting...');
+          console.log('Request ID:', $('#editRequestId').val());
+          console.log('Date Requested:', $('#editDateRequest').val());
+          console.log('Total Cost:', $('#editTotalAmount').val());
+        });
       });
     });
   </script>

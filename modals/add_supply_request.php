@@ -33,7 +33,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
 
         <div class="col-md-4">
           <label>Purpose of the Request</label>
-          <textarea type="text" name="purpose" class="form-control row-3" required></textarea>
+          <textarea name="purpose" class="form-control row-3" required></textarea>
         </div>
 
         <div class="col-md-4">
@@ -74,7 +74,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
           </select>
         </div>
         <div class="col-md-12">
-          <label>Description</label>
+          <label>Request Description</label>
           <textarea name="request_description" class="form-control" rows="3" required></textarea>
         </div>
 
@@ -146,7 +146,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
 
       </div>
       <div class="modal-footer">
-        <button type="submit" class="btn btn-primary">Save Request</button>
+        <button type="submit" class="btn btn-primary">Submit Request</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
       </div>
     </form>

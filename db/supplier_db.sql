@@ -96,6 +96,35 @@ INSERT INTO `supplier_transaction` (`transaction_id`, `date_received`, `invoice_
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `supply_request`
+--
+
+CREATE TABLE `supply_request` (
+  `request_id` int(11) NOT NULL,
+  `date_requested` date NOT NULL,
+  `date_needed` date NOT NULL,
+  `department_unit` varchar(255) NOT NULL,
+  `purpose` text NOT NULL,
+  `sales_type` varchar(50) NOT NULL,
+  `category` varchar(255) NOT NULL,
+  `request_description` text NOT NULL,
+  `unit_cost` decimal(10,2) NOT NULL,
+  `total_cost` decimal(10,2) NOT NULL,
+  `quantity_requested` int(11) NOT NULL,
+  `unit` varchar(50) NOT NULL,
+  `description` text DEFAULT NULL,
+  `quality_issued` varchar(255) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `status` varchar(50) DEFAULT 'Pending',
+  `created_by` int(11) DEFAULT NULL,
+  `date_created` datetime DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_by` int(11) DEFAULT NULL,
+  `date_updated` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `user`
 --
 
@@ -137,6 +166,12 @@ ALTER TABLE `supplier_transaction`
   ADD KEY `supplier_id` (`supplier_id`);
 
 --
+-- Indexes for table `supply_request`
+--
+ALTER TABLE `supply_request`
+  ADD PRIMARY KEY (`request_id`);
+
+--
 -- Indexes for table `user`
 --
 ALTER TABLE `user`
@@ -157,6 +192,12 @@ ALTER TABLE `supplier`
 --
 ALTER TABLE `supplier_transaction`
   MODIFY `transaction_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
+-- AUTO_INCREMENT for table `supply_request`
+--
+ALTER TABLE `supply_request`
+  MODIFY `request_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `user`

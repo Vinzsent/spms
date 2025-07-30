@@ -6,21 +6,6 @@ include 'includes/header.php';
 <?php include('./includes/navbar.php'); ?>
 
 <?php
-// Display session messages
-if (isset($_SESSION['message'])) {
-    echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
-            ' . htmlspecialchars($_SESSION['message']) . '
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-          </div>';
-    unset($_SESSION['message']);
-}
-if (isset($_SESSION['error'])) {
-    echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
-            ' . htmlspecialchars($_SESSION['error']) . '
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-          </div>';
-    unset($_SESSION['error']);
-}
 ?>
 <style>
   .card {
@@ -31,18 +16,20 @@ if (isset($_SESSION['error'])) {
 </style>
 
 <div class="container">
-  <h2 class="mb-4 text-center mt-5">Dashboard Menu</h2>
+  <h4 class="mb-4 text-center mt-5">Dashboard Menu</h4>
   <div class="row g-4">
+
+    <!-- Puchase Card -->
     <div class="col-md-4">
-      <div class="card text-white bg-dark">
+      <div class="card text-black bg-warning">
         <div class="card-body">
-          <h3 class="card-title text-center">Supplier</h3>
-          <p class="card-text">Register a new supplier into the system.</p>
-          <a href="pages/suppliers.php" class="btn btn-light">Go</a>
+          <h3 class="card-title text-center">Procurement/Aquisition</h3>
+          <p class="card-text">Records purchased items with details like supplier, cost, and receipt, and marks them as officially received into the system.</p>
+          <a href="pages/procurement.php" class="btn btn-light">Go</a>
         </div>
       </div>
     </div>
-
+    
     <div class="col-md-4">
       <div class="card text-white bg-primary">
         <div class="card-body">
@@ -64,16 +51,6 @@ if (isset($_SESSION['error'])) {
       </div>
     </div>
 
-    <!-- Puchase Card -->
-    <div class="col-md-4">
-      <div class="card text-black bg-warning">
-        <div class="card-body">
-          <h3 class="card-title text-center">Procurement/Aquisition</h3>
-          <p class="card-text">Records purchased items with details like supplier, cost, and receipt, and marks them as officially received into the system.</p>
-          <a href="pages/supply_request.php" class="btn btn-light">Go</a>
-        </div>
-      </div>
-    </div>
 
     <!-- Inventory Card -->
     <div class="col-md-4">
@@ -81,7 +58,7 @@ if (isset($_SESSION['error'])) {
         <div class="card-body">
           <h3 class="card-title text-center">Inventory Supplies</h3>
           <p class="card-text">Monitors real-time stock levels of supplies and materials, with stock-in/out logs and alerts for low inventory.</p>
-          <a href="pages/supply_request.php" class="btn btn-light">Go</a>
+          <a href="pages/inventory.php" class="btn btn-light">Go</a>
         </div>
       </div>
     </div>

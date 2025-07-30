@@ -10,10 +10,10 @@ if (!isset($_SESSION['user'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    error_log('Form submitted with data: ' . print_r($_POST, true));
+    error_log('Edit form submitted with data: ' . print_r($_POST, true));
     
     // Debug: Check if all required fields are present
-    $required_fields = ['date_requested', 'date_needed', 'department_unit', 'purpose', 'sales_type', 'category', 'request_description', 'unit_cost', 'total_cost', 'quantity_requested', 'unit', 'quality_issued', 'amount'];
+    $required_fields = ['request_id', 'date_requested', 'date_needed', 'department_unit', 'purpose', 'sales_type', 'category', 'request_description', 'unit_cost', 'total_cost', 'quantity_requested', 'unit', 'quality_issued'];
     $missing_fields = [];
     foreach ($required_fields as $field) {
         if (empty($_POST[$field])) {
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     try {
-
+        $request_id                = trim($_POST['request_id'] ?? '');
         $date_requested           = trim($_POST['date_requested'] ?? '');
         $date_needed              = trim($_POST['date_needed'] ?? '');
         $department_unit          = trim($_POST['department_unit'] ?? '');
@@ -39,13 +39,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $quantity_requested       = trim($_POST['quantity_requested'] ?? '');
         $unit                     = trim($_POST['unit'] ?? '');
         $quality_issued           = trim($_POST['quality_issued'] ?? '');
-        $amount                   = trim($_POST['amount'] ?? '');
-
-        // Prepare and execute SQL statement for supply_request table
+        $amount                   = trim($_POST['amount'] ?? $total_cost); // Use total_cost as fallback for amount
         $stmt = $conn->prepare("
-            INSERT INTO supply_request (
-                date_requested, date_needed, department_unit, purpose, sales_type, category, request_description, unit_cost, total_cost, quantity_requested, unit, description, quality_issued, amount
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            UPDATE supply_request SET 
+                date_requested = ?, 
+                date_needed = ?, 
+                department_unit = ?, 
+                purpose = ?, 
+                sales_type = ?, 
+                category = ?, 
+                request_description = ?, 
+                unit_cost = ?, 
+                total_cost = ?, 
+                quantity_requested = ?, 
+                unit = ?,
+                quality_issued = ?, 
+                amount = ?
+            WHERE request_id = ?
         ");
 
         if (!$stmt) {
@@ -53,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $stmt->bind_param(
-            "ssssssssssssss",
+            "sssssssssssssi",
             $date_requested,
             $date_needed,
             $department_unit,
@@ -65,9 +75,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $total_cost,
             $quantity_requested,
             $unit,
-            $request_description, // Using request_description for description column
             $quality_issued,
-            $amount
+            $amount,
+            $request_id
         );
 
         // Execute the statement
@@ -75,8 +85,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Execute failed: " . $stmt->error);
         }
 
-        $_SESSION['request_success'] = true;
-        $_SESSION['message'] = "Supply request added successfully";
+        error_log("Update executed. Affected rows: " . $stmt->affected_rows);
+        error_log("Request ID: " . $request_id);
+
+        if ($stmt->affected_rows > 0) {
+            $_SESSION['request_success'] = true;
+            $_SESSION['message'] = "Supply request updated successfully";
+        } else {
+            // Check if the record exists
+            $check_stmt = $conn->prepare("SELECT request_id FROM supply_request WHERE request_id = ?");
+            $check_stmt->bind_param("i", $request_id);
+            $check_stmt->execute();
+            $check_result = $check_stmt->get_result();
+            
+            if ($check_result->num_rows == 0) {
+                throw new Exception("Request not found with ID: " . $request_id);
+            } else {
+                throw new Exception("No changes were made to the request");
+            }
+        }
 
         // If AJAX request
         if (
@@ -87,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        echo "<script>alert('Request Successful!'); window.location.href='../pages/supply_request.php';</script>";
+        echo "<script>alert('Request Updated Successfully!'); window.location.href='../pages/supply_request.php';</script>";
         exit;
     } catch (Exception $e) {
         $_SESSION['error'] = $e->getMessage();
