@@ -9,9 +9,8 @@ include 'includes/header.php';
 ?>
 <style>
   .card {
-    height: 250px; /* Set your preferred fixed height */
+    height: 200px; /* Set your preferred fixed height */
     overflow-y: auto;
-    background-color: green;
 }
 </style>
 
@@ -24,7 +23,7 @@ include 'includes/header.php';
       <div class="card text-black bg-warning">
         <div class="card-body">
           <h3 class="card-title text-center">Procurement/Aquisition</h3>
-          <p class="card-text">Records purchased items with details like supplier, cost, and receipt, and marks them as officially received into the system.</p>
+          <p class="card-text">Logs purchased items with supplier, cost, and receipt details, then marks them as received.</p>
           <a href="pages/procurement.php" class="btn btn-light">Go</a>
         </div>
       </div>
@@ -45,7 +44,7 @@ include 'includes/header.php';
       <div class="card text-white bg-success">
         <div class="card-body">
           <h3 class="card-title text-center">Supply Requisition/Issuance</h3>
-          <p class="card-text">Allows users to request assets, supplies, or materials, and lets managers approve, reject, or track each request.</p>
+          <p class="card-text">Enables users to request items and managers to approve, reject, or track them.</p>
           <a href="pages/supply_request.php" class="btn btn-light">Go</a>
         </div>
       </div>
@@ -57,7 +56,7 @@ include 'includes/header.php';
       <div class="card text-white bg-info">
         <div class="card-body">
           <h3 class="card-title text-center">Inventory Supplies</h3>
-          <p class="card-text">Monitors real-time stock levels of supplies and materials, with stock-in/out logs and alerts for low inventory.</p>
+          <p class="card-text">Tracks real-time stock levels with stock logs and low inventory alerts.</p>
           <a href="pages/inventory.php" class="btn btn-light">Go</a>
         </div>
       </div>
@@ -68,7 +67,7 @@ include 'includes/header.php';
       <div class="card text-white bg-dark">
         <div class="card-body">
           <h3 class="card-title text-center">Asset Registration</h3>
-          <p class="card-text">Registers acquired assets with details such as item specs, value, documents, and auto-generated asset tags or barcodes.</p>
+          <p class="card-text">Registers assets with specs, value, documents, and auto-generated tags or barcodes.</p>
           <a href="pages/supply_request.php" class="btn btn-light">Go</a>
         </div>
       </div>
@@ -79,7 +78,7 @@ include 'includes/header.php';
       <div class="card text-white bg-primary">
         <div class="card-body">
           <h3 class="card-title text-center">Assignment/Issuance</h3>
-          <p class="card-text">Manages the assignment of assets to users and departments, and handles issuance of supplies and materials with quantity logs.</p>
+          <p class="card-text">Handles asset assignment and issuance of supplies with quantity tracking.</p>
           <a href="pages/supply_request.php" class="btn btn-light">Go</a>
         </div>
       </div>
@@ -90,7 +89,7 @@ include 'includes/header.php';
       <div class="card text-white bg-success">
         <div class="card-body">
           <h3 class="card-title text-center">Maintenance</h3>
-          <p class="card-text">Schedules and logs maintenance or repairs for assets, keeping a record of service history and associated costs.</p>
+          <p class="card-text">Schedules and records asset maintenance with service history and costs.</p>
           <a href="pages/supply_request.php" class="btn btn-light">Go</a>
         </div>
       </div>
@@ -101,7 +100,7 @@ include 'includes/header.php';
       <div class="card text-dark bg-warning">
         <div class="card-body">
           <h3 class="card-title text-center">Audit</h3>
-          <p class="card-text">Supports periodic inventory checks, comparing system data with actual physical counts for assets and supplies.</p>
+          <p class="card-text">Conducts inventory checks by comparing system data with physical counts.</p>
           <a href="pages/supply_request.php" class="btn btn-light">Go</a>
         </div>
       </div>
@@ -112,7 +111,7 @@ include 'includes/header.php';
       <div class="card text-white bg-info">
         <div class="card-body">
           <h3 class="card-title text-center">Disposal</h3>
-          <p class="card-text">Handles the disposal process of obsolete, broken, or unused items with approval workflows and reason tracking.</p>
+          <p class="card-text">Manages disposal of obsolete items with approvals and reason tracking.</p>
           <a href="pages/supply_request.php" class="btn btn-light">Go</a>
         </div>
       </div>
@@ -123,7 +122,7 @@ include 'includes/header.php';
       <div class="card text-white bg-dark">
         <div class="card-body">
           <h3 class="card-title text-center">Reports</h3>
-          <p class="card-text">Generates system-wide reports such as requisition history, inventory levels, maintenance logs, and disposal summaries.</p>
+          <p class="card-text">Generates reports on requisitions, inventory, maintenance, and disposals.</p>
           <a href="pages/supply_request.php" class="btn btn-light">Go</a>
         </div>
       </div>
