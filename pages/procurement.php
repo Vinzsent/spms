@@ -240,6 +240,50 @@ body {
     transform: translateY(-2px);
 }
 
+/* Modal Styles */
+.modal-header {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
+    color: var(--text-white);
+    border-bottom: none;
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.form-control-plaintext {
+    background-color: var(--bg-light);
+    border: 1px solid #e9ecef;
+    border-radius: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    font-weight: 500;
+}
+
+.badge {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.modal-footer {
+    border-top: 1px solid #e9ecef;
+    padding: 1rem 2rem;
+}
+
+/* Action buttons in table */
+.btn-sm {
+    margin: 0 2px;
+    transition: all 0.3s ease;
+}
+
+.btn-sm:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .sidebar {
@@ -257,6 +301,14 @@ body {
     
     .stats-container {
         grid-template-columns: 1fr;
+    }
+    
+    .modal-dialog {
+        margin: 1rem;
+    }
+    
+    .modal-body {
+        padding: 1rem;
     }
 }
 </style>
@@ -373,15 +425,43 @@ body {
                                     </span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-primary" title="View Details">
+                                    <button class="btn btn-sm btn-primary view-btn" title="View Details" 
+                                            data-bs-toggle="modal" data-bs-target="#viewModal"
+                                            data-id="<?= $row['procurement_id'] ?>"
+                                            data-date="<?= date('M d, Y', strtotime($row['date_created'])) ?>"
+                                            data-item="<?= htmlspecialchars($row['item_name']) ?>"
+                                            data-quantity="<?= $row['quantity'] ?>"
+                                            data-unit="<?= $row['unit'] ?>"
+                                            data-supplier="<?= htmlspecialchars($row['supplier_name']) ?>"
+                                            data-price="<?= $row['unit_price'] ?>"
+                                            data-total="<?= $row['quantity'] * $row['unit_price'] ?>"
+                                            data-status="<?= $row['status'] ?>"
+                                            data-notes="<?= htmlspecialchars($row['notes'] ?? '') ?>">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-warning" title="Edit">
+                                    <button class="btn btn-sm btn-warning edit-btn" title="Edit" 
+                                            data-bs-toggle="modal" data-bs-target="#editModal"
+                                            data-id="<?= $row['procurement_id'] ?>"
+                                            data-item="<?= htmlspecialchars($row['item_name']) ?>"
+                                            data-quantity="<?= $row['quantity'] ?>"
+                                            data-unit="<?= $row['unit'] ?>"
+                                            data-supplier="<?= $row['supplier_id'] ?>"
+                                            data-price="<?= $row['unit_price'] ?>"
+                                            data-notes="<?= htmlspecialchars($row['notes'] ?? '') ?>">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-success" title="Mark as Received">
+                                    <?php if ($row['status'] != 'Received'): ?>
+                                    <button class="btn btn-sm btn-success approve-btn" title="Mark as Received" 
+                                            data-bs-toggle="modal" data-bs-target="#approveModal"
+                                            data-id="<?= $row['procurement_id'] ?>"
+                                            data-item="<?= htmlspecialchars($row['item_name']) ?>">
                                         <i class="fas fa-check"></i>
                                     </button>
+                                    <?php else: ?>
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check"></i> Received
+                                    </span>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
@@ -398,6 +478,158 @@ body {
                     <?php endif; ?>
                 </tbody>
             </table>
+        </div>
+    </div>
+</div>
+
+<!-- View Details Modal -->
+<div class="modal fade" id="viewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Procurement Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label"><strong>Date Created:</strong></label>
+                        <p id="view-date" class="form-control-plaintext"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"><strong>Status:</strong></label>
+                        <p id="view-status" class="form-control-plaintext"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"><strong>Item Name:</strong></label>
+                        <p id="view-item" class="form-control-plaintext"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"><strong>Supplier:</strong></label>
+                        <p id="view-supplier" class="form-control-plaintext"></p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label"><strong>Quantity:</strong></label>
+                        <p id="view-quantity" class="form-control-plaintext"></p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label"><strong>Unit Price:</strong></label>
+                        <p id="view-price" class="form-control-plaintext"></p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label"><strong>Total Amount:</strong></label>
+                        <p id="view-total" class="form-control-plaintext"></p>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label"><strong>Notes:</strong></label>
+                        <p id="view-notes" class="form-control-plaintext"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Procurement Record</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editForm" action="../actions/edit_procurement.php" method="POST">
+                <input type="hidden" id="edit-id" name="procurement_id">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Item Name</label>
+                            <input type="text" id="edit-item" name="item_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Supplier</label>
+                            <select id="edit-supplier" name="supplier_id" class="form-select" required>
+                                <option value="">Select Supplier</option>
+                                <?php 
+                                // Reset suppliers result for edit modal
+                                $suppliers_result->data_seek(0);
+                                while ($supplier = $suppliers_result->fetch_assoc()): ?>
+                                    <option value="<?= $supplier['supplier_id'] ?>">
+                                        <?= htmlspecialchars($supplier['supplier_name']) ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" id="edit-quantity" name="quantity" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Unit</label>
+                            <select id="edit-unit" name="unit" class="form-select" required>
+                                <option value="">Select Unit</option>
+                                <option value="pc">Piece</option>
+                                <option value="box">Box</option>
+                                <option value="kg">Kilogram</option>
+                                <option value="liter">Liter</option>
+                                <option value="set">Set</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Unit Price</label>
+                            <input type="number" id="edit-price" name="unit_price" step="0.01" class="form-control" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Notes</label>
+                            <textarea id="edit-notes" name="notes" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Update Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Approve/Received Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Mark as Received</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="approveForm" action="../actions/approve_procurement.php" method="POST">
+                <input type="hidden" id="approve-id" name="procurement_id">
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+                    </div>
+                    <p class="text-center">Are you sure you want to mark this item as received?</p>
+                    <p class="text-center"><strong id="approve-item-name"></strong></p>
+                    
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Received Date</label>
+                            <input type="date" name="received_date" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Received Notes (Optional)</label>
+                            <textarea name="received_notes" class="form-control" rows="3" placeholder="Any additional notes about the received items..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Mark as Received</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -481,6 +713,53 @@ $(document).ready(function() {
     $('input[name="quantity"], input[name="unit_price"]').on('input', function() {
         const quantity = parseFloat($('input[name="quantity"]').val()) || 0;
         const unitPrice = parseFloat($('input[name="unit_price"]').val()) || 0;
+        const total = quantity * unitPrice;
+        // You can add a total display field if needed
+    });
+    
+    // View Modal functionality
+    $('.view-btn').on('click', function() {
+        const button = $(this);
+        $('#view-date').text(button.data('date'));
+        $('#view-item').text(button.data('item'));
+        $('#view-quantity').text(button.data('quantity') + ' ' + button.data('unit'));
+        $('#view-supplier').text(button.data('supplier'));
+        $('#view-price').text('₱' + parseFloat(button.data('price')).toLocaleString('en-US', {minimumFractionDigits: 2}));
+        $('#view-total').text('₱' + parseFloat(button.data('total')).toLocaleString('en-US', {minimumFractionDigits: 2}));
+        
+        // Status with badge styling
+        const status = button.data('status');
+        const statusBadge = status === 'Received' ? 
+            '<span class="badge bg-success">' + status + '</span>' : 
+            '<span class="badge bg-warning">' + status + '</span>';
+        $('#view-status').html(statusBadge);
+        
+        $('#view-notes').text(button.data('notes') || 'No notes available');
+    });
+    
+    // Edit Modal functionality
+    $('.edit-btn').on('click', function() {
+        const button = $(this);
+        $('#edit-id').val(button.data('id'));
+        $('#edit-item').val(button.data('item'));
+        $('#edit-quantity').val(button.data('quantity'));
+        $('#edit-unit').val(button.data('unit'));
+        $('#edit-supplier').val(button.data('supplier'));
+        $('#edit-price').val(button.data('price'));
+        $('#edit-notes').val(button.data('notes'));
+    });
+    
+    // Approve Modal functionality
+    $('.approve-btn').on('click', function() {
+        const button = $(this);
+        $('#approve-id').val(button.data('id'));
+        $('#approve-item-name').text(button.data('item'));
+    });
+    
+    // Auto-calculate total in edit modal
+    $('#edit-quantity, #edit-price').on('input', function() {
+        const quantity = parseFloat($('#edit-quantity').val()) || 0;
+        const unitPrice = parseFloat($('#edit-price').val()) || 0;
         const total = quantity * unitPrice;
         // You can add a total display field if needed
     });
