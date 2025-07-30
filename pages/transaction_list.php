@@ -23,9 +23,7 @@ $result = $conn->query($sql);
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3>Recieved Items</h3>
       <div>
-        <a href="<?= $dashboard_link ?>" class="btn btn-secondary me-2">
-          <i class="fas fa-arrow-left"></i> Back to Dashboard
-        </a>
+        <button class="btn btn-secondary me-2" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTransactionModal">+ New Transaction</button>
       </div>
     </div>
