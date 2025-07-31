@@ -14,9 +14,9 @@ include 'includes/header.php';
 }
 </style>
 
-<div class="container">
-  <h4 class="mb-4 text-center mt-5">Dashboard Menu</h4>
-  <div class="row g-4">
+<div class="container" style="margin-top: 120px;">
+  <h4 class="text-center">Dashboard Menu</h4>
+  <div class="row g-4 mt-2">
 
     <!-- Puchase Card -->
     <div class="col-md-4">

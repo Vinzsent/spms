@@ -35,12 +35,12 @@ if (isset($_SESSION['error'])) {
 
 
 <?php include('../includes/navbar.php'); ?>
-  <div class="container mt-5">
+  <div class="container" style="margin-top: 120px;">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3>Supply Request</h3>
       <div>
         <a href="<?= $dashboard_link ?>" class="btn btn-secondary me-2">
-          <i class="fas fa-arrow-left"></i> Back to Dashboard
+          <i class="fas fa-arrow-left"></i> Previous
         </a>
         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSupplyModal">+ New Request</button>
       </div>

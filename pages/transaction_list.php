@@ -19,7 +19,7 @@ $result = $conn->query($sql);
 
 
 <?php include('../includes/navbar.php'); ?>
-  <div class="container mt-5">
+  <div class="container" style="margin-top: 120px;">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3>Recieved Items</h3>
       <div>
