@@ -309,6 +309,55 @@ body {
     color: var(--text-white);
 }
 
+/* Movement Button Styles */
+.movement-btn {
+    transition: all 0.3s ease;
+    border-width: 2px;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+}
+
+.movement-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.movement-btn.active {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    border-width: 3px;
+}
+
+.movement-btn.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.2);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+    100% { opacity: 0.3; }
+}
+
+.movement-btn.btn-outline-success {
+    border-color: #198754;
+    color: #198754;
+    background-color: rgba(25, 135, 84, 0.1);
+}
+
+.movement-btn.btn-outline-warning {
+    border-color: #ffc107;
+    color: #856404;
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .sidebar {
@@ -679,10 +728,10 @@ body {
                     <div class="mb-3">
                         <label class="form-label">Movement Type</label>
                         <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-success flex-fill" onclick="setMovementType('IN')">
+                            <button type="button" class="btn btn-success flex-fill movement-btn" id="stockInBtn" onclick="setMovementType('IN')">
                                 <i class="fas fa-plus"></i> Stock In
                             </button>
-                            <button type="button" class="btn btn-warning flex-fill" onclick="setMovementType('OUT')">
+                            <button type="button" class="btn btn-warning flex-fill movement-btn" id="stockOutBtn" onclick="setMovementType('OUT')">
                                 <i class="fas fa-minus"></i> Stock Out
                             </button>
                         </div>
@@ -713,6 +762,12 @@ $(document).ready(function() {
     $('.sidebar-toggle').on('click', function() {
         $('.sidebar').toggleClass('show');
     });
+    
+    // Reset movement buttons when modal is shown
+    $('#stockMovementModal').on('show.bs.modal', function() {
+        // Reset button states
+        $('.movement-btn').removeClass('active btn-outline-success btn-outline-warning');
+    });
 });
 
 function stockIn(inventoryId) {
@@ -720,6 +775,10 @@ function stockIn(inventoryId) {
     $('#movement_type').val('IN');
     fetchItemDetails(inventoryId);
     $('#stockMovementModal').modal('show');
+    // Set the movement type and highlight the button after modal is shown
+    setTimeout(() => {
+        setMovementType('IN');
+    }, 100);
 }
 
 function stockOut(inventoryId) {
@@ -727,6 +786,10 @@ function stockOut(inventoryId) {
     $('#movement_type').val('OUT');
     fetchItemDetails(inventoryId);
     $('#stockMovementModal').modal('show');
+    // Set the movement type and highlight the button after modal is shown
+    setTimeout(() => {
+        setMovementType('OUT');
+    }, 100);
 }
 
 function fetchItemDetails(inventoryId) {
@@ -750,11 +813,18 @@ function fetchItemDetails(inventoryId) {
 
 function setMovementType(type) {
     $('#movement_type').val(type);
-    $('.btn-success, .btn-warning').removeClass('active');
+    
+    // Remove active class from all movement buttons
+    $('.movement-btn').removeClass('active btn-outline-success btn-outline-warning');
+    
     if (type === 'IN') {
-        $('.btn-success').addClass('active');
+        $('#stockInBtn').addClass('active');
+        $('#stockInBtn').addClass('btn-outline-success');
+        $('#stockOutBtn').removeClass('btn-outline-warning');
     } else {
-        $('.btn-warning').addClass('active');
+        $('#stockOutBtn').addClass('active');
+        $('#stockOutBtn').addClass('btn-outline-warning');
+        $('#stockInBtn').removeClass('btn-outline-success');
     }
 }
 

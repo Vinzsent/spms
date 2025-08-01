@@ -140,6 +140,18 @@ $result = $conn->query($sql);
                              <td>
                  <div class="btn-group" role="group">
                    <button
+                     class="btn btn-sm btn-info specsBtn"
+                     data-id="<?= $row['transaction_id'] ?>"
+                     data-date="<?= htmlspecialchars($row['date_received']) ?>"
+                     data-invoice="<?= htmlspecialchars($row['invoice_no']) ?>"
+                     data-description="<?= htmlspecialchars($row['item_description']) ?>"
+                     data-supplier="<?= htmlspecialchars($row['supplier_name']) ?>"
+                     data-category="<?= trim($row['category']) ?>"
+                     data-bs-toggle="modal"
+                     data-bs-target="#specificationsModal">
+                     <i class="fas fa-cogs"></i> Specs
+                   </button>
+                   <button
                      class="btn btn-sm btn-warning editBtn"
                      data-id="<?= $row['transaction_id'] ?>"
                      data-date="<?= htmlspecialchars($row['date_received']) ?>"
@@ -192,6 +204,7 @@ $result = $conn->query($sql);
 
   <?php include '../modals/add_transaction_modal.php'; ?>
   <?php include '../modals/edit_transaction_modal.php'; ?>
+  <?php include '../modals/view_specifications_modal.php'; ?>
   
      <!-- Issued Information Modal -->
    <div class="modal fade" id="issuedModal" tabindex="-1" aria-labelledby="issuedModalLabel" aria-hidden="true">
@@ -556,6 +569,100 @@ $(document).ready(function() {
           
           console.log('AJAX Error:', xhr.responseText);
           alert('An error occurred while updating the status. Please try again.');
+        }
+      });
+    });
+
+    // Specifications button click handler
+    $(document).on('click', '.specsBtn', function() {
+      const transactionId = $(this).data('id');
+      const dateReceived = $(this).data('date');
+      const invoiceNo = $(this).data('invoice');
+      const description = $(this).data('description');
+      const supplier = $(this).data('supplier');
+      const category = $(this).data('category');
+
+      // Populate modal header info
+      $('#specTransactionInfo').text(`Invoice: ${invoiceNo} (${dateReceived})`);
+      $('#specItemDescription').text(description);
+      $('#specSupplier').text(supplier);
+      $('#specCategory').text(category);
+      $('#specTransactionId').val(transactionId);
+
+      // Clear previous form data
+      $('#specificationsForm')[0].reset();
+      $('#specificationsStatus').hide();
+
+      // Load existing specifications if any
+      $.ajax({
+        url: '../actions/get_specifications.php',
+        type: 'GET',
+        data: { transaction_id: transactionId },
+        dataType: 'json',
+        success: function(response) {
+          if (response.success && response.data) {
+            // Populate form with existing data
+            $('#specBrand').val(response.data.brand || '');
+            $('#specSerialNumber').val(response.data.serial_number || '');
+            $('#specType').val(response.data.type || '');
+            $('#specSize').val(response.data.size || '');
+            $('#specModel').val(response.data.model || '');
+            $('#specWarranty').val(response.data.warranty_info || '');
+            $('#specNotes').val(response.data.additional_notes || '');
+            
+            $('#specificationsStatus').removeClass('alert-warning').addClass('alert-success').show();
+            $('#specificationsStatusText').html('<i class="fas fa-check-circle me-2"></i>Existing specifications loaded');
+          } else {
+            $('#specificationsStatus').removeClass('alert-success').addClass('alert-warning').show();
+            $('#specificationsStatusText').html('<i class="fas fa-exclamation-triangle me-2"></i>No specifications found for this item. You can add new specifications below.');
+          }
+        },
+        error: function(xhr, status, error) {
+          console.log('Error loading specifications:', error);
+          $('#specificationsStatus').removeClass('alert-success').addClass('alert-warning').show();
+          $('#specificationsStatusText').html('<i class="fas fa-exclamation-triangle me-2"></i>Error loading specifications. You can still add new specifications below.');
+        }
+      });
+    });
+
+    // Specifications form submission handler
+    $('#specificationsForm').on('submit', function(e) {
+      e.preventDefault();
+      
+      // Show loading state
+      $('#saveSpecificationsBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Saving...');
+      
+      $.ajax({
+        url: $(this).attr('action'),
+        type: 'POST',
+        data: $(this).serialize(),
+        dataType: 'json',
+        success: function(response) {
+          // Reset button state
+          $('#saveSpecificationsBtn').prop('disabled', false).html('<i class="fas fa-save me-1"></i>Save Specifications');
+          
+          if (response.success) {
+            // Show success message
+            $('#specificationsStatus').removeClass('alert-warning alert-danger').addClass('alert-success').show();
+            $('#specificationsStatusText').html('<i class="fas fa-check-circle me-2"></i>' + response.message);
+            
+            // Auto-hide success message after 3 seconds
+            setTimeout(function() {
+              $('#specificationsStatus').fadeOut();
+            }, 3000);
+          } else {
+            // Show error message
+            $('#specificationsStatus').removeClass('alert-warning alert-success').addClass('alert-danger').show();
+            $('#specificationsStatusText').html('<i class="fas fa-exclamation-circle me-2"></i>Error: ' + response.message);
+          }
+        },
+        error: function(xhr, status, error) {
+          // Reset button state
+          $('#saveSpecificationsBtn').prop('disabled', false).html('<i class="fas fa-save me-1"></i>Save Specifications');
+          
+          console.log('AJAX Error:', xhr.responseText);
+          $('#specificationsStatus').removeClass('alert-warning alert-success').addClass('alert-danger').show();
+          $('#specificationsStatusText').html('<i class="fas fa-exclamation-circle me-2"></i>An error occurred while saving specifications. Please try again.');
         }
       });
     });
