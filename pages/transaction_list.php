@@ -137,44 +137,46 @@ $result = $conn->query($sql);
               <td><?= $row['unit'] ?></td>
               <td>₱<?= number_format($row['unit_price'], 2) ?></td>
               <td>₱<?= number_format($row['amount'], 2) ?></td>
-              <td>
-                <button
-                  class="btn btn-sm btn-warning editBtn"
-                  data-id="<?= $row['transaction_id'] ?>"
-                  data-date="<?= htmlspecialchars($row['date_received']) ?>"
-                  data-invoice="<?= htmlspecialchars($row['invoice_no']) ?>"
-                  data-sales="<?= trim($row['sales_type']) ?>"
-                  data-category="<?= trim($row['category']) ?>"
-                  data-description="<?= htmlspecialchars($row['item_description']) ?>"
-                  data-status="<?= htmlspecialchars($row['status'])?>"
-                  data-quantity="<?= $row['quantity'] ?>"
-                  data-unit="<?= $row['unit'] ?>"
-                  data-price="<?= $row['unit_price'] ?>"
-                  data-amount="<?= $row['amount'] ?>"
-                  data-supplier="<?= htmlspecialchars($row['supplier_name']) ?>"
-                  data-bs-toggle="modal"
-                  data-bs-target="#editTransactionModal">
-                  Edit <i class="fas-fa-edit"></i>
-                </button>
-                <button
-                  class="btn btn-success issuedBtn"
-                  data-id="<?= $row['transaction_id'] ?>"
-                  data-date="<?= htmlspecialchars($row['date_received']) ?>"
-                  data-invoice="<?= htmlspecialchars($row['invoice_no']) ?>"
-                  data-sales="<?= trim($row['sales_type']) ?>"
-                  data-category="<?= trim($row['category']) ?>"
-                  data-description="<?= htmlspecialchars($row['item_description']) ?>"
-                  data-status="<?= htmlspecialchars($row['status'])?>"
-                  data-quantity="<?= $row['quantity'] ?>"
-                  data-unit="<?= $row['unit'] ?>"
-                  data-price="<?= $row['unit_price'] ?>"
-                  data-amount="<?= $row['amount'] ?>"
-                  data-supplier="<?= htmlspecialchars($row['supplier_name']) ?>"
-                  data-bs-toggle="modal"
-                  data-bs-target="#issuedModal">
-                  Issued
-                </button>
-              </td>
+                             <td>
+                 <div class="btn-group" role="group">
+                   <button
+                     class="btn btn-sm btn-warning editBtn"
+                     data-id="<?= $row['transaction_id'] ?>"
+                     data-date="<?= htmlspecialchars($row['date_received']) ?>"
+                     data-invoice="<?= htmlspecialchars($row['invoice_no']) ?>"
+                     data-sales="<?= trim($row['sales_type']) ?>"
+                     data-category="<?= trim($row['category']) ?>"
+                     data-description="<?= htmlspecialchars($row['item_description']) ?>"
+                     data-status="<?= htmlspecialchars($row['status'])?>"
+                     data-quantity="<?= $row['quantity'] ?>"
+                     data-unit="<?= $row['unit'] ?>"
+                     data-price="<?= $row['unit_price'] ?>"
+                     data-amount="<?= $row['amount'] ?>"
+                     data-supplier="<?= htmlspecialchars($row['supplier_name']) ?>"
+                     data-bs-toggle="modal"
+                     data-bs-target="#editTransactionModal">
+                     <i class="fas fa-edit"></i> Edit
+                   </button>
+                   <button
+                     class="btn btn-sm btn-success issuedBtn"
+                     data-id="<?= $row['transaction_id'] ?>"
+                     data-date="<?= htmlspecialchars($row['date_received']) ?>"
+                     data-invoice="<?= htmlspecialchars($row['invoice_no']) ?>"
+                     data-sales="<?= trim($row['sales_type']) ?>"
+                     data-category="<?= trim($row['category']) ?>"
+                     data-description="<?= htmlspecialchars($row['item_description']) ?>"
+                     data-status="<?= htmlspecialchars($row['status'])?>"
+                     data-quantity="<?= $row['quantity'] ?>"
+                     data-unit="<?= $row['unit'] ?>"
+                     data-price="<?= $row['unit_price'] ?>"
+                     data-amount="<?= $row['amount'] ?>"
+                     data-supplier="<?= htmlspecialchars($row['supplier_name']) ?>"
+                     data-bs-toggle="modal"
+                     data-bs-target="#issuedModal">
+                     <i class="fas fa-check"></i> Issued
+                   </button>
+                 </div>
+               </td>
             </tr>
           <?php endwhile; ?>
         </tbody>
@@ -191,56 +193,68 @@ $result = $conn->query($sql);
   <?php include '../modals/add_transaction_modal.php'; ?>
   <?php include '../modals/edit_transaction_modal.php'; ?>
   
-  <!-- Issued Information Modal -->
-  <div class="modal fade" id="issuedModal" tabindex="-1" aria-labelledby="issuedModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header bg-success text-white">
-          <h5 class="modal-title" id="issuedModalLabel">
-            <i class="fas fa-check-circle me-2"></i>Transaction Details
-          </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-md-6">
-              <div class="info-card mb-3">
-                <h6 class="info-title"><i class="fas fa-calendar me-2"></i>Transaction Info</h6>
-                <div class="info-content">
-                  <div class="info-item"><span class="info-label">Date Received:</span><span class="info-value" id="issuedDate"></span></div>
-                  <div class="info-item"><span class="info-label">Invoice No.:</span><span class="info-value" id="issuedInvoice"></span></div>
-                  <div class="info-item"><span class="info-label">Supplier:</span><span class="info-value" id="issuedSupplier"></span></div>
-                  <div class="info-item"><span class="info-label">Sales Type:</span><span class="info-value" id="issuedSales"></span></div>
-                  <div class="info-item"><span class="info-label">Category:</span><span class="info-value" id="issuedCategory"></span></div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="info-card mb-3">
-                <h6 class="info-title"><i class="fas fa-box me-2"></i>Item Details</h6>
-                <div class="info-content">
-                  <div class="info-item"><span class="info-label">Description:</span><span class="info-value" id="issuedDescription"></span></div>
-                  <div class="info-item"><span class="info-label">Quantity:</span><span class="info-value badge bg-primary" id="issuedQuantity"></span></div>
-                  <div class="info-item"><span class="info-label">Unit:</span><span class="info-value" id="issuedUnit"></span></div>
-                  <div class="info-item"><span class="info-label">Unit Price:</span><span class="info-value text-success fw-bold" id="issuedUnitPrice"></span></div>
-                  <div class="info-item"><span class="info-label">Amount:</span><span class="info-value total-value" id="issuedAmount"></span></div>
-                  <div class="info-item"><span class="info-label">Status:</span><span class="info-value" id="issuedStatus"></span></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            <i class="fas fa-times me-1"></i>Close
-          </button>
-          <button type="button" class="btn btn-success" id="confirmIssuedModalBtn">
-            <i class="fas fa-check me-1"></i>Confirm Issued
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+     <!-- Issued Information Modal -->
+   <div class="modal fade" id="issuedModal" tabindex="-1" aria-labelledby="issuedModalLabel" aria-hidden="true">
+     <div class="modal-dialog modal-lg">
+       <div class="modal-content">
+         <div class="modal-header bg-success text-white">
+           <h5 class="modal-title" id="issuedModalLabel">
+             <i class="fas fa-check-circle me-2"></i>Transaction Details
+           </h5>
+           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+         </div>
+         <form id="issuedForm" action="../actions/update_transaction_status.php" method="POST">
+           <div class="modal-body">
+             <div class="row">
+               <div class="col-md-6">
+                 <div class="info-card mb-3">
+                   <h6 class="info-title"><i class="fas fa-calendar me-2"></i>Transaction Info</h6>
+                   <div class="info-content">
+                     <div class="info-item"><span class="info-label">Date Received:</span><span class="info-value" id="issuedDate"></span></div>
+                     <div class="info-item"><span class="info-label">Invoice No.:</span><span class="info-value" id="issuedInvoice"></span></div>
+                     <div class="info-item"><span class="info-label">Supplier:</span><span class="info-value" id="issuedSupplier"></span></div>
+                     <div class="info-item"><span class="info-label">Sales Type:</span><span class="info-value" id="issuedSales"></span></div>
+                     <div class="info-item"><span class="info-label">Category:</span><span class="info-value" id="issuedCategory"></span></div>
+                   </div>
+                 </div>
+               </div>
+               <div class="col-md-6">
+                 <div class="info-card mb-3">
+                   <h6 class="info-title"><i class="fas fa-box me-2"></i>Item Details</h6>
+                   <div class="info-content">
+                     <div class="info-item"><span class="info-label">Description:</span><span class="info-value" id="issuedDescription"></span></div>
+                     <div class="info-item"><span class="info-label">Quantity:</span><span class="info-value badge bg-primary text-white" id="issuedQuantity"></span></div>
+                     <div class="info-item"><span class="info-label">Unit:</span><span class="info-value" id="issuedUnit"></span></div>
+                     <div class="info-item"><span class="info-label">Unit Price:</span><span class="info-value text-success fw-bold" id="issuedUnitPrice"></span></div>
+                     <div class="info-item"><span class="info-label">Amount:</span><span class="info-value total-value" id="issuedAmount"></span></div>
+                     <div class="info-item"><span class="info-label">Status:</span><span class="info-value" id="issuedStatus"></span></div>
+                   </div>
+                 </div>
+               </div>
+             </div>
+             
+             <!-- Hidden form fields -->
+             <input type="hidden" name="transaction_id" id="issuedTransactionId">
+             <input type="hidden" name="new_status" value="Issued">
+             
+             <!-- Confirmation message -->
+             <div class="alert alert-info">
+               <i class="fas fa-info-circle me-2"></i>
+               <strong>Confirmation:</strong> Are you sure you want to mark this transaction as "Issued"? This action cannot be undone.
+             </div>
+           </div>
+           <div class="modal-footer">
+             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+               <i class="fas fa-times me-1"></i>Cancel
+             </button>
+             <button type="submit" class="btn btn-success" id="confirmIssuedModalBtn">
+               <i class="fas fa-check me-1"></i>Confirm Issued
+             </button>
+           </div>
+         </form>
+       </div>
+     </div>
+   </div>
 
   <style>
     .info-card {
@@ -528,35 +542,85 @@ $(document).ready(function() {
     $('#editQuantity, #editPrice').trigger('input');
   });
 
-  // Issued button click handler
-  $(document).on('click', '.issuedBtn', function() {
-    // Populate modal fields
-    $('#issuedDate').text($(this).data('date'));
-    $('#issuedInvoice').text($(this).data('invoice'));
-    $('#issuedSupplier').text($(this).data('supplier'));
-    $('#issuedSales').text($(this).data('sales'));
-    $('#issuedCategory').text($(this).data('category'));
-    $('#issuedDescription').text($(this).data('description'));
-    $('#issuedQuantity').text($(this).data('quantity'));
-    $('#issuedUnit').text($(this).data('unit'));
-    $('#issuedUnitPrice').text('₱' + parseFloat($(this).data('price')).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-    $('#issuedAmount').text('₱' + parseFloat($(this).data('amount')).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-    $('#issuedStatus').text($(this).data('status'));
-    // Store row for update
-    $('#issuedModal').data('row', $(this).closest('tr'));
-  });
+     // Issued button click handler
+   $(document).on('click', '.issuedBtn', function() {
+     // Populate modal fields
+     $('#issuedDate').text($(this).data('date'));
+     $('#issuedInvoice').text($(this).data('invoice'));
+     $('#issuedSupplier').text($(this).data('supplier'));
+     $('#issuedSales').text($(this).data('sales'));
+     $('#issuedCategory').text($(this).data('category'));
+     $('#issuedDescription').text($(this).data('description'));
+     $('#issuedQuantity').text($(this).data('quantity'));
+     $('#issuedUnit').text($(this).data('unit'));
+     $('#issuedUnitPrice').text('₱' + parseFloat($(this).data('price')).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+     $('#issuedAmount').text('₱' + parseFloat($(this).data('amount')).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+     $('#issuedStatus').text($(this).data('status'));
+     
+     // Populate hidden form field with transaction ID
+     $('#issuedTransactionId').val($(this).data('id'));
+   });
 
-  // Confirm Issued button handler
-  $('#confirmIssuedModalBtn').on('click', function() {
-    var row = $('#issuedModal').data('row');
-    if(row) {
-      // Update status cell in the table
-      row.find('td').eq(6).text('Issued'); // Status column index (0-based)
-      // Optionally, update the button or disable it
-      // row.find('.issuedBtn').prop('disabled', true);
-    }
-    $('#issuedModal').modal('hide');
-    // Optionally, send AJAX to update backend here
-  });
+       // Form submission handler
+    $('#issuedForm').on('submit', function(e) {
+      e.preventDefault();
+      
+      // Debug: Log the form data being sent
+      var formData = $(this).serialize();
+      console.log('Form data being sent:', formData);
+      console.log('Transaction ID:', $('#issuedTransactionId').val());
+      console.log('New Status:', $('input[name="new_status"]').val());
+      
+      // Show loading state
+      $('#confirmIssuedModalBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Updating...');
+      
+      $.ajax({
+        url: $(this).attr('action'),
+        type: 'POST',
+        data: formData,
+        dataType: 'json',
+        success: function(response) {
+          // Reset button state
+          $('#confirmIssuedModalBtn').prop('disabled', false).html('<i class="fas fa-check me-1"></i>Confirm Issued');
+          
+          if (response.success) {
+            // Update the status in the table
+            var row = table.row(function(idx, data, node) {
+              return data[0] === $('#issuedDate').text() && data[1] === $('#issuedInvoice').text();
+            });
+            
+            if (row.length > 0) {
+              var data = row.data();
+              data[6] = 'Issued'; // Update status column (index 6)
+              row.data(data).draw();
+              
+              // Update the status cell display
+              var statusCell = row.node().cells[6];
+              $(statusCell).html('<span class="badge bg-success">Issued</span>');
+            }
+            
+            // Close modal
+            $('#issuedModal').modal('hide');
+            
+            // Show success message
+            alert('Status updated to Issued successfully!');
+            
+            // Reload page to refresh the total calculation
+            setTimeout(function() {
+              location.reload();
+            }, 1000);
+          } else {
+            alert('Error: ' + response.message);
+          }
+        },
+        error: function(xhr, status, error) {
+          // Reset button state
+          $('#confirmIssuedModalBtn').prop('disabled', false).html('<i class="fas fa-check me-1"></i>Confirm Issued');
+          
+          console.log('AJAX Error:', xhr.responseText);
+          alert('An error occurred while updating the status. Please try again.');
+        }
+      });
+    });
 });
 </script>

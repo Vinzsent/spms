@@ -13,7 +13,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
       <div class="modal-body row g-3">
         <div class="col-md-4">
           <label>Quantity Requested</label>
-          <input type="hidden" name="status" value="pending">
+          <input type="hidden" name="status" value="Pending">
           <input type="date" name="date_received" class="form-control" required>
         </div>
         <div class="col-md-4">

@@ -14,17 +14,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $unit_price = (float)$_POST['unit_price'];
     $amount = $quantity * $unit_price;
 
-    // Fix: Use correct binding types
-    $stmt = $conn->prepare("INSERT INTO supplier_transaction (date_received, invoice_no, sales_type, category, supplier_id, item_description, quantity, unit, status, unit_price, amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssisssdd", $date_received, $invoice_no, $sales_type,  $category, $supplier_id,  $item_description, $quantity, $unit, $status, $unit_price, $amount);
-    //              Types:   s     s      s      s      i       s                 i        s      d          d
+    // Use direct SQL query to avoid bind_param issues
+    $sql = "INSERT INTO supplier_transaction (date_received, invoice_no, sales_type, category, supplier_id, item_description, quantity, unit, status, unit_price, amount) 
+            VALUES ('" . $conn->real_escape_string($date_received) . "', 
+                    '" . $conn->real_escape_string($invoice_no) . "', 
+                    '" . $conn->real_escape_string($sales_type) . "', 
+                    '" . $conn->real_escape_string($category) . "', 
+                    " . (int)$supplier_id . ", 
+                    '" . $conn->real_escape_string($item_description) . "', 
+                    " . (int)$quantity . ", 
+                    '" . $conn->real_escape_string($unit) . "', 
+                    '" . $conn->real_escape_string($status) . "', 
+                    " . (float)$unit_price . ", 
+                    " . (float)$amount . ")";
 
-    if ($stmt->execute()) {
+    if ($conn->query($sql)) {
         echo "<script>alert('Transaction saved successfully!'); window.location.href='../pages/transaction_list.php';</script>";
     } else {
-        echo "Error: " . $stmt->error;
+        echo "Error: " . $conn->error;
     }
-
-    $stmt->close();
 }
 ?>
