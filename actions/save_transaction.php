@@ -10,12 +10,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $item_description = $_POST['item_description'];
     $quantity = (int)$_POST['quantity'];
     $unit = $_POST['unit'];
+    $status = $_POST['status'];
     $unit_price = (float)$_POST['unit_price'];
     $amount = $quantity * $unit_price;
 
     // Fix: Use correct binding types
-    $stmt = $conn->prepare("INSERT INTO supplier_transaction (date_received, invoice_no, sales_type, category, supplier_id, item_description, quantity, unit, unit_price, amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssisssdd", $date_received, $invoice_no, $sales_type,  $category, $supplier_id,  $item_description, $quantity, $unit, $unit_price, $amount);
+    $stmt = $conn->prepare("INSERT INTO supplier_transaction (date_received, invoice_no, sales_type, category, supplier_id, item_description, quantity, unit, status, unit_price, amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssisssdd", $date_received, $invoice_no, $sales_type,  $category, $supplier_id,  $item_description, $quantity, $unit, $status, $unit_price, $amount);
     //              Types:   s     s      s      s      i       s                 i        s      d          d
 
     if ($stmt->execute()) {

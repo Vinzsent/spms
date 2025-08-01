@@ -111,6 +111,7 @@ $result = $conn->query($sql);
             <th>Supplier Name</th>
             <th>Category</th>
             <th>Item Description</th>
+            <th>Status</th>
             <th>Quantity</th>
             <th>Unit</th>
             <th>Unit Price</th>
@@ -131,6 +132,7 @@ $result = $conn->query($sql);
               <td><?= htmlspecialchars($row['supplier_name']) ?></td>
               <td><?= htmlspecialchars($row['category']) ?></td>
               <td><?= htmlspecialchars($row['item_description']) ?></td>
+              <td><?= htmlspecialchars($row['status']) ?></td>
               <td><?= $row['quantity'] ?></td>
               <td><?= $row['unit'] ?></td>
               <td>₱<?= number_format($row['unit_price'], 2) ?></td>
@@ -144,12 +146,33 @@ $result = $conn->query($sql);
                   data-sales="<?= trim($row['sales_type']) ?>"
                   data-category="<?= trim($row['category']) ?>"
                   data-description="<?= htmlspecialchars($row['item_description']) ?>"
+                  data-status="<?= htmlspecialchars($row['status'])?>"
                   data-quantity="<?= $row['quantity'] ?>"
                   data-unit="<?= $row['unit'] ?>"
                   data-price="<?= $row['unit_price'] ?>"
+                  data-amount="<?= $row['amount'] ?>"
+                  data-supplier="<?= htmlspecialchars($row['supplier_name']) ?>"
                   data-bs-toggle="modal"
                   data-bs-target="#editTransactionModal">
-                  Edit
+                  Edit <i class="fas-fa-edit"></i>
+                </button>
+                <button
+                  class="btn btn-success issuedBtn"
+                  data-id="<?= $row['transaction_id'] ?>"
+                  data-date="<?= htmlspecialchars($row['date_received']) ?>"
+                  data-invoice="<?= htmlspecialchars($row['invoice_no']) ?>"
+                  data-sales="<?= trim($row['sales_type']) ?>"
+                  data-category="<?= trim($row['category']) ?>"
+                  data-description="<?= htmlspecialchars($row['item_description']) ?>"
+                  data-status="<?= htmlspecialchars($row['status'])?>"
+                  data-quantity="<?= $row['quantity'] ?>"
+                  data-unit="<?= $row['unit'] ?>"
+                  data-price="<?= $row['unit_price'] ?>"
+                  data-amount="<?= $row['amount'] ?>"
+                  data-supplier="<?= htmlspecialchars($row['supplier_name']) ?>"
+                  data-bs-toggle="modal"
+                  data-bs-target="#issuedModal">
+                  Issued
                 </button>
               </td>
             </tr>
@@ -168,270 +191,372 @@ $result = $conn->query($sql);
   <?php include '../modals/add_transaction_modal.php'; ?>
   <?php include '../modals/edit_transaction_modal.php'; ?>
   
-  <?php include '../includes/footer.php'; ?>
-  <script>
-    $(document).ready(function() {
-      const table = $('#transactionsTable').DataTable({
-        dom: 'Brtip',
-        buttons: [{
-            extend: 'excelHtml5',
-            text: '<i class="fa-solid fa-file-excel"></i>',
-            className: 'btn btn-sm',
-            customize: function(xlsx) {
-              let sheet = xlsx.xl.worksheets['sheet1.xml'];
-              $('row c[r]', sheet).attr('s', '0');
-            }
-          },
-          {
-            extend: 'pdfHtml5',
-            text: '<i class="fa-solid fa-file-pdf"></i>',
-            orientation: 'landscape',
-            pageSize: 'A4',
-            title: 'Supplier Transactions',
-            className: 'btn btn-sm',
-            footer: true, // <-- include the footer (TOTAL row)
-            exportOptions: {
-              columns: ':not(:last-child)' // Exclude the last column (Action)
+  <!-- Issued Information Modal -->
+  <div class="modal fade" id="issuedModal" tabindex="-1" aria-labelledby="issuedModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title" id="issuedModalLabel">
+            <i class="fas fa-check-circle me-2"></i>Transaction Details
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="info-card mb-3">
+                <h6 class="info-title"><i class="fas fa-calendar me-2"></i>Transaction Info</h6>
+                <div class="info-content">
+                  <div class="info-item"><span class="info-label">Date Received:</span><span class="info-value" id="issuedDate"></span></div>
+                  <div class="info-item"><span class="info-label">Invoice No.:</span><span class="info-value" id="issuedInvoice"></span></div>
+                  <div class="info-item"><span class="info-label">Supplier:</span><span class="info-value" id="issuedSupplier"></span></div>
+                  <div class="info-item"><span class="info-label">Sales Type:</span><span class="info-value" id="issuedSales"></span></div>
+                  <div class="info-item"><span class="info-label">Category:</span><span class="info-value" id="issuedCategory"></span></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="info-card mb-3">
+                <h6 class="info-title"><i class="fas fa-box me-2"></i>Item Details</h6>
+                <div class="info-content">
+                  <div class="info-item"><span class="info-label">Description:</span><span class="info-value" id="issuedDescription"></span></div>
+                  <div class="info-item"><span class="info-label">Quantity:</span><span class="info-value badge bg-primary" id="issuedQuantity"></span></div>
+                  <div class="info-item"><span class="info-label">Unit:</span><span class="info-value" id="issuedUnit"></span></div>
+                  <div class="info-item"><span class="info-label">Unit Price:</span><span class="info-value text-success fw-bold" id="issuedUnitPrice"></span></div>
+                  <div class="info-item"><span class="info-label">Amount:</span><span class="info-value total-value" id="issuedAmount"></span></div>
+                  <div class="info-item"><span class="info-label">Status:</span><span class="info-value" id="issuedStatus"></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times me-1"></i>Close
+          </button>
+          <button type="button" class="btn btn-success" id="confirmIssuedModalBtn">
+            <i class="fas fa-check me-1"></i>Confirm Issued
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .info-card {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 1.5rem;
+      border-left: 4px solid #28a745;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .info-title { color: #28a745; font-weight: 600; margin-bottom: 1rem; font-size: 1.1rem; }
+    .info-content { display: flex; flex-direction: column; gap: 0.75rem; }
+    .info-item { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #e9ecef; }
+    .info-item:last-child { border-bottom: none; }
+    .info-label { font-weight: 600; color: #495057; min-width: 140px; }
+    .info-value { color: #212529; text-align: right; flex: 1; }
+    .total-value { font-size: 1.1rem; font-weight: 700; color: #155724; }
+    .modal-header { background: linear-gradient(135deg, #28a745, #20c997); }
+    .btn-close-white { filter: brightness(0) invert(1); }
+    .badge { font-size: 0.9rem; padding: 0.5rem 0.75rem; }
+  </style>
+
+<?php include '../includes/footer.php'; ?>
+<script>
+$(document).ready(function() {
+  const table = $('#transactionsTable').DataTable({
+    dom: 'Brtip',
+    buttons: [{
+        extend: 'excelHtml5',
+        text: '<i class="fa-solid fa-file-excel"></i>',
+        className: 'btn btn-sm',
+        customize: function(xlsx) {
+          let sheet = xlsx.xl.worksheets['sheet1.xml'];
+          $('row c[r]', sheet).attr('s', '0');
+        }
+      },
+      {
+        extend: 'pdfHtml5',
+        text: '<i class="fa-solid fa-file-pdf"></i>',
+        orientation: 'landscape',
+        pageSize: 'A4',
+        title: 'Supplier Transactions',
+        className: 'btn btn-sm',
+        footer: true, // <-- include the footer (TOTAL row)
+        exportOptions: {
+          columns: ':not(:last-child)' // Exclude the last column (Action)
+        },
+        customize: function(doc) {
+          // Set table borders
+          doc.content[1].layout = {
+            hLineWidth: function(i, node) {
+              return 1; // Horizontal line width
             },
-            customize: function(doc) {
-              // Set table borders
-              doc.content[1].layout = {
-                hLineWidth: function(i, node) {
-                  return 1; // Horizontal line width
-                },
-                vLineWidth: function(i, node) {
-                  return 1; // Vertical line width
-                },
-                hLineColor: function(i, node) {
-                  return '#2d3748'; // Horizontal line color
-                },
-                vLineColor: function(i, node) {
-                  return '#2d3748'; // Vertical line color
-                }
-              };
-
-              // Style customization
-              doc.styles.tableHeader.fillColor = '#FFFFFF';
-              doc.styles.tableHeader.color = '#000000';
-              doc.styles.tableBodyEven = {
-                fillColor: '#FFFFFF'
-              };
-              doc.styles.tableBodyOdd = {
-                fillColor: '#FFFFFF'
-              };
-
-              // Footer row customization
-              const footer = doc.content[1].table.body[doc.content[1].table.body.length - 1];
-              const totalAmount = footer[footer.length - 1].text;
-              
-              const newFooter = [
-                { text: '', style: 'tableHeader' },
-                { text: '', style: 'tableHeader' },
-                { text: '', style: 'tableHeader' },
-                { text: '', style: 'tableHeader' },
-                { text: '', style: 'tableHeader' },
-                { text: '', style: 'tableHeader' },
-                { text: '', style: 'tableHeader' },
-                { text: '', style: 'tableHeader' },
-                { text: 'Total:', alignment: 'right', style: 'tableHeader' },
-                { text: totalAmount, style: 'tableHeader' }
-              ];
-              
-              doc.content[1].table.body[doc.content[1].table.body.length - 1] = newFooter;
-            }
-          },
-          {
-            extend: 'print',
-            text: '<i class="fa-solid fa-print"></i>',
-            title: 'Supplier Transactions',
-            className: 'btn btn-sm',
-            footer: true, // <-- include the footer (TOTAL row)
-            exportOptions: {
-              columns: ':not(:last-child)' // Exclude the last column (Action)
+            vLineWidth: function(i, node) {
+              return 1; // Vertical line width
             },
-            customize: function(win) {
-              const table = $(win.document.body).find('table');
-              table.removeClass('table-bordered table-striped table-dark').addClass('table');
-
-              // Add custom styling for the print view
-              $(win.document.head).append(
-                '<style>' +
-                'table { width: 100%; border-collapse: collapse; }' +
-                'th, td { border: 1px solid #000; padding: 8px; text-align: left; }' +
-                'tfoot th { font-weight: bold; }' +
-                '</style>'
-              );
-
-              // Get the footer row and total amount
-              const footerRow = table.find('tfoot tr');
-              const totalAmount = footerRow.find('th').last().text();
-
-              // Clear the footer cells
-              footerRow.find('th').html('');
-
-              // Set the content of the footer
-              footerRow.find('th').eq(-2).text('Total:').css('text-align', 'right');
-              footerRow.find('th').eq(-1).text(totalAmount);
+            hLineColor: function(i, node) {
+              return '#2d3748'; // Horizontal line color
+            },
+            vLineColor: function(i, node) {
+              return '#2d3748'; // Vertical line color
             }
-          }
-        ],
-        ordering: true,
-        searching: true,
-        paging: true,
-        lengthChange: false
-      });
+          };
 
-      table.buttons().container().appendTo('#exportContainer');
+          // Style customization
+          doc.styles.tableHeader.fillColor = '#FFFFFF';
+          doc.styles.tableHeader.color = '#000000';
+          doc.styles.tableBodyEven = {
+            fillColor: '#FFFFFF'
+          };
+          doc.styles.tableBodyOdd = {
+            fillColor: '#FFFFFF'
+          };
 
-      function updateGrandTotal(table) {
-        let total = 0;
-        // Loop through only the filtered rows
-        table.rows({ search: 'applied' }).every(function() {
-          // The "Amount" column is index 9 (0-based)
-          const amountText = this.data()[9];
-          // Remove currency symbol and commas, then parse as float
-          const amount = parseFloat(amountText.replace(/[₱,]/g, ''));
-          if (!isNaN(amount)) total += amount;
-        });
-        // Update the footer cell
-        $('#grandTotalCell').text('₱' + total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+          // Footer row customization
+          const footer = doc.content[1].table.body[doc.content[1].table.body.length - 1];
+          const totalAmount = footer[footer.length - 1].text;
+          
+          const newFooter = [
+            { text: '', style: 'tableHeader' },
+            { text: '', style: 'tableHeader' },
+            { text: '', style: 'tableHeader' },
+            { text: '', style: 'tableHeader' },
+            { text: '', style: 'tableHeader' },
+            { text: '', style: 'tableHeader' },
+            { text: '', style: 'tableHeader' },
+            { text: '', style: 'tableHeader' },
+            { text: 'Total:', alignment: 'right', style: 'tableHeader' },
+            { text: totalAmount, style: 'tableHeader' }
+          ];
+          
+          doc.content[1].table.body[doc.content[1].table.body.length - 1] = newFooter;
+        }
+      },
+      {
+        extend: 'print',
+        text: '<i class="fa-solid fa-print"></i>',
+        title: 'Supplier Transactions',
+        className: 'btn btn-sm',
+        footer: true, // <-- include the footer (TOTAL row)
+        exportOptions: {
+          columns: ':not(:last-child)' // Exclude the last column (Action)
+        },
+        customize: function(win) {
+          const table = $(win.document.body).find('table');
+          table.removeClass('table-bordered table-striped table-dark').addClass('table');
+
+          // Add custom styling for the print view
+          $(win.document.head).append(
+            '<style>' +
+            'table { width: 100%; border-collapse: collapse; }' +
+            'th, td { border: 1px solid #000; padding: 8px; text-align: left; }' +
+            'tfoot th { font-weight: bold; }' +
+            '</style>'
+          );
+
+          // Get the footer row and total amount
+          const footerRow = table.find('tfoot tr');
+          const totalAmount = footerRow.find('th').last().text();
+
+          // Clear the footer cells
+          footerRow.find('th').html('');
+
+          // Set the content of the footer
+          footerRow.find('th').eq(-2).text('Total:').css('text-align', 'right');
+          footerRow.find('th').eq(-1).text(totalAmount);
+        }
       }
+    ],
+    ordering: true,
+    searching: true,
+    paging: true,
+    lengthChange: false
+  });
 
-      // Initial total
-      updateGrandTotal(table);
+  table.buttons().container().appendTo('#exportContainer');
 
-      // After every filter/search, update the total
-      table.on('draw', function() {
-        updateGrandTotal(table);
-      });
-
-      // Date range filtering function
-      function filterByDateRange() {
-        const startDate = $('#filterDateStart').val();
-        const endDate = $('#filterDateEnd').val();
-        
-        // Custom filtering function for date range
-        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-          const dateReceived = data[0]; // Date Received column
-          
-          if (!startDate && !endDate) {
-            return true; // No filter applied
-          }
-          
-          const transactionDate = new Date(dateReceived);
-          
-          if (startDate && endDate) {
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            return transactionDate >= start && transactionDate <= end;
-          } else if (startDate) {
-            const start = new Date(startDate);
-            return transactionDate >= start;
-          } else if (endDate) {
-            const end = new Date(endDate);
-            return transactionDate <= end;
-          }
-          
-          return true;
-        });
-        
-        table.draw();
-        updateGrandTotal(table);
-      }
-
-      // Date range filter event handlers
-      $('#filterDateStart, #filterDateEnd').on('change', function() {
-        // Clear previous custom filters
-        $.fn.dataTable.ext.search.pop();
-        filterByDateRange();
-      });
-
-      // Quick date filter buttons
-      $('#currentMonth').on('click', function() {
-        const now = new Date();
-        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        
-        $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
-        $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
-        
-        // Clear previous custom filters
-        $.fn.dataTable.ext.search.pop();
-        filterByDateRange();
-      });
-
-      $('#currentYear').on('click', function() {
-        const now = new Date();
-        const firstDay = new Date(now.getFullYear(), 0, 1);
-        const lastDay = new Date(now.getFullYear(), 11, 31);
-        
-        $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
-        $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
-        
-        // Clear previous custom filters
-        $.fn.dataTable.ext.search.pop();
-        filterByDateRange();
-      });
-
-      $('#lastMonth').on('click', function() {
-        const now = new Date();
-        const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        const lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
-        
-        $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
-        $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
-        
-        // Clear previous custom filters
-        $.fn.dataTable.ext.search.pop();
-        filterByDateRange();
-      });
-
-      $('#lastYear').on('click', function() {
-        const now = new Date();
-        const firstDay = new Date(now.getFullYear() - 1, 0, 1);
-        const lastDay = new Date(now.getFullYear() - 1, 11, 31);
-        
-        $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
-        $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
-        
-        // Clear previous custom filters
-        $.fn.dataTable.ext.search.pop();
-        filterByDateRange();
-      });
-
-      $('#clearDateFilter').on('click', function() {
-        $('#filterDateStart').val('');
-        $('#filterDateEnd').val('');
-        
-        // Clear previous custom filters
-        $.fn.dataTable.ext.search.pop();
-        table.draw();
-        updateGrandTotal(table);
-      });
-
-      $('#filterCategory').on('change', function() {
-        table.column(4).search(this.value).draw();
-        updateGrandTotal(table);
-      });
-
-      $('#dtSearch').on('keyup change', function() {
-        table.search(this.value).draw();
-        updateGrandTotal(table);
-      });
-
-      $(document).on('click', '.editBtn', function() {
-        console.log('Date Received:', $(this).data('date_received'));
-        $('#editTransactionId').val($(this).data('id'));
-        $('#editDateReceived').val($(this).data('date'));
-        $('#editInvoiceNo').val($(this).data('invoice'));
-        $('#editDescription').val($(this).data('description'));
-        $('#editQuantity').val($(this).data('quantity'));
-        $('#editUnit').val($(this).data('unit'));
-        $('#editPrice').val($(this).data('price'));
-        $('#editSalesType').val($(this).data('sales'));
-        $('#editCategory').val($(this).data('category'));
-        // Trigger calculation for total
-        $('#editQuantity, #editPrice').trigger('input');
-      });
+  function updateGrandTotal(table) {
+    let total = 0;
+    // Loop through only the filtered rows
+    table.rows({ search: 'applied' }).every(function() {
+      // The "Amount" column is index 9 (0-based)
+      const amountText = this.data()[9];
+      // Remove currency symbol and commas, then parse as float
+      const amount = parseFloat(amountText.replace(/[₱,]/g, ''));
+      if (!isNaN(amount)) total += amount;
     });
-  </script>
+    // Update the footer cell
+    $('#grandTotalCell').text('₱' + total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+  }
+
+  // Initial total
+  updateGrandTotal(table);
+
+  // After every filter/search, update the total
+  table.on('draw', function() {
+    updateGrandTotal(table);
+  });
+
+  // Date range filtering function
+  function filterByDateRange() {
+    const startDate = $('#filterDateStart').val();
+    const endDate = $('#filterDateEnd').val();
+    
+    // Custom filtering function for date range
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+      const dateReceived = data[0]; // Date Received column
+      
+      if (!startDate && !endDate) {
+        return true; // No filter applied
+      }
+      
+      const transactionDate = new Date(dateReceived);
+      
+      if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        return transactionDate >= start && transactionDate <= end;
+      } else if (startDate) {
+        const start = new Date(startDate);
+        return transactionDate >= start;
+      } else if (endDate) {
+        const end = new Date(endDate);
+        return transactionDate <= end;
+      }
+      
+      return true;
+    });
+    
+    table.draw();
+    updateGrandTotal(table);
+  }
+
+  // Date range filter event handlers
+  $('#filterDateStart, #filterDateEnd').on('change', function() {
+    // Clear previous custom filters
+    $.fn.dataTable.ext.search.pop();
+    filterByDateRange();
+  });
+
+  // Quick date filter buttons
+  $('#currentMonth').on('click', function() {
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    
+    $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
+    $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
+    
+    // Clear previous custom filters
+    $.fn.dataTable.ext.search.pop();
+    filterByDateRange();
+  });
+
+  $('#currentYear').on('click', function() {
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), 0, 1);
+    const lastDay = new Date(now.getFullYear(), 11, 31);
+    
+    $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
+    $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
+    
+    // Clear previous custom filters
+    $.fn.dataTable.ext.search.pop();
+    filterByDateRange();
+  });
+
+  $('#lastMonth').on('click', function() {
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
+    
+    $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
+    $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
+    
+    // Clear previous custom filters
+    $.fn.dataTable.ext.search.pop();
+    filterByDateRange();
+  });
+
+  $('#lastYear').on('click', function() {
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear() - 1, 0, 1);
+    const lastDay = new Date(now.getFullYear() - 1, 11, 31);
+    
+    $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
+    $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
+    
+    // Clear previous custom filters
+    $.fn.dataTable.ext.search.pop();
+    filterByDateRange();
+  });
+
+  $('#clearDateFilter').on('click', function() {
+    $('#filterDateStart').val('');
+    $('#filterDateEnd').val('');
+    
+    // Clear previous custom filters
+    $.fn.dataTable.ext.search.pop();
+    table.draw();
+    updateGrandTotal(table);
+  });
+
+  $('#filterCategory').on('change', function() {
+    table.column(4).search(this.value).draw();
+    updateGrandTotal(table);
+  });
+
+  $('#dtSearch').on('keyup change', function() {
+    table.search(this.value).draw();
+    updateGrandTotal(table);
+  });
+
+  $(document).on('click', '.editBtn', function() {
+    console.log('Date Received:', $(this).data('date_received'));
+    $('#editTransactionId').val($(this).data('id'));
+    $('#editDateReceived').val($(this).data('date'));
+    $('#editInvoiceNo').val($(this).data('invoice'));
+    $('#editDescription').val($(this).data('description'));
+    $('#editQuantity').val($(this).data('quantity'));
+    $('#editUnit').val($(this).data('unit'));
+    $('#editPrice').val($(this).data('price'));
+    $('#editSalesType').val($(this).data('sales'));
+    $('#editCategory').val($(this).data('category'));
+    // Trigger calculation for total
+    $('#editQuantity, #editPrice').trigger('input');
+  });
+
+  // Issued button click handler
+  $(document).on('click', '.issuedBtn', function() {
+    // Populate modal fields
+    $('#issuedDate').text($(this).data('date'));
+    $('#issuedInvoice').text($(this).data('invoice'));
+    $('#issuedSupplier').text($(this).data('supplier'));
+    $('#issuedSales').text($(this).data('sales'));
+    $('#issuedCategory').text($(this).data('category'));
+    $('#issuedDescription').text($(this).data('description'));
+    $('#issuedQuantity').text($(this).data('quantity'));
+    $('#issuedUnit').text($(this).data('unit'));
+    $('#issuedUnitPrice').text('₱' + parseFloat($(this).data('price')).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+    $('#issuedAmount').text('₱' + parseFloat($(this).data('amount')).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+    $('#issuedStatus').text($(this).data('status'));
+    // Store row for update
+    $('#issuedModal').data('row', $(this).closest('tr'));
+  });
+
+  // Confirm Issued button handler
+  $('#confirmIssuedModalBtn').on('click', function() {
+    var row = $('#issuedModal').data('row');
+    if(row) {
+      // Update status cell in the table
+      row.find('td').eq(6).text('Issued'); // Status column index (0-based)
+      // Optionally, update the button or disable it
+      // row.find('.issuedBtn').prop('disabled', true);
+    }
+    $('#issuedModal').modal('hide');
+    // Optionally, send AJAX to update backend here
+  });
+});
+</script>

@@ -346,6 +346,9 @@ if (isset($_SESSION['error'])) {
             <li><a href="procurement.php" class="nav-link active">
                     <i class="fas fa-shopping-cart"></i> Procurement
                 </a></li>
+                <li><a href="inventory.php" class="nav-link">
+                    <i class="fas fa-boxes"></i> Inventory
+                </a></li>
             <li><a href="transaction_list.php" class="nav-link">
                     <i class="fas fa-exchange-alt"></i> Transactions
                 </a></li>

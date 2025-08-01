@@ -7,12 +7,13 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
   <div class="modal-dialog modal-lg">
     <form class="modal-content" action="../actions/save_transaction.php" method="POST">
       <div class="modal-header">
-        <h5 class="modal-title">New Supply Request</h5>
+        <h5 class="modal-title">New Transaction</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body row g-3">
         <div class="col-md-4">
           <label>Quantity Requested</label>
+          <input type="hidden" name="status" value="pending">
           <input type="date" name="date_received" class="form-control" required>
         </div>
         <div class="col-md-4">
