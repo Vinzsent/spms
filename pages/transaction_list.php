@@ -290,64 +290,7 @@ $(document).ready(function() {
           $('row c[r]', sheet).attr('s', '0');
         }
       },
-      {
-        extend: 'pdfHtml5',
-        text: '<i class="fa-solid fa-file-pdf"></i>',
-        orientation: 'landscape',
-        pageSize: 'A4',
-        title: 'Supplier Transactions',
-        className: 'btn btn-sm',
-        footer: true, // <-- include the footer (TOTAL row)
-        exportOptions: {
-          columns: ':not(:last-child)' // Exclude the last column (Action)
-        },
-        customize: function(doc) {
-          // Set table borders
-          doc.content[1].layout = {
-            hLineWidth: function(i, node) {
-              return 1; // Horizontal line width
-            },
-            vLineWidth: function(i, node) {
-              return 1; // Vertical line width
-            },
-            hLineColor: function(i, node) {
-              return '#2d3748'; // Horizontal line color
-            },
-            vLineColor: function(i, node) {
-              return '#2d3748'; // Vertical line color
-            }
-          };
-
-          // Style customization
-          doc.styles.tableHeader.fillColor = '#FFFFFF';
-          doc.styles.tableHeader.color = '#000000';
-          doc.styles.tableBodyEven = {
-            fillColor: '#FFFFFF'
-          };
-          doc.styles.tableBodyOdd = {
-            fillColor: '#FFFFFF'
-          };
-
-          // Footer row customization
-          const footer = doc.content[1].table.body[doc.content[1].table.body.length - 1];
-          const totalAmount = footer[footer.length - 1].text;
-          
-          const newFooter = [
-            { text: '', style: 'tableHeader' },
-            { text: '', style: 'tableHeader' },
-            { text: '', style: 'tableHeader' },
-            { text: '', style: 'tableHeader' },
-            { text: '', style: 'tableHeader' },
-            { text: '', style: 'tableHeader' },
-            { text: '', style: 'tableHeader' },
-            { text: '', style: 'tableHeader' },
-            { text: 'Total:', alignment: 'right', style: 'tableHeader' },
-            { text: totalAmount, style: 'tableHeader' }
-          ];
-          
-          doc.content[1].table.body[doc.content[1].table.body.length - 1] = newFooter;
-        }
-      },
+      
       {
         extend: 'print',
         text: '<i class="fa-solid fa-print"></i>',
@@ -565,19 +508,13 @@ $(document).ready(function() {
     $('#issuedForm').on('submit', function(e) {
       e.preventDefault();
       
-      // Debug: Log the form data being sent
-      var formData = $(this).serialize();
-      console.log('Form data being sent:', formData);
-      console.log('Transaction ID:', $('#issuedTransactionId').val());
-      console.log('New Status:', $('input[name="new_status"]').val());
-      
       // Show loading state
       $('#confirmIssuedModalBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Updating...');
       
       $.ajax({
         url: $(this).attr('action'),
         type: 'POST',
-        data: formData,
+        data: $(this).serialize(),
         dataType: 'json',
         success: function(response) {
           // Reset button state
