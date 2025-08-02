@@ -44,8 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Prepare and execute SQL statement for supply_request table
         $stmt = $conn->prepare("
             INSERT INTO supply_request (
-                date_requested, date_needed, department_unit, purpose, sales_type, category, request_description, unit_cost, total_cost, quantity_requested, unit, description, quality_issued, amount
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                date_requested, date_needed, department_unit, purpose, sales_type, category, request_description, unit_cost, total_cost, quantity_requested, unit, quality_issued, amount
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         if (!$stmt) {
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $stmt->bind_param(
-            "ssssssssssssss",
+            "sssssssssssss",
             $date_requested,
             $date_needed,
             $department_unit,
@@ -65,7 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $total_cost,
             $quantity_requested,
             $unit,
-            $request_description, // Using request_description for description column
             $quality_issued,
             $amount
         );

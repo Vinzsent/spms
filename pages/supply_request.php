@@ -39,9 +39,7 @@ if (isset($_SESSION['error'])) {
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3>Supply Request</h3>
       <div>
-        <a href="<?= $dashboard_link ?>" class="btn btn-secondary me-2">
-          <i class="fas fa-arrow-left"></i> Previous
-        </a>
+      <button class="btn btn-secondary me-2" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSupplyModal">+ New Request</button>
       </div>
     </div>
@@ -192,6 +190,7 @@ if (isset($_SESSION['error'])) {
   
   <?php include '../includes/footer.php'; ?>
   <script>
+    
     $(document).ready(function() {
       const table = $('#transactionsTable').DataTable({
         dom: 'Brtip',
@@ -442,6 +441,8 @@ if (isset($_SESSION['error'])) {
       });
 
 
+
+      
       //edit button
       $(document).on('click', '.editBtn', function() {
         console.log('Date Requested:', $(this).data('date-requested'));

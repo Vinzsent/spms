@@ -7,7 +7,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
   <div class="modal-dialog modal-lg">
     <form class="modal-content" action="../actions/save_transaction.php" method="POST">
       <div class="modal-header">
-        <h5 class="modal-title">New Transaction</h5>
+        <h5 class="modal-title text-white">New Transaction</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body row g-3">
