@@ -14,6 +14,12 @@ $sql = "SELECT i.*, s.supplier_name
         ORDER BY i.date_created DESC";
 $result = $conn->query($sql);
 
+$sql1 = "SELECT st.*, s.supplier_name 
+        FROM supplier_transaction st
+        JOIN supplier s ON s.supplier_id = st.supplier_id
+        ORDER BY st.date_received DESC";
+$result1 = $conn->query($sql1);
+
 // Get stock movement logs
 $stock_logs_sql = "SELECT sl.*, i.item_name, s.supplier_name 
                    FROM stock_logs sl 
@@ -473,6 +479,68 @@ body {
             </div>
             <div class="stat-number"><?= $stock_logs_result ? $stock_logs_result->num_rows : 0 ?></div>
             <div class="stat-label">Recent Movements</div>
+        </div>
+    </div>
+
+    <!-- Recieved Items Table -->
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Recieved Items</h3>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Date Received</th>
+                        <th>Invoice Number</th>
+                        <th>Sales Type</th>
+                        <th>Category</th>
+                        <th>Item Description</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                        <th>Unit Price</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if ($result1 && $result1->num_rows > 0): ?>
+                        <?php while ($row = $result1->fetch_assoc()): ?>
+                            <?php
+                            if ($row['sales_type'] == 0) {
+                            } elseif ($row['sales_type']) {
+                            } elseif ($row['sales_type']) {
+                            }
+                            ?>
+                            <tr>
+                                <td><?= htmlspecialchars($row['date_received']) ?></td>
+                                <td><?= htmlspecialchars($row['invoice_no']) ?></td>
+                                <td>
+                                    <strong><?= $row['sales_type'] ?></strong>
+                                </td>
+                                <td><?= $row['category'] ?></td>
+                                <td><?= $row['item_description'] ?></td>
+                                <td><?= htmlspecialchars($row['quantity']) ?></td>
+                                <td><?= htmlspecialchars($row['unit'] ?? 'N/A') ?></td>
+                                <td><?= htmlspecialchars($row['unit_price']) ?></td>
+                                <td><?= htmlspecialchars($row['amount']) ?></td>
+                                <td><?= htmlspecialchars($row['status']) ?></td>
+                            </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="10" class="text-center py-4">
+                                <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No inventory items found</p>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                                    Add First Item
+                                </button>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
     </div>
 

@@ -112,6 +112,7 @@ $result = $conn->query($sql);
             <th>Category</th>
             <th>Item Description</th>
             <th>Status</th>
+            <th>Department</th>
             <th>Quantity</th>
             <th>Unit</th>
             <th>Unit Price</th>
@@ -133,12 +134,19 @@ $result = $conn->query($sql);
               <td><?= htmlspecialchars($row['category']) ?></td>
               <td><?= htmlspecialchars($row['item_description']) ?></td>
               <td><?= htmlspecialchars($row['status']) ?></td>
+              <td>
+                <?php if ($row['status'] === 'Issued' && !empty($row['issued_to_department'])): ?>
+                  <span class="badge bg-success"><?= htmlspecialchars($row['issued_to_department']) ?></span>
+                <?php else: ?>
+                  <span class="text-muted">-</span>
+                <?php endif; ?>
+              </td>
               <td><?= $row['quantity'] ?></td>
               <td><?= $row['unit'] ?></td>
               <td>₱<?= number_format($row['unit_price'], 2) ?></td>
               <td>₱<?= number_format($row['amount'], 2) ?></td>
                              <td>
-                 <div class="btn-group" role="group">
+                 <div class="btn-group" role="group" style="flex-wrap: wrap; gap: 2px;">
                    <button
                      class="btn btn-sm btn-info specsBtn"
                      data-id="<?= $row['transaction_id'] ?>"
@@ -148,7 +156,8 @@ $result = $conn->query($sql);
                      data-supplier="<?= htmlspecialchars($row['supplier_name']) ?>"
                      data-category="<?= trim($row['category']) ?>"
                      data-bs-toggle="modal"
-                     data-bs-target="#specificationsModal">
+                     data-bs-target="#specificationsModal"
+                     style="margin: 1px;">
                      <i class="fas fa-cogs"></i> Specs
                    </button>
                    <button
@@ -166,7 +175,8 @@ $result = $conn->query($sql);
                      data-amount="<?= $row['amount'] ?>"
                      data-supplier="<?= htmlspecialchars($row['supplier_name']) ?>"
                      data-bs-toggle="modal"
-                     data-bs-target="#editTransactionModal">
+                     data-bs-target="#editTransactionModal"
+                     style="margin: 1px;">
                      <i class="fas fa-edit"></i> Edit
                    </button>
                    <button
@@ -184,7 +194,8 @@ $result = $conn->query($sql);
                      data-amount="<?= $row['amount'] ?>"
                      data-supplier="<?= htmlspecialchars($row['supplier_name']) ?>"
                      data-bs-toggle="modal"
-                     data-bs-target="#issuedModal">
+                     data-bs-target="#issuedModal"
+                     style="margin: 1px;">
                      <i class="fas fa-check"></i> Issued
                    </button>
                  </div>
@@ -194,7 +205,7 @@ $result = $conn->query($sql);
         </tbody>
         <tfoot>
           <tr>
-            <td colspan="9" class="text-end fw-bold">Total:</td>
+            <td colspan="10" class="text-end fw-bold">Total:</td>
             <td colspan="2" class="fw-bold" id="grandTotalCell">₱<?= number_format($total_sum, 2) ?></td>
           </tr>
         </tfoot>
@@ -246,6 +257,30 @@ $result = $conn->query($sql);
                </div>
              </div>
              
+             <!-- Department Selection -->
+             <div class="department-selection">
+               <div class="row">
+                 <div class="col-md-6">
+                   <label for="issuedDepartment" class="form-label">
+                     <i class="fas fa-building me-2"></i>Issue to Department/Unit
+                   </label>
+                   <select class="form-select" id="issuedDepartment" name="issued_to_department" required>
+                     <option value="">-- Select Department/Unit --</option>
+                     <option value="HR">HR</option>
+                     <option value="Accounting">Accounting</option>
+                     <option value="Admin">Admin</option>
+                     <option value="Maintenance">Maintenance</option>
+                     <option value="MIS">MIS</option>
+                     <option value="Teacher">Teacher</option>
+                   </select>
+                   <div class="form-text">
+                     <i class="fas fa-info-circle me-1"></i>
+                     Please select the department/unit where this item will be issued.
+                   </div>
+                 </div>
+               </div>
+             </div>
+             
              <!-- Hidden form fields -->
              <input type="hidden" name="transaction_id" id="issuedTransactionId">
              <input type="hidden" name="new_status" value="Issued">
@@ -287,6 +322,60 @@ $result = $conn->query($sql);
     .modal-header { background: linear-gradient(135deg, #28a745, #20c997); }
     .btn-close-white { filter: brightness(0) invert(1); }
     .badge { font-size: 0.9rem; padding: 0.5rem 0.75rem; }
+    
+    /* Department selection styling */
+    .department-selection {
+      background: #e8f5e8;
+      border-radius: 8px;
+      padding: 1rem;
+      border: 1px solid #c3e6c3;
+      margin-bottom: 1rem;
+    }
+    .department-selection .form-label {
+      color: #155724;
+      font-weight: 600;
+    }
+    .department-selection .form-select {
+      border-color: #28a745;
+    }
+    .department-selection .form-select:focus {
+      border-color: #20c997;
+      box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    
+    /* Department badge styling */
+    .badge.bg-info {
+      background-color: #17a2b8 !important;
+      color: white;
+      font-size: 0.8rem;
+      padding: 0.4rem 0.6rem;
+    }
+    
+    /* Action buttons styling */
+    .btn-group .btn {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      margin: 1px;
+      white-space: nowrap;
+    }
+    
+    .btn-group .btn i {
+      margin-right: 2px;
+    }
+    
+    /* Ensure buttons are visible on smaller screens */
+    @media (max-width: 768px) {
+      .btn-group {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      
+      .btn-group .btn {
+        width: 100%;
+        margin: 1px 0;
+      }
+    }
   </style>
 
 <?php include '../includes/footer.php'; ?>
@@ -351,8 +440,8 @@ $(document).ready(function() {
     let total = 0;
     // Loop through only the filtered rows
     table.rows({ search: 'applied' }).every(function() {
-      // The "Amount" column is index 9 (0-based)
-      const amountText = this.data()[9];
+      // The "Amount" column is index 10 (0-based) - updated due to new Department column
+      const amountText = this.data()[10];
       // Remove currency symbol and commas, then parse as float
       const amount = parseFloat(amountText.replace(/[₱,]/g, ''));
       if (!isNaN(amount)) total += amount;
@@ -513,6 +602,9 @@ $(document).ready(function() {
      $('#issuedAmount').text('₱' + parseFloat($(this).data('amount')).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
      $('#issuedStatus').text($(this).data('status'));
      
+     // Reset department dropdown
+     $('#issuedDepartment').val('');
+     
      // Populate hidden form field with transaction ID
      $('#issuedTransactionId').val($(this).data('id'));
    });
@@ -520,6 +612,14 @@ $(document).ready(function() {
        // Form submission handler
     $('#issuedForm').on('submit', function(e) {
       e.preventDefault();
+      
+      // Validate department selection
+      const selectedDepartment = $('#issuedDepartment').val();
+      if (!selectedDepartment) {
+        alert('Please select a department/unit before proceeding.');
+        $('#issuedDepartment').focus();
+        return;
+      }
       
       // Show loading state
       $('#confirmIssuedModalBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Updating...');
@@ -542,11 +642,16 @@ $(document).ready(function() {
             if (row.length > 0) {
               var data = row.data();
               data[6] = 'Issued'; // Update status column (index 6)
+              data[7] = '<span class="badge bg-info">' + selectedDepartment + '</span>'; // Update department column (index 7)
               row.data(data).draw();
               
               // Update the status cell display
               var statusCell = row.node().cells[6];
               $(statusCell).html('<span class="badge bg-success">Issued</span>');
+              
+              // Update the department cell display
+              var departmentCell = row.node().cells[7];
+              $(departmentCell).html('<span class="badge bg-info">' + selectedDepartment + '</span>');
             }
             
             // Close modal
