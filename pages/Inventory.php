@@ -5,7 +5,7 @@ include '../includes/db.php';
 include '../includes/header.php';
 
 $user_type = $_SESSION['user_type'] ?? '';
-$dashboard_link = ($user_type == 'Admin') ? '../admin_dashboard.php' : '../dashboard.php';
+$dashboard_link = ($user_type == 'Admin') ? '../dashboard.php' : '../dashboard.php';
 
 // Get inventory data
 $sql = "SELECT i.*, s.supplier_name 
@@ -410,7 +410,7 @@ body {
                 <i class="fas fa-boxes"></i> Inventory
             </a></li>
             <li><a href="transaction_list.php" class="nav-link">
-                <i class="fas fa-exchange-alt"></i> Recieved Items
+                <i class="fas fa-exchange-alt"></i> Supply Request
             </a></li>
             <li><a href="../logout.php" class="nav-link logout">
                 <i class="fas fa-sign-out-alt"></i> Logout

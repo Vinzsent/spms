@@ -180,7 +180,7 @@ if (isset($_SESSION['error'])) {
           <tr>
             <th style="background-color: #073b1d; color: white;">Date Requested</th>
             <th style="background-color: #073b1d; color: white;">Date Needed</th>
-            <th style="background-color: #073b1d; color: white;">Department/Unit</th>
+            <th style="background-color: #073b1d; color: white;">Position/Role</th>
             <th style="background-color: #073b1d; color: white;">Purpose of the request</th>
             <th style="background-color: #073b1d; color: white;">Quantity Requested</th>
             <th style="background-color: #073b1d; color: white;">Unit</th>

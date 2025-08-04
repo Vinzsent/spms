@@ -35,7 +35,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
         </div>
 
         <div class="col-md-4">
-          <label>Department/Unit</label>
+          <label>Position/Role</label>
           <input type="text" name="department_unit" class="form-control" required>
         </div>
 

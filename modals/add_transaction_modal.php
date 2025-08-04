@@ -12,7 +12,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
       </div>
       <div class="modal-body row g-3">
         <div class="col-md-4">
-          <label>Quantity Requested</label>
+          <label>Date Requested</label>
           <input type="hidden" name="status" value="Pending">
           <input type="date" name="date_received" class="form-control" required>
         </div>
@@ -66,9 +66,23 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
           </select>
         </div>
         <div class="col-md-12">
-		  <label>Description</label>
-		  <textarea name="item_description" class="form-control" rows="3" required></textarea>
-		</div>
+          <label>Description</label>
+          <textarea name="item_description" class="form-control" rows="3" required></textarea>
+        </div>
+
+        <!-- Additional Item Details -->
+        <div class="col-md-4">
+          <label>Brand</label>
+          <input type="text" name="brand" class="form-control" placeholder="Enter brand name">
+        </div>
+        <div class="col-md-4">
+          <label>Type</label>
+          <input type="text" name="type" class="form-control" placeholder="Enter item type">
+        </div>
+        <div class="col-md-4">
+          <label>Color</label>
+          <input type="text" name="color" class="form-control" placeholder="Enter color">
+        </div>
 
         <div class="col-md-3">
           <label>Quantity Issued</label>

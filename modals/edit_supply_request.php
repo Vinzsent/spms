@@ -25,7 +25,7 @@
 
           <!-- Department Unit -->
           <div class="col-md-4">
-            <label class="form-label">Department Unit</label>
+            <label class="form-label">Position/Role</label>
             <input type="text" class="form-control" name="department_unit" id="editDepartmentUnit" required>
           </div>
 
