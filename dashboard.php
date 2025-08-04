@@ -271,16 +271,6 @@ include 'includes/header.php';
       <a href="pages/supply_request.php" class="card-button">Access Module</a>
     </div>
 
-    <!-- Procurement Card -->
-    <div class="menu-card card-warning">
-      <div class="card-icon">
-        <i class="fas fa-shopping-cart"></i>
-      </div>
-      <h3 class="card-title">Procurement</h3>
-      <p class="card-description">Log purchased items with supplier details, costs, and receipts. Mark items as received when delivered.</p>
-      <a href="pages/procurement.php" class="card-button">Access Module</a>
-    </div>
-
     <!-- Received Items Card -->
     <div class="menu-card card-primary">
       <div class="card-icon">
@@ -290,7 +280,8 @@ include 'includes/header.php';
       <p class="card-description">Record and track new supplier transactions. Manage incoming inventory and update stock levels.</p>
       <a href="pages/transaction_list.php" class="card-button">Access Module</a>
     </div>
-
+    
+    
     <!-- Inventory Card -->
     <div class="menu-card card-info">
       <div class="card-icon">
@@ -300,7 +291,17 @@ include 'includes/header.php';
       <p class="card-description">Track real-time stock levels with detailed logs. Get alerts for low inventory and manage supplies.</p>
       <a href="pages/inventory.php" class="card-button">Access Module</a>
     </div>
-
+    
+    <!-- Procurement Card -->
+    <div class="menu-card card-warning">
+      <div class="card-icon">
+        <i class="fas fa-shopping-cart"></i>
+      </div>
+      <h3 class="card-title">Procurement</h3>
+      <p class="card-description">Log purchased items with supplier details, costs, and receipts. Mark items as received when delivered.</p>
+      <a href="pages/procurement.php" class="card-button">Access Module</a>
+    </div>
+    
     <!-- Asset Registration Card -->
     <div class="menu-card card-dark">
       <div class="card-icon">

@@ -1,14 +1,34 @@
-
 <?php
+session_start();
+
 $pageTitle = 'Supplier Request';
 include '../includes/auth.php';
 include '../includes/db.php';
 include '../includes/header.php';
 
+// Get user information from session with multiple fallbacks
+$user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
+$user_id = $_SESSION['user_id'] ?? $_SESSION['id'] ?? $_SESSION['user']['id'] ?? '';
 
-$user_type = $_SESSION['user_type']?? '';
+// Get user name with fallbacks
+$user_name = '';
+if (isset($_SESSION['name'])) {
+    $user_name = $_SESSION['name'];
+} elseif (isset($_SESSION['user']['name'])) {
+    $user_name = $_SESSION['user']['name'];
+} elseif (isset($_SESSION['user']['first_name']) && isset($_SESSION['user']['last_name'])) {
+    $user_name = $_SESSION['user']['first_name'] . ' ' . $_SESSION['user']['last_name'];
+} elseif (isset($_SESSION['email'])) {
+    $user_name = $_SESSION['email'];
+} else {
+    $user_name = 'Unknown User';
+}
 
 $dashboard_link = ($user_type == 'Admin') ? '../admin_dashboard.php' : '../dashboard.php';
+
+// Debug: Log session variables to help troubleshoot
+error_log('Supply Request Page - Session variables: ' . print_r($_SESSION, true));
+error_log('Supply Request Page - User ID: ' . $user_id . ', User Name: ' . $user_name . ', User Type: ' . $user_type);
 
 $sql = "SELECT * FROM supply_request";
 $result = $conn->query($sql);
@@ -29,20 +49,61 @@ if (isset($_SESSION['error'])) {
         </div>';
   unset($_SESSION['error']);
 }
-
 ?>
 
-
-
 <?php include('../includes/navbar.php'); ?>
-  <div class="container" style="margin-top: 120px;">
+  <div class="container" style="margin-top: 100px;">
+    
+    <!-- User Information Display -->
+    <div class="row mb-4">
+      <div class="col-md-12">
+        <div class="card border-dark">
+          <div class="card-header" style="background-color: #073b1d; color: white;">
+            <h6 class="mb-0"><i class="fas fa-user-circle me-2"></i>Current User Information</h6>
+          </div>
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <div class="d-flex align-items-center">
+                  <div class="me-3">
+                    <i class="fas fa-user-circle fa-3x" style="color: #073b1d;"></i>
+                  </div>
+                  <div>
+                    <h5 class="mb-1"><?= htmlspecialchars($user_name) ?></h5>
+                    <p class="mb-1 text-muted">
+                      <strong>User ID:</strong> <?= htmlspecialchars($user_id) ?>
+                      <?php if (!empty($user_type)): ?>
+                        | <strong>Position:</strong> <?= htmlspecialchars(strtoupper($user_type)) ?>
+                      <?php endif; ?>
+                    </p>
+                    <?php if (empty($user_id)): ?>
+                      <div class="mt-2">
+                        <small class="text-warning">
+                          <i class="fas fa-exclamation-triangle me-1"></i>Warning: User ID not found in session
+                        </small>
+                      </div>
+                    <?php endif; ?>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4 text-end">
+                <button class="btn" style="background-color: #073b1d; color: white;" data-bs-toggle="modal" data-bs-target="#addSupplyModal">
+                  <i class="fas fa-plus me-2"></i>New Supply Request
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3>Supply Request</h3>
       <div>
-      <button class="btn btn-secondary me-2" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
-        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSupplyModal">+ New Request</button>
+        <button class="btn" style="background-color: #073b1d; color: white;" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
       </div>
     </div>
+    <h5 class="text-center">List of the employee request</h5>
     <hr>
     <!-- Filter Row -->
     <div class="row align-items-end mb-4 g-2">
@@ -117,17 +178,17 @@ if (isset($_SESSION['error'])) {
       <table id="transactionsTable" class="table table-bordered table-striped">
         <thead>
           <tr>
-            <th>Date Requested</th>
-            <th>Date Needed</th>
-            <th>Department/Unit</th>
-            <th>Purpose of the request</th>
-            <th>Quantity Requested</th>
-            <th>Unit</th>
-            <th>Request Description</th>
-            <th>Quality Issued</th>
-            <th>Unit Cost</th>
-            <th>Total Cost</th>
-            <th>Action</th>
+            <th style="background-color: #073b1d; color: white;">Date Requested</th>
+            <th style="background-color: #073b1d; color: white;">Date Needed</th>
+            <th style="background-color: #073b1d; color: white;">Department/Unit</th>
+            <th style="background-color: #073b1d; color: white;">Purpose of the request</th>
+            <th style="background-color: #073b1d; color: white;">Quantity Requested</th>
+            <th style="background-color: #073b1d; color: white;">Unit</th>
+            <th style="background-color: #073b1d; color: white;">Request Description</th>
+            <th style="background-color: #073b1d; color: white;">Quality Issued</th>
+            <th style="background-color: #073b1d; color: white;">Unit Cost</th>
+            <th style="background-color: #073b1d; color: white;">Total Cost</th>
+            <th style="background-color: #073b1d; color: white;">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -152,7 +213,7 @@ if (isset($_SESSION['error'])) {
               <td>₱<?= number_format($computed_total_cost, 2) ?></td>
               <td>
                 <button
-                  class="btn btn-sm btn-warning editBtn"
+                  class="btn btn-sm editBtn" style="background-color: #073b1d; color: white;"
                   data-request-id="<?= $row['request_id'] ?>"
                   data-date-requested="<?= htmlspecialchars($row['date_requested']) ?>"
                   data-date-needed="<?= htmlspecialchars($row['date_needed']) ?>"

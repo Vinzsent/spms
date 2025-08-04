@@ -17,16 +17,16 @@ $result = $conn->query($sql);
 ?>
 
 
-
 <?php include('../includes/navbar.php'); ?>
   <div class="container" style="margin-top: 120px;">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h3>Recieved Items</h3>
+      <h3 class="text-center">Recieved Items</h3>
       <div>
         <button class="btn btn-secondary me-2" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTransactionModal">+ New Transaction</button>
       </div>
     </div>
+    <h5 class="text-center">List of the recieved items from the suppliers</h5>
     <hr>
     <!-- Filter Row -->
     <div class="row align-items-end mb-4 g-2">

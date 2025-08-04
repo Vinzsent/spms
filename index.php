@@ -15,13 +15,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
         if (password_verify($password, $user['password'])) {
+            // Store user data in session with proper keys
             $_SESSION['user'] = $user;
+            $_SESSION['user_id'] = $user['id']; // Store user ID separately
+            $_SESSION['id'] = $user['id']; // Alternative key for compatibility
+            $_SESSION['user_type'] = $user['user_type'];
+            $_SESSION['name'] = $user['name'] ?? $user['first_name'] . ' ' . $user['last_name'] ?? $user['email'];
+            $_SESSION['email'] = $user['email'];
+            
+            // Debug: Log session data
+            error_log('Login successful - User ID: ' . $user['id'] . ', User Type: ' . $user['user_type']);
+            
             header("Location: dashboard.php");
             exit;
-            if ($user['user_type'] == 'Staff') {
-              header("Location: dashboard.php");
-              exit;
-          }
         } else {
             $error = "Incorrect password.";
         }

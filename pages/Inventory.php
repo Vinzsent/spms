@@ -410,7 +410,7 @@ body {
                 <i class="fas fa-boxes"></i> Inventory
             </a></li>
             <li><a href="transaction_list.php" class="nav-link">
-                <i class="fas fa-exchange-alt"></i> Transactions
+                <i class="fas fa-exchange-alt"></i> Recieved Items
             </a></li>
             <li><a href="../logout.php" class="nav-link logout">
                 <i class="fas fa-sign-out-alt"></i> Logout
@@ -532,10 +532,7 @@ body {
                         <tr>
                             <td colspan="10" class="text-center py-4">
                                 <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
-                                <p class="text-muted">No inventory items found</p>
-                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
-                                    Add First Item
-                                </button>
+                                <p class="text-muted">No recieved items found</p>
                             </td>
                         </tr>
                     <?php endif; ?>

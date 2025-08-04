@@ -11,9 +11,22 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body row g-3">
+        <!-- User Information Section -->
+        <div class="col-md-12 mb-3">
+          <div class="alert alert-info d-flex align-items-center">
+            <i class="fas fa-user-circle fa-2x me-3 text-primary"></i>
+            <div>
+              <strong class="d-block">Requesting User</strong>
+              <span class="text-muted"><?= htmlspecialchars($user_name) ?></span>
+              <small class="badge bg-secondary ms-2">ID: <?= htmlspecialchars($user_id) ?></small>
+            </div>
+          </div>
+        </div>
+        
         <div class="col-md-4">
           <label>Date Requested</label>
           <input type="date" name="date_requested" class="form-control" required>
+          <input type="hidden" name="user_id" value="<?= htmlspecialchars($user_id) ?>">
         </div>
 
         <div class="col-md-4">

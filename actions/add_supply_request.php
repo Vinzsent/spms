@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     error_log('Form submitted with data: ' . print_r($_POST, true));
     
     // Debug: Check if all required fields are present
-    $required_fields = ['date_requested', 'date_needed', 'department_unit', 'purpose', 'sales_type', 'category', 'request_description', 'unit_cost', 'total_cost', 'quantity_requested', 'unit', 'quality_issued', 'amount'];
+    $required_fields = ['date_requested', 'date_needed', 'department_unit', 'purpose', 'sales_type', 'category', 'request_description', 'unit_cost', 'total_cost', 'quantity_requested', 'unit', 'quality_issued', 'amount', 'user_id'];
     $missing_fields = [];
     foreach ($required_fields as $field) {
         if (empty($_POST[$field])) {
@@ -40,12 +40,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $unit                     = trim($_POST['unit'] ?? '');
         $quality_issued           = trim($_POST['quality_issued'] ?? '');
         $amount                   = trim($_POST['amount'] ?? '');
+        $user_id                  = trim($_POST['user_id'] ?? '');
 
         // Prepare and execute SQL statement for supply_request table
         $stmt = $conn->prepare("
             INSERT INTO supply_request (
-                date_requested, date_needed, department_unit, purpose, sales_type, category, request_description, unit_cost, total_cost, quantity_requested, unit, quality_issued, amount
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                date_requested, date_needed, department_unit, purpose, sales_type, category, request_description, unit_cost, total_cost, quantity_requested, unit, quality_issued, amount, user_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         if (!$stmt) {
@@ -53,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $stmt->bind_param(
-            "sssssssssssss",
+            "sssssssssssssi",
             $date_requested,
             $date_needed,
             $department_unit,
@@ -66,7 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $quantity_requested,
             $unit,
             $quality_issued,
-            $amount
+            $amount,
+            $user_id
         );
 
         // Execute the statement
