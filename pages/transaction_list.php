@@ -427,7 +427,8 @@ $result = $conn->query($sql);
   }
 </style>
 
-<?php include '../includes/footer.php'; ?><script>
+<?php include '../includes/footer.php'; ?>
+<script>
   $(document).ready(function() {
     const table = $('#transactionsTable').DataTable({
       dom: 'Brtip',
