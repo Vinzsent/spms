@@ -5,7 +5,6 @@ include '../includes/db.php';
 include '../includes/header.php';
 
 $user_type = $_SESSION['user_type'] ?? '';
-$dashboard_link = ($user_type == 'Admin') ? '../admin_dashboard.php' : '../dashboard.php';
 
 // Get procurement data
 $sql = "SELECT p.*, s.supplier_name 
@@ -334,7 +333,7 @@ if (isset($_SESSION['error'])) {
 
     <nav class="sidebar-nav">
         <ul class="nav-item">
-            <li><a href="<?= $dashboard_link ?>" class="nav-link">
+            <li><a href="../dashboard.php" class="nav-link">
                     <i class="fas fa-chart-line"></i> Dashboard
                 </a></li>
             <li><a href="suppliers.php" class="nav-link">

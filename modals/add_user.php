@@ -20,19 +20,19 @@
     </div>
     
     <div class="row g-3 mt-2">
-      <div class="col-md-4">
+      <div class="col-md-6">
         <label for="add-firstname" class="form-label">
           <i class="fas fa-user me-1"></i>First Name <span class="text-danger">*</span>
         </label>
         <input class="form-control" name="first_name" id="add-firstname" placeholder="First Name" required>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-6">
         <label for="add-middlename" class="form-label">
           <i class="fas fa-user me-1"></i>Middle Name
         </label>
-        <input class="form-control" name="middle_name" id="add-middlename" placeholder="Middle Name">
+        <input class="form-control" name="middle_name" id="add-middlename" placeholder="Optional">
       </div>
-      <div class="col-md-4">
+      <div class="col-md-6">
         <label for="add-lastname" class="form-label">
           <i class="fas fa-user me-1"></i>Last Name <span class="text-danger">*</span>
         </label>
@@ -55,6 +55,15 @@
           <option value="">-- Select Position --</option>
           <option value="Admin">Administrator</option>
           <option value="Staff">Staff</option>
+          <option value="Faculty">Faculty</option>
+          <option value="MIS Head">MIS Head</option>
+          <option value="MIS Computer Programmer">MIS Computer Programmer</option>
+          <option value="School President">School President</option>
+          <option value="Immediate Head">Immediate Head</option>
+          <option value="Supply In-charge">Supply In-charge</option>
+          <option value="Purchasing Officer">Purchasing Officer</option>
+          <option value="VP for Finance & Administration">VP for Finance & Administration</option>
+          <option value="Finance Officer">Finance Officer</option>
         </select>
       </div>
     </div>

@@ -57,6 +57,15 @@
           <option value="">-- Select Position --</option>
           <option value="Admin">Administrator</option>
           <option value="Staff">Staff</option>
+          <option value="Faculty">Faculty</option>
+          <option value="MIS Head">MIS Head</option>
+          <option value="MIS Computer Programmer">MIS Computer Programmer</option>
+          <option value="School President">School President</option>
+          <option value="Immediate Head">Immediate Head</option>
+          <option value="Supply In-charge">Supply In-charge</option>
+          <option value="Purchasing Officer">Purchasing Officer</option>
+          <option value="VP for Finance & Administration">VP for Finance & Administration</option>
+          <option value="Finance Officer">Finance Officer</option>
         </select>
       </div>
     </div>
