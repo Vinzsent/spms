@@ -112,7 +112,6 @@ $result = $conn->query($sql);
           <th style="background-color: #073b1d; color: white;">Category</th>
           <th style="background-color: #073b1d; color: white;">Item Description</th>
           <th style="background-color: #073b1d; color: white;">Status</th>
-          <th style="background-color: #073b1d; color: white;">Position</th>
           <th style="background-color: #073b1d; color: white;">Quantity</th>
           <th style="background-color: #073b1d; color: white;">Unit</th>
           <th style="background-color: #073b1d; color: white;">Unit Price</th>
@@ -134,13 +133,13 @@ $result = $conn->query($sql);
             <td><?= htmlspecialchars($row['category']) ?></td>
             <td><?= htmlspecialchars($row['item_description']) ?></td>
             <td><?= htmlspecialchars($row['status']) ?></td>
-            <td>
+            <!--<td>
               <?php if ($row['status'] === 'Issued' && !empty($row['issued_to_department'])): ?>
                 <span class="badge bg-success"><?= htmlspecialchars($row['issued_to_department']) ?></span>
               <?php else: ?>
                 <span class="text-muted">-</span>
               <?php endif; ?>
-            </td>
+            </td>-->
             <td><?= $row['quantity'] ?></td>
             <td><?= $row['unit'] ?></td>
             <td>₱<?= number_format($row['unit_price'], 2) ?></td>
@@ -262,20 +261,25 @@ $result = $conn->query($sql);
             <div class="row">
               <div class="col-md-6">
                 <label for="issuedDepartment" class="form-label">
-                  <i class="fas fa-building me-2"></i>Issue to Department/Unit
+                  <i class="fas fa-building me-2"></i>Issue to Department/Position
                 </label>
                 <select class="form-select" id="issuedDepartment" name="issued_to_department" required>
-                  <option value="">-- Select Department/Unit --</option>
-                  <option value="HR">HR</option>
-                  <option value="Accounting">Accounting</option>
-                  <option value="Admin">Admin</option>
-                  <option value="Maintenance">Maintenance</option>
-                  <option value="MIS">MIS</option>
-                  <option value="Teacher">Teacher</option>
+                  <option value="">-- Select Department/Position--</option>
+                  <option value="Admin">Administrator</option>
+                  <option value="Staff">Staff</option>
+                  <option value="Faculty">Faculty</option>
+                  <option value="MIS Head">MIS Head</option>
+                  <option value="MIS Computer Programmer">MIS Computer Programmer</option>
+                  <option value="School President">School President</option>
+                  <option value="Immediate Head">Immediate Head</option>
+                  <option value="Supply In-charge">Supply In-charge</option>
+                  <option value="Purchasing Officer">Purchasing Officer</option>
+                  <option value="VP for Finance & Administration">VP for Finance & Administration</option>
+                  <option value="Finance Officer">Finance Officer</option>
                 </select>
                 <div class="form-text">
                   <i class="fas fa-info-circle me-1"></i>
-                  Please select the department/unit where this item will be issued.
+                  Please select the Position where this item will be issued.
                 </div>
               </div>
             </div>

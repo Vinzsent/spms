@@ -2,6 +2,9 @@
 $pageTitle = 'Admin Dashboard';
 include 'includes/auth.php';
 include 'includes/header.php';
+
+// Get user type from session
+$user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
 ?>
 <?php include('./includes/navbar.php'); ?>
 
@@ -257,120 +260,122 @@ include 'includes/header.php';
 <div class="dashboard-container">
   <div class="dashboard-header">
     <h1>Welcome to Asset Management Dashboard</h1>
-    <p>Manage your supply and procurement system efficiently with our comprehensive tools</p>
+    <p>Manage your assets efficiently with our comprehensive tools</p>
   </div>
 
   <div class="menu-grid">
-    <!-- Supply Requisition Card -->
-    <div class="menu-card card-success">
-      <div class="card-icon">
-        <i class="fas fa-clipboard-list"></i>
+    <?php if (strtolower($user_type) === 'faculty'): ?>
+      <!-- Supply Requisition Card ONLY for Faculty -->
+      <div class="menu-card card-success">
+        <div class="card-icon">
+          <i class="fas fa-clipboard-list"></i>
+        </div>
+        <h3 class="card-title">Supply Requisition</h3>
+        <p class="card-description">Request items and track approvals. Managers can approve, reject, or monitor all requests in real-time.</p>
+        <a href="pages/supply_request.php" class="card-button">Access Module</a>
       </div>
-      <h3 class="card-title">Supply Requisition</h3>
-      <p class="card-description">Request items and track approvals. Managers can approve, reject, or monitor all requests in real-time.</p>
-      <a href="pages/supply_request.php" class="card-button">Access Module</a>
-    </div>
-
-    <!-- Received Items Card -->
-    <div class="menu-card card-primary">
-      <div class="card-icon">
-        <i class="fas fa-box-open"></i>
+    <?php else: ?>
+      <!-- All other cards for non-Faculty users -->
+      <!-- Supply Requisition Card -->
+      <div class="menu-card card-success">
+        <div class="card-icon">
+          <i class="fas fa-clipboard-list"></i>
+        </div>
+        <h3 class="card-title">Supply Requisition</h3>
+        <p class="card-description">Request items and track approvals. Managers can approve, reject, or monitor all requests in real-time.</p>
+        <a href="pages/supply_request.php" class="card-button">Access Module</a>
       </div>
-      <h3 class="card-title">Received Items</h3>
-      <p class="card-description">Record and track new supplier transactions. Manage incoming inventory and update stock levels.</p>
-      <a href="pages/transaction_list.php" class="card-button">Access Module</a>
-    </div>
-    
-    
-    <!-- Inventory Card -->
-    <div class="menu-card card-info">
-      <div class="card-icon">
-        <i class="fas fa-warehouse"></i>
+      <!-- Assignment Card -->
+      <div class="menu-card card-primary">
+        <div class="card-icon">
+          <i class="fas fa-user-check"></i>
+        </div>
+        <h3 class="card-title">Assignment & Issuance</h3>
+        <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
+        <a href="pages/issuance.php" class="card-button">Access Module</a>
       </div>
-      <h3 class="card-title">Inventory Management</h3>
-      <p class="card-description">Track real-time stock levels with detailed logs. Get alerts for low inventory and manage supplies.</p>
-      <a href="pages/inventory.php" class="card-button">Access Module</a>
-    </div>
-    
-    <!-- Procurement Card -->
-    <div class="menu-card card-warning">
-      <div class="card-icon">
-        <i class="fas fa-shopping-cart"></i>
+      <!-- Procurement Card -->
+      <div class="menu-card card-warning">
+        <div class="card-icon">
+          <i class="fas fa-shopping-cart"></i>
+        </div>
+        <h3 class="card-title">Procurement</h3>
+        <p class="card-description">Log purchased items with supplier details, costs, and receipts. Mark items as received when delivered.</p>
+        <a href="pages/procurement.php" class="card-button">Access Module</a>
       </div>
-      <h3 class="card-title">Procurement</h3>
-      <p class="card-description">Log purchased items with supplier details, costs, and receipts. Mark items as received when delivered.</p>
-      <a href="pages/procurement.php" class="card-button">Access Module</a>
-    </div>
-    
-    <!-- Asset Registration Card -->
-    <div class="menu-card card-dark">
-      <div class="card-icon">
-        <i class="fas fa-tags"></i>
+      <!-- Received Items Card -->
+      <div class="menu-card card-primary">
+        <div class="card-icon">
+          <i class="fas fa-box-open"></i>
+        </div>
+        <h3 class="card-title">Received Items</h3>
+        <p class="card-description">Record and track new supplier transactions. Manage incoming inventory and update stock levels.</p>
+        <a href="pages/transaction_list.php" class="card-button">Access Module</a>
       </div>
-      <h3 class="card-title">Asset Registration</h3>
-      <p class="card-description">Register assets with specifications, values, and documents. Generate tags or barcodes automatically.</p>
-      <a href="pages/supply_request.php" class="card-button">Access Module</a>
-    </div>
-
-    <!-- Assignment Card -->
-    <div class="menu-card card-primary">
-      <div class="card-icon">
-        <i class="fas fa-user-check"></i>
+      <!-- Inventory Card -->
+      <div class="menu-card card-info">
+        <div class="card-icon">
+          <i class="fas fa-warehouse"></i>
+        </div>
+        <h3 class="card-title">Inventory Management</h3>
+        <p class="card-description">Track real-time stock levels with detailed logs. Get alerts for low inventory and manage supplies.</p>
+        <a href="pages/inventory.php" class="card-button">Access Module</a>
       </div>
-      <h3 class="card-title">Assignment & Issuance</h3>
-      <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user management.</p>
-      <a href="pages/supply_request.php" class="card-button">Access Module</a>
-    </div>
-
-    <!-- Maintenance Card -->
-    <div class="menu-card card-success">
-      <div class="card-icon">
-        <i class="fas fa-tools"></i>
+      <!-- Asset Registration Card -->
+      <div class="menu-card card-dark">
+        <div class="card-icon">
+          <i class="fas fa-tags"></i>
+        </div>
+        <h3 class="card-title">Asset Registration</h3>
+        <p class="card-description">Register assets with specifications, values, and documents. Generate tags or barcodes automatically.</p>
+        <a href="pages/supply_request.php" class="card-button">Access Module</a>
       </div>
-      <h3 class="card-title">Maintenance</h3>
-      <p class="card-description">Schedule and record asset maintenance with complete service history and cost tracking.</p>
-      <a href="pages/supply_request.php" class="card-button">Access Module</a>
-    </div>
-
-    <!-- Audit Card -->
-    <div class="menu-card card-warning">
-      <div class="card-icon">
-        <i class="fas fa-search"></i>
+      <!-- Maintenance Card -->
+      <div class="menu-card card-success">
+        <div class="card-icon">
+          <i class="fas fa-tools"></i>
+        </div>
+        <h3 class="card-title">Maintenance</h3>
+        <p class="card-description">Schedule and record asset maintenance with complete service history and cost tracking.</p>
+        <a href="pages/supply_request.php" class="card-button">Access Module</a>
       </div>
-      <h3 class="card-title">Audit</h3>
-      <p class="card-description">Conduct inventory audits by comparing system data with physical counts for accuracy.</p>
-      <a href="pages/supply_request.php" class="card-button">Access Module</a>
-    </div>
-
-    <!-- Disposal Card -->
-    <div class="menu-card card-info">
-      <div class="card-icon">
-        <i class="fas fa-trash-alt"></i>
+      <!-- Audit Card -->
+      <div class="menu-card card-warning">
+        <div class="card-icon">
+          <i class="fas fa-search"></i>
+        </div>
+        <h3 class="card-title">Audit</h3>
+        <p class="card-description">Conduct inventory audits by comparing system data with physical counts for accuracy.</p>
+        <a href="pages/supply_request.php" class="card-button">Access Module</a>
       </div>
-      <h3 class="card-title">Disposal</h3>
-      <p class="card-description">Manage disposal of obsolete items with approval workflows and reason documentation.</p>
-      <a href="pages/supply_request.php" class="card-button">Access Module</a>
-    </div>
-
-    <!-- Reports Card -->
-    <div class="menu-card card-dark">
-      <div class="card-icon">
-        <i class="fas fa-chart-bar"></i>
+      <!-- Disposal Card -->
+      <div class="menu-card card-info">
+        <div class="card-icon">
+          <i class="fas fa-trash-alt"></i>
+        </div>
+        <h3 class="card-title">Disposal</h3>
+        <p class="card-description">Manage disposal of obsolete items with approval workflows and reason documentation.</p>
+        <a href="pages/supply_request.php" class="card-button">Access Module</a>
       </div>
-      <h3 class="card-title">Reports</h3>
-      <p class="card-description">Generate comprehensive reports on requisitions, inventory, maintenance, and disposals.</p>
-      <a href="pages/supply_request.php" class="card-button">Access Module</a>
-    </div>
-
-    <!-- Settings Card -->
-    <div class="menu-card card-danger">
-      <div class="card-icon">
-        <i class="fas fa-cog"></i>
+      <!-- Reports Card -->
+      <div class="menu-card card-dark">
+        <div class="card-icon">
+          <i class="fas fa-chart-bar"></i>
+        </div>
+        <h3 class="card-title">Reports</h3>
+        <p class="card-description">Generate comprehensive reports on requisitions, inventory, maintenance, and disposals.</p>
+        <a href="pages/supply_request.php" class="card-button">Access Module</a>
       </div>
-      <h3 class="card-title">System Settings</h3>
-      <p class="card-description">Manage system settings and user preferences. Administrative access required.</p>
-      <button onclick="showPasswordModal()" class="card-button">Access Settings</button>
-    </div>
+      <!-- Settings Card -->
+      <div class="menu-card card-danger">
+        <div class="card-icon">
+          <i class="fas fa-cog"></i>
+        </div>
+        <h3 class="card-title">System Settings</h3>
+        <p class="card-description">Manage system settings and user preferences. Administrative access required.</p>
+        <button onclick="showPasswordModal()" class="card-button">Access Settings</button>
+      </div>
+    <?php endif; ?>
   </div>
 </div>
 

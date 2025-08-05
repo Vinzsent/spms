@@ -356,8 +356,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="login-container">
     <div class="login-card">
       <div class="login-header">
-        <h1><i class="fas fa-shield-alt me-2"></i>SPMS</h1>
-        <p>Supply Procurement Management System</p>
+        <h1><i class="fas fa-shield-alt me-2"></i>AMS</h1>
+        <p>Asset Management System</p>
       </div>
       
       <div class="login-body">
@@ -409,7 +409,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="system-info">
           <h5><i class="fas fa-info-circle me-2"></i>System Information</h5>
-          <p>Secure access to the Supply Procurement Management System</p>
+          <p>Secure access to the Asset Management System</p>
         </div>
 
         <div class="features">

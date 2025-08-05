@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 02, 2025 at 01:57 AM
+-- Generation Time: Aug 05, 2025 at 02:36 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -45,14 +45,6 @@ CREATE TABLE `inventory` (
   `date_updated` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `inventory`
---
-
-INSERT INTO `inventory` (`inventory_id`, `item_name`, `category`, `description`, `current_stock`, `unit`, `unit_cost`, `reorder_level`, `supplier_id`, `location`, `status`, `created_by`, `date_created`, `last_updated_by`, `date_updated`) VALUES
-(21, 'asdafer', 'Office Supplies', 'asdafer', 124, 'pc', 11.00, 11, 21, 'Storage Room A', 'Active', NULL, '2025-07-30 14:01:37', 5, '2025-07-31 08:39:57'),
-(22, 'Headset', 'Other', 'Nothing to lose', 200, 'pc', 100.00, 100, 16, 'Store A-1', 'Active', NULL, '2025-07-30 15:44:48', 5, '2025-07-31 11:08:46');
-
 -- --------------------------------------------------------
 
 --
@@ -79,14 +71,6 @@ CREATE TABLE `procurement` (
   `date_updated` datetime DEFAULT NULL ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `procurement`
---
-
-INSERT INTO `procurement` (`procurement_id`, `item_name`, `supplier_id`, `quantity`, `unit`, `unit_price`, `total_amount`, `invoice_path`, `delivery_receipt_path`, `notes`, `status`, `created_by`, `date_created`, `received_by`, `date_received`, `last_updated_by`, `date_updated`) VALUES
-(1, 'asdafer', 23, 1, 'pc', 1.00, 1.00, 'uploads/procurement/invoice_1753854528_6889b2401976a.jpg', 'uploads/procurement/receipt_1753854528_6889b240198f0.jpg', 'asdafer', 'Pending', NULL, '2025-07-30 13:48:48', NULL, NULL, 5, '2025-07-30 16:26:21'),
-(2, 'asdafer', 8, 11, 'box', 11.00, 121.00, 'uploads/procurement/invoice_1753862026_6889cf8a2fd81.jpg', 'uploads/procurement/receipt_1753862026_6889cf8a2ff9b.jpg', 'adafer', 'Pending', NULL, '2025-07-30 15:53:46', NULL, NULL, 5, '2025-07-31 07:31:11');
-
 -- --------------------------------------------------------
 
 --
@@ -104,19 +88,6 @@ CREATE TABLE `stock_logs` (
   `created_by` int(11) DEFAULT NULL,
   `date_created` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `stock_logs`
---
-
-INSERT INTO `stock_logs` (`log_id`, `inventory_id`, `movement_type`, `quantity`, `previous_stock`, `new_stock`, `notes`, `created_by`, `date_created`) VALUES
-(1, 21, 'IN', 11, 0, 11, 'Initial stock entry', NULL, '2025-07-30 14:01:37'),
-(2, 21, 'IN', 1, 11, 12, '', NULL, '2025-07-30 14:02:33'),
-(3, 21, 'IN', 123, 12, 135, '', NULL, '2025-07-30 14:02:42'),
-(4, 22, 'IN', 100, 0, 100, 'Initial stock entry', NULL, '2025-07-30 15:44:48'),
-(5, 22, 'OUT', 11, 100, 89, '11', NULL, '2025-07-31 08:39:35'),
-(6, 21, 'OUT', 11, 135, 124, '11', NULL, '2025-07-31 08:39:57'),
-(7, 22, 'IN', 111, 89, 200, 'adafer', NULL, '2025-07-31 11:08:46');
 
 -- --------------------------------------------------------
 
@@ -155,22 +126,7 @@ CREATE TABLE `supplier` (
 --
 
 INSERT INTO `supplier` (`supplier_id`, `supplier_name`, `contact_person`, `contact_number`, `email_address`, `fax_number`, `website`, `address`, `city`, `province`, `zip_code`, `country`, `business_type`, `category`, `payment_terms`, `tax_identification_number`, `date_registered`, `status`, `created_by`, `date_created`, `last_updated_by`, `date_updated`, `notes`) VALUES
-(7, 'DFESTORE.COM', 'Erwin P. Acedillo', '293-9928', 'dfe@yahoo.com', '293-9928', 'www.dfe.com', '168 5th A Street, Ecoland', 'Davao City', 'Davao del Sur', '8000', 'Philippines', 'Machinery and Equipment Supplier', 'Heavy Machinery', 'asdafer', '734-438-579-000', '2025-07-12', 'Active', 4, '0000-00-00 00:00:00', NULL, NULL, 'Their executive firm have mean light within'),
-(8, 'Cstore', 'vincent m. crame', '123', 'vincent@gmail.com', '123', 'sparkmobile.com', 'davao city', 'Davao City', 'Davao del Sur', '8000', 'Philippines', 'Air Conditioning Equipment Supplier', 'Air Conditioning Units and Cooling Systems', 'asdafer', '123', '2025-07-22', 'Active', 5, '2025-07-22 05:06:58', NULL, NULL, 'notes example'),
-(10, 'Ryan Fisher', 'Martin and Sanchez', '09292497885', 'bassmichelle@price.com', '+1-711-868-1052x007', 'https://smith.com', 'Torrejos Compound', 'Davao City', 'Davao del Sur', '8000', 'Philippines', 'Air Conditioning Equipment Supplier', 'Air Conditioning Units and Cooling Systems', 'asdafer', '412-746-6533', '2025-07-22', 'Active', 5, '2025-07-22 07:37:23', NULL, NULL, 'Same paper identify would'),
-(11, 'Christina Buchanan', 'Rivera-Schaefer', '+1-711-868-1052x007', 'cpatterson@duncan.net', '001-164-001-4521x92928', 'https://smith.com', 'New Calebburgh', 'Davao City', 'Davao del Sur', '8000', 'Philippines', 'Equipment Maintenance Provider', 'Repairs and Maintenance – Equipment and Devices', 'asdfer', '001-164-001-4521x92928', '2025-07-12', 'Active', 5, '2025-07-22 07:40:57', NULL, NULL, 'Example Notes'),
-(12, 'Lawson-Gardner', 'Michael Lester', '001-725-932-9718x190', 'colefrancisco@owens.org', '02021', 'https://johnson.com/', 'Manila', 'Bogo City', 'Cebu', '8000', 'Philippines', 'Furniture Supplier', 'Furniture and Fixtures', 'asdafer', '020-260-4945x795', '2025-07-14', 'Active', 5, '2025-07-22 07:44:47', NULL, NULL, 'Example Notes'),
-(13, 'Wilkins', 'Wise, Nicholas Martin', '705-889-4513', 'higginskevin@copeland.info', '01884', 'http://parker-jenkins.com', 'Ilocos Norte', 'Laoag City', 'Ilocos Norte', '8000', 'Philippines', 'Laboratory Equipment Supplier', 'Laboratory Equipment', 'asdafer', '5114371031', '2025-07-10', 'Active', 5, '2025-07-22 08:33:27', NULL, NULL, 'Notes Example'),
-(14, 'Miller', 'Amy Gonzales', '(850)429-6889x9622', 'tkelley@lee-phillips.com', '769.057.0439', 'http://tran.com/', 'Davao City', 'Santa Cruz', 'Davao del Sur', '8000', 'Philippines', 'Laboratory Equipment Supplier', 'Lab Chemicals and Reagents', '', '769.057.0439', '', '', 5, '2025-07-22 08:40:03', NULL, NULL, 'Example Notes'),
-(15, 'George-Sharp', 'John Lewis', '942.669.5581x49035', 'mcguirehannah@jones.org', '33063', 'https://www.mooney-hogan.com/', 'Cebu', 'Tabogon', 'Cebu', '', 'Philippines', 'Construction and Renovation Contractor', 'Contruction Materials', 'asdafer', '378-502-1402', '2025-07-09', 'Active', 5, '2025-07-22 08:41:49', NULL, NULL, 'Example Notes'),
-(16, 'Price', 'Patricia Lloyd', '001-448-324-6057x641', 'felicia91@rodriguez.net', '63423', 'http://lambert.com', 'Cebu', 'Naga City', 'Cebu', '8000', 'Philippines', 'Construction and Renovation Contractor', 'Contruction Materials', '', '001-291-752-2359x1807', '2025-07-16', 'Active', 5, '2025-07-22 08:48:34', NULL, NULL, 'Example Notes'),
-(17, 'Long and Chase', 'Jesse Sutton', '+1-750-672-0762', 'carol60@miller-olsen.net', '97249', 'https://www.jennings.com', 'a@gmail.com', 'Magsaysay', 'Davao del Sur', '8000', 'Philippines', '', '', '', '123', '', '', 5, '2025-07-22 09:02:20', NULL, NULL, ''),
-(18, 'Winters', 'Wendy Warren', '+1-114-330-4636', 'david74@gutierrez.com', '68197', 'https://parker-larson.com', 'Morris Wells Apt', 'Bantayan', 'Cebu', '8000', 'Philippines', 'Construction and Renovation Contractor', 'Renovation Services', '', '001-005-777-1862x491', '2025-07-18', 'Active', 5, '2025-07-22 09:06:25', NULL, NULL, 'Example Notes'),
-(19, 'Paul-Tucker', 'Stephanie Baker', '001-614-306-7192x6183', 'sean35@miles.com', '(553)602-0557x9604', 'http://www.patterson.biz', 'Cebu', 'Lapu-Lapu City', 'Cebu', '8000', 'Philippines', 'Construction and Renovation Contractor', 'Renovation Services', '', '(553)602-0557x9604', '2025-07-17', 'Active', 5, '2025-07-22 09:11:44', NULL, NULL, ''),
-(20, 'Bennett-Robinson', 'Chase Stanley MD', '115-686-9962', 'jimenezjeffrey@smith-shaffer.biz', '969-887-0411', 'http://www.carter.com', '', 'Argao', 'Cebu', '8000', 'Philippines', 'Machinery and Equipment Supplier', 'Heavy Machinery', '', '115-686-9962', '2025-07-16', 'Active', 5, '2025-07-22 09:13:02', NULL, NULL, 'example notes'),
-(21, 'Vstore', 'watson', '1', 'watson@gmail.com', '1', 'sparkmobile.com', 'Davao City', 'Paoay', 'Ilocos Norte', '8000', 'Philippines', '', '', 'asdafer', '1', '2025-07-24', 'Active', 5, '2025-07-24 06:39:06', NULL, NULL, 'notes lamang'),
-(22, 'w', 'w', '1', 'w@gmail.com', '1', 'w.com', 'w', 'Paoay', 'Ilocos Norte', '8000', 'Philippines', 'Medical Supplies Provider', 'Medicines', 'asdafer', '1', '2025-07-13', 'Active', 5, '2025-07-24 06:40:23', NULL, NULL, 'notes lamang'),
-(23, 'Tfix', 'C', '123', 'c@gmail.com', '123', 'c123.com', 'Davao City', 'Barili', 'Cebu', '8000', 'Philippines', 'Construction and Renovation Contractor', 'Construction Materials', 'asdafer', '123', '2025-07-29', 'Active', 5, '2025-07-29 04:46:46', NULL, NULL, 'notes lamang');
+(25, 'Appliances For All', 'Erwin', '092923145', 'erwin@gmail.com', '123-456-789', 'appliance.com', 'Davao City', 'Lapu-Lapu City', 'Cebu', '8000', 'Philippines', 'IT Equipment Supplier', 'Subscription, License, and Software Services', 'Monthly Cash', '123-456-789', '2025-08-04', 'Active', 9, '2025-08-04 05:20:15', NULL, NULL, 'N/A');
 
 -- --------------------------------------------------------
 
@@ -186,33 +142,25 @@ CREATE TABLE `supplier_transaction` (
   `category` varchar(255) DEFAULT NULL,
   `supplier_id` int(11) NOT NULL,
   `item_description` text NOT NULL,
+  `brand` varchar(100) DEFAULT NULL,
+  `type` varchar(100) DEFAULT NULL,
+  `color` varchar(50) DEFAULT NULL,
   `quantity` int(11) NOT NULL,
   `unit` varchar(20) NOT NULL,
   `unit_price` decimal(10,2) NOT NULL,
   `amount` decimal(10,2) NOT NULL,
-  `status` varchar(255) NOT NULL
+  `status` varchar(255) NOT NULL,
+  `issued_to_department` varchar(200) DEFAULT NULL,
+  `issued_date` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `supplier_transaction`
 --
 
-INSERT INTO `supplier_transaction` (`transaction_id`, `date_received`, `invoice_no`, `sales_type`, `category`, `supplier_id`, `item_description`, `quantity`, `unit`, `unit_price`, `amount`, `status`) VALUES
-(16, '2025-07-21', '123456', 'Cash', 'ICT Equipment and Devices', 7, 'Computer System', 1, 'unit', 1.00, 1.00, 'Pending'),
-(17, '2025-07-21', '123', 'Cash', 'ICT Equipment and Devices', 7, 'example', 1, 'meter', 1.00, 1.00, 'Pending'),
-(18, '2025-07-21', '12345', 'Credit', 'Office Supplies and Materials', 7, 'example2', 1, 'g', 150.00, 150.00, 'Pending'),
-(19, '2025-07-22', '123', 'Cash', 'ICT Equipment and Devices', 8, 'notes example', 10, 'bar', 10.00, 100.00, 'Pending'),
-(20, '2025-07-18', '25007', 'Credit', 'Office Equipment', 12, 'None', 1, 'ton', 11.00, 11.00, 'Pending'),
-(21, '2025-07-16', '36118', 'Credit', 'Laboratory Equipment', 20, 'I need lab equipment ASAP!', 1, 'roll', 100.00, 100.00, 'Pending'),
-(22, '2025-07-16', '1231', 'Cash', 'School Building Improvements', 13, 'Building renovation', 1, 'service', 111.00, 111.00, 'Pending'),
-(23, '2025-07-15', '36118', 'Cash', 'Other Machinery and Equipment', 17, 'Notes', 1, 'g', 111.00, 111.00, 'Pending\n'),
-(24, '2025-07-14', '1564', 'Cash', 'Air Conditioning Units and Cooling Systems', 15, 'asdafer001', 1, 'kg', 12.00, 12.00, 'Pending\n'),
-(25, '2025-07-14', '2345', 'Credit', 'Office Equipment', 18, 'I need gaming chair', 1, 'unit', 444.00, 444.00, 'Pending\n'),
-(26, '2025-07-13', '1564', 'Cash', 'Air Conditioning Units and Cooling Systems', 14, 'i need aircon here', 1, 'pc', 112.00, 112.00, 'Pending'),
-(27, '2025-07-23', '246', 'Cash', 'Electrical and Lighting Supplies', 11, 'I need it now', 1, 'pc', 1.00, 1.00, 'Pending'),
-(28, '2025-07-23', '14', 'Cash', 'Printing and Reproduction Services', 12, 'Printing shop', 11, 'pc', 1.00, 11.00, 'Pending'),
-(29, '2025-08-01', '11', 'Cash', 'ICT Equipment and Devices', 22, 'asdafer', 1, 'pc', 1.00, 1.00, 'Pending'),
-(30, '2025-08-01', 's', 'Cash', 'ICT Equipment and Devices', 14, 's', 11, 'pc', 11.00, 121.00, 'Pending\n');
+INSERT INTO `supplier_transaction` (`transaction_id`, `date_received`, `invoice_no`, `sales_type`, `category`, `supplier_id`, `item_description`, `brand`, `type`, `color`, `quantity`, `unit`, `unit_price`, `amount`, `status`, `issued_to_department`, `issued_date`) VALUES
+(31, '2025-08-04', '12345', 'Cash', 'ICT Equipment and Devices', 25, '5G internet and gaming chair', NULL, NULL, NULL, 1, 'pc', 100.00, 100.00, 'Pending', NULL, NULL),
+(32, '2025-08-04', '12', 'Cash', 'School Building Improvements', 25, 'Paint', 'Boysen', 'Paint', 'RGB', 1, 'can', 150.00, 150.00, 'Pending', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -222,6 +170,7 @@ INSERT INTO `supplier_transaction` (`transaction_id`, `date_received`, `invoice_
 
 CREATE TABLE `supply_request` (
   `request_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `date_requested` varchar(255) NOT NULL,
   `date_needed` varchar(255) NOT NULL,
   `department_unit` varchar(255) NOT NULL,
@@ -234,21 +183,23 @@ CREATE TABLE `supply_request` (
   `unit` varchar(255) NOT NULL,
   `quantity_requested` varchar(255) NOT NULL,
   `quality_issued` varchar(255) NOT NULL,
-  `amount` decimal(10,2) NOT NULL
+  `amount` decimal(10,2) NOT NULL,
+  `noted_by` varchar(255) DEFAULT NULL,
+  `checked_by` varchar(255) DEFAULT NULL,
+  `verified_by` varchar(255) DEFAULT NULL,
+  `approved_by` varchar(255) DEFAULT NULL,
+  `issued_by` varchar(255) DEFAULT NULL,
+  `date_released` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `supply_request`
 --
 
-INSERT INTO `supply_request` (`request_id`, `date_requested`, `date_needed`, `department_unit`, `purpose`, `sales_type`, `category`, `request_description`, `unit_cost`, `total_cost`, `unit`, `quantity_requested`, `quality_issued`, `amount`) VALUES
-(1, '2025-07-30', '2025-07-30', 'asdafer', 'asdafer', 'Cash', 'Printing and Reproduction Services', 'asdafer', '11', 121.00, 'pc', '11', 'asdafer', 0.00),
-(2, '2025-07-28', '2025-07-29', 'HR', 'None so far', 'Cash', 'ICT Equipment and Devices', 'Gaming chair please', '1', 11.00, 'pc', '11', 'The best among the rest', 0.00),
-(3, '2025-07-08', '2025-07-31', 'Accounting', 'To easily compute numbers', 'Cash', 'Other Machinery and Equipment', 'We need high tech calculator', '1', 100.00, 'pc', '100', 'Second Hand', 0.00),
-(4, '2025-07-29', '2025-07-29', 'board', 'this is good', 'Cash', 'Laboratory Equipment', 'i need lab', '1', 11.00, 'pc', '11', 'this is good', 0.00),
-(5, '2025-07-29', '2025-07-29', 'MIS', 'To have a smooth system making', 'Cash', 'Office Supplies and Materials', 'I need a RTX 9060 and a 1TB RAM and a 5TB SSD with 3 Monitors', '1', 5.00, 'pc', '5', 'Very Good', 0.00),
-(6, '2025-07-27', '2025-07-31', 'MIS', 'No purpose', 'Credit', 'Air Conditioning Units and Cooling Systems', 'I need one more aircon', '1', 100.00, 'pc', '100', 'I dont know', 0.00),
-(7, '2025-07-30', '2025-07-31', 'asdasfer', 'asdafer', 'Cash', 'ICT Equipment and Devices', 'asdafer', '11', 121.00, 'pc', '11', 'asdafer', 121.00);
+INSERT INTO `supply_request` (`request_id`, `user_id`, `date_requested`, `date_needed`, `department_unit`, `purpose`, `sales_type`, `category`, `request_description`, `unit_cost`, `total_cost`, `unit`, `quantity_requested`, `quality_issued`, `amount`, `noted_by`, `checked_by`, `verified_by`, `approved_by`, `issued_by`, `date_released`) VALUES
+(8, 0, '2025-08-02', '2025-08-27', 'HR', 'No Purpose', 'Cash', 'ICT Equipment and Devices', 'No Description', '11', 11.00, 'pc', '1', 'Good', 11.00, '', '', '', '', '', ''),
+(9, 9, '2025-08-04', '2025-08-06', 'MIS', 'Is to have a smooth gaming experience', 'Cash', 'Office Equipment', 'Gaming Chair and 5G internet', '100', 100.00, 'pc', '1', 'Good', 100.00, '', '', '', '', '', ''),
+(10, 12, '2025-08-05', '2025-08-08', 'Faculty', 'To have a better gaming experience', 'Cash', 'Office Equipment', 'Gaming Chair', '100', 100.00, 'pc', '1', 'I hope it is good', 100.00, '', '', '', '', '', '');
 
 -- --------------------------------------------------------
 
@@ -291,14 +242,6 @@ CREATE TABLE `transaction_specifications` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `transaction_specifications`
---
-
-INSERT INTO `transaction_specifications` (`spec_id`, `transaction_id`, `brand`, `serial_number`, `type`, `size`, `model`, `warranty_info`, `additional_notes`, `created_at`, `updated_at`) VALUES
-(1, 26, 'Sonya', 'None', '12134', 'Size', 'model', 'no waranty', 'This is nice', '2025-08-01 06:19:37', '2025-08-01 06:19:43'),
-(2, 24, 'sss', 'sss', 'ss', 'ss', 'ss', 'ss', 'sss', '2025-08-01 06:20:22', '2025-08-01 06:20:40');
-
 -- --------------------------------------------------------
 
 --
@@ -324,8 +267,14 @@ CREATE TABLE `user` (
 
 INSERT INTO `user` (`id`, `title`, `first_name`, `middle_name`, `last_name`, `suffix`, `academic_title`, `user_type`, `email`, `password`) VALUES
 (4, '', 'Erwin', 'Pogi', 'Acedillo', '', 'MIT', 'admin', 'erwinacedillo@gmail.com', '$2y$10$sqVTg7YdLiuS8Jx2bMY.OuEIkudSO/.ToKuU35RkVpmDAY7RWQCr.'),
-(8, 'MIS ADMIN', 'Vincent', 'Pogi', 'Crame', 'NONE', 'MIS PROGRAMMER', 'Admin', 'vincentcrame7@gmail.com', '$2y$10$3f03bn5Qjz8Px1.trf2sPefhnZeqShDKwhW50Ivu8OcjlP.1sX5Oe'),
-(9, '', 'Staff', 'Staff', 'Staff', '', 'Staff', 'Staff', 'staff@gmail.com', '$2y$10$Ax96ZYijBBqpRMLdwnoOduMZk8GJNe/OEW4FLVQ2177xBT0VFDr4u');
+(8, 'MIS ADMIN', 'Vincent', 'Pogi', 'Crame', 'NONE', 'MIS PROGRAMMER', 'Admin', 'vincentcrame7@gmail.com', '$2y$10$QhG8ni2hkHR9F8FZ6xIbouic51sVQgAV/Li3ibJVIHz6ElL01HiPi'),
+(9, 'staff', 'Staff', 'Staff', 'Staff', 'staff', 'Staff', 'Staff', 'staff@gmail.com', '$2y$10$Ax96ZYijBBqpRMLdwnoOduMZk8GJNe/OEW4FLVQ2177xBT0VFDr4u'),
+(11, 'Dr', 'Robert', '', 'James', 'N/A', 'Ph.D', 'School President', 'robert@gmail.com', '$2y$10$VYwZKAJTXrGQsZ9f5rVdMuprkCHYM5yDBROLG4b0D78KEfTyOSNsm'),
+(12, 'Dr', 'June Carl', '', 'Echavia', 'N/A', 'Teacher', 'Faculty', 'junecarl@gmail.com', '$2y$10$eCxmouJR3YSa1HPGz7NAM.u5UXUZuMOD/sn9sSY4.M9BNff8r1hY.'),
+(13, '', 'Maria', '', 'Amor', '', '', 'Immediate Head', 'maria@gmail.com', '$2y$10$SbF0o6H2YlbpZTONszE25.8uXRLonPewEzshwFKf3K0L.KeRZBPny'),
+(14, '', 'Jane', '', 'Doe', '', '', 'Supply In-charge', 'jane@gmail.com', '$2y$10$xcXtjDe//VUPb0YNFX3nn.qaallQC.sS3Qrgrf04takFkqSz.g/ha'),
+(15, '', 'Emily', '', 'Charles', '', '', 'Purchasing Officer', 'emily@gmail.com', '$2y$10$e3OrYs2.Z6tqN4m0tjalfuP7.2xzyH61sE8iyLr.36xzz3NCWjgJO'),
+(16, 'Dr.', 'Cinna', '', 'Rose', 'N/A', 'M.D', 'VP for Finance & Administration', 'cinna@gmail.com', '$2y$10$l4seTrgPgUaBLoz9rXgx7.cjQjwaQOi8s3JaB3hdt/1xZfKxBNgqO');
 
 --
 -- Indexes for dumped tables
@@ -424,19 +373,19 @@ ALTER TABLE `stock_logs`
 -- AUTO_INCREMENT for table `supplier`
 --
 ALTER TABLE `supplier`
-  MODIFY `supplier_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `supplier_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `supplier_transaction`
 --
 ALTER TABLE `supplier_transaction`
-  MODIFY `transaction_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `transaction_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `supply_request`
 --
 ALTER TABLE `supply_request`
-  MODIFY `request_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `request_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `transaction_list`
@@ -454,7 +403,7 @@ ALTER TABLE `transaction_specifications`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- Constraints for dumped tables

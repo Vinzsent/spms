@@ -300,8 +300,9 @@ if (isset($_SESSION['error'])) {
     <!-- Header Banner -->
     <div class="header-banner">
         <div class="container">
-            <h1>User Management</h1>
+            <h1>User Management</h1> 
             <p>Manage system users, roles, and permissions</p>
+            <a href="../dashboard.php"><button class="btn btn-primary mt-3"><i class="fas fa-arrow-left me-2"></i> Previous Page</button></a>
         </div>
     </div>
 
