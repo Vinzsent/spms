@@ -143,12 +143,29 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
   }
 
   /* Card color themes */
-  .card-success .card-icon { background: linear-gradient(135deg, #28a745, #20c997); }
-  .card-warning .card-icon { background: linear-gradient(135deg, #ffc107, #fd7e14); }
-  .card-primary .card-icon { background: linear-gradient(135deg, #007bff, #6610f2); }
-  .card-info .card-icon { background: linear-gradient(135deg, #17a2b8, #6f42c1); }
-  .card-dark .card-icon { background: linear-gradient(135deg, #343a40, #495057); }
-  .card-danger .card-icon { background: linear-gradient(135deg, #dc3545, #e83e8c); }
+  .card-success .card-icon {
+    background: linear-gradient(135deg, #28a745, #20c997);
+  }
+
+  .card-warning .card-icon {
+    background: linear-gradient(135deg, #ffc107, #fd7e14);
+  }
+
+  .card-primary .card-icon {
+    background: linear-gradient(135deg, #007bff, #6610f2);
+  }
+
+  .card-info .card-icon {
+    background: linear-gradient(135deg, #17a2b8, #6f42c1);
+  }
+
+  .card-dark .card-icon {
+    background: linear-gradient(135deg, #343a40, #495057);
+  }
+
+  .card-danger .card-icon {
+    background: linear-gradient(135deg, #dc3545, #e83e8c);
+  }
 
   /* Modal Styles */
   .modal-custom {
@@ -212,17 +229,17 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
     .dashboard-header h1 {
       font-size: 2rem;
     }
-    
+
     .menu-grid {
       grid-template-columns: 1fr;
       gap: 1rem;
       padding: 0 0.5rem;
     }
-    
+
     .menu-card {
       padding: 1.5rem;
     }
-    
+
     .menu-card .card-title {
       font-size: 1.2rem;
     }
@@ -238,6 +255,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
       opacity: 0;
       transform: translateY(30px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -245,16 +263,45 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
   }
 
   /* Stagger animation for cards */
-  .menu-card:nth-child(1) { animation-delay: 0.1s; }
-  .menu-card:nth-child(2) { animation-delay: 0.2s; }
-  .menu-card:nth-child(3) { animation-delay: 0.3s; }
-  .menu-card:nth-child(4) { animation-delay: 0.4s; }
-  .menu-card:nth-child(5) { animation-delay: 0.5s; }
-  .menu-card:nth-child(6) { animation-delay: 0.6s; }
-  .menu-card:nth-child(7) { animation-delay: 0.7s; }
-  .menu-card:nth-child(8) { animation-delay: 0.8s; }
-  .menu-card:nth-child(9) { animation-delay: 0.9s; }
-  .menu-card:nth-child(10) { animation-delay: 1.0s; }
+  .menu-card:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+
+  .menu-card:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .menu-card:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+
+  .menu-card:nth-child(4) {
+    animation-delay: 0.4s;
+  }
+
+  .menu-card:nth-child(5) {
+    animation-delay: 0.5s;
+  }
+
+  .menu-card:nth-child(6) {
+    animation-delay: 0.6s;
+  }
+
+  .menu-card:nth-child(7) {
+    animation-delay: 0.7s;
+  }
+
+  .menu-card:nth-child(8) {
+    animation-delay: 0.8s;
+  }
+
+  .menu-card:nth-child(9) {
+    animation-delay: 0.9s;
+  }
+
+  .menu-card:nth-child(10) {
+    animation-delay: 1.0s;
+  }
 </style>
 
 <div class="dashboard-container">
@@ -274,6 +321,85 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <p class="card-description">Request items and track approvals. Managers can approve, reject, or monitor all requests in real-time.</p>
         <a href="pages/supply_request.php" class="card-button">Access Module</a>
       </div>
+
+    <?php elseif (strtolower($user_type) === 'immediate head'): ?>
+      <!-- Supply Requisition Card ONLY for Immediate Head -->
+      <!-- Assignment Card -->
+      <div class="menu-card card-primary">
+        <div class="card-icon">
+          <i class="fas fa-user-check"></i>
+        </div>
+        <h3 class="card-title">Assignment & Issuance</h3>
+        <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
+        <a href="pages/issuance.php" class="card-button">Access Module</a>
+      </div>
+
+    <?php elseif (strtolower($user_type) === 'school president'): ?>
+      <!-- Supply Requisition Card ONLY for School President -->
+      <!-- Assignment Card -->
+      <div class="menu-card card-primary">
+        <div class="card-icon">
+          <i class="fas fa-user-check"></i>
+        </div>
+        <h3 class="card-title">Assignment & Issuance</h3>
+        <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
+        <a href="pages/issuance.php" class="card-button">Access Module</a>
+      </div>
+
+    <?php elseif (strtolower($user_type) === 'vp for finance & administration'): ?>
+      <!-- Supply Requisition Card ONLY for School President -->
+      <!-- Assignment Card -->
+      <div class="menu-card card-primary">
+        <div class="card-icon">
+          <i class="fas fa-user-check"></i>
+        </div>
+        <h3 class="card-title">Assignment & Issuance</h3>
+        <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
+        <a href="pages/issuance.php" class="card-button">Access Module</a>
+      </div>
+
+    <?php elseif (strtolower($user_type) === 'supply in-charge'): ?>
+      <!-- Supply Requisition Card ONLY for School President -->
+      <!-- Assignment Card -->
+      <div class="menu-card card-primary">
+        <div class="card-icon">
+          <i class="fas fa-user-check"></i>
+        </div>
+        <h3 class="card-title">Assignment & Issuance</h3>
+        <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
+        <a href="pages/issuance.php" class="card-button">Access Module</a>
+      </div>
+
+      <!-- Received Items Card -->
+      <div class="menu-card card-primary">
+        <div class="card-icon">
+          <i class="fas fa-box-open"></i>
+        </div>
+        <h3 class="card-title">Received Items</h3>
+        <p class="card-description">Record and track new supplier transactions. Manage incoming inventory and update stock levels.</p>
+        <a href="pages/transaction_list.php" class="card-button">Access Module</a>
+      </div>
+
+      <!-- Inventory Card -->
+      <div class="menu-card card-info">
+        <div class="card-icon">
+          <i class="fas fa-warehouse"></i>
+        </div>
+        <h3 class="card-title">Inventory Management</h3>
+        <p class="card-description">Track real-time stock levels with detailed logs. Get alerts for low inventory and manage supplies.</p>
+        <a href="pages/inventory.php" class="card-button">Access Module</a>
+      </div>
+
+      <!-- Procurement Card -->
+      <div class="menu-card card-warning">
+        <div class="card-icon">
+          <i class="fas fa-shopping-cart"></i>
+        </div>
+        <h3 class="card-title">Procurement</h3>
+        <p class="card-description">Log purchased items with supplier details, costs, and receipts. Mark items as received when delivered.</p>
+        <a href="pages/procurement.php" class="card-button">Access Module</a>
+      </div>
+
     <?php else: ?>
       <!-- All other cards for non-Faculty users -->
       <!-- Supply Requisition Card -->
@@ -403,41 +529,41 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
 </div>
 
 <script>
-function showPasswordModal() {
+  function showPasswordModal() {
     document.getElementById('passwordModal').style.display = 'block';
     document.body.style.overflow = 'hidden';
-}
+  }
 
-function hidePasswordModal() {
+  function hidePasswordModal() {
     document.getElementById('passwordModal').style.display = 'none';
     document.getElementById('adminPassword').value = '';
     document.body.style.overflow = 'auto';
-}
+  }
 
-// Close modal when clicking outside
-window.onclick = function(event) {
+  // Close modal when clicking outside
+  window.onclick = function(event) {
     var modal = document.getElementById('passwordModal');
     if (event.target == modal) {
-        hidePasswordModal();
+      hidePasswordModal();
     }
-}
+  }
 
-// Close modal with Escape key
-document.addEventListener('keydown', function(event) {
+  // Close modal with Escape key
+  document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
-        hidePasswordModal();
+      hidePasswordModal();
     }
-});
+  });
 
-// Add smooth scrolling
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        document.querySelector(this.getAttribute('href')).scrollIntoView({
-            behavior: 'smooth'
-        });
+  // Add smooth scrolling
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.querySelector(this.getAttribute('href')).scrollIntoView({
+        behavior: 'smooth'
+      });
     });
-});
+  });
 </script>
 
 <?php include 'includes/footer.php'; ?>

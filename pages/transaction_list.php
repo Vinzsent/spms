@@ -257,7 +257,7 @@ $result = $conn->query($sql);
           <!-- Supply Request Information (from issuance page) -->
           <div class="supply-request-info" id="supplyRequestInfo" style="display: none;">
             <div class="row">
-              <div class="col-md-12">
+              <div class="col-md-6">
                 <div class="info-card mb-3" style="border-left-color: #17a2b8;">
                   <h6 class="info-title" style="color: #17a2b8;"><i class="fas fa-clipboard-list me-2"></i>Supply Request Information</h6>
                   <div class="info-content">
@@ -294,7 +294,7 @@ $result = $conn->query($sql);
           <!-- Quantity Computation -->
           <div class="quantity-computation" id="quantityComputation" style="display: none;">
             <div class="row">
-              <div class="col-md-12">
+              <div class="col-md-6">
                 <div class="info-card mb-3" style="border-left-color: #ffc107;">
                   <h6 class="info-title" style="color: #ffc107;"><i class="fas fa-calculator me-2"></i>Quantity Computation</h6>
                   <div class="info-content">
@@ -320,7 +320,7 @@ $result = $conn->query($sql);
             </div>
           </div>
 
-          <!-- Department Selection -->
+          <!-- Department Selection 
           <div class="department-selection">
             <div class="row">
               <div class="col-md-6">
@@ -347,11 +347,11 @@ $result = $conn->query($sql);
                 </div>
               </div>
             </div>
-          </div>
+          </div>-->
 
-          <!-- Hidden form fields -->
+          <!-- Hidden form fields 
           <input type="hidden" name="transaction_id" id="issuedTransactionId">
-          <input type="hidden" name="new_status" value="Issued">
+          <input type="hidden" name="new_status" value="Issued">-->
 
           <!-- Confirmation message -->
           <div class="alert alert-info">
