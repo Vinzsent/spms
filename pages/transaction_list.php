@@ -111,7 +111,6 @@ $result = $conn->query($sql);
           <th style="background-color: #073b1d; color: white;">Supplier Name</th>
           <th style="background-color: #073b1d; color: white;">Category</th>
           <th style="background-color: #073b1d; color: white;">Item Description</th>
-          <th style="background-color: #073b1d; color: white;">Status</th>
           <th style="background-color: #073b1d; color: white;">Quantity</th>
           <th style="background-color: #073b1d; color: white;">Unit</th>
           <th style="background-color: #073b1d; color: white;">Unit Price</th>
@@ -132,7 +131,6 @@ $result = $conn->query($sql);
             <td><?= htmlspecialchars($row['supplier_name']) ?></td>
             <td><?= htmlspecialchars($row['category']) ?></td>
             <td><?= htmlspecialchars($row['item_description']) ?></td>
-            <td><?= htmlspecialchars($row['status']) ?></td>
             <!--<td>
               <?php if ($row['status'] === 'Issued' && !empty($row['issued_to_department'])): ?>
                 <span class="badge bg-success"><?= htmlspecialchars($row['issued_to_department']) ?></span>
@@ -204,7 +202,7 @@ $result = $conn->query($sql);
       </tbody>
       <tfoot>
         <tr>
-          <td colspan="10" class="text-end fw-bold">Total:</td>
+          <td colspan="9" class="text-end fw-bold">Total:</td>
           <td colspan="2" class="fw-bold" id="grandTotalCell">₱<?= number_format($total_sum, 2) ?></td>
         </tr>
       </tfoot>
@@ -251,6 +249,72 @@ $result = $conn->query($sql);
                   <div class="info-item"><span class="info-label">Unit Price:</span><span class="info-value text-success fw-bold" id="issuedUnitPrice"></span></div>
                   <div class="info-item"><span class="info-label">Amount:</span><span class="info-value total-value" id="issuedAmount"></span></div>
                   <div class="info-item"><span class="info-label">Status:</span><span class="info-value" id="issuedStatus"></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Supply Request Information (from issuance page) -->
+          <div class="supply-request-info" id="supplyRequestInfo" style="display: none;">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="info-card mb-3" style="border-left-color: #17a2b8;">
+                  <h6 class="info-title" style="color: #17a2b8;"><i class="fas fa-clipboard-list me-2"></i>Supply Request Information</h6>
+                  <div class="info-content">
+                    <div class="info-item">
+                      <span class="info-label">Request Date:</span>
+                      <span class="info-value" id="requestDate"></span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">Department:</span>
+                      <span class="info-value" id="requestDepartment"></span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">Purpose:</span>
+                      <span class="info-value" id="requestPurpose"></span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">Category:</span>
+                      <span class="info-value" id="requestCategory"></span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">Requested Quantity:</span>
+                      <span class="info-value badge bg-info text-white" id="requestedQuantity"></span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">Total Cost:</span>
+                      <span class="info-value text-success fw-bold" id="requestTotalCost"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quantity Computation -->
+          <div class="quantity-computation" id="quantityComputation" style="display: none;">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="info-card mb-3" style="border-left-color: #ffc107;">
+                  <h6 class="info-title" style="color: #ffc107;"><i class="fas fa-calculator me-2"></i>Quantity Computation</h6>
+                  <div class="info-content">
+                    <div class="info-item">
+                      <span class="info-label">Available Quantity:</span>
+                      <span class="info-value badge bg-primary text-white" id="availableQuantity"></span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">Requested Quantity:</span>
+                      <span class="info-value badge bg-info text-white" id="computationRequestedQuantity"></span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">Remaining Quantity:</span>
+                      <span class="info-value badge bg-success text-white" id="remainingQuantity"></span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">Quantity to Issue:</span>
+                      <span class="info-value badge bg-warning text-dark" id="quantityToIssue"></span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -434,6 +498,14 @@ $result = $conn->query($sql);
 <?php include '../includes/footer.php'; ?>
 <script>
   $(document).ready(function() {
+    // Check for GET parameters on page load
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('request_id') || urlParams.has('date') || urlParams.has('department')) {
+      console.log('Page loaded with GET parameters:', Object.fromEntries(urlParams.entries()));
+      // Store the parameters for use when modal opens
+      window.issuanceParams = Object.fromEntries(urlParams.entries());
+    }
+
     const table = $('#transactionsTable').DataTable({
       dom: 'Brtip',
       buttons: [{
@@ -495,8 +567,8 @@ $result = $conn->query($sql);
       table.rows({
         search: 'applied'
       }).every(function() {
-        // The "Amount" column is index 10 (0-based) - updated due to new Department column
-        const amountText = this.data()[10];
+        // The "Amount" column is index 9 (0-based) - after removing Status column
+        const amountText = this.data()[9];
         // Remove currency symbol and commas, then parse as float
         const amount = parseFloat(amountText.replace(/[₱,]/g, ''));
         if (!isNaN(amount)) total += amount;
@@ -671,6 +743,63 @@ $result = $conn->query($sql);
 
       // Populate hidden form field with transaction ID
       $('#issuedTransactionId').val($(this).data('id'));
+
+      // Check if there are GET parameters from issuance page
+      const urlParams = new URLSearchParams(window.location.search);
+      console.log('URL Parameters:', Object.fromEntries(urlParams.entries())); // Debug log
+      
+      // Also check for stored parameters from page load
+      const hasParams = urlParams.has('request_id') || urlParams.has('date') || urlParams.has('department') || 
+                       (window.issuanceParams && (window.issuanceParams.request_id || window.issuanceParams.date || window.issuanceParams.department));
+      
+      if (hasParams) {
+        console.log('Showing supply request info and quantity computation'); // Debug log
+        
+        // Show supply request information
+        $('#supplyRequestInfo').show();
+        $('#quantityComputation').show();
+
+        // Get parameters from both URL and stored params
+        const getParam = (key) => urlParams.get(key) || (window.issuanceParams ? window.issuanceParams[key] : null);
+        
+        // Populate supply request information
+        $('#requestDate').text(getParam('date') ? new Date(getParam('date')).toLocaleDateString() : 'N/A');
+        $('#requestDepartment').text(getParam('department') || 'N/A');
+        $('#requestPurpose').text(getParam('purpose') || 'N/A');
+        $('#requestCategory').text(getParam('category') || 'N/A');
+        $('#requestedQuantity').text(getParam('quantity') + ' ' + (getParam('unit') || ''));
+        $('#requestTotalCost').text('₱' + parseFloat(getParam('cost') || 0).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }));
+
+        // Perform quantity computation
+        const availableQuantity = parseInt($(this).data('quantity'));
+        const requestedQuantity = parseInt(getParam('quantity') || 0);
+        const remainingQuantity = Math.max(0, availableQuantity - requestedQuantity);
+        const quantityToIssue = Math.min(availableQuantity, requestedQuantity);
+
+        $('#availableQuantity').text(availableQuantity + ' ' + $(this).data('unit'));
+        $('#computationRequestedQuantity').text(requestedQuantity + ' ' + (getParam('unit') || ''));
+        $('#remainingQuantity').text(remainingQuantity + ' ' + $(this).data('unit'));
+        $('#quantityToIssue').text(quantityToIssue + ' ' + $(this).data('unit'));
+
+        // Add hidden fields for the computation
+        if (!$('#issuedForm input[name="request_id"]').length) {
+          $('#issuedForm').append('<input type="hidden" name="request_id" value="' + getParam('request_id') + '">');
+        }
+        if (!$('#issuedForm input[name="quantity_to_issue"]').length) {
+          $('#issuedForm').append('<input type="hidden" name="quantity_to_issue" value="' + quantityToIssue + '">');
+        }
+        if (!$('#issuedForm input[name="remaining_quantity"]').length) {
+          $('#issuedForm').append('<input type="hidden" name="remaining_quantity" value="' + remainingQuantity + '">');
+        }
+      } else {
+        console.log('No GET parameters found, hiding sections'); // Debug log
+        // Hide supply request information if no GET parameters
+        $('#supplyRequestInfo').hide();
+        $('#quantityComputation').hide();
+      }
     });
 
     // Form submission handler

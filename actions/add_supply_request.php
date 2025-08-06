@@ -1,5 +1,6 @@
 <?php
 include '../includes/db.php';
+include '../includes/notification_helper.php';
 session_start();
 
 // Check if user is logged in
@@ -74,6 +75,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Execute the statement
         if (!$stmt->execute()) {
             throw new Exception("Execute failed: " . $stmt->error);
+        }
+
+        // Get the inserted request ID
+        $request_id = $conn->insert_id;
+
+        // Create notifications for relevant users
+        if ($request_id) {
+            notifySupplyRequestSubmitted($request_id, $department_unit, $request_description, $conn);
         }
 
         $_SESSION['request_success'] = true;
