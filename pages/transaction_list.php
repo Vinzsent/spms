@@ -22,8 +22,8 @@ $result = $conn->query($sql);
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="text-center">Recieved Items</h3>
     <div>
-      <button class="btn btn-secondary me-2" style="background-color: #fd7e14; color: white;" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
-      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTransactionModal" style="background-color: #fd7e14; color: white;">+ New Transaction</button>
+      <button class="btn btn-secondary me-2" style="background-color: #073b1d; color: white;" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTransactionModal" style="background-color: #073b1d; color: white;">+ New Transaction</button>
     </div>
   </div>
   <h5 class="text-center">List of the recieved items from the suppliers</h5>
@@ -105,17 +105,17 @@ $result = $conn->query($sql);
     <table id="transactionsTable" class="table table-bordered table-striped">
       <thead>
         <tr>
-          <th style="background-color: #1a5f3c; color: white;">Date Received</th>
-          <th style="background-color: #1a5f3c; color: white;">Invoice No.</th>
-          <th style="background-color: #1a5f3c; color: white;">Sales Type</th>
-          <th style="background-color: #1a5f3c; color: white;">Supplier Name</th>
-          <th style="background-color: #1a5f3c; color: white;">Category</th>
-          <th style="background-color: #1a5f3c; color: white;">Item Description</th>
-          <th style="background-color: #1a5f3c; color: white;">Quantity</th>
-          <th style="background-color: #1a5f3c; color: white;">Unit</th>
-          <th style="background-color: #1a5f3c; color: white;">Unit Price</th>
-          <th style="background-color: #1a5f3c; color: white;">Amount</th>
-          <th style="background-color: #1a5f3c; color: white;">Action</th>
+          <th style="background-color: #073b1d; color: white;">Date Received</th>
+          <th style="background-color: #073b1d; color: white;">Invoice No.</th>
+          <th style="background-color: #073b1d; color: white;">Sales Type</th>
+          <th style="background-color: #073b1d; color: white;">Supplier Name</th>
+          <th style="background-color: #073b1d; color: white;">Category</th>
+          <th style="background-color: #073b1d; color: white;">Item Description</th>
+          <th style="background-color: #073b1d; color: white;">Quantity</th>
+          <th style="background-color: #073b1d; color: white;">Unit</th>
+          <th style="background-color: #073b1d; color: white;">Unit Price</th>
+          <th style="background-color: #073b1d; color: white;">Amount</th>
+          <th style="background-color: #073b1d; color: white;">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -158,7 +158,7 @@ $result = $conn->query($sql);
                   <i class="fas fa-cogs"></i> Specs
                 </button>-->
                 <button
-                  class="btn btn-sm editBtn" style="background-color: #1a5f3c; color: white;"
+                  class="btn btn-sm btn-warning editBtn"
                   data-id="<?= $row['transaction_id'] ?>"
                   data-date="<?= htmlspecialchars($row['date_received']) ?>"
                   data-invoice="<?= htmlspecialchars($row['invoice_no']) ?>"
@@ -177,7 +177,7 @@ $result = $conn->query($sql);
                   <i class="fas fa-edit"></i> Edit
                 </button>
                 <button
-                  class="btn btn-sm issuedBtn" style="background-color: #fd7e14; color: white;"
+                  class="btn btn-sm issuedBtn" style="background-color: #073b1d; color: white;"
                   data-id="<?= $row['transaction_id'] ?>"
                   data-date="<?= htmlspecialchars($row['date_received']) ?>"
                   data-invoice="<?= htmlspecialchars($row['invoice_no']) ?>"

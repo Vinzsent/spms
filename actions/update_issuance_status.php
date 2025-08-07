@@ -11,6 +11,12 @@ $status_action = isset($_POST['status_action']) ? trim($_POST['status_action']) 
 $action_by = isset($_POST['action_by']) ? trim($_POST['action_by']) : '';
 $remarks = isset($_POST['remarks']) ? trim($_POST['remarks']) : '';
 
+// Debug logging
+error_log("update_issuance_status.php - POST data: " . print_r($_POST, true));
+error_log("update_issuance_status.php - request_id: " . $request_id);
+error_log("update_issuance_status.php - status_action: " . $status_action);
+error_log("update_issuance_status.php - action_by: " . $action_by);
+
 // Validate input
 if ($request_id <= 0 || empty($status_action) || empty($action_by)) {
     echo json_encode(['success' => false, 'message' => 'Invalid request ID, status action, or action by']);
