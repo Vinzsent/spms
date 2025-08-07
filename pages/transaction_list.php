@@ -6,6 +6,7 @@ include '../includes/header.php';
 
 
 $user_type = $_SESSION['user_type'] ?? '';
+$user_name = $_SESSION['name'] ?? ($_SESSION['user']['name'] ?? ($_SESSION['user']['first_name'] . ' ' . $_SESSION['user']['last_name'] ?? 'System'));
 
 $dashboard_link = ($user_type == 'Admin') ? '../admin_dashboard.php' : '../dashboard.php';
 
@@ -22,8 +23,8 @@ $result = $conn->query($sql);
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="text-center">Recieved Items</h3>
     <div>
-      <button class="btn btn-secondary me-2" style="background-color: #073b1d; color: white;" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
-      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTransactionModal" style="background-color: #073b1d; color: white;">+ New Transaction</button>
+      <button class="btn btn-secondary me-2" style="background-color: #fd7e14; color: white;" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTransactionModal" style="background-color: #fd7e14; color: white;">+ New Transaction</button>
     </div>
   </div>
   <h5 class="text-center">List of the recieved items from the suppliers</h5>
@@ -105,17 +106,17 @@ $result = $conn->query($sql);
     <table id="transactionsTable" class="table table-bordered table-striped">
       <thead>
         <tr>
-          <th style="background-color: #073b1d; color: white;">Date Received</th>
-          <th style="background-color: #073b1d; color: white;">Invoice No.</th>
-          <th style="background-color: #073b1d; color: white;">Sales Type</th>
-          <th style="background-color: #073b1d; color: white;">Supplier Name</th>
-          <th style="background-color: #073b1d; color: white;">Category</th>
-          <th style="background-color: #073b1d; color: white;">Item Description</th>
-          <th style="background-color: #073b1d; color: white;">Quantity</th>
-          <th style="background-color: #073b1d; color: white;">Unit</th>
-          <th style="background-color: #073b1d; color: white;">Unit Price</th>
-          <th style="background-color: #073b1d; color: white;">Amount</th>
-          <th style="background-color: #073b1d; color: white;">Action</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Date Received</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Invoice No.</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Sales Type</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Supplier Name</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Category</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Item Description</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Quantity</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Unit</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Unit Price</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Amount</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -177,7 +178,7 @@ $result = $conn->query($sql);
                   <i class="fas fa-edit"></i> Edit
                 </button>
                 <button
-                  class="btn btn-sm issuedBtn" style="background-color: #073b1d; color: white;"
+                  class="btn btn-sm issuedBtn" style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d);; color: white;"
                   data-id="<?= $row['transaction_id'] ?>"
                   data-date="<?= htmlspecialchars($row['date_received']) ?>"
                   data-invoice="<?= htmlspecialchars($row['invoice_no']) ?>"
@@ -320,34 +321,7 @@ $result = $conn->query($sql);
             </div>
           </div>
 
-          <!-- Department Selection -->
-          <div class="department-selection">
-            <div class="row">
-              <div class="col-md-6">
-                <label for="issuedDepartment" class="form-label">
-                  <i class="fas fa-building me-2"></i>Issue to Department/Position
-                </label>
-                <select class="form-select" id="issuedDepartment" name="issued_to_department" required>
-                  <option value="">-- Select Department/Position--</option>
-                  <option value="Admin">Administrator</option>
-                  <option value="Staff">Staff</option>
-                  <option value="Faculty">Faculty</option>
-                  <option value="MIS Head">MIS Head</option>
-                  <option value="MIS Computer Programmer">MIS Computer Programmer</option>
-                  <option value="School President">School President</option>
-                  <option value="Immediate Head">Immediate Head</option>
-                  <option value="Supply In-charge">Supply In-charge</option>
-                  <option value="Purchasing Officer">Purchasing Officer</option>
-                  <option value="VP for Finance & Administration">VP for Finance & Administration</option>
-                  <option value="Finance Officer">Finance Officer</option>
-                </select>
-                <div class="form-text">
-                  <i class="fas fa-info-circle me-1"></i>
-                  Please select the Position where this item will be issued.
-                </div>
-              </div>
-            </div>
-          </div>
+
 
           <!-- Hidden form fields -->
           <input type="hidden" name="transaction_id" id="issuedTransactionId">
@@ -738,8 +712,7 @@ $result = $conn->query($sql);
       }));
       $('#issuedStatus').text($(this).data('status'));
 
-      // Reset department dropdown
-      $('#issuedDepartment').val('');
+
 
       // Populate hidden form field with transaction ID
       $('#issuedTransactionId').val($(this).data('id'));
@@ -750,7 +723,7 @@ $result = $conn->query($sql);
       
       // Also check for stored parameters from page load
       const hasParams = urlParams.has('request_id') || urlParams.has('date') || urlParams.has('department') || 
-                       (window.issuanceParams && (window.issuanceParams.request_id || window.issuanceParams.date || window.issuanceParams.department));
+      (window.issuanceParams && (window.issuanceParams.request_id || window.issuanceParams.date || window.issuanceParams.department));
       
       if (hasParams) {
         console.log('Showing supply request info and quantity computation'); // Debug log
@@ -806,21 +779,47 @@ $result = $conn->query($sql);
     $('#issuedForm').on('submit', function(e) {
       e.preventDefault();
 
-      // Validate department selection
-      const selectedDepartment = $('#issuedDepartment').val();
-      if (!selectedDepartment) {
-        alert('Please select a department/unit before proceeding.');
-        $('#issuedDepartment').focus();
-        return;
+      // Check if we have request_id parameters (from issuance flow)
+      const urlParams = new URLSearchParams(window.location.search);
+      const hasRequestParams = urlParams.has('request_id') || 
+                              (window.issuanceParams && window.issuanceParams.request_id);
+      
+      if (hasRequestParams) {
+        // This is from issuance flow - use update_issuance_status.php
+        $('#issuedForm').attr('action', '../actions/update_issuance_status.php');
+        
+        // Add required fields for update_issuance_status.php
+        if (!$('#issuedForm input[name="status_action"]').length) {
+          $('#issuedForm').append('<input type="hidden" name="status_action" value="issued">');
+        }
+        if (!$('#issuedForm input[name="action_by"]').length) {
+          $('#issuedForm').append('<input type="hidden" name="action_by" value="<?= htmlspecialchars($user_name) ?>">');
+        }
+        
+        // Remove fields not needed for update_issuance_status.php
+        $('#issuedForm input[name="new_status"]').remove();
+        $('#issuedForm input[name="transaction_id"]').remove();
+      } else {
+        // This is regular transaction flow - use update_transaction_status.php
+        $('#issuedForm').attr('action', '../actions/update_transaction_status.php');
+        
+        // Remove fields not needed for update_transaction_status.php
+        $('#issuedForm input[name="status_action"]').remove();
+        $('#issuedForm input[name="action_by"]').remove();
       }
 
       // Show loading state
       $('#confirmIssuedModalBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Updating...');
 
+      // Debug: Log the form data being sent
+      const formData = $(this).serialize();
+      console.log('Form action:', $(this).attr('action'));
+      console.log('Form data being sent:', formData);
+
       $.ajax({
         url: $(this).attr('action'),
         type: 'POST',
-        data: $(this).serialize(),
+        data: formData,
         dataType: 'json',
         success: function(response) {
           // Reset button state
@@ -835,16 +834,11 @@ $result = $conn->query($sql);
             if (row.length > 0) {
               var data = row.data();
               data[6] = 'Issued'; // Update status column (index 6)
-              data[7] = '<span class="badge bg-info">' + selectedDepartment + '</span>'; // Update department column (index 7)
               row.data(data).draw();
 
               // Update the status cell display
               var statusCell = row.node().cells[6];
               $(statusCell).html('<span class="badge bg-success">Issued</span>');
-
-              // Update the department cell display
-              var departmentCell = row.node().cells[7];
-              $(departmentCell).html('<span class="badge bg-info">' + selectedDepartment + '</span>');
             }
 
             // Close modal

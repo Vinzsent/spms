@@ -797,7 +797,7 @@ body {
                                                     data-current-status="<?= $status ?>">
                                                 <i class="fas fa-edit me-1"></i>Update Status
                                             </button>
-                                            <?php if (strtolower($user_type) === 'supply in-charge' && !empty($row['approved_by'])): ?>
+                                            <?php if (strtolower($user_type) === 'supply in-charge' && !empty($row['approved_by']) && empty($row['issued_by'])): ?>
                                             <button class="btn btn-success-modern btn-action issued-redirect-btn"
                                                     data-request-id="<?= $row['request_id'] ?>"
                                                     data-date="<?= htmlspecialchars($row['date_requested']) ?>"

@@ -24,7 +24,7 @@ if ($request_id <= 0 || empty($status_action) || empty($action_by)) {
 }
 
 // Validate status action
-$valid_actions = ['noted', 'checked', 'verified', 'issued', 'approved'];
+$valid_actions = ['noted', 'checked', 'verified', 'approved', 'issued'];
 if (!in_array($status_action, $valid_actions)) {
     echo json_encode(['success' => false, 'message' => 'Invalid status action']);
     exit;
@@ -38,31 +38,30 @@ try {
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("si", $action_by, $request_id);
             break;
-            
+
         case 'checked':
             $sql = "UPDATE supply_request SET checked_by = ?, checked_date = NOW() WHERE request_id = ?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("si", $action_by, $request_id);
             break;
-            
+
         case 'verified':
             $sql = "UPDATE supply_request SET verified_by = ?, verified_date = NOW() WHERE request_id = ?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("si", $action_by, $request_id);
             break;
-            
-        case 'issued':
-            $sql = "UPDATE supply_request SET issued_by = ?, issued_date = NOW() WHERE request_id = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("si", $action_by, $request_id);
-            break;
-            
+
         case 'approved':
             $sql = "UPDATE supply_request SET approved_by = ?, approved_date = NOW() WHERE request_id = ?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("si", $action_by, $request_id);
             break;
-            
+
+        case 'issued':
+            $sql = "UPDATE supply_request SET issued_by = ?, issued_date = NOW() WHERE request_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("si", $action_by, $request_id);
+            break;
         default:
             echo json_encode(['success' => false, 'message' => 'Invalid status action']);
             exit;
@@ -71,23 +70,21 @@ try {
     if ($stmt->execute()) {
         $action_display = ucfirst($status_action);
         $message = "Request status updated to '$action_display' by $action_by";
-        
+
         // Log the action if remarks are provided
         if (!empty($remarks)) {
             $message .= " with remarks: $remarks";
         }
-        
+
         echo json_encode(['success' => true, 'message' => $message]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Failed to update status']);
     }
-    
+
     $stmt->close();
-    
 } catch (Exception $e) {
     error_log("Error updating issuance status: " . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Database error occurred']);
 }
 
 $conn->close();
-?> 
