@@ -74,7 +74,7 @@ if (isset($_SESSION['error'])) {
 
 <style>
 :root {
-    --primary-color: #073b1d;
+    --primary-color: #1a5f3c;
     --secondary-color: #ff6b35;
     --accent-color: #28a745;
     --light-bg: #f8f9fa;
@@ -790,7 +790,7 @@ body {
                                                     data-approved-date="<?= htmlspecialchars($row['approved_date'] ?? '') ?>">
                                                 <i class="fas fa-eye me-1"></i>View
                                             </button>
-                                            <button class="btn btn-warning-modern btn-action" 
+                                            <button class="btn btn-action" style="background-color: #fd7e14; color: white;"
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#updateStatusModal"
                                                     data-request-id="<?= $row['request_id'] ?>"

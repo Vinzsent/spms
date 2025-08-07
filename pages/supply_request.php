@@ -58,7 +58,7 @@ if (isset($_SESSION['error'])) {
     <div class="row mb-4">
       <div class="col-md-12">
         <div class="card border-dark">
-          <div class="card-header" style="background-color: #073b1d; color: white;">
+          <div class="card-header" style="background-color: #1a5f3c; color: white;">
             <h6 class="mb-0"><i class="fas fa-user-circle me-2"></i>Current User Information</h6>
           </div>
           <div class="card-body">
@@ -66,12 +66,11 @@ if (isset($_SESSION['error'])) {
               <div class="col-md-8">
                 <div class="d-flex align-items-center">
                   <div class="me-3">
-                    <i class="fas fa-user-circle fa-3x" style="color: #073b1d;"></i>
+                    <i class="fas fa-user-circle fa-3x" style="color: #1a5f3c;"></i>
                   </div>
                   <div>
                     <h5 class="mb-1"><?= htmlspecialchars($user_name) ?></h5>
                     <p class="mb-1 text-muted">
-                      <strong>User ID:</strong> <?= htmlspecialchars($user_id) ?>
                       <?php if (!empty($user_type)): ?>
                         | <strong>Position:</strong> <?= htmlspecialchars(strtoupper($user_type)) ?>
                       <?php endif; ?>
@@ -87,7 +86,7 @@ if (isset($_SESSION['error'])) {
                 </div>
               </div>
               <div class="col-md-4 text-end">
-                <button class="btn" style="background-color: #073b1d; color: white;" data-bs-toggle="modal" data-bs-target="#addSupplyModal">
+                <button class="btn" style="background-color: #fd7e14; color: white;" data-bs-toggle="modal" data-bs-target="#addSupplyModal">
                   <i class="fas fa-plus me-2"></i>New Supply Request
                 </button>
               </div>
@@ -100,7 +99,7 @@ if (isset($_SESSION['error'])) {
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3>Supply Request</h3>
       <div>
-        <button class="btn" style="background-color: #073b1d; color: white;" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
+        <button class="btn" style="background-color: #fd7e14; color: white;" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
       </div>
     </div>
     <h5 class="text-center">List of the employee request</h5>
@@ -178,17 +177,17 @@ if (isset($_SESSION['error'])) {
       <table id="transactionsTable" class="table table-bordered table-striped">
         <thead>
           <tr>
-            <th style="background-color: #073b1d; color: white;">Date Requested</th>
-            <th style="background-color: #073b1d; color: white;">Date Needed</th>
-            <th style="background-color: #073b1d; color: white;">Position/Role</th>
-            <th style="background-color: #073b1d; color: white;">Purpose of the request</th>
-            <th style="background-color: #073b1d; color: white;">Quantity Requested</th>
-            <th style="background-color: #073b1d; color: white;">Unit</th>
-            <th style="background-color: #073b1d; color: white;">Request Description</th>
-            <th style="background-color: #073b1d; color: white;">Quality Issued</th>
-            <th style="background-color: #073b1d; color: white;">Unit Cost</th>
-            <th style="background-color: #073b1d; color: white;">Total Cost</th>
-            <th style="background-color: #073b1d; color: white;">Action</th>
+            <th style="background-color: #1a5f3c; color: white;">Date Requested</th>
+            <th style="background-color: #1a5f3c; color: white;">Date Needed</th>
+            <th style="background-color: #1a5f3c; color: white;">Position/Role</th>
+            <th style="background-color: #1a5f3c; color: white;">Purpose of the request</th>
+            <th style="background-color: #1a5f3c; color: white;">Quantity Requested</th>
+            <th style="background-color: #1a5f3c; color: white;">Unit</th>
+            <th style="background-color: #1a5f3c; color: white;">Request Description</th>
+            <th style="background-color: #1a5f3c; color: white;">Quality Issued</th>
+            <th style="background-color: #1a5f3c; color: white;">Unit Cost</th>
+            <th style="background-color: #1a5f3c; color: white;">Total Cost</th>
+            <th style="background-color: #1a5f3c; color: white;">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -213,7 +212,7 @@ if (isset($_SESSION['error'])) {
               <td>₱<?= number_format($computed_total_cost, 2) ?></td>
               <td>
                 <button
-                  class="btn btn-sm editBtn" style="background-color: #073b1d; color: white;"
+                  class="btn btn-sm editBtn" style="background-color: #1a5f3c; color: white;"
                   data-request-id="<?= $row['request_id'] ?>"
                   data-date-requested="<?= htmlspecialchars($row['date_requested']) ?>"
                   data-date-needed="<?= htmlspecialchars($row['date_needed']) ?>"
@@ -228,7 +227,7 @@ if (isset($_SESSION['error'])) {
                   data-unit-cost="<?= $unit_cost ?>"
                   data-total-cost="<?= $computed_total_cost ?>"
                   data-bs-toggle="modal"
-                  data-bs-target="#editSupplyModal">
+                  data-bs-target="#editSupplyModal"><i class="fas fa-edit me-1"></i>
                   Edit Request Details
                 </button>
               </td>

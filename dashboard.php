@@ -123,7 +123,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
   }
 
   .menu-card .card-button {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    background: #fd7e14;
     color: white;
     border: none;
     padding: 0.75rem 1.5rem;
@@ -313,7 +313,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
   <div class="menu-grid">
     <?php if (strtolower($user_type) === 'faculty'): ?>
       <!-- Supply Requisition Card ONLY for Faculty -->
-      <div class="menu-card card-success">
+      <div class="menu-card">
         <div class="card-icon">
           <i class="fas fa-clipboard-list"></i>
         </div>
@@ -358,8 +358,32 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <a href="pages/issuance.php" class="card-button">Access Module</a>
       </div>
 
+      <?php elseif (strtolower($user_type) === 'purchasing officer'): ?>
+      <!-- Supply Requisition Card ONLY for School President -->
+
+         <!-- Assignment Card -->
+      <div class="menu-card card-primary">
+        <div class="card-icon">
+          <i class="fas fa-user-check"></i>
+        </div>
+        <h3 class="card-title">Assignment & Issuance</h3>
+        <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
+        <a href="pages/issuance.php" class="card-button">Access Module</a>
+      </div>
+
+      <!-- Procurement Card -->
+      <div class="menu-card card-warning">
+        <div class="card-icon">
+          <i class="fas fa-shopping-cart"></i>
+        </div>
+        <h3 class="card-title">Procurement</h3>
+        <p class="card-description">Log purchased items with supplier details, costs, and receipts. Mark items as received when delivered.</p>
+        <a href="pages/procurement.php" class="card-button">Access Module</a>
+      </div>
+
     <?php elseif (strtolower($user_type) === 'supply in-charge'): ?>
       <!-- Supply Requisition Card ONLY for School President -->
+
       <!-- Assignment Card -->
       <div class="menu-card card-primary">
         <div class="card-icon">
@@ -379,7 +403,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <p class="card-description">Record and track new supplier transactions. Manage incoming inventory and update stock levels.</p>
         <a href="pages/transaction_list.php" class="card-button">Access Module</a>
       </div>
-
+      
       <!-- Inventory Card -->
       <div class="menu-card card-info">
         <div class="card-icon">

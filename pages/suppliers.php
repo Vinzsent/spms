@@ -25,7 +25,7 @@ if (!$result) {
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root {
-      --primary-color: #073b1d;
+      --primary-color: #1a5f3c;
       --secondary-color: #ff6b35;
       --success-color: #10b981;
       --warning-color: #f59e0b;
