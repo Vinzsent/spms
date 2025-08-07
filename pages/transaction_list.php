@@ -320,7 +320,7 @@ $result = $conn->query($sql);
             </div>
           </div>
 
-          <!-- Department Selection 
+          <!-- Department Selection -->
           <div class="department-selection">
             <div class="row">
               <div class="col-md-6">
@@ -347,11 +347,11 @@ $result = $conn->query($sql);
                 </div>
               </div>
             </div>
-          </div>-->
+          </div>
 
-          <!-- Hidden form fields 
+          <!-- Hidden form fields -->
           <input type="hidden" name="transaction_id" id="issuedTransactionId">
-          <input type="hidden" name="new_status" value="Issued">-->
+          <input type="hidden" name="new_status" value="Issued">
 
           <!-- Confirmation message -->
           <div class="alert alert-info">
