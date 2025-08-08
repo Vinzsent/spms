@@ -314,7 +314,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
     <?php if (strtolower($user_type) === 'faculty'): ?>
       <!-- Supply Requisition Card ONLY for Faculty -->
       <div class="menu-card">
-        <div class="card-icon">
+        <div class="card-icon" style="background: linear-gradient(135deg, #28a745, #20c997);">
           <i class="fas fa-clipboard-list"></i>
         </div>
         <h3 class="card-title">Supply Requisition</h3>
@@ -515,6 +515,15 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <h3 class="card-title">Reports</h3>
         <p class="card-description">Generate comprehensive reports on requisitions, inventory, maintenance, and disposals.</p>
         <a href="pages/supply_request.php" class="card-button">Access Module</a>
+      </div>
+      <!-- Notifications Card -->
+      <div class="menu-card card-primary">
+        <div class="card-icon">
+          <i class="fas fa-bell"></i>
+        </div>
+        <h3 class="card-title">Notifications</h3>
+        <p class="card-description">View and manage all your notifications for supply requests, approvals, and issuances.</p>
+        <a href="pages/notifications.php" class="card-button">View Notifications</a>
       </div>
       <!-- Settings Card -->
       <div class="menu-card card-danger">

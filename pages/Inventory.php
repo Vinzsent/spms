@@ -820,19 +820,6 @@ body {
 </div>
 
 <script>
-$(document).ready(function() {
-    // Mobile sidebar toggle
-    $('.sidebar-toggle').on('click', function() {
-        $('.sidebar').toggleClass('show');
-    });
-    
-    // Reset movement buttons when modal is shown
-    $('#stockMovementModal').on('show.bs.modal', function() {
-        // Reset button states
-        $('.movement-btn').removeClass('active btn-outline-success btn-outline-warning');
-    });
-});
-
 function stockIn(inventoryId) {
     $('#movement_inventory_id').val(inventoryId);
     $('#movement_type').val('IN');

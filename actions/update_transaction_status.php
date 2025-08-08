@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../includes/db.php';
+include '../includes/notification_helper.php';
 
 // Set header for JSON response
 header('Content-Type: application/json');
@@ -64,6 +65,37 @@ if ($request_id > 0 && !empty($status_action) && !empty($action_by)) {
             if (!empty($remarks)) {
                 $message .= " with remarks: $remarks";
             }
+
+            // Get supply request details for notification
+            $request_sql = "SELECT department_unit, request_description FROM supply_request WHERE request_id = ?";
+            $request_stmt = $conn->prepare($request_sql);
+            $request_stmt->bind_param("i", $request_id);
+            $request_stmt->execute();
+            $request_result = $request_stmt->get_result();
+            
+            if ($request_result && $request_result->num_rows > 0) {
+                $request_data = $request_result->fetch_assoc();
+                $department = $request_data['department_unit'];
+                $description = $request_data['request_description'];
+                
+                // Find the requester user ID based on department
+                $requester_id = findRequesterByDepartment($department, $conn);
+                
+                if ($requester_id) {
+                    // Send notification based on status action
+                    if ($status_action === 'approved') {
+                        notifyRequestApproved($request_id, $action_by, $requester_id, $conn);
+                    } elseif ($status_action === 'issued') {
+                        notifyItemIssued($request_id, $action_by, $requester_id, $description, $conn);
+                    } else {
+                        // For other status updates (noted, checked, verified)
+                        notifyRequestStatusUpdate($request_id, $status_action, $action_by, $requester_id, $conn);
+                    }
+                }
+            }
+            
+            $request_stmt->close();
+
             echo json_encode(['success' => true, 'message' => $message]);
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to update status']);
@@ -105,6 +137,28 @@ try {
         if (!$update_request_stmt->execute()) {
             throw new Exception('Failed to update supply request status');
         }
+
+        // Send notification for issuance
+        $request_sql = "SELECT department_unit, request_description FROM supply_request WHERE request_id = ?";
+        $request_stmt = $conn->prepare($request_sql);
+        $request_stmt->bind_param("i", $request_id);
+        $request_stmt->execute();
+        $request_result = $request_stmt->get_result();
+        
+        if ($request_result && $request_result->num_rows > 0) {
+            $request_data = $request_result->fetch_assoc();
+            $department = $request_data['department_unit'];
+            $description = $request_data['request_description'];
+            
+            // Find the requester user ID based on department
+            $requester_id = findRequesterByDepartment($department, $conn);
+            
+            if ($requester_id) {
+                notifyItemIssued($transaction_id, $user_name, $requester_id, $description, $conn);
+            }
+        }
+        
+        $request_stmt->close();
     }
 
     // If there's quantity computation, update the quantity, amount, and total

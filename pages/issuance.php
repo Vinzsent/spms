@@ -619,6 +619,12 @@ body {
             </a>
         </div>
         <div class="nav-item">
+            <a href="notifications.php" class="nav-link">
+                <i class="fas fa-bell"></i>
+                Notifications
+            </a>
+        </div>
+        <div class="nav-item">
             <a href="../logout.php" class="nav-link logout">
                 <i class="fas fa-sign-out-alt"></i>
                 Logout

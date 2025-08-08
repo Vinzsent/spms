@@ -24,6 +24,7 @@ $result = $conn->query($sql);
     <h3 class="text-center">Recieved Items</h3>
     <div>
       <button class="btn me-2" style="background-color: #fd7e14; color: white;" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
+      <a href="notifications.php" class="btn btn-info me-2"><i class="fas fa-bell"></i> Notifications</a>
       <button class="btn" data-bs-toggle="modal" data-bs-target="#addTransactionModal" style="background-color: #fd7e14; color: white;">+ New Transaction</button>
     </div>
   </div>

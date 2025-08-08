@@ -27,7 +27,7 @@
           <!-- Notifications will be loaded here -->
         </div>
         <div class="notification-footer">
-          <a href="" class="text-decoration-none">View all notifications</a>
+          <a href="/spms/pages/notifications.php" class="text-decoration-none">View all Notifications</a>
         </div>
       </div>
     </div>
@@ -41,6 +41,7 @@
 <style>
 .notification-container {
   position: relative;
+  display: inline-block;
 }
 
 .notification-btn {
@@ -91,10 +92,11 @@
   background: white;
   border-radius: 10px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
+  z-index: 9999;
   display: none;
   border: 1px solid #e9ecef;
   overflow: hidden;
+  margin-top: 5px;
 }
 
 .notification-dropdown.show {
@@ -253,14 +255,34 @@
 <script src="/spms/assets/js/dark-mode.js"></script>
 <script>
 // Notification System
-$(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
+  // Check if jQuery is available
+  if (typeof $ === 'undefined') {
+    console.error('jQuery is not loaded. Loading jQuery dynamically...');
+    // Load jQuery dynamically if not available
+    const script = document.createElement('script');
+    script.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
+    script.onload = function() {
+      console.log('jQuery loaded successfully');
+      initializeNotifications();
+    };
+    document.head.appendChild(script);
+  } else {
+    initializeNotifications();
+  }
+});
+
+function initializeNotifications() {
+  $(document).ready(function() {
   let notifications = [];
   let unreadCount = 0;
 
   // Toggle notification dropdown
   $('#notificationBell').on('click', function(e) {
     e.stopPropagation();
+    console.log('Notification bell clicked');
     $('#notificationDropdown').toggleClass('show');
+    console.log('Dropdown show class:', $('#notificationDropdown').hasClass('show'));
     loadNotifications();
   });
 
@@ -271,6 +293,22 @@ $(document).ready(function() {
     }
   });
 
+  // Add hover functionality for better UX
+  $('.notification-container').on('mouseenter', function() {
+    if (!$('#notificationDropdown').hasClass('show')) {
+      $('#notificationDropdown').addClass('show');
+      loadNotifications();
+    }
+  });
+
+  $('.notification-container').on('mouseleave', function() {
+    setTimeout(function() {
+      if (!$('.notification-container:hover').length) {
+        $('#notificationDropdown').removeClass('show');
+      }
+    }, 300);
+  });
+
   // Mark all as read
   $('#markAllRead').on('click', function() {
     markAllAsRead();
@@ -279,7 +317,7 @@ $(document).ready(function() {
   // Load notifications
   function loadNotifications() {
     $.ajax({
-      url: '../actions/get_notifications.php',
+      url: '/spms/actions/get_notifications.php',
       type: 'GET',
       dataType: 'json',
       success: function(response) {
@@ -290,8 +328,10 @@ $(document).ready(function() {
           updateNotificationBadge();
         }
       },
-      error: function() {
-        console.log('Error loading notifications');
+      error: function(xhr, status, error) {
+        console.log('Error loading notifications:', error);
+        console.log('Status:', status);
+        console.log('Response:', xhr.responseText);
       }
     });
   }
@@ -376,7 +416,7 @@ $(document).ready(function() {
   // Mark notification as read
   function markAsRead(notificationId) {
     $.ajax({
-      url: '../actions/mark_notification_read.php',
+      url: '/spms/actions/mark_notification_read.php',
       type: 'POST',
       data: { notification_id: notificationId },
       dataType: 'json',
@@ -384,6 +424,9 @@ $(document).ready(function() {
         if (response.success) {
           loadNotifications();
         }
+      },
+      error: function(xhr, status, error) {
+        console.log('Error marking notification as read:', error);
       }
     });
   }
@@ -391,13 +434,16 @@ $(document).ready(function() {
   // Mark all as read
   function markAllAsRead() {
     $.ajax({
-      url: '../actions/mark_all_notifications_read.php',
+      url: '/spms/actions/mark_all_notifications_read.php',
       type: 'POST',
       dataType: 'json',
       success: function(response) {
         if (response.success) {
           loadNotifications();
         }
+      },
+      error: function(xhr, status, error) {
+        console.log('Error marking all notifications as read:', error);
       }
     });
   }
@@ -407,5 +453,6 @@ $(document).ready(function() {
 
   // Refresh notifications every 30 seconds
   setInterval(loadNotifications, 30000);
-});
+  });
+}
 </script>

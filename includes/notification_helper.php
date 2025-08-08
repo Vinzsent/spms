@@ -28,7 +28,16 @@ function createNotification($user_id, $type, $title, $message, $related_id = nul
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("isssss", $user_id, $type, $title, $message, $related_id, $related_type);
         
-        return $stmt->execute();
+        $result = $stmt->execute();
+        
+        // Debug logging
+        if ($result) {
+            error_log("Notification created successfully for user $user_id: $title");
+        } else {
+            error_log("Failed to create notification for user $user_id: " . $stmt->error);
+        }
+        
+        return $result;
     } catch (Exception $e) {
         error_log("Error creating notification: " . $e->getMessage());
         return false;
@@ -72,8 +81,8 @@ function notifySupplyRequestSubmitted($request_id, $department, $description, $c
  * @return bool Success status
  */
 function notifyRequestApproved($request_id, $approved_by, $requester_id, $conn) {
-    $title = "Request Approved";
-    $message = "Your supply request has been approved by $approved_by";
+    $title = "🎉 Request Approved!";
+    $message = "Great news! Your supply request has been approved by $approved_by. Your items will be processed for issuance soon.";
     
     return createNotification($requester_id, 'approved', $title, $message, $request_id, 'supply_request', $conn);
 }
@@ -109,8 +118,8 @@ function notifyRequestRejected($request_id, $rejected_by, $requester_id, $reason
  * @return bool Success status
  */
 function notifyItemIssued($transaction_id, $issued_by, $requester_id, $item_description, $conn) {
-    $title = "Item Issued";
-    $message = "Your requested item has been issued by $issued_by: $item_description";
+    $title = "📦 Item Issued!";
+    $message = "Your requested item has been issued by $issued_by: $item_description. You can now collect your items from the supply office.";
     
     return createNotification($requester_id, 'issued', $title, $message, $transaction_id, 'supplier_transaction', $conn);
 }
@@ -124,8 +133,20 @@ function notifyItemIssued($transaction_id, $issued_by, $requester_id, $item_desc
  */
 function findRequesterByDepartment($department, $conn) {
     try {
-        // First try to find by department field
-        $sql = "SELECT id FROM user WHERE department = ? LIMIT 1";
+        // Map department names to user types for better matching
+        $department_mapping = [
+            'Faculty' => 'Faculty',
+            'Staff' => 'Staff',
+            'Admin' => 'Admin',
+            'Immediate Head' => 'Immediate Head',
+            'Supply In-charge' => 'Supply In-charge',
+            'Purchasing Officer' => 'Purchasing Officer',
+            'School President' => 'School President',
+            'VP for Finance & Administration' => 'VP for Finance & Administration'
+        ];
+        
+        // Try to find by exact department match first
+        $sql = "SELECT id FROM user WHERE user_type = ? LIMIT 1";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $department);
         $stmt->execute();
@@ -136,13 +157,36 @@ function findRequesterByDepartment($department, $conn) {
             return $row['id'];
         }
         
-        // If not found by department, try by user_type
-        $sql = "SELECT id FROM user WHERE user_type = ? LIMIT 1";
+        // Try mapped department name
+        if (isset($department_mapping[$department])) {
+            $mapped_type = $department_mapping[$department];
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("s", $mapped_type);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($result && $result->num_rows > 0) {
+                $row = $result->fetch_assoc();
+                return $row['id'];
+            }
+        }
+        
+        // If still not found, try to find any user with similar user_type
+        $sql = "SELECT id FROM user WHERE user_type LIKE ? LIMIT 1";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $department);
+        $search_term = "%" . $department . "%";
+        $stmt->bind_param("s", $search_term);
         $stmt->execute();
         $result = $stmt->get_result();
         
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            return $row['id'];
+        }
+        
+        // Default: return the first user (fallback)
+        $sql = "SELECT id FROM user LIMIT 1";
+        $result = $conn->query($sql);
         if ($result && $result->num_rows > 0) {
             $row = $result->fetch_assoc();
             return $row['id'];
@@ -167,8 +211,17 @@ function findRequesterByDepartment($department, $conn) {
  */
 function notifyRequestStatusUpdate($request_id, $status, $updated_by, $requester_id, $conn) {
     $status_display = ucfirst($status);
-    $title = "Request Status Updated";
-    $message = "Your supply request status has been updated to '$status_display' by $updated_by";
+    $status_icons = [
+        'noted' => '📝',
+        'checked' => '✅',
+        'verified' => '🔍',
+        'approved' => '🎉',
+        'issued' => '📦'
+    ];
+    
+    $icon = $status_icons[$status] ?? '📋';
+    $title = "$icon Request Status Updated";
+    $message = "Your supply request has been $status_display by $updated_by. The approval process is progressing.";
     
     return createNotification($requester_id, 'request', $title, $message, $request_id, 'supply_request', $conn);
 }
