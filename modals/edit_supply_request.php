@@ -6,10 +6,10 @@
       <input type="hidden" name="request_id" id="editRequestId">
 
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="editSupplyModalLabel">Edit Supply Request</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
+                 <div class="modal-header">
+           <h5 class="modal-title" id="editSupplyModalLabel">Edit Supply Request</h5>
+           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+         </div>
 
         <div class="modal-body row g-3">
           <div class="col-md-4">
@@ -154,10 +154,13 @@
           </div>
         </div>
 
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">Update Request</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        </div>
+                 <div class="modal-footer">
+           <button type="button" class="btn btn-outline-secondary me-2" id="printSupplyRequest" title="Print Supply Request">
+             <i class="fas fa-print me-1"></i>Print
+           </button>
+           <button type="submit" class="btn btn-primary">Update Request</button>
+           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+         </div>
       </div>
     </form>
   </div>
@@ -208,3 +211,190 @@
 </script>
 
 <script src="../assets/js/total-amount.js"></script>
+
+<script>
+  // Print functionality for supply request
+  document.addEventListener('DOMContentLoaded', function() {
+    const printButton = document.getElementById('printSupplyRequest');
+    
+    if (printButton) {
+      printButton.addEventListener('click', function() {
+        // Get all the form data
+        const requestId = document.getElementById('editRequestId').value;
+        const dateRequested = document.getElementById('editDateRequest').value;
+        const dateNeeded = document.getElementById('editDateNeeded').value;
+        const departmentUnit = document.getElementById('editDepartmentUnit').value;
+        const purpose = document.getElementById('editPurpose').value;
+        const qualityIssued = document.getElementById('editQualityIssued').value;
+        const salesType = document.getElementById('editSalesType').value;
+        const category = document.getElementById('editCategory').value;
+        const requestDescription = document.getElementById('editRequestDescription').value;
+        const quantity = document.getElementById('editQuantity').value;
+        const unit = document.getElementById('editUnit').value;
+        const unitCost = document.getElementById('editPrice').value;
+        const totalCost = document.getElementById('editTotalAmount').value;
+        
+                 // Create print window content
+         const printContent = `
+           <!DOCTYPE html>
+           <html>
+           <head>
+             <title>Supply Requisition/Issuance - ${requestId}</title>
+                           <style>
+                body { font-family: Arial, sans-serif; margin: 0; padding: 10px; }
+                .form-container { max-width: 800px; margin: 0 auto; border: 2px solid #000; padding: 15px; }
+                .header { text-align: center; margin-bottom: 15px; }
+                .logo-container { margin-bottom: 8px; }
+                .school-logo { width: 60px; height: 60px; margin: 0 auto 5px; display: block; }
+                .school-name { font-size: 14px; font-weight: bold; margin-bottom: 3px; }
+                .school-address { font-size: 10px; margin-bottom: 3px; }
+                .school-contact { font-size: 10px; margin-bottom: 5px; }
+                .accreditation { font-size: 9px; font-style: italic; margin-bottom: 8px; }
+                .form-title { font-size: 16px; font-weight: bold; text-transform: uppercase; margin-bottom: 12px; border-bottom: 2px solid #000; padding-bottom: 5px; }
+                .form-info { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 10px; }
+                .request-section { margin-bottom: 15px; }
+                .request-row { display: flex; margin-bottom: 8px; }
+                .request-label { width: 120px; font-weight: bold; font-size: 10px; }
+                .request-value { flex: 1; border-bottom: 1px solid #000; padding-left: 8px; font-size: 10px; min-height: 15px; }
+                .items-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+                .items-table th, .items-table td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 9px; }
+                .items-table th { background-color: #f0f0f0; font-weight: bold; }
+                .approval-section { display: flex; justify-content: space-between; }
+                .approval-left, .approval-right { width: 48%; }
+                .approval-item { margin-bottom: 12px; }
+                .approval-label { font-weight: bold; font-size: 10px; margin-bottom: 3px; }
+                .approval-line { border-bottom: 1px solid #000; height: 20px; margin-bottom: 3px; }
+                .approval-subtitle { font-size: 8px; color: #666; }
+                .phone-number { font-size: 8px; color: #666; margin-top: 3px; }
+                @media print { 
+                  body { margin: 0; padding: 5px; }
+                  .form-container { border: none; }
+                  @page { size: A4; margin: 10mm; }
+                }
+              </style>
+           </head>
+           <body>
+                           <div class="form-container">
+                <div class="header">
+                  <div class="logo-container">
+                    <img src="../assets/images/logo.png" alt="School Logo" class="school-logo">
+                  </div>
+                  <div class="school-name">DAVAO CENTRAL COLLEGE</div>
+                  <div class="school-address">Juan dela Cruz St. Toril Davao City, Philippines</div>
+                  <div class="school-contact">Tel. No. (082) 291-1882 / Fax No. (082) 291-2053</div>
+                  <div class="accreditation">ACSCU-ACI ACCREDITED</div>
+                  <div class="form-info">
+                    <span>SO</span>
+                    <span>Status: Rev. 3</span>
+                    <span>Date Revised: February 2023</span>
+                  </div>
+                  <div class="form-title">Supply Requisition/Issuance</div>
+                </div>
+               
+               <div class="request-section">
+                 <div class="request-row">
+                   <div class="request-label">Date Requested:</div>
+                   <div class="request-value">${dateRequested}</div>
+                   <div class="request-label" style="width: 100px; margin-left: 20px;">Date Needed:</div>
+                   <div class="request-value">${dateNeeded}</div>
+                 </div>
+                 <div class="request-row">
+                   <div class="request-label">Department/Unit:</div>
+                   <div class="request-value">${departmentUnit}</div>
+                 </div>
+                 <div class="request-row">
+                   <div class="request-label">Purpose:</div>
+                   <div class="request-value">${purpose}</div>
+                 </div>
+               </div>
+               
+               <table class="items-table">
+                 <thead>
+                   <tr>
+                     <th>Quantity Requested</th>
+                     <th>Unit</th>
+                     <th>Description</th>
+                     <th>Quality Issued</th>
+                     <th>Unit Cost</th>
+                     <th>Total Cost</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   <tr>
+                     <td>${quantity}</td>
+                     <td>${unit}</td>
+                     <td>${requestDescription}</td>
+                     <td>${qualityIssued}</td>
+                     <td>₱${parseFloat(unitCost).toLocaleString()}</td>
+                     <td>₱${parseFloat(totalCost).toLocaleString()}</td>
+                   </tr>
+                   <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                   <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                   <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                   <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                 </tbody>
+               </table>
+               
+               <div class="approval-section">
+                 <div class="approval-left">
+                   <div class="approval-item">
+                     <div class="approval-label">Requested By:</div>
+                     <div class="approval-line"></div>
+                   </div>
+                   <div class="approval-item">
+                     <div class="approval-label">Noted By:</div>
+                     <div class="approval-line"></div>
+                     <div class="approval-subtitle">Immediate Head</div>
+                   </div>
+                   <div class="approval-item">
+                     <div class="approval-label">Checked By:</div>
+                     <div class="approval-line"></div>
+                     <div class="approval-subtitle">Supply In-charge</div>
+                   </div>
+                   <div class="approval-item">
+                     <div class="approval-label">Verified By:</div>
+                     <div class="approval-line"></div>
+                     <div class="approval-subtitle">Finance Officer</div>
+                   </div>
+                   <div class="approval-item">
+                     <div class="approval-label">Approved By:</div>
+                     <div class="approval-line"></div>
+                     <div class="approval-subtitle">School President</div>
+                   </div>
+                 </div>
+                 
+                 <div class="approval-right">
+                   <div class="approval-item">
+                     <div class="approval-label">Issued By:</div>
+                     <div class="approval-line"></div>
+                     <div class="approval-subtitle">Supply In-charge</div>
+                   </div>
+                   <div class="approval-item">
+                     <div class="approval-label">Received By:</div>
+                     <div class="approval-line"></div>
+                   </div>
+                   <div class="approval-item">
+                     <div class="approval-label">Date:</div>
+                     <div class="approval-line"></div>
+                   </div>
+                 </div>
+               </div>
+             </div>
+           </body>
+           </html>
+         `;
+        
+        // Open print window
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        printWindow.focus();
+        
+        // Wait for content to load then print
+        printWindow.onload = function() {
+          printWindow.print();
+        };
+      });
+    }
+  });
+</script>
