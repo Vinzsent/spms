@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 06, 2025 at 10:36 AM
+-- Generation Time: Aug 07, 2025 at 10:49 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -184,18 +184,16 @@ CREATE TABLE `supplier_transaction` (
   `unit` varchar(20) NOT NULL,
   `unit_price` decimal(10,2) NOT NULL,
   `amount` decimal(10,2) NOT NULL,
-  `status` varchar(255) NOT NULL,
-  `issued_to_department` varchar(200) DEFAULT NULL,
-  `issued_date` datetime DEFAULT NULL
+  `status` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `supplier_transaction`
 --
 
-INSERT INTO `supplier_transaction` (`transaction_id`, `date_received`, `invoice_no`, `sales_type`, `category`, `supplier_id`, `item_description`, `brand`, `type`, `color`, `quantity`, `unit`, `unit_price`, `amount`, `status`, `issued_to_department`, `issued_date`) VALUES
-(31, '2025-08-04', '12345', 'Cash', 'ICT Equipment and Devices', 25, '5G internet and gaming chair', NULL, NULL, NULL, 95, 'pc', 1.00, 100.00, 'Issued', 'MIS Head', '2025-08-06 10:24:43'),
-(32, '2025-08-04', '12', 'Cash', 'School Building Improvements', 25, 'Paint', 'Boysen', 'Paint', 'RGB', 1, 'can', 150.00, 150.00, 'Pending', NULL, NULL);
+INSERT INTO `supplier_transaction` (`transaction_id`, `date_received`, `invoice_no`, `sales_type`, `category`, `supplier_id`, `item_description`, `brand`, `type`, `color`, `quantity`, `unit`, `unit_price`, `amount`, `status`) VALUES
+(31, '2025-08-04', '12345', 'Cash', 'ICT Equipment and Devices', 25, '5G internet and gaming chair', NULL, NULL, NULL, 99, 'pc', 1.00, 99.00, 'Issued'),
+(32, '2025-08-04', '12', 'Cash', 'School Building Improvements', 25, 'Paint', 'Boysen', 'Paint', 'RGB', 0, 'can', 150.00, 0.00, 'Issued');
 
 -- --------------------------------------------------------
 
@@ -239,7 +237,7 @@ CREATE TABLE `supply_request` (
 INSERT INTO `supply_request` (`request_id`, `user_id`, `date_requested`, `date_needed`, `department_unit`, `purpose`, `sales_type`, `category`, `request_description`, `unit_cost`, `total_cost`, `unit`, `quantity_requested`, `quality_issued`, `amount`, `noted_by`, `noted_date`, `checked_by`, `checked_date`, `verified_by`, `verified_date`, `issued_by`, `issued_date`, `approved_by`, `approved_date`, `remarks`) VALUES
 (8, 0, '2025-08-02', '2025-08-27', 'HR', 'No Purpose', 'Cash', 'ICT Equipment and Devices', 'No Description', '11', 11.00, 'pc', '1', 'Good', 11.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (9, 9, '2025-08-04', '2025-08-06', 'MIS', 'Is to have a smooth gaming experience', 'Cash', 'Office Equipment', 'Gaming Chair and 5G internet', '100', 100.00, 'pc', '1', 'Good', 100.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(10, 12, '2025-08-05', '2025-08-08', 'Faculty', 'To have a better gaming experience', 'Cash', 'Office Equipment', 'Gaming Chair', '100', 100.00, 'pc', '1', 'I hope it is good', 100.00, 'Maria Amor', '2025-08-06 10:51:34', 'Jane Doe', '2025-08-06 10:57:03', 'Cinna Rose', '2025-08-06 10:57:19', NULL, NULL, 'Robert James', '2025-08-06 10:57:33', NULL),
+(10, 12, '2025-08-05', '2025-08-08', 'Faculty', 'To have a better gaming experience', 'Cash', 'Office Equipment', 'Gaming Chair', '100', 100.00, 'pc', '1', 'I hope it is good', 100.00, 'Maria Amor', '2025-08-07 16:45:10', 'Jane Doe', '2025-08-07 16:45:27', 'Cinna Rose', '2025-08-07 16:46:01', NULL, NULL, 'Robert James', '2025-08-07 16:46:41', NULL),
 (11, 12, '2025-08-06', '2025-08-28', 'Faculty', 'Extender', 'Cash', 'ICT Equipment and Devices', 'HK Vision with 4 gb storage', '2000', 10000.00, 'pc', '5', '3', 10000.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------

@@ -23,8 +23,8 @@ $result = $conn->query($sql);
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="text-center">Recieved Items</h3>
     <div>
-      <button class="btn btn-secondary me-2" style="background-color: #fd7e14; color: white;" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
-      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTransactionModal" style="background-color: #fd7e14; color: white;">+ New Transaction</button>
+      <button class="btn me-2" style="background-color: #fd7e14; color: white;" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
+      <button class="btn" data-bs-toggle="modal" data-bs-target="#addTransactionModal" style="background-color: #fd7e14; color: white;">+ New Transaction</button>
     </div>
   </div>
   <h5 class="text-center">List of the recieved items from the suppliers</h5>
@@ -175,7 +175,7 @@ $result = $conn->query($sql);
                   data-bs-toggle="modal"
                   data-bs-target="#editTransactionModal"
                   style="margin: 1px;">
-                  <i class="fas fa-edit"></i> Edit
+                  <i class="fas fa-edit"></i> Edit Items
                 </button>
                 <button
                   class="btn btn-sm issuedBtn" style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d);; color: white;"
@@ -194,7 +194,7 @@ $result = $conn->query($sql);
                   data-bs-toggle="modal"
                   data-bs-target="#issuedModal"
                   style="margin: 1px;">
-                  <i class="fas fa-check"></i> Issued
+                  <i class="fas fa-check"></i> Issue Items
                 </button>
               </div>
             </td>
@@ -258,33 +258,39 @@ $result = $conn->query($sql);
           <!-- Supply Request Information (from issuance page) -->
           <div class="supply-request-info" id="supplyRequestInfo" style="display: none;">
             <div class="row">
-              <div class="col-md-6">
+              <div class="col-md-12">
                 <div class="info-card mb-3" style="border-left-color: #17a2b8;">
                   <h6 class="info-title" style="color: #17a2b8;"><i class="fas fa-clipboard-list me-2"></i>Supply Request Information</h6>
                   <div class="info-content">
-                    <div class="info-item">
-                      <span class="info-label">Request Date:</span>
-                      <span class="info-value" id="requestDate"></span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">Department:</span>
-                      <span class="info-value" id="requestDepartment"></span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">Purpose:</span>
-                      <span class="info-value" id="requestPurpose"></span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">Category:</span>
-                      <span class="info-value" id="requestCategory"></span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">Requested Quantity:</span>
-                      <span class="info-value badge bg-info text-white" id="requestedQuantity"></span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">Total Cost:</span>
-                      <span class="info-value text-success fw-bold" id="requestTotalCost"></span>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="info-item">
+                          <span class="info-label">Request Date:</span>
+                          <span class="info-value" id="requestDate"></span>
+                        </div>
+                        <div class="info-item">
+                          <span class="info-label">Department:</span>
+                          <span class="info-value" id="requestDepartment"></span>
+                        </div>
+                        <div class="info-item">
+                          <span class="info-label">Purpose:</span>
+                          <span class="info-value" id="requestPurpose"></span>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="info-item">
+                          <span class="info-label">Category:</span>
+                          <span class="info-value" id="requestCategory"></span>
+                        </div>
+                        <div class="info-item">
+                          <span class="info-label">Requested Quantity:</span>
+                          <span class="info-value badge bg-info text-white" id="requestedQuantity"></span>
+                        </div>
+                        <div class="info-item">
+                          <span class="info-label">Total Cost:</span>
+                          <span class="info-value text-success fw-bold" id="requestTotalCost"></span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -295,25 +301,31 @@ $result = $conn->query($sql);
           <!-- Quantity Computation -->
           <div class="quantity-computation" id="quantityComputation" style="display: none;">
             <div class="row">
-              <div class="col-md-6">
+              <div class="col-md-12">
                 <div class="info-card mb-3" style="border-left-color: #ffc107;">
                   <h6 class="info-title" style="color: #ffc107;"><i class="fas fa-calculator me-2"></i>Quantity Computation</h6>
                   <div class="info-content">
-                    <div class="info-item">
-                      <span class="info-label">Available Quantity:</span>
-                      <span class="info-value badge bg-primary text-white" id="availableQuantity"></span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">Requested Quantity:</span>
-                      <span class="info-value badge bg-info text-white" id="computationRequestedQuantity"></span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">Remaining Quantity:</span>
-                      <span class="info-value badge bg-success text-white" id="remainingQuantity"></span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">Quantity to Issue:</span>
-                      <span class="info-value badge bg-warning text-dark" id="quantityToIssue"></span>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="info-item">
+                          <span class="info-label">Available Quantity:</span>
+                          <span class="info-value badge bg-primary text-white" id="availableQuantity"></span>
+                        </div>
+                        <div class="info-item">
+                          <span class="info-label">Requested Quantity:</span>
+                          <span class="info-value badge bg-info text-white" id="computationRequestedQuantity"></span>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="info-item">
+                          <span class="info-label">Remaining Quantity:</span>
+                          <span class="info-value badge bg-success text-white" id="remainingQuantity"></span>
+                        </div>
+                        <div class="info-item">
+                          <span class="info-label">Quantity to Issue:</span>
+                          <span class="info-value badge bg-warning text-dark" id="quantityToIssue"></span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -338,7 +350,7 @@ $result = $conn->query($sql);
             <i class="fas fa-times me-1"></i>Cancel
           </button>
           <button type="submit" class="btn btn-success" id="confirmIssuedModalBtn">
-            <i class="fas fa-check me-1"></i>Confirm Issued
+            <i class="fas fa-check me-1"></i>Confirm
           </button>
         </div>
       </form>
@@ -372,24 +384,36 @@ $result = $conn->query($sql);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 0;
+    padding: 0.75rem 0;
     border-bottom: 1px solid #e9ecef;
+    margin-bottom: 0.5rem;
   }
 
   .info-item:last-child {
     border-bottom: none;
+    margin-bottom: 0;
   }
 
   .info-label {
     font-weight: 600;
     color: #495057;
     min-width: 140px;
+    font-size: 0.9rem;
   }
 
   .info-value {
     color: #212529;
     text-align: right;
     flex: 1;
+    font-size: 0.9rem;
+  }
+
+  .info-content .row {
+    margin: 0;
+  }
+
+  .info-content .col-md-6 {
+    padding: 0 10px;
   }
 
   .total-value {
