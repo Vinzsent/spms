@@ -177,17 +177,17 @@ if (isset($_SESSION['error'])) {
       <table id="transactionsTable" class="table table-bordered table-striped">
         <thead>
           <tr>
-            <th style="background-color: #1a5f3c; color: white;">Date Requested</th>
-            <th style="background-color: #1a5f3c; color: white;">Date Needed</th>
-            <th style="background-color: #1a5f3c; color: white;">Position/Role</th>
-            <th style="background-color: #1a5f3c; color: white;">Purpose of the request</th>
-            <th style="background-color: #1a5f3c; color: white;">Quantity Requested</th>
-            <th style="background-color: #1a5f3c; color: white;">Unit</th>
-            <th style="background-color: #1a5f3c; color: white;">Request Description</th>
-            <th style="background-color: #1a5f3c; color: white;">Quality Issued</th>
-            <th style="background-color: #1a5f3c; color: white;">Unit Cost</th>
-            <th style="background-color: #1a5f3c; color: white;">Total Cost</th>
-            <th style="background-color: #1a5f3c; color: white;">Action</th>
+            <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Date Requested</th>
+            <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Date Needed</th>
+            <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Position/Role</th>
+            <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Purpose of the request</th>
+            <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Quantity Requested</th>
+            <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Unit</th>
+            <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Request Description</th>
+            <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Quality Issued</th>
+            <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Unit Cost</th>
+            <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Total Cost</th>
+            <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -212,7 +212,7 @@ if (isset($_SESSION['error'])) {
               <td>₱<?= number_format($computed_total_cost, 2) ?></td>
               <td>
                 <button
-                  class="btn btn-sm editBtn" style="background-color: #1a5f3c; color: white;"
+                  class="btn btn-sm editBtn" style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;"
                   data-request-id="<?= $row['request_id'] ?>"
                   data-date-requested="<?= htmlspecialchars($row['date_requested']) ?>"
                   data-date-needed="<?= htmlspecialchars($row['date_needed']) ?>"

@@ -12,16 +12,16 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
       </div>
       <div class="modal-body row g-3">
         <div class="col-md-4">
-          <label>Date Requested</label>
+          <label>Date Requested <span class="text-danger">*</span> </label>
           <input type="hidden" name="status" value="Pending">
           <input type="date" name="date_received" class="form-control" required>
         </div>
         <div class="col-md-4">
-          <label>Invoice No.</label>
+          <label>Invoice No. <span class="text-danger">*</span></label>
           <input type="text" name="invoice_no" class="form-control" required>
         </div>
         <div class="col-md-4">
-          <label>Sales Type</label>
+          <label>Sales Type <span class="text-danger">*</span></label>
           <select name="sales_type" class="form-select" required>
             <option value="">-- Select Purchased Type --</option>
 			<option value="Cash">Cash Purchased</option>
@@ -29,7 +29,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
           </select>
         </div>
         <div class="col-md-6">
-          <label>Supplier Name</label>
+          <label>Supplier Name <span class="text-danger">*</span></label>
           <select name="supplier_id" class="form-select" required>
             <option value="">-- Select Supplier --</option>
             <?php while($row = $suppliers->fetch_assoc()): ?>
@@ -38,7 +38,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
           </select>
         </div>
         <div class="col-md-6">
-          <label>Category</label>
+          <label>Category <span class="text-danger">*</span></label>
           <select name="category" class="form-select" required>
             <option value="">-- Select Category --</option>
             <optgroup label="Capital Outlay (CO)">
@@ -66,30 +66,30 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
           </select>
         </div>
         <div class="col-md-12">
-          <label>Description</label>
+          <label>Description <span class="text-danger">*</span></label>
           <textarea name="item_description" class="form-control" rows="3" required></textarea>
         </div>
 
         <!-- Additional Item Details -->
         <div class="col-md-4">
-          <label>Brand</label>
+          <label>Brand <span class="text-danger">*</span></label>
           <input type="text" name="brand" class="form-control" placeholder="Enter brand name">
         </div>
         <div class="col-md-4">
-          <label>Type</label>
+          <label>Type <span class="text-danger">*</span></label>
           <input type="text" name="type" class="form-control" placeholder="Enter item type">
         </div>
         <div class="col-md-4">
-          <label>Color</label>
+          <label>Color <span class="text-danger">*</span></label>
           <input type="text" name="color" class="form-control" placeholder="Enter color">
         </div>
 
         <div class="col-md-3">
-          <label>Quantity Issued</label>
+          <label>Quantity Issued <span class="text-danger">*</span></label>
           <input type="number" name="quantity" class="form-control" required>
         </div>
         <div class="col-md-3">
-  <label>Unit</label>
+  <label>Unit <span class="text-danger">*</span></label>
   <select name="unit" class="form-select" required>
     <option value="">-- Select Unit --</option>
 
@@ -140,11 +140,11 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
 </div>
 
         <div class="col-md-3">
-          <label>Unit Cost</label>
+          <label>Unit Cost <span class="text-danger">*</span></label>
           <input type="number" name="unit_price" step="0.01" class="form-control" required>
         </div>
 		<div class="col-md-3">
-  <label>Total Cost</label>
+  <label>Total Cost <span class="text-danger">*</span></label>
   <input type="text" id="addTotalAmount" class="form-control" readonly>
 </div>
 

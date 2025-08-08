@@ -24,33 +24,33 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
         </div>
         
         <div class="col-md-4">
-          <label>Date Requested</label>
+          <label>Date Requested <span class="text-danger">*</span></label>
           <input type="date" name="date_requested" class="form-control" required>
           <input type="hidden" name="user_id" value="<?= htmlspecialchars($user_id) ?>">
         </div>
 
         <div class="col-md-4">
-          <label>Date Needed</label>
+          <label>Date Needed <span class="text-danger">*</span></label>
           <input type="date" name="date_needed" class="form-control" required>
         </div>
 
         <div class="col-md-4">
-          <label>Position/Role</label>
+          <label>Position/Role <span class="text-danger">*</span></label>
           <input type="text" name="department_unit" class="form-control" value="<?= htmlspecialchars($user_type) ?>" readonly>
         </div>
 
         <div class="col-md-4">
-          <label>Quality Issued</label>
+          <label>Quality Issued <span class="text-danger">*</span></label>
           <input type="text" name="quality_issued" class="form-control" required>
         </div>
 
         <div class="col-md-4">
-          <label>Purpose of the Request</label>
+          <label>Purpose of the Request <span class="text-danger">*</span></label>
           <textarea name="purpose" class="form-control row-3" required></textarea>
         </div>
 
         <div class="col-md-4">
-          <label>Sales Type</label>
+          <label>Sales Type <span class="text-danger">*</span></label>
           <select name="sales_type" class="form-select" required>
             <option value="">-- Select Purchased Type --</option>
             <option value="Cash">Cash Purchased</option>
@@ -59,7 +59,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
         </div>
 
         <div class="col-md-6">
-          <label>Category</label>
+          <label>Category <span class="text-danger">*</span></label>
           <select name="category" class="form-select" required>
             <option value="">-- Select Category --</option>
             <optgroup label="Capital Outlay (CO)">
@@ -87,16 +87,16 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
           </select>
         </div>
         <div class="col-md-12">
-          <label>Request Description</label>
+          <label>Request Description <span class="text-danger">*</span></label>
           <textarea name="request_description" class="form-control" rows="3" required></textarea>
         </div>
 
         <div class="col-md-3">
-          <label>Quantity Requested</label>
+          <label>Quantity Requested <span class="text-danger">*</span></label>
           <input type="number" name="quantity_requested" class="form-control" required>
         </div>
         <div class="col-md-3">
-          <label>Unit</label>
+          <label>Unit <span class="text-danger">*</span></label>
           <select name="unit" class="form-select" required>
             <option value="">-- Select Unit --</option>
 
@@ -147,11 +147,11 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
         </div>
 
         <div class="col-md-3">
-          <label>Unit Cost</label>
+          <label>Unit Cost <span class="text-danger">*</span></label>
           <input type="number" name="unit_cost" step="0.01" class="form-control" required>
         </div>
         <div class="col-md-3">
-          <label>Total Cost</label>
+          <label>Total Cost <span class="text-danger">*</span></label>
           <input type="text" id="addTotalAmount" class="form-control" readonly>
           <input type="hidden" name="total_cost" id="hiddenTotalCost">
           <input type="hidden" name="amount" id="hiddenAmount">

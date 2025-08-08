@@ -112,6 +112,9 @@ $result = $conn->query($sql);
           <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Supplier Name</th>
           <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Category</th>
           <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Item Description</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Brand</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Type</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Color</th>
           <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Quantity</th>
           <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Unit</th>
           <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Unit Price</th>
@@ -132,6 +135,9 @@ $result = $conn->query($sql);
             <td><?= htmlspecialchars($row['supplier_name']) ?></td>
             <td><?= htmlspecialchars($row['category']) ?></td>
             <td><?= htmlspecialchars($row['item_description']) ?></td>
+            <td><?= htmlspecialchars($row['brand']) ?></td>
+            <td><?= htmlspecialchars($row['type']) ?></td>
+            <td><?= htmlspecialchars($row['color']) ?></td>
             <!--<td>
               <?php if ($row['status'] === 'Issued' && !empty($row['issued_to_department'])): ?>
                 <span class="badge bg-success"><?= htmlspecialchars($row['issued_to_department']) ?></span>
@@ -166,6 +172,9 @@ $result = $conn->query($sql);
                   data-sales="<?= trim($row['sales_type']) ?>"
                   data-category="<?= trim($row['category']) ?>"
                   data-description="<?= htmlspecialchars($row['item_description']) ?>"
+                  data-brand="<?= htmlspecialchars($row['brand']) ?>"
+                  data-type="<?= htmlspecialchars($row['type']) ?>"
+                  data-color="<?= htmlspecialchars($row['color']) ?>"
                   data-status="<?= htmlspecialchars($row['status']) ?>"
                   data-quantity="<?= $row['quantity'] ?>"
                   data-unit="<?= $row['unit'] ?>"
@@ -184,7 +193,10 @@ $result = $conn->query($sql);
                   data-invoice="<?= htmlspecialchars($row['invoice_no']) ?>"
                   data-sales="<?= trim($row['sales_type']) ?>"
                   data-category="<?= trim($row['category']) ?>"
-                  data-description="<?= htmlspecialchars($row['item_description']) ?>"
+                  data-description="<?= htmlspecialchars($row['item_description']) ?>"  
+                  data-brand="<?= htmlspecialchars($row['brand']) ?>"
+                  data-type="<?= htmlspecialchars($row['type']) ?>"
+                  data-color="<?= htmlspecialchars($row['color']) ?>"
                   data-status="<?= htmlspecialchars($row['status']) ?>"
                   data-quantity="<?= $row['quantity'] ?>"
                   data-unit="<?= $row['unit'] ?>"
@@ -203,7 +215,7 @@ $result = $conn->query($sql);
       </tbody>
       <tfoot>
         <tr>
-          <td colspan="9" class="text-end fw-bold">Total:</td>
+          <td colspan="10" class="text-end fw-bold">Total:</td>
           <td colspan="2" class="fw-bold" id="grandTotalCell">₱<?= number_format($total_sum, 2) ?></td>
         </tr>
       </tfoot>
@@ -237,6 +249,9 @@ $result = $conn->query($sql);
                   <div class="info-item"><span class="info-label">Supplier:</span><span class="info-value" id="issuedSupplier"></span></div>
                   <div class="info-item"><span class="info-label">Sales Type:</span><span class="info-value" id="issuedSales"></span></div>
                   <div class="info-item"><span class="info-label">Category:</span><span class="info-value" id="issuedCategory"></span></div>
+                  <div class="info-item"><span class="info-label">Brand:</span><span class="info-value" id="issuedBrand"></span></div>
+                  <div class="info-item"><span class="info-label">Type:</span><span class="info-value" id="issuedType"></span></div>
+                  <div class="info-item"><span class="info-label">Color:</span><span class="info-value" id="issuedColor"></span></div>
                 </div>
               </div>
             </div>
@@ -711,6 +726,9 @@ $result = $conn->query($sql);
       $('#editPrice').val($(this).data('price'));
       $('#editSalesType').val($(this).data('sales'));
       $('#editCategory').val($(this).data('category'));
+      $('#editBrand').val($(this).data('brand'));
+      $('#editType').val($(this).data('type'));
+      $('#editColor').val($(this).data('color'));
       // Trigger calculation for total
       $('#editQuantity, #editPrice').trigger('input');
     });
@@ -724,6 +742,9 @@ $result = $conn->query($sql);
       $('#issuedSales').text($(this).data('sales'));
       $('#issuedCategory').text($(this).data('category'));
       $('#issuedDescription').text($(this).data('description'));
+      $('#issuedBrand').text($(this).data('brand'));
+      $('#issuedType').text($(this).data('type'));
+      $('#issuedColor').text($(this).data('color'));
       $('#issuedQuantity').text($(this).data('quantity'));
       $('#issuedUnit').text($(this).data('unit'));
       $('#issuedUnitPrice').text('₱' + parseFloat($(this).data('price')).toLocaleString(undefined, {
@@ -897,7 +918,9 @@ $result = $conn->query($sql);
       const description = $(this).data('description');
       const supplier = $(this).data('supplier');
       const category = $(this).data('category');
-
+      const brand = $(this).data('brand');
+      const type = $(this).data('type');
+      const color = $(this).data('color');
       // Populate modal header info
       $('#specTransactionInfo').text(`Invoice: ${invoiceNo} (${dateReceived})`);
       $('#specItemDescription').text(description);
@@ -920,13 +943,9 @@ $result = $conn->query($sql);
         success: function(response) {
           if (response.success && response.data) {
             // Populate form with existing data
-            $('#specBrand').val(response.data.brand || '');
-            $('#specSerialNumber').val(response.data.serial_number || '');
-            $('#specType').val(response.data.type || '');
-            $('#specSize').val(response.data.size || '');
-            $('#specModel').val(response.data.model || '');
-            $('#specWarranty').val(response.data.warranty_info || '');
-            $('#specNotes').val(response.data.additional_notes || '');
+            $('#specBrand').val(brand || '');
+            $('#specType').val(type || '');
+            $('#specColor').val(color || '');
 
             $('#specificationsStatus').removeClass('alert-warning').addClass('alert-success').show();
             $('#specificationsStatusText').html('<i class="fas fa-check-circle me-2"></i>Existing specifications loaded');

@@ -501,7 +501,6 @@ body {
                         <th>Unit</th>
                         <th>Unit Price</th>
                         <th>Amount</th>
-                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -525,7 +524,6 @@ body {
                                 <td><?= htmlspecialchars($row['unit'] ?? 'N/A') ?></td>
                                 <td><?= htmlspecialchars($row['unit_price']) ?></td>
                                 <td><?= htmlspecialchars($row['amount']) ?></td>
-                                <td><?= htmlspecialchars($row['status']) ?></td>
                             </tr>
                         <?php endwhile; ?>
                     <?php else: ?>

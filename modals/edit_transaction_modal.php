@@ -70,6 +70,20 @@
             <textarea name="item_description" class="form-control" rows="3" id="editDescription" required></textarea>
           </div>
 
+          <!-- Additional Item Details -->
+        <div class="col-md-4">
+          <label>Brand</label>
+          <input type="text" name="brand" class="form-control" id="editBrand" placeholder="Enter brand name">
+        </div>
+        <div class="col-md-4">
+          <label>Type</label>
+          <input type="text" name="type" class="form-control" id="editType" placeholder="Enter item type">
+        </div>
+        <div class="col-md-4">
+          <label>Color</label>
+          <input type="text" name="color" class="form-control" id="editColor" placeholder="Enter color">
+        </div>
+
           <!-- Quantity / Unit / Price / Total -->
           <div class="col-md-3">
             <label class="form-label">Quantity</label>
