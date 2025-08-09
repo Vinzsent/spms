@@ -44,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>SPMS - Login</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="assets/css/dark-mode.css" rel="stylesheet">
   <style>
     :root {
       --primary-color: #073b1d;
@@ -74,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     .login-container {
       width: 100%;
-      max-width: 450px;
+      max-width: 980px;
       animation: fadeInUp 0.8s ease-out;
     }
 
@@ -344,8 +345,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       50% { transform: translateY(-20px) rotate(180deg); }
     }
   </style>
+  <!-- Design refresh overrides (preserving color scheme) -->
+  <style>
+    /* two-column layout on larger screens */
+    .login-card {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      min-height: 520px;
+    }
+    @media (max-width: 768px) {
+      .login-card { display: block; }
+      .login-container { max-width: 100%; }
+    }
+    /* left panel embellishments */
+    .login-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100%;
+      padding: 2.5rem 2rem;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    .brand-badge {
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      margin: 0 0 0.75rem 0;
+      background: rgba(255,255,255,0.12);
+      border: 2px solid rgba(255,255,255,0.25);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15) inset;
+    }
+    .brand-badge i { font-size: 1.5rem; color: #fff; }
+    .login-body { position: relative; }
+    .helper-links { display: flex; gap: 0.75rem; align-items: center; margin: 0.5rem 0 1.25rem; }
+    .helper-links .form-check { margin: 0; }
+    .helper-links a { margin-left: auto; color: var(--primary-color); text-decoration: none; font-weight: 600; white-space: nowrap; }
+    .helper-links a:hover { text-decoration: underline; }
+    /* password toggle */
+    .toggle-password {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 2;
+      background: none;
+      border: 0;
+      color: var(--text-light);
+      padding: 0;
+    }
+    .toggle-password:hover { color: var(--primary-color); }
+    /* theme toggle */
+    .theme-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 10;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+    }
+  </style>
 </head>
 <body>
+  <button id="themeToggle" class="theme-toggle btn btn-light btn-sm" aria-label="Toggle theme">
+    <i class="fas fa-moon"></i>
+  </button>
   <!-- Floating Background Shapes -->
   <div class="floating-shapes">
     <div class="shape"></div>
@@ -356,7 +423,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="login-container">
     <div class="login-card">
       <div class="login-header">
-        <h1><i class="fas fa-shield-alt me-2"></i>AMS</h1>
+        <div class="brand-badge"><i class="fas fa-shield-alt"></i></div>
+        <h1><span class="visually-hidden">AMS</span>AMS</h1>
         <p>Asset Management System</p>
       </div>
       
@@ -389,7 +457,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label for="password" class="form-label">
               <i class="fas fa-lock me-2"></i>Password
             </label>
-            <div class="input-group">
+            <div class="input-group" style="position: relative;">
               <i class="fas fa-lock input-icon"></i>
               <input type="password" 
                      name="password" 
@@ -398,6 +466,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                      placeholder="Enter your password" 
                      required 
                      autocomplete="current-password">
+              <button type="button" class="toggle-password" aria-label="Show password">
+                <i class="far fa-eye"></i>
+              </button>
+            </div>
+            <div class="helper-links">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="1" id="rememberMe">
+                <label class="form-check-label" for="rememberMe">Remember me</label>
+              </div>
+              <a href="#" tabindex="-1">Forgot password?</a>
             </div>
           </div>
 
@@ -437,6 +515,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       const form = document.getElementById('loginForm');
       const emailInput = document.getElementById('email');
       const passwordInput = document.getElementById('password');
+      const togglePasswordBtn = document.querySelector('.toggle-password');
+      const themeToggle = document.getElementById('themeToggle');
 
       // Auto-focus on email field
       emailInput.focus();
@@ -459,6 +539,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
           this.classList.remove('is-valid');
           this.classList.add('is-invalid');
+        }
+      });
+
+      // Password visibility toggle
+      if (togglePasswordBtn) {
+        togglePasswordBtn.addEventListener('click', function() {
+          const isHidden = passwordInput.getAttribute('type') === 'password';
+          passwordInput.setAttribute('type', isHidden ? 'text' : 'password');
+          this.innerHTML = isHidden ? '<i class="far fa-eye-slash"></i>' : '<i class="far fa-eye"></i>';
+          this.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+        });
+      }
+
+      // Theme toggle: toggles data-bs-theme and persists in localStorage
+      const root = document.documentElement;
+      const storedTheme = localStorage.getItem('theme');
+      if (storedTheme === 'dark') {
+        root.setAttribute('data-bs-theme', 'dark');
+        themeToggle?.classList.replace('btn-light', 'btn-dark');
+        themeToggle?.querySelector('i')?.classList.replace('fa-moon', 'fa-sun');
+      }
+      themeToggle?.addEventListener('click', function() {
+        const isDark = root.getAttribute('data-bs-theme') === 'dark';
+        const next = isDark ? 'light' : 'dark';
+        root.setAttribute('data-bs-theme', next);
+        localStorage.setItem('theme', next);
+        if (next === 'dark') {
+          this.classList.replace('btn-light', 'btn-dark');
+          this.querySelector('i')?.classList.replace('fa-moon', 'fa-sun');
+        } else {
+          this.classList.replace('btn-dark', 'btn-light');
+          this.querySelector('i')?.classList.replace('fa-sun', 'fa-moon');
         }
       });
 
