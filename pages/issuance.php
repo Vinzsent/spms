@@ -9,6 +9,16 @@ include '../includes/header.php';
 $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
 $user_id = $_SESSION['user_id'] ?? $_SESSION['id'] ?? $_SESSION['user']['id'] ?? '';
 
+// Get user position with fallbacks
+$user_position = $_SESSION['user']['position'] ?? $_SESSION['position'] ?? '';
+
+// Check if user is Faculty and restrict access
+if (strtolower($user_position) === 'faculty') {
+    $_SESSION['error'] = "Access Denied: Faculty members cannot access the issuance page. Please contact the MIS department for support.";
+    header('Location: ../dashboard.php');
+    exit();
+}
+
 // Get user name with fallbacks
 $user_name = '';
 if (isset($_SESSION['name'])) {

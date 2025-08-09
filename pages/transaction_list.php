@@ -24,7 +24,7 @@ $result = $conn->query($sql);
     <h3 class="text-center">Recieved Items</h3>
     <div>
       <button class="btn me-2" style="background-color: #fd7e14; color: white;" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
-      <a href="notifications.php" class="btn btn-info me-2"><i class="fas fa-bell"></i> Notifications</a>
+      <!-- <a href="notifications.php" class="btn btn-info me-2"><i class="fas fa-bell"></i> Notifications</a> -->
       <button class="btn" data-bs-toggle="modal" data-bs-target="#addTransactionModal" style="background-color: #fd7e14; color: white;">+ New Transaction</button>
     </div>
   </div>
@@ -216,8 +216,9 @@ $result = $conn->query($sql);
       </tbody>
       <tfoot>
         <tr>
-          <td colspan="10" class="text-end fw-bold">Total:</td>
-          <td colspan="2" class="fw-bold" id="grandTotalCell">₱<?= number_format($total_sum, 2) ?></td>
+          <td colspan="12" class="text-end fw-bold">Total:</td>
+          <td class="fw-bold" id="grandTotalCell">₱<?= number_format($total_sum, 2) ?></td>
+          <td></td>
         </tr>
       </tfoot>
     </table>
@@ -561,9 +562,9 @@ $result = $conn->query($sql);
             // Clear the footer cells
             footerRow.find('th').html('');
 
-            // Set the content of the footer
+            // Set the content of the footer - align with Amount column
             footerRow.find('th').eq(-2).text('Total:').css('text-align', 'right');
-            footerRow.find('th').eq(-1).text(totalAmount);
+            footerRow.find('th').eq(-1).text(totalAmount).css('text-align', 'left');
           }
         }
       ],
@@ -581,8 +582,8 @@ $result = $conn->query($sql);
       table.rows({
         search: 'applied'
       }).every(function() {
-        // The "Amount" column is index 9 (0-based) - after removing Status column
-        const amountText = this.data()[9];
+        // The "Amount" column is index 12 (0-based)
+        const amountText = this.data()[12];
         // Remove currency symbol and commas, then parse as float
         const amount = parseFloat(amountText.replace(/[₱,]/g, ''));
         if (!isNaN(amount)) total += amount;

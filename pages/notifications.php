@@ -7,6 +7,7 @@ include '../includes/header.php';
 // Get user information
 $user_id = $_SESSION['user']['id'] ?? $_SESSION['user_id'] ?? $_SESSION['id'] ?? 0;
 $user_name = $_SESSION['user']['first_name'] ?? $_SESSION['name'] ?? 'User';
+$user_position = $_SESSION['user']['position'] ?? $_SESSION['position'] ?? '';
 
 $dashboard_link = ($_SESSION['user_type'] == 'Admin') ? '../admin_dashboard.php' : '../dashboard.php';
 
@@ -185,68 +186,81 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
 
     <!-- Notifications List -->
     <div class="card">
-        <div class="card-header">
+        <div class="card-header" style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">
             <h5 class="mb-0">
-                <i class="fas fa-list me-2"></i>Notifications
+                <i class="fas fa-bell me-2"></i>Notifications
                 <?php if ($filter_type || $filter_read !== ''): ?>
-                    <span class="badge bg-info ms-2">Filtered</span>
+                    <span class="badge bg-light text-dark ms-2">Filtered</span>
                 <?php endif; ?>
             </h5>
         </div>
         <div class="card-body p-0">
             <?php if ($result->num_rows > 0): ?>
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
+                    <table class="table table-bordered table-striped mb-0">
+                        <thead>
                             <tr>
-                                <th>Type</th>
-                                <th>Title</th>
-                                <th>Message</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Type</th>
+                                <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Title</th>
+                                <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Message</th>
+                                <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Date</th>
+                                <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Status</th>
+                                <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php while ($notification = $result->fetch_assoc()): ?>
-                                <tr class="<?= $notification['is_read'] ? '' : 'table-warning' ?>">
+                                <tr class="<?= $notification['is_read'] ? '' : 'unread-notification' ?>">
                                     <td>
-                                        <span class="badge bg-<?= getNotificationBadgeColor($notification['type']) ?>">
+                                        <span class="badge notification-type-badge bg-<?= getNotificationBadgeColor($notification['type']) ?>">
                                             <?= ucfirst($notification['type']) ?>
                                         </span>
                                     </td>
                                     <td>
-                                        <strong><?= htmlspecialchars($notification['title']) ?></strong>
+                                        <strong class="notification-title"><?= htmlspecialchars($notification['title']) ?></strong>
+                                    </td>
+                                    <td class="notification-message-cell">
+                                        <?php if (strtolower($user_position) === 'faculty'): ?>
+                                            <span class="notification-message-restricted" onclick="showFacultyAccessWarning()" title="<?= htmlspecialchars($notification['message']) ?>">
+                                                <?= htmlspecialchars($notification['message']) ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <a href="issuance.php?id=<?= $notification['related_id'] ?>" class="notification-message-link" title="<?= htmlspecialchars($notification['message']) ?>" onclick="return checkFacultyAccess()">
+                                                <?= htmlspecialchars($notification['message']) ?>
+                                            </a>
+                                        <?php endif; ?>
                                     </td>
                                     <td>
-                                        <div class="text-truncate" style="max-width: 300px;" title="<?= htmlspecialchars($notification['message']) ?>">
-                                            <?= htmlspecialchars($notification['message']) ?>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <small class="text-muted">
-                                            <?= date('M d, Y g:i A', strtotime($notification['created_at'])) ?>
-                                        </small>
+                                        <span class="notification-date">
+                                            <?= date('M d, Y', strtotime($notification['created_at'])) ?><br>
+                                            <small class="text-muted"><?= date('g:i A', strtotime($notification['created_at'])) ?></small>
+                                        </span>
                                     </td>
                                     <td>
                                         <?php if ($notification['is_read']): ?>
-                                            <span class="badge bg-success">Read</span>
+                                            <span class="badge bg-success notification-status-badge">
+                                                <i class="fas fa-check-circle me-1"></i>Read
+                                            </span>
                                         <?php else: ?>
-                                            <span class="badge bg-warning text-dark">Unread</span>
+                                            <span class="badge bg-warning text-dark notification-status-badge">
+                                                <i class="fas fa-exclamation-circle me-1"></i>Unread
+                                            </span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <?php if (!$notification['is_read']): ?>
-                                            <form method="POST" style="display: inline;">
-                                                <input type="hidden" name="notification_id" value="<?= $notification['id'] ?>">
-                                                <button type="submit" name="mark_read" class="btn btn-sm btn-outline-success" title="Mark as read">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                            </form>
-                                        <?php endif; ?>
-                                        <button class="btn btn-sm btn-outline-info" onclick="viewNotification(<?= $notification['id'] ?>)" title="View details">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
+                                        <div class="btn-group" role="group">
+                                            <?php if (!$notification['is_read']): ?>
+                                                <form method="POST" style="display: inline;">
+                                                    <input type="hidden" name="notification_id" value="<?= $notification['id'] ?>">
+                                                    <button type="submit" name="mark_read" class="btn btn-sm btn-success" title="Mark as read">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                </form>
+                                            <?php endif; ?>
+                                            <button class="btn btn-sm btn-info" onclick="viewNotification(<?= $notification['id'] ?>)" title="View details">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endwhile; ?>
@@ -333,31 +347,137 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
 }
 
 .card-header {
-    background: linear-gradient(135deg, #1a5f3c, #0d4a2a);
+    background: linear-gradient(135deg, #1a5f3c, #2d7a4d);
     color: white;
     border-radius: 10px 10px 0 0 !important;
+    border: none;
+}
+
+.table {
+    margin-bottom: 0;
 }
 
 .table th {
-    border-top: none;
+    border: 1px solid #dee2e6;
     font-weight: 600;
-    color: #495057;
+    text-align: center;
+    vertical-align: middle;
+    padding: 12px 8px;
 }
 
 .table td {
     vertical-align: middle;
+    padding: 12px 8px;
+    border: 1px solid #dee2e6;
 }
 
-.badge {
+.table-bordered {
+    border: 1px solid #dee2e6;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Unread notification styling */
+.unread-notification {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+}
+
+.unread-notification:hover {
+    background-color: rgba(255, 193, 7, 0.15) !important;
+}
+
+/* Notification type badges */
+.notification-type-badge {
     font-size: 0.75rem;
-    padding: 0.5rem 0.75rem;
+    padding: 0.4rem 0.8rem;
+    font-weight: 600;
+    border-radius: 15px;
 }
 
+/* Notification title styling */
+.notification-title {
+    color: #2c3e50;
+    font-size: 0.95rem;
+}
+
+/* Message cell styling */
+.notification-message-cell {
+    max-width: 300px;
+}
+
+.notification-message-link {
+    text-decoration: none !important;
+    color: #495057 !important;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 2px 0;
+}
+
+.notification-message-link:hover {
+    text-decoration: none !important;
+    color: #1a5f3c !important;
+    background-color: rgba(26, 95, 60, 0.1);
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+
+/* Restricted message styling for Faculty */
+.notification-message-restricted {
+    color: #6c757d !important;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 2px 0;
+    cursor: pointer;
+    position: relative;
+}
+
+.notification-message-restricted:hover {
+    color: #dc3545 !important;
+    background-color: rgba(220, 53, 69, 0.1);
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+
+.notification-message-restricted::after {
+    content: " 🔒";
+    color: #dc3545;
+    font-size: 0.8rem;
+}
+
+/* Date styling */
+.notification-date {
+    font-size: 0.85rem;
+    color: #495057;
+    text-align: center;
+    display: block;
+}
+
+/* Status badge styling */
+.notification-status-badge {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
+    font-weight: 600;
+    border-radius: 15px;
+}
+
+/* Button styling */
 .btn-sm {
     padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
+    margin: 0 2px;
 }
 
+.btn-group .btn {
+    border-radius: 4px;
+}
+
+/* Pagination styling */
 .pagination .page-link {
     color: #1a5f3c;
     border-color: #dee2e6;
@@ -374,18 +494,56 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
     border-color: #dee2e6;
 }
 
-.text-truncate {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+/* Responsive table */
+@media (max-width: 768px) {
+    .table th,
+    .table td {
+        padding: 8px 4px;
+        font-size: 0.85rem;
+    }
+    
+    .notification-message-cell {
+        max-width: 200px;
+    }
+    
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    
+    .btn-group .btn {
+        width: 100%;
+        margin: 1px 0;
+    }
 }
 
-.table-warning {
-    background-color: rgba(255, 193, 7, 0.1) !important;
+/* Card styling improvements */
+.card-body {
+    padding: 0;
 }
 
-.table-warning:hover {
-    background-color: rgba(255, 193, 7, 0.2) !important;
+.card-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Empty state styling */
+.text-center.py-5 {
+    padding: 3rem 1rem !important;
+}
+
+.text-center.py-5 i {
+    color: #6c757d;
+}
+
+.text-center.py-5 h5 {
+    color: #6c757d;
+    margin-top: 1rem;
+}
+
+.text-center.py-5 p {
+    color: #6c757d;
 }
 </style>
 
@@ -409,6 +567,72 @@ function viewNotification(notificationId) {
         }
     });
     */
+}
+
+function checkFacultyAccess() {
+    // Double-check user position on client side (additional security)
+    const userPosition = '<?= strtolower($user_position) ?>';
+    if (userPosition === 'faculty') {
+        showFacultyAccessWarning();
+        return false; // Prevent navigation
+    }
+    return true; // Allow navigation
+}
+
+function showFacultyAccessWarning() {
+    // Create and show a styled warning modal
+    const modalHtml = `
+        <div class="modal fade" id="facultyWarningModal" tabindex="-1" aria-labelledby="facultyWarningModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-danger">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="facultyWarningModalLabel">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Access Restricted
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-lock fa-3x text-danger mb-3"></i>
+                        </div>
+                        <h6 class="text-danger fw-bold mb-3">You can't access this page</h6>
+                        <p class="text-muted mb-3">
+                            Faculty members do not have permission to access the issuance page. 
+                            This is restricted to administrative staff only.
+                        </p>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Need assistance?</strong><br>
+                            Please contact the MIS (Management Information System) department for support.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-1"></i>Understood
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove any existing warning modal
+    const existingModal = document.getElementById('facultyWarningModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add the modal to the body
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Show the modal
+    const modal = new bootstrap.Modal(document.getElementById('facultyWarningModal'));
+    modal.show();
+    
+    // Clean up the modal after it's hidden
+    document.getElementById('facultyWarningModal').addEventListener('hidden.bs.modal', function() {
+        this.remove();
+    });
 }
 
 // Auto-refresh notifications every 30 seconds
