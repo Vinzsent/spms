@@ -311,7 +311,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
   </div>
 
   <div class="menu-grid">
-    <?php if (strtolower($user_type) === 'faculty'): ?>
+    <?php if (strtolower($user_type) === 'faculty' || strtolower($user_type) === 'staff'): ?>
       <!-- Supply Requisition Card ONLY for Faculty -->
       <div class="menu-card">
         <div class="card-icon" style="background: linear-gradient(135deg, #28a745, #20c997);">
