@@ -38,17 +38,18 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
           <label>Position/Role <span class="text-danger">*</span></label>
           <input type="text" name="department_unit" class="form-control" value="<?= htmlspecialchars($user_type) ?>" readonly>
         </div>
-
+        
         <div class="col-md-4">
-          <label>Quality Issued <span class="text-danger">*</span></label>
-          <input type="text" name="quality_issued" class="form-control" required>
+          <label>Quantity Requested <span class="text-danger">*</span></label>
+          <input type="number" name="quantity_requested" class="form-control" required>
         </div>
 
+        
         <div class="col-md-4">
           <label>Purpose of the Request <span class="text-danger">*</span></label>
           <textarea name="purpose" class="form-control row-3" required></textarea>
         </div>
-
+        
         <div class="col-md-4">
           <label>Sales Type <span class="text-danger">*</span></label>
           <select name="sales_type" class="form-select" required>
@@ -57,7 +58,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
             <option value="Credit">Credit Purchased</option>
           </select>
         </div>
-
+        
         <div class="col-md-6">
           <label>Category <span class="text-danger">*</span></label>
           <select name="category" class="form-select" required>
@@ -90,16 +91,18 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
           <label>Request Description <span class="text-danger">*</span></label>
           <textarea name="request_description" class="form-control" rows="3" required></textarea>
         </div>
-
+        
         <div class="col-md-3">
-          <label>Quantity Requested <span class="text-danger">*</span></label>
-          <input type="number" name="quantity_requested" class="form-control" required>
+          <label>Quality Issued</label>
+          <input type="text" name="quality_issued" class="form-control">
+          <p style="font-size: 12px;">Leave this field blank if you don't know the quality of the item</p>
         </div>
+        
         <div class="col-md-3">
           <label>Unit <span class="text-danger">*</span></label>
           <select name="unit" class="form-select" required>
             <option value="">-- Select Unit --</option>
-
+            
             <!-- Common Units for Supplies -->
             <option value="pc">Piece (pc)</option>
             <option value="box">Box</option>
@@ -107,7 +110,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
             <option value="pad">Pad</option>
             <option value="ream">Ream</option>
             <option value="dozen">Dozen</option>
-
+            
             <!-- Liquid and Cleaning -->
             <option value="bottle">Bottle</option>
             <option value="gallon">Gallon</option>
@@ -115,7 +118,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
             <option value="ml">Milliliter (ml)</option>
             <option value="roll">Roll</option>
             <option value="bar">Bar</option>
-
+            
             <!-- Measurement -->
             <option value="meter">Meter</option>
             <option value="cm">Centimeter (cm)</option>
@@ -125,11 +128,11 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
             <option value="ton">Ton</option>
             <option value="tube">Tube</option>
             <option value="can">Can</option>
-
+            
             <!-- Laboratory / Medical -->
             <option value="vial">Vial</option>
             <option value="sachet">Sachet</option>
-
+            
             <!-- Equipment -->
             <option value="unit">Unit</option>
             <option value="set">Set</option>
@@ -137,7 +140,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
             <option value="pair">Pair</option>
             <option value="lot">Lot</option>
             <option value="package">Package</option>
-
+            
             <!-- Services -->
             <option value="trip">Trip</option>
             <option value="hour">Hour</option>
@@ -145,18 +148,18 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
             <option value="service">Service</option>
           </select>
         </div>
-
+        
         <div class="col-md-3">
-          <label>Unit Cost <span class="text-danger">*</span></label>
-          <input type="number" name="unit_cost" step="0.01" class="form-control" required>
+          <label>Unit Cost</label>
+          <input type="number" name="unit_cost" step="0.01" class="form-control">
         </div>
         <div class="col-md-3">
-          <label>Total Cost <span class="text-danger">*</span></label>
+          <label>Total Cost</label>
           <input type="text" id="addTotalAmount" class="form-control" readonly>
           <input type="hidden" name="total_cost" id="hiddenTotalCost">
           <input type="hidden" name="amount" id="hiddenAmount">
         </div>
-
+        
       </div>
       <div class="modal-footer">
         <button type="submit" class="btn btn-primary">Submit Request</button>
