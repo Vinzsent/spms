@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SPMS - Login</title>
+  <title>DCC-AIMS - Login</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="assets/css/dark-mode.css" rel="stylesheet">
@@ -424,8 +424,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="login-card">
       <div class="login-header">
         <div class="brand-badge"><i class="fas fa-shield-alt"></i></div>
-        <h1><span class="visually-hidden">AMS</span>AMS</h1>
-        <p>Asset Management System</p>
+        <h1><span class="visually-hidden">DCC-AIMS</span>DCC-AIMS</h1>
+        <p>Asset & Inventory Management System</p>
       </div>
       
       <div class="login-body">
