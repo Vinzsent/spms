@@ -100,7 +100,7 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
             <p class="text-muted mb-0">Manage and view all your notifications</p>
         </div>
         <div>
-            <a href="<?php echo $dashboard_link; ?>"><button class="btn btn-secondary me-2" style="background-color: #fd7e14; color: white;">
+            <a href="../dashboard.php"><button class="btn btn-secondary me-2" style="background-color: #fd7e14; color: white;">
                 <i class="fas fa-arrow-left"></i> Back
             </button></a> 
             <form method="POST" style="display: inline;">
