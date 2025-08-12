@@ -381,7 +381,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <a href="pages/procurement.php" class="card-button">Access Module</a>
       </div>
 
-    <?php elseif (strtolower($user_type) === 'supply in-charge'): ?>
+    <?php elseif (strtolower($user_type) === 'supply in-charge' || strtolower($user_type) === 'property custodian'): ?>
       <!-- Supply Requisition Card ONLY for School President -->
 
       <!-- Assignment Card -->
