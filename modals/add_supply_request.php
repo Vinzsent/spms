@@ -305,7 +305,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
             <div class="row g-3">
               <div class="col-md-4">
                 <div class="form-floating">
-                  <input type="number" name="unit_cost" step="0.01" class="form-control" id="unitCost">
+                  <input type="text" name="unit_cost" class="form-control" id="unitCost" pattern="[0-9]*\.?[0-9]*">
                   <label for="unitCost">
                     <i class="fas fa-dollar-sign me-1"></i>Unit Cost (Optional)
                   </label>
@@ -674,8 +674,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Add event listeners for real-time updates
   if (quantityInput && unitPriceInput && totalAmountInput) {
-    quantityInput.addEventListener('input', debouncedUpdate);
-    unitPriceInput.addEventListener('input', debouncedUpdate);
+    // Add input validation for quantity field to allow only numbers
+    quantityInput.addEventListener('input', function(e) {
+      // Remove any non-numeric characters except for the first character
+      this.value = this.value.replace(/[^0-9]/g, '');
+      debouncedUpdate();
+    });
+    
+    quantityInput.addEventListener('keypress', function(e) {
+      // Allow only numeric keys, backspace, delete, tab, escape, enter
+      if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter'].includes(e.key)) {
+        e.preventDefault();
+      }
+    });
+    
+    // Add input validation for unit cost field to allow numbers and decimals
+    unitPriceInput.addEventListener('input', function(e) {
+      // Remove any non-numeric characters except for decimal point
+      this.value = this.value.replace(/[^0-9.]/g, '');
+      // Ensure only one decimal point
+      const parts = this.value.split('.');
+      if (parts.length > 2) {
+        this.value = parts[0] + '.' + parts.slice(1).join('');
+      }
+      debouncedUpdate();
+    });
+    
+    unitPriceInput.addEventListener('keypress', function(e) {
+      // Allow only numeric keys, decimal point, backspace, delete, tab, escape, enter
+      if (!/[0-9.]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter'].includes(e.key)) {
+        e.preventDefault();
+      }
+      // Prevent multiple decimal points
+      if (e.key === '.' && this.value.includes('.')) {
+        e.preventDefault();
+      }
+    });
     
     // Add focus effects
     quantityInput.addEventListener('focus', function() {
@@ -751,14 +785,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Auto-format currency input
-  if (unitPriceInput) {
-    unitPriceInput.addEventListener('input', function() {
-      let value = this.value.replace(/[^\d.]/g, '');
-      if (value && !isNaN(value)) {
-        this.value = parseFloat(value).toFixed(2);
-      }
-    });
-  }
+
 });
 </script>
