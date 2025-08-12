@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     error_log('Form submitted with data: ' . print_r($_POST, true));
     
     // Debug: Check if all required fields are present
-    $required_fields = ['date_requested', 'date_needed', 'department_unit', 'purpose', 'sales_type', 'category', 'request_description', 'total_cost', 'quantity_requested', 'unit', 'quality_issued', 'amount', 'user_id'];
+    $required_fields = ['date_requested', 'date_needed', 'department_unit', 'purpose', 'sales_type', 'category', 'request_description', 'total_cost', 'quantity_requested', 'unit', 'amount', 'user_id'];
     $missing_fields = [];
     foreach ($required_fields as $field) {
         if (empty($_POST[$field])) {
