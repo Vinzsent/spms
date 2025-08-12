@@ -1,6 +1,4 @@
 <?php
-session_start();
-
 $pageTitle = 'Supplier Request';
 include '../includes/auth.php';
 include '../includes/db.php';
@@ -207,8 +205,8 @@ if (isset($_SESSION['error'])) {
               <td><?= htmlspecialchars($row['quantity_requested']) ?></td>
               <td><?= htmlspecialchars($row['unit']) ?></td>
               <td><?= $row['request_description'] ?></td>
-              <td><?= $row['quality_issued'] ?></td>
-              <td>₱<?= number_format($unit_cost, 2) ?></td>
+              <td><?= $row['quality_issued'] ? $row['quality_issued'] : 'No Issued Recorded'; ?></td>
+              <td>₱<?= number_format($unit_cost, 2) ? $row['quality_issued'] : 'No Issued Recorded'; ?></td>
               <td>₱<?= number_format($computed_total_cost, 2) ?></td>
               <td>
                 <button
