@@ -145,7 +145,7 @@
           </div>
           <div class="col-md-3">
             <label class="form-label">Unit Cost</label>
-            <input type="number" step="0.01" class="form-control" name="unit_cost" id="editPrice" required>
+            <input type="text" class="form-control" name="unit_cost" id="editPrice" pattern="[0-9]*\.?[0-9]*" required>
           </div>
           <div class="col-md-3">
             <label>Total Cost</label>
@@ -185,8 +185,42 @@
 
     // Update total when quantity or price changes
     if (quantityInput && unitPriceInput && totalAmountInput) {
-      quantityInput.addEventListener('input', updateTotal);
-      unitPriceInput.addEventListener('input', updateTotal);
+      // Add input validation for quantity field to allow only numbers
+      quantityInput.addEventListener('input', function(e) {
+        // Remove any non-numeric characters
+        this.value = this.value.replace(/[^0-9]/g, '');
+        updateTotal();
+      });
+      
+      quantityInput.addEventListener('keypress', function(e) {
+        // Allow only numeric keys, backspace, delete, tab, escape, enter
+        if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter'].includes(e.key)) {
+          e.preventDefault();
+        }
+      });
+      
+      // Add input validation for unit cost field to allow numbers and decimals
+      unitPriceInput.addEventListener('input', function(e) {
+        // Remove any non-numeric characters except for decimal point
+        this.value = this.value.replace(/[^0-9.]/g, '');
+        // Ensure only one decimal point
+        const parts = this.value.split('.');
+        if (parts.length > 2) {
+          this.value = parts[0] + '.' + parts.slice(1).join('');
+        }
+        updateTotal();
+      });
+      
+      unitPriceInput.addEventListener('keypress', function(e) {
+        // Allow only numeric keys, decimal point, backspace, delete, tab, escape, enter
+        if (!/[0-9.]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter'].includes(e.key)) {
+          e.preventDefault();
+        }
+        // Prevent multiple decimal points
+        if (e.key === '.' && this.value.includes('.')) {
+          e.preventDefault();
+        }
+      });
     }
 
     // Initialize total when modal is shown
