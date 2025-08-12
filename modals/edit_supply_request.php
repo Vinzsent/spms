@@ -328,10 +328,6 @@
                      <td>₱${parseFloat(unitCost).toLocaleString()}</td>
                      <td>₱${parseFloat(totalCost).toLocaleString()}</td>
                    </tr>
-                   <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                   <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                   <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                   <tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
                  </tbody>
                </table>
                
@@ -349,17 +345,17 @@
                    <div class="approval-item">
                      <div class="approval-label">Checked By:</div>
                      <div class="approval-line"></div>
-                     <div class="approval-subtitle">Supply In-charge</div>
+                     <div class="approval-subtitle">Supply In-Charge</div>
                    </div>
                    <div class="approval-item">
                      <div class="approval-label">Verified By:</div>
                      <div class="approval-line"></div>
-                     <div class="approval-subtitle">Finance Officer</div>
+                     <div class="approval-subtitle">Administrative Officer</div>
                    </div>
                    <div class="approval-item">
                      <div class="approval-label">Approved By:</div>
                      <div class="approval-line"></div>
-                     <div class="approval-subtitle">School President</div>
+                     <div class="approval-subtitle">VP for Finance & Administration</div>
                    </div>
                  </div>
                  

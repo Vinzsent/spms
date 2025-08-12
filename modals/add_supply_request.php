@@ -65,6 +65,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
               <div class="col-md-4">
                 <div class="form-floating">
                   <input type="date" name="date_requested" class="form-control" id="dateRequested" required>
+                  <input type="hidden" id="selectedRequestType" name="request_type" value="<?= $request_type ?>">
                   <label for="dateRequested">
                     <i class="fas fa-calendar me-1"></i>Date Requested <span class="text-danger">*</span>
                   </label>
@@ -103,7 +104,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
             <div class="row g-3">
               <div class="col-md-3">
                 <div class="form-floating">
-                  <input type="number" name="quantity_requested" class="form-control" id="quantityRequested" required>
+                  <input type="text" name="quantity_requested" class="form-control" id="quantityRequested" required pattern="[0-9]+" title="Please enter a valid number" placeholder="Enter quantity">
                   <label for="quantityRequested">
                     <i class="fas fa-hashtag me-1"></i>Quantity <span class="text-danger">*</span>
                   </label>
@@ -206,6 +207,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
                     <optgroup label="Capital Outlay (CO)">
                       <option>ICT Equipment and Devices</option>
                       <option>Office Equipment</option>
+                      <option>Office Supplies</option>
                       <option>Air Conditioning Units and Cooling Systems</option>
                       <option>Furniture and Fixtures</option>
                       <option>Laboratory Equipment</option>
@@ -672,7 +674,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Add event listeners for real-time updates
   if (quantityInput && unitPriceInput && totalAmountInput) {
-    quantityInput.addEventListener('input', debouncedUpdate);
+    // Add input validation for quantity field to allow only numbers
+    quantityInput.addEventListener('input', function(e) {
+      // Remove any non-numeric characters except for the first character
+      this.value = this.value.replace(/[^0-9]/g, '');
+      debouncedUpdate();
+    });
+    
+    quantityInput.addEventListener('keypress', function(e) {
+      // Allow only numeric keys, backspace, delete, tab, escape, enter
+      if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter'].includes(e.key)) {
+        e.preventDefault();
+      }
+    });
+    
     unitPriceInput.addEventListener('input', debouncedUpdate);
     
     // Add focus effects

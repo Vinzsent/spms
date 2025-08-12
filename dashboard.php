@@ -224,6 +224,149 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
     box-shadow: 0 6px 20px rgba(7, 59, 29, 0.4);
   }
 
+  /* Request Type Modal Styles */
+  .request-type-modal {
+    max-width: 600px;
+    padding: 2rem;
+  }
+
+  .request-type-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    margin: 0 auto 1.5rem;
+  }
+
+  .request-type-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .request-option {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+    background: #f8f9fa;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .request-option::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-color), #17a2b8);
+    transform: scaleX(0);
+    transition: var(--transition);
+  }
+
+  .request-option:hover {
+    border-color: var(--primary-color);
+    background: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(7, 59, 29, 0.15);
+  }
+
+  .request-option:hover::before {
+    transform: scaleX(1);
+  }
+
+  .request-option:hover .option-icon {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    transform: scale(1.1);
+  }
+
+  .request-option:hover .option-arrow {
+    color: var(--primary-color);
+    transform: translateX(5px);
+  }
+
+  .option-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #6c757d, #495057);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    transition: var(--transition);
+    flex-shrink: 0;
+  }
+
+  .option-content {
+    flex: 1;
+  }
+
+  .option-content h5 {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+  }
+
+  .option-content p {
+    color: #6c757d;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .option-arrow {
+    color: #6c757d;
+    font-size: 1.2rem;
+    transition: var(--transition);
+  }
+
+  .modal-footer-custom {
+    text-align: center;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+  }
+
+  /* Responsive design for request type modal */
+  @media (max-width: 768px) {
+    .request-type-modal {
+      margin: 10% auto;
+      padding: 1.5rem;
+    }
+
+    .request-option {
+      padding: 1rem;
+    }
+
+    .option-icon {
+      width: 50px;
+      height: 50px;
+      font-size: 1.2rem;
+    }
+
+    .option-content h5 {
+      font-size: 1rem;
+    }
+
+    .option-content p {
+      font-size: 0.85rem;
+    }
+  }
+
   /* Responsive Design */
   @media (max-width: 768px) {
     .dashboard-header h1 {
@@ -319,7 +462,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Supply Requisition</h3>
         <p class="card-description">Request items and track approvals. Managers can approve, reject, or monitor all requests in real-time.</p>
-        <a href="pages/supply_request.php" class="card-button">Access Module</a>
+        <button onclick="showRequestTypeModal()" class="card-button">Access Module</button>
       </div>
 
     <?php elseif (strtolower($user_type) === 'immediate head'): ?>
@@ -433,7 +576,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Supply Requisition</h3>
         <p class="card-description">Request items and track approvals. Managers can approve, reject, or monitor all requests in real-time.</p>
-        <a href="pages/supply_request.php" class="card-button">Access Module</a>
+        <button onclick="showRequestTypeModal()" class="card-button">Access Module</button>
       </div>
       <!-- Assignment Card -->
       <div class="menu-card card-primary">
@@ -538,6 +681,53 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
   </div>
 </div>
 
+<!-- Request Type Selection Modal -->
+<div id="requestTypeModal" class="modal-custom">
+  <div class="modal-content-custom request-type-modal">
+    <div class="text-center mb-4">
+      <div class="request-type-icon mx-auto mb-3">
+        <i class="fas fa-clipboard-list"></i>
+      </div>
+      <h4>Select Request Type</h4>
+      <p class="text-muted">Choose the type of request you want to submit</p>
+    </div>
+    
+    <div class="request-type-options">
+      <div class="request-option" onclick="selectRequestType('property')">
+        <div class="option-icon">
+          <i class="fas fa-building"></i>
+        </div>
+        <div class="option-content">
+          <h5>Property</h5>
+          <p>Request for equipment, furniture, and other durable assets</p>
+        </div>
+        <div class="option-arrow">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+      
+      <div class="request-option" onclick="selectRequestType('consumables')">
+        <div class="option-icon">
+          <i class="fas fa-box-open"></i>
+        </div>
+        <div class="option-content">
+          <h5>Consumables</h5>
+          <p>Request for supplies, materials, and other consumable items</p>
+        </div>
+        <div class="option-arrow">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer-custom">
+      <button type="button" class="btn btn-outline-secondary" onclick="hideRequestTypeModal()">
+        <i class="fas fa-times me-1"></i>Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Password Modal -->
 <div id="passwordModal" class="modal-custom">
   <div class="modal-content-custom">
@@ -562,6 +752,26 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
 </div>
 
 <script>
+  // Request Type Modal Functions
+  function showRequestTypeModal() {
+    document.getElementById('requestTypeModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function hideRequestTypeModal() {
+    document.getElementById('requestTypeModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }
+
+  function selectRequestType(type) {
+    // Store the selected request type in sessionStorage
+    sessionStorage.setItem('selectedRequestType', type);
+    
+    // Redirect to supply request page with the selected type
+    window.location.href = 'pages/supply_request.php?type=' + type;
+  }
+
+  // Password Modal Functions
   function showPasswordModal() {
     document.getElementById('passwordModal').style.display = 'block';
     document.body.style.overflow = 'hidden';
@@ -573,17 +783,23 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
     document.body.style.overflow = 'auto';
   }
 
-  // Close modal when clicking outside
+  // Close modals when clicking outside
   window.onclick = function(event) {
-    var modal = document.getElementById('passwordModal');
-    if (event.target == modal) {
+    var requestModal = document.getElementById('requestTypeModal');
+    var passwordModal = document.getElementById('passwordModal');
+    
+    if (event.target == requestModal) {
+      hideRequestTypeModal();
+    }
+    if (event.target == passwordModal) {
       hidePasswordModal();
     }
   }
 
-  // Close modal with Escape key
+  // Close modals with Escape key
   document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
+      hideRequestTypeModal();
       hidePasswordModal();
     }
   });
@@ -594,6 +810,21 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
       e.preventDefault();
       document.querySelector(this.getAttribute('href')).scrollIntoView({
         behavior: 'smooth'
+      });
+    });
+  });
+
+  // Add click animation to request options
+  document.addEventListener('DOMContentLoaded', function() {
+    const requestOptions = document.querySelectorAll('.request-option');
+    
+    requestOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        // Add click animation
+        this.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 150);
       });
     });
   });
