@@ -220,11 +220,13 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
                                         <strong class="notification-title"><?= htmlspecialchars($notification['title']) ?></strong>
                                     </td>
                                     <td class="notification-message-cell">
-                                        <?php if (strtolower($user_position) === 'faculty'): ?>
+                                        <?php if (strtolower($user_position) === 'faculty' || strtolower($user_position) === 'staff'): ?>
+                                            <!-- Staff and Faculty users see restricted message without clickable link -->
                                             <span class="notification-message-restricted" onclick="showFacultyAccessWarning()" title="<?= htmlspecialchars($notification['message']) ?>">
                                                 <?= htmlspecialchars($notification['message']) ?>
                                             </span>
                                         <?php else: ?>
+                                            <!-- Admin users see clickable link to issuance page -->
                                             <a href="issuance.php?id=<?= $notification['related_id'] ?>" class="notification-message-link" title="<?= htmlspecialchars($notification['message']) ?>" onclick="return checkFacultyAccess()">
                                                 <?= htmlspecialchars($notification['message']) ?>
                                             </a>
@@ -572,15 +574,16 @@ function viewNotification(notificationId) {
 function checkFacultyAccess() {
     // Double-check user position on client side (additional security)
     const userPosition = '<?= strtolower($user_position) ?>';
-    if (userPosition === 'faculty') {
+    if (userPosition === 'faculty' || userPosition === 'staff') {
+        // Staff and Faculty users are restricted from accessing issuance page
         showFacultyAccessWarning();
         return false; // Prevent navigation
     }
-    return true; // Allow navigation
+    return true; // Allow navigation for admin users
 }
 
 function showFacultyAccessWarning() {
-    // Create and show a styled warning modal
+    // Create and show a styled warning modal for restricted users
     const modalHtml = `
         <div class="modal fade" id="facultyWarningModal" tabindex="-1" aria-labelledby="facultyWarningModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -597,7 +600,7 @@ function showFacultyAccessWarning() {
                         </div>
                         <h6 class="text-danger fw-bold mb-3">You can't access this page</h6>
                         <p class="text-muted mb-3">
-                            Faculty members do not have permission to access the issuance page. 
+                            Faculty and Staff members do not have permission to access the issuance page. 
                             This is restricted to administrative staff only.
                         </p>
                         <div class="alert alert-info">
