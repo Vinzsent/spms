@@ -104,7 +104,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
             <div class="row g-3">
               <div class="col-md-3">
                 <div class="form-floating">
-                  <input type="text" name="quantity_requested" class="form-control" id="quantityRequested" required pattern="[0-9]+" title="Please enter a valid number" placeholder="Enter quantity">
+                  <input type="number" name="quantity_requested" class="form-control" id="quantityRequested" required>
                   <label for="quantityRequested">
                     <i class="fas fa-hashtag me-1"></i>Quantity <span class="text-danger">*</span>
                   </label>
@@ -674,20 +674,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Add event listeners for real-time updates
   if (quantityInput && unitPriceInput && totalAmountInput) {
-    // Add input validation for quantity field to allow only numbers
-    quantityInput.addEventListener('input', function(e) {
-      // Remove any non-numeric characters except for the first character
-      this.value = this.value.replace(/[^0-9]/g, '');
-      debouncedUpdate();
-    });
-    
-    quantityInput.addEventListener('keypress', function(e) {
-      // Allow only numeric keys, backspace, delete, tab, escape, enter
-      if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter'].includes(e.key)) {
-        e.preventDefault();
-      }
-    });
-    
+    quantityInput.addEventListener('input', debouncedUpdate);
     unitPriceInput.addEventListener('input', debouncedUpdate);
     
     // Add focus effects
