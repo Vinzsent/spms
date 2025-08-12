@@ -55,7 +55,7 @@ function createNotification($user_id, $type, $title, $message, $related_id = nul
  */
 function notifySupplyRequestSubmitted($request_id, $department, $description, $conn) {
     // Get all users with roles that should be notified (Immediate Head, Supply In-charge, etc.)
-    $sql = "SELECT id FROM user WHERE user_type IN ('Immediate Head', 'Supply In-charge', 'Purchasing Officer')";
+        $sql = "SELECT id FROM user WHERE user_type IN ('Immediate Head', 'Supply In-charge', 'Purchasing Officer', 'VP for Finance & Administration', 'VP for Academic Affairs', 'Admistrative Officer', 'Property Custodian')";
     $result = $conn->query($sql);
     
     $success = true;
@@ -142,7 +142,10 @@ function findRequesterByDepartment($department, $conn) {
             'Supply In-charge' => 'Supply In-charge',
             'Purchasing Officer' => 'Purchasing Officer',
             'School President' => 'School President',
-            'VP for Finance & Administration' => 'VP for Finance & Administration'
+            'VP for Finance & Administration' => 'VP for Finance & Administration',
+            'VP for Academic Affairs' => 'VP for Academic Affairs',
+            'Admistrative Officer' => 'Admistrative Officer',
+            'Property Custodian' => 'Property Custodian'
         ];
         
         // Try to find by exact department match first
