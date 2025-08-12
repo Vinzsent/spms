@@ -64,6 +64,9 @@
           <option value="Purchasing Officer">Purchasing Officer</option>
           <option value="VP for Finance & Administration">VP for Finance & Administration</option>
           <option value="Finance Officer">Finance Officer</option>
+          <option value="VP for Academic Affairs">VP for Academic Affairs</option>
+          <option value="Admistrative Officer">Admistrative Officer</option>
+          <option value="Property Custodian">Property Custodian</option>
         </select>
       </div>
     </div>
