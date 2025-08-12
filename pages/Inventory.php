@@ -501,6 +501,8 @@ body {
                         <th>Unit</th>
                         <th>Unit Price</th>
                         <th>Amount</th>
+                        <!-- Add to inventory action column -->
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -512,7 +514,15 @@ body {
                             } elseif ($row['sales_type']) {
                             }
                             ?>
-                            <tr>
+                            <tr
+                                data-supplier-id="<?= (int)($row['supplier_id'] ?? 0) ?>"
+                                data-category="<?= htmlspecialchars($row['category']) ?>"
+                                data-description="<?= htmlspecialchars($row['item_description']) ?>"
+                                data-quantity="<?= (int)$row['quantity'] ?>"
+                                data-unit="<?= htmlspecialchars($row['unit'] ?? '') ?>"
+                                data-unit-price="<?= htmlspecialchars($row['unit_price']) ?>"
+                                data-invoice="<?= htmlspecialchars($row['invoice_no']) ?>"
+                            >
                                 <td><?= htmlspecialchars($row['date_received']) ?></td>
                                 <td><?= htmlspecialchars($row['invoice_no']) ?></td>
                                 <td>
@@ -524,6 +534,12 @@ body {
                                 <td><?= htmlspecialchars($row['unit'] ?? 'N/A') ?></td>
                                 <td><?= htmlspecialchars($row['unit_price']) ?></td>
                                 <td><?= htmlspecialchars($row['amount']) ?></td>
+                                <td>
+                                    <!-- Add to Inventory button (submits mapped data to existing add endpoint) -->
+                                    <button type="button" class="btn btn-sm btn-primary" onclick="addToInventoryFromRow(this)" title="Add to Inventory">
+                                        <i class="fas fa-plus-circle"></i>
+                                    </button>
+                                </td>
                             </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
@@ -606,7 +622,7 @@ body {
                                     <button class="btn btn-sm btn-warning" title="Stock Out" onclick="stockOut(<?= $row['inventory_id'] ?>)">
                                         <i class="fas fa-minus"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-info" title="Edit">
+                                    <button class="btn btn-sm btn-info" title="Edit" onclick="openEditInventoryModal(<?= $row['inventory_id'] ?>, '<?= htmlspecialchars(addslashes($row['item_name'])) ?>', '<?= htmlspecialchars(addslashes($row['category'])) ?>', '<?= htmlspecialchars(addslashes($row['unit'])) ?>', <?= (int)$row['current_stock'] ?>, <?= (int)$row['reorder_level'] ?>, '<?= htmlspecialchars(addslashes($row['location'] ?? '')) ?>', <?= json_encode($row['supplier_id']) ?>, <?= json_encode((float)$row['unit_cost']) ?>)" >
                                         <i class="fas fa-edit"></i>
                                     </button>
                                 </td>
@@ -819,6 +835,87 @@ body {
     </div>
 </div>
 
+<!-- Hidden form for Add to Inventory from Received row -->
+<form id="addInventoryHiddenForm" action="../actions/add_inventory.php" method="POST" style="display:none;">
+    <input type="hidden" name="item_name" id="ai_item_name">
+    <input type="hidden" name="category" id="ai_category">
+    <input type="hidden" name="current_stock" id="ai_current_stock">
+    <input type="hidden" name="unit" id="ai_unit">
+    <input type="hidden" name="reorder_level" id="ai_reorder_level" value="0">
+    <input type="hidden" name="supplier_id" id="ai_supplier_id">
+    <input type="hidden" name="unit_cost" id="ai_unit_cost">
+    <input type="hidden" name="location" id="ai_location" value="Warehouse">
+    <input type="hidden" name="description" id="ai_description">
+  </form>
+
+<!-- Edit Inventory Modal -->
+<div class="modal fade" id="editInventoryModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Inventory Item</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="editInventoryForm" action="../actions/edit_inventory.php" method="POST">
+        <div class="modal-body">
+          <input type="hidden" name="inventory_id" id="ei_inventory_id">
+          <div class="mb-3">
+            <label class="form-label">Item Name</label>
+            <input type="text" class="form-control" name="item_name" id="ei_item_name" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Category</label>
+            <input type="text" class="form-control" name="category" id="ei_category" required>
+          </div>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="form-label">Current Stock</label>
+              <input type="number" class="form-control" name="current_stock" id="ei_current_stock" min="0" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Reorder Level</label>
+              <input type="number" class="form-control" name="reorder_level" id="ei_reorder_level" min="0" required>
+            </div>
+          </div>
+          <div class="row g-2 mt-2">
+            <div class="col-md-6">
+              <label class="form-label">Unit</label>
+              <input type="text" class="form-control" name="unit" id="ei_unit" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Unit Cost</label>
+              <input type="number" step="0.01" class="form-control" name="unit_cost" id="ei_unit_cost" required>
+            </div>
+          </div>
+          <div class="row g-2 mt-2">
+            <div class="col-md-6">
+              <label class="form-label">Supplier</label>
+              <select class="form-select" name="supplier_id" id="ei_supplier_id" required>
+                <option value="">Select Supplier</option>
+                <?php 
+                if ($suppliers_result) {
+                    $suppliers_result->data_seek(0);
+                    while ($supplier = $suppliers_result->fetch_assoc()): 
+                ?>
+                    <option value="<?= $supplier['supplier_id'] ?>"><?= htmlspecialchars($supplier['supplier_name']) ?></option>
+                <?php endwhile; } ?>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Location</label>
+              <input type="text" class="form-control" name="location" id="ei_location">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  </div>
+
 <script>
 function stockIn(inventoryId) {
     $('#movement_inventory_id').val(inventoryId);
@@ -886,6 +983,46 @@ function viewItem(inventoryId) {
 function viewAllMovements() {
     // Implement view all movements functionality
     console.log('View all movements');
+}
+
+// Add to Inventory from Received Items row
+function addToInventoryFromRow(button) {
+    const row = button.closest('tr');
+    if (!row) return;
+
+    const itemName = row.getAttribute('data-description') || '';
+    const category = row.getAttribute('data-category') || '';
+    const quantity = row.getAttribute('data-quantity') || '0';
+    const unit = row.getAttribute('data-unit') || '';
+    const supplierId = row.getAttribute('data-supplier-id') || '';
+    const unitPrice = row.getAttribute('data-unit-price') || '0';
+
+    // Fill hidden form
+    document.getElementById('ai_item_name').value = itemName;
+    document.getElementById('ai_category').value = category;
+    document.getElementById('ai_current_stock').value = quantity;
+    document.getElementById('ai_unit').value = unit;
+    document.getElementById('ai_supplier_id').value = supplierId;
+    document.getElementById('ai_unit_cost').value = unitPrice;
+    document.getElementById('ai_description').value = `From invoice ${row.getAttribute('data-invoice') || ''}`;
+
+    // Submit
+    document.getElementById('addInventoryHiddenForm').submit();
+}
+
+// Open Edit Inventory modal with data
+function openEditInventoryModal(id, name, category, unit, stock, reorder, location, supplierId, unitCost) {
+    document.getElementById('ei_inventory_id').value = id;
+    document.getElementById('ei_item_name').value = name;
+    document.getElementById('ei_category').value = category;
+    document.getElementById('ei_unit').value = unit;
+    document.getElementById('ei_current_stock').value = stock;
+    document.getElementById('ei_reorder_level').value = reorder;
+    document.getElementById('ei_location').value = location || '';
+    document.getElementById('ei_supplier_id').value = supplierId || '';
+    document.getElementById('ei_unit_cost').value = unitCost || 0;
+    const modal = new bootstrap.Modal(document.getElementById('editInventoryModal'));
+    modal.show();
 }
 </script>
 
