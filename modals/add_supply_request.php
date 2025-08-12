@@ -95,7 +95,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
         <div class="col-md-3">
           <label>Quality Issued</label>
           <input type="text" name="quality_issued" class="form-control">
-          <p style="font-size: 12px;">Leave this field blank if you don't know the quality of the item</p>
+          <p style="font-size: 10px;">Leave this field blank if you don't know the quality of the item</p>
         </div>
         
         <div class="col-md-3">
@@ -152,6 +152,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
         <div class="col-md-3">
           <label>Unit Cost</label>
           <input type="number" name="unit_cost" step="0.01" class="form-control">
+          <p style="font-size: 10px;">Leave this field blank if you don't know the unit cost</p>
         </div>
         <div class="col-md-3">
           <label>Total Cost</label>
