@@ -445,6 +445,69 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
   .menu-card:nth-child(10) {
     animation-delay: 1.0s;
   }
+
+  /* Dark mode overrides specific to this dashboard */
+  [data-bs-theme="dark"] body {
+    background: linear-gradient(135deg, #121416 0%, #0d1113 100%);
+  }
+
+  [data-bs-theme="dark"] .menu-card {
+    background: rgba(44, 48, 52, 0.95);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  }
+
+  [data-bs-theme="dark"] .menu-card .card-title {
+    color: var(--bs-body-color);
+  }
+
+  [data-bs-theme="dark"] .menu-card .card-description {
+    color: var(--bs-secondary-color);
+  }
+
+  [data-bs-theme="dark"] .modal-content-custom {
+    background-color: #2c3034;
+    color: #dee2e6;
+    border: 1px solid #495057;
+  }
+
+  [data-bs-theme="dark"] .modal-content-custom h4 {
+    color: #dee2e6;
+  }
+
+  /* Ensure muted text inside modal is readable in dark mode */
+  [data-bs-theme="dark"] .modal-content-custom .text-muted {
+    color: var(--bs-secondary-color) !important;
+  }
+
+  [data-bs-theme="dark"] .modal-content-custom .form-control {
+    background-color: #2c3034;
+    color: #dee2e6;
+    border-color: #495057;
+  }
+
+  [data-bs-theme="dark"] .request-option {
+    background: #2c3034;
+    border-color: #495057;
+  }
+
+  [data-bs-theme="dark"] .request-option:hover {
+    background: #3d4146;
+    border-color: #80bdff;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  }
+
+  [data-bs-theme="dark"] .option-arrow {
+    color: #adb5bd;
+  }
+
+  [data-bs-theme="dark"] .option-content p {
+    color: #adb5bd;
+  }
+
+  /* Make request option titles readable in dark mode */
+  [data-bs-theme="dark"] .option-content h5 {
+    color: var(--bs-body-color);
+  }
 </style>
 
 <div class="dashboard-container">

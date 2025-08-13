@@ -250,6 +250,20 @@
     right: -50px;
   }
 }
+
+/* Dark mode improvements for avatar image without changing the file */
+[data-bs-theme="dark"] .navbar .avatar {
+  /* Add a subtle white ring for contrast on dark backgrounds */
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  padding: 2px; /* creates ring spacing inside the border */
+  background-color: #ffffff; /* fallback if PNG has transparent edges */
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2); /* slight outer glow for separation */
+}
+
+/* Slightly lift brightness/contrast in dark mode to improve visibility */
+[data-bs-theme="dark"] .navbar .avatar {
+  filter: brightness(1.05) contrast(1.05);
+}
 </style>
 
 <script src="/spms/assets/js/dark-mode.js"></script>

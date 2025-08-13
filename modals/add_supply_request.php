@@ -377,6 +377,39 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
   </div>
 </div>
 
+<!-- Bulk Request Confirmation Modal -->
+<div class="modal fade" id="bulkConfirmModal" tabindex="-1" aria-labelledby="bulkConfirmLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-gradient-primary text-white">
+        <h5 class="modal-title" id="bulkConfirmLabel">
+          <i class="fas fa-exclamation-triangle me-2"></i>Bulk Request Confirmation
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="mb-3">
+          You are about to make a bulk request (50 or more items).
+        </p>
+        <p class="text-muted">
+          If you continue, you are going through a process and it's going to take long to get your item.
+        </p>
+      </div>
+      <div class="modal-footer border-0 bg-light">
+        <button type="button" class="btn btn-outline-secondary" id="bulkConfirmNo">
+          <i class="fas fa-arrow-left me-1"></i>No, go back
+        </button>
+        <button type="button" class="btn btn-primary" id="bulkConfirmYes">
+          <i class="fas fa-check me-1"></i>Yes, I’d like to continue
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden flag to record bulk confirmation -->
+<input type="hidden" id="bulkConfirmed" value="0">
+
 <!-- Modern Modal Styles -->
 <style>
 /* Gradient Background for Header */
@@ -749,11 +782,72 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Form submission enhancement
+  // Bulk confirmation modal logic
+  const bulkModalEl = document.getElementById('bulkConfirmModal');
+  const bulkConfirmedEl = document.getElementById('bulkConfirmed');
+  let bulkModal;
+  if (bulkModalEl && window.bootstrap) {
+    bulkModal = new bootstrap.Modal(bulkModalEl, { backdrop: 'static', keyboard: false });
+  }
+
+  function needsBulkConfirm() {
+    const qty = parseInt(quantityInput.value || '0', 10);
+    return qty >= 50;
+  }
+
+  function maybePromptBulkConfirm() {
+    if (!bulkModal) return;
+    if (needsBulkConfirm() && bulkConfirmedEl && bulkConfirmedEl.value !== '1') {
+      bulkModal.show();
+    }
+  }
+
+  if (quantityInput) {
+    quantityInput.addEventListener('change', () => {
+      // Reset confirmation if value goes below threshold
+      if (!needsBulkConfirm() && bulkConfirmedEl) {
+        bulkConfirmedEl.value = '0';
+      }
+      maybePromptBulkConfirm();
+    });
+
+    quantityInput.addEventListener('input', () => {
+      // Live check while typing
+      maybePromptBulkConfirm();
+    });
+  }
+
+  const btnYes = document.getElementById('bulkConfirmYes');
+  const btnNo = document.getElementById('bulkConfirmNo');
+  if (btnYes) {
+    btnYes.addEventListener('click', () => {
+      if (bulkConfirmedEl) bulkConfirmedEl.value = '1';
+      if (bulkModal) bulkModal.hide();
+    });
+  }
+  if (btnNo) {
+    btnNo.addEventListener('click', () => {
+      if (bulkConfirmedEl) bulkConfirmedEl.value = '0';
+      if (bulkModal) bulkModal.hide();
+      if (quantityInput) {
+        quantityInput.focus();
+        quantityInput.select && quantityInput.select();
+      }
+    });
+  }
+
+  // Form submission enhancement with bulk check
   if (form) {
     form.addEventListener('submit', function(e) {
       // Update totals before submission
       updateTotal();
+
+      // If bulk threshold is met but not confirmed, block and show confirm modal
+      if (needsBulkConfirm() && (!bulkConfirmedEl || bulkConfirmedEl.value !== '1')) {
+        e.preventDefault();
+        maybePromptBulkConfirm();
+        return;
+      }
       
       // Add loading state to submit button
       const submitBtn = form.querySelector('button[type="submit"]');

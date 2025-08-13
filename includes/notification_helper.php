@@ -287,4 +287,40 @@ function getUnreadNotificationCount($user_id, $conn) {
         return 0;
     }
 }
-?> 
+
+/**
+ * Notify all Staff and Faculty users when an issuance has been made
+ *
+ * @param int $request_id The supply request ID related to the issuance
+ * @param string $issued_by Name of the person who issued the items
+ * @param string $description Description of the issued items/request
+ * @param mysqli $conn Database connection
+ * @return bool Success status (true if all inserts attempted; false if any failed)
+ */
+function notifyStaffAndFacultyForIssuance($request_id, $issued_by, $description, $conn) {
+    $title = "📦 Items Issued";
+    $message = "An issuance has been completed by $issued_by: $description you can now get the item to the supply officer";
+
+    $success = true;
+    try {
+        $sql = "SELECT id FROM user WHERE user_type IN ('Staff','Faculty')";
+        $res = $conn->query($sql);
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                if (!createNotification($row['id'], 'issued', $title, $message, $request_id, 'supply_request', $conn)) {
+                    $success = false;
+                }
+            }
+        } else {
+            error_log("notifyStaffAndFacultyForIssuance query error: " . $conn->error);
+            $success = false;
+        }
+    } catch (Exception $e) {
+        error_log("Error notifying staff and faculty for issuance: " . $e->getMessage());
+        $success = false;
+    }
+
+    return $success;
+}
+
+?>

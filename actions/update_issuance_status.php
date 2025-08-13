@@ -97,7 +97,10 @@ try {
                 if ($status_action === 'approved') {
                     notifyRequestApproved($request_id, $action_by, $requester_id, $conn);
                 } elseif ($status_action === 'issued') {
+                    // Notify the requester
                     notifyItemIssued($request_id, $action_by, $requester_id, $description, $conn);
+                    // Also notify all Staff and Faculty users per requirement
+                    notifyStaffAndFacultyForIssuance($request_id, $action_by, $description, $conn);
                 } else {
                     // For other status updates (noted, checked, verified)
                     notifyRequestStatusUpdate($request_id, $status_action, $action_by, $requester_id, $conn);

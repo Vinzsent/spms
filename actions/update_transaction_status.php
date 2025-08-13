@@ -86,7 +86,10 @@ if ($request_id > 0 && !empty($status_action) && !empty($action_by)) {
                     if ($status_action === 'approved') {
                         notifyRequestApproved($request_id, $action_by, $requester_id, $conn);
                     } elseif ($status_action === 'issued') {
+                        // Notify the requester
                         notifyItemIssued($request_id, $action_by, $requester_id, $description, $conn);
+                        // Also notify all Staff and Faculty users per requirement
+                        notifyStaffAndFacultyForIssuance($request_id, $action_by, $description, $conn);
                     } else {
                         // For other status updates (noted, checked, verified)
                         notifyRequestStatusUpdate($request_id, $status_action, $action_by, $requester_id, $conn);
@@ -154,8 +157,11 @@ try {
             $requester_id = findRequesterByDepartment($department, $conn);
             
             if ($requester_id) {
+                // Notify the requester
                 notifyItemIssued($transaction_id, $user_name, $requester_id, $description, $conn);
             }
+            // Also notify all Staff and Faculty users per requirement
+            notifyStaffAndFacultyForIssuance($request_id, $user_name, $description, $conn);
         }
         
         $request_stmt->close();

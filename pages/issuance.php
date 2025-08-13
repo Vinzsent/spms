@@ -49,8 +49,10 @@ if ($role === 'supply in-charge') {
 
 $sql = "SELECT sr.*, 
         sr.noted_by, sr.checked_by, sr.verified_by, sr.issued_by, sr.approved_by,
-        sr.noted_date, sr.checked_date, sr.verified_date, sr.issued_date, sr.approved_date
+        sr.noted_date, sr.checked_date, sr.verified_date, sr.issued_date, sr.approved_date,
+        CONCAT_WS(' ', u.first_name, u.last_name) AS requester_name
         FROM supply_request sr 
+        LEFT JOIN user u ON u.id = sr.user_id
         $whereClause
         ORDER BY sr.date_requested DESC";
 $result = $conn->query($sql);
@@ -761,7 +763,7 @@ body {
                                     </td>
                                     <td>
                                         <div>
-                                            <strong><?= htmlspecialchars($row['department_unit']) ?></strong>
+                                            <strong><?= htmlspecialchars($row['requester_name'] ?: 'Unknown') ?></strong>
                                             <br>
                                             <small class="text-muted"><?= htmlspecialchars($row['purpose']) ?></small>
                                         </div>
