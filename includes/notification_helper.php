@@ -53,21 +53,57 @@ function createNotification($user_id, $type, $title, $message, $related_id = nul
  * @param mysqli $conn Database connection
  * @return bool Success status
  */
-function notifySupplyRequestSubmitted($request_id, $department, $description, $conn) {
-    // Get all users with roles that should be notified (Immediate Head, Supply In-charge, etc.)
-        $sql = "SELECT id FROM user WHERE user_type IN ('Immediate Head', 'Supply In-charge', 'Purchasing Officer', 'VP for Finance & Administration', 'VP for Academic Affairs', 'Admistrative Officer', 'Property Custodian')";
-    $result = $conn->query($sql);
-    
-    $success = true;
-    while ($row = $result->fetch_assoc()) {
-        $title = "New Supply Request";
-        $message = "A new supply request has been submitted by $department: $description";
-        
-        if (!createNotification($row['id'], 'request', $title, $message, $request_id, 'supply_request', $conn)) {
-            $success = false;
-        }
+function notifySupplyRequestSubmitted($request_id, $department, $description, $request_type, $conn) {
+    // Normalize and label request type (handle possible misspelling "consumambles")
+    $raw_type = strtolower(trim($request_type));
+    $is_consumables = ($raw_type === 'consumables' || $raw_type === 'consumambles');
+    $is_property = ($raw_type === 'property');
+    $type_label = $is_consumables ? 'Consumables' : ($is_property ? 'Property' : 'Supply');
+
+    // Title and message include the specific request type for clarity
+    $title = "New {$type_label} Request";
+    $message = "A new {$type_label} request has been submitted by $department: $description";
+
+    // Base roles that should always be notified (excluding Supply In-charge and Property Custodian which are conditional)
+    $base_roles = [
+        'Immediate Head',
+        'Purchasing Officer',
+        'VP for Finance \u0026 Administration',
+        'VP for Academic Affairs',
+        'Admistrative Officer'
+    ];
+
+    // Determine conditional role based on request type
+    if ($is_consumables) {
+        // Notify Supply In-charge only for consumables
+        $base_roles[] = 'Supply In-charge';
+    } elseif ($is_property) {
+        // Notify Property Custodian only for property
+        $base_roles[] = 'Property Custodian';
     }
-    
+
+    $success = true;
+
+    // Notify all users matching the selected roles
+    try {
+        $role_sql = "SELECT id FROM user WHERE user_type = ?";
+        $stmt = $conn->prepare($role_sql);
+        foreach ($base_roles as $role) {
+            $stmt->bind_param("s", $role);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            while ($row = $res->fetch_assoc()) {
+                if (!createNotification($row['id'], 'request', $title, $message, $request_id, 'supply_request', $conn)) {
+                    $success = false;
+                }
+            }
+        }
+        $stmt->close();
+    } catch (Exception $e) {
+        error_log("Error notifying roles: " . $e->getMessage());
+        $success = false;
+    }
+
     return $success;
 }
 

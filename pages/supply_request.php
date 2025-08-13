@@ -68,15 +68,15 @@ if (isset($_SESSION['error'])) {
   <div class="row mb-4">
     <div class="col-md-12">
       <div class="card border-dark">
-        <div class="card-header" style="background-color: #1a5f3c; color: white;">
+        <div class="card-header py-2" style="background-color: #1a5f3c; color: white;">
           <h6 class="mb-0"><i class="fas fa-user-circle me-2"></i>Current User Information</h6>
         </div>
-        <div class="card-body">
+        <div class="card-body py-2">
           <div class="row align-items-center">
             <div class="col-md-8">
               <div class="d-flex align-items-center">
                 <div class="me-3">
-                  <i class="fas fa-user-circle fa-3x" style="color: #1a5f3c;"></i>
+                  <i class="fas fa-user-circle fa-2x" style="color: #1a5f3c;"></i>
                 </div>
                 <div>
                   <h5 class="mb-1"><?= htmlspecialchars($user_name) ?></h5>
@@ -96,7 +96,7 @@ if (isset($_SESSION['error'])) {
               </div>
             </div>
             <div class="col-md-4 text-end">
-              <button class="btn" style="background-color: #fd7e14; color: white;" data-bs-toggle="modal" data-bs-target="#addSupplyModal">
+              <button class="btn btn-sm" style="background-color: #fd7e14; color: white;" data-bs-toggle="modal" data-bs-target="#addSupplyModal">
                 <i class="fas fa-plus me-2"></i>New Supply Request
               </button>
             </div>
@@ -106,10 +106,10 @@ if (isset($_SESSION['error'])) {
     </div>
   </div>
 
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-2">
     <h3>Supply Request</h3>
     <div>
-      <button class="btn" style="background-color: #fd7e14; color: white;" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
+      <button class="btn btn-sm" style="background-color: #fd7e14; color: white;" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
     </div>
   </div>
 
@@ -127,10 +127,10 @@ if (isset($_SESSION['error'])) {
     </div>
   <?php endif; ?>
 
-  <h5 class="text-center">List of the employee request</h5>
+  <h5 class="text-center">List of employee request</h5>
   <hr>
   <!-- Filter Row -->
-  <div class="row align-items-end mb-4 g-2">
+  <div class="row align-items-end mb-2 g-2">
     <div class="col-md-2">
       <label for="dtSearch" class="form-label">Search</label>
       <input type="search" id="dtSearch" class="form-control" placeholder="Search...">
@@ -184,7 +184,7 @@ if (isset($_SESSION['error'])) {
   </div>
 
   <!-- Quick Date Filters -->
-  <div class="row mb-3">
+  <div class="row mb-2">
     <div class="col-12">
       <label class="form-label">Quick Date Filters:</label>
       <div class="btn-group" role="group">
@@ -234,18 +234,18 @@ if (isset($_SESSION['error'])) {
             <td><?= $row['request_description'] ?></td>
             <td><?= $row['quality_issued'] ? $row['quality_issued'] : '<span style="color: red; font-weight: bold;">No Issued Recorded</span>'; ?></td>
             <td>
-                ₱<?= !empty($unit_cost) 
-                    ? number_format($unit_cost, 2) 
-                    : ' <span style="color: red; font-weight: bold;">No Unit Cost Recorded</span>'; ?>
+              ₱<?= !empty($unit_cost)
+                  ? number_format($unit_cost, 2)
+                  : ' <span style="color: red; font-weight: bold;">No Unit Cost Recorded</span>'; ?>
             </td>
             <td>
-                ₱<?= !empty($computed_total_cost) 
-                    ? number_format($computed_total_cost, 2) 
-                    : ' <span style="color: red; font-weight: bold;">No Total Cost Recorded</span>'; ?>
+              ₱<?= !empty($computed_total_cost)
+                  ? number_format($computed_total_cost, 2)
+                  : ' <span style="color: red; font-weight: bold;">No Total Cost Recorded</span>'; ?>
             </td>
             <td>
               <button
-                class="btn editBtn" style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;"
+                class="btn btn-sm editBtn" style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;"
                 data-request-id="<?= $row['request_id'] ?>"
                 data-date-requested="<?= htmlspecialchars($row['date_requested']) ?>"
                 data-date-needed="<?= htmlspecialchars($row['date_needed']) ?>"

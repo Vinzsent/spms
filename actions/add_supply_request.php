@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Create notifications for relevant users
         if ($request_id) {
-            notifySupplyRequestSubmitted($request_id, $department_unit, $request_description, $conn);
+            notifySupplyRequestSubmitted($request_id, $department_unit, $request_description, $request_type, $conn);
         }
 
         $_SESSION['request_success'] = true;

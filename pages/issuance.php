@@ -36,10 +36,22 @@ if (isset($_SESSION['name'])) {
 $dashboard_link = ($user_type == 'Admin') ? '../admin_dashboard.php' : '../dashboard.php';
 
 // Get supply requests with status information
+// Apply request type filter based on user role
+$role = strtolower($user_type);
+$whereClause = '';
+if ($role === 'supply in-charge') {
+    // Show only consumables for Supply In-charge
+    $whereClause = "WHERE LOWER(sr.request_type) = 'consumables'";
+} elseif ($role === 'property custodian') {
+    // Show only property for Property Custodian
+    $whereClause = "WHERE LOWER(sr.request_type) = 'property'";
+}
+
 $sql = "SELECT sr.*, 
         sr.noted_by, sr.checked_by, sr.verified_by, sr.issued_by, sr.approved_by,
         sr.noted_date, sr.checked_date, sr.verified_date, sr.issued_date, sr.approved_date
         FROM supply_request sr 
+        $whereClause
         ORDER BY sr.date_requested DESC";
 $result = $conn->query($sql);
 
