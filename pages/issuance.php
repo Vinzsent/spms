@@ -852,10 +852,7 @@ body {
                 <div class="empty-state">
                     <i class="fas fa-clipboard-list"></i>
                     <h5>No Supply Requests Found</h5>
-                    <p>There are currently no supply requests to manage.</p>
-                    <a href="supply_request.php" class="btn btn-primary-modern">
-                        <i class="fas fa-plus me-2"></i>Create First Request
-                    </a>
+                    <p>There are currently no supply requests to manage. Please go back later</p>
                 </div>
             <?php endif; ?>
         </div>
