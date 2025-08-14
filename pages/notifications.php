@@ -221,15 +221,23 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
                                     </td>
                                     <td class="notification-message-cell">
                                         <?php if (strtolower($user_position) === 'faculty' || strtolower($user_position) === 'staff'): ?>
-                                            <!-- Staff and Faculty users see restricted message without clickable link -->
-                                            <span class="notification-message-restricted" onclick="showFacultyAccessWarning()" title="<?= htmlspecialchars($notification['message']) ?>">
+                                            <!-- Staff and Faculty: click shows full message in modal -->
+                                            <span class="notification-message-restricted message-open"
+                                                  data-title="<?= htmlspecialchars($notification['title']) ?>"
+                                                  data-message="<?= htmlspecialchars($notification['message']) ?>"
+                                                  title="Click to read full message">
                                                 <?= htmlspecialchars($notification['message']) ?>
                                             </span>
                                         <?php else: ?>
-                                            <!-- Admin users see clickable link to issuance page -->
-                                            <a href="issuance.php?id=<?= $notification['related_id'] ?>" class="notification-message-link" title="<?= htmlspecialchars($notification['message']) ?>" onclick="return checkFacultyAccess()">
+                                            <!-- Admin: click shows full message in modal; separate link to issuance page -->
+                                            <span class="notification-message-link message-open"
+                                                  data-title="<?= htmlspecialchars($notification['title']) ?>"
+                                                  data-message="<?= htmlspecialchars($notification['message']) ?>"
+                                                  title="Click to read full message">
                                                 <?= htmlspecialchars($notification['message']) ?>
-                                            </a>
+                                            </span>
+                                            <?php if (!empty($notification['related_id'])): ?>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                     </td>
                                     <td>
@@ -409,6 +417,12 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
     max-width: 300px;
 }
 
+/* Full message modal content */
+.notification-full-message {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
 .notification-message-link {
     text-decoration: none !important;
     color: #495057 !important;
@@ -551,25 +565,42 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
 
 <script>
 function viewNotification(notificationId) {
-    // For now, just show a simple alert with the notification details
-    // In a real implementation, you might want to load more details via AJAX
-    alert('Notification details would be shown here for ID: ' + notificationId);
-    
-    // You can implement AJAX loading here:
-    /*
-    $.ajax({
-        url: '../actions/get_notification_details.php',
-        type: 'GET',
-        data: { notification_id: notificationId },
-        success: function(response) {
-            if (response.success) {
-                $('#notificationModalBody').html(response.html);
-                $('#notificationModal').modal('show');
-            }
+    // Deprecated alert; use showNotificationModal with data attributes instead.
+    console.warn('viewNotification is deprecated. Use showNotificationModal via .message-open elements. ID:', notificationId);
+}
+
+function showNotificationModal(title, message) {
+    // Safely set the modal contents using textContent to avoid HTML injection.
+    const labelEl = document.getElementById('notificationModalLabel');
+    const bodyEl = document.getElementById('notificationModalBody');
+    if (labelEl) labelEl.textContent = title || 'Notification Details';
+
+    if (bodyEl) {
+        // Build a simple layout with pre-wrap formatting for long messages
+        bodyEl.innerHTML = '';
+        const msg = document.createElement('div');
+        msg.className = 'notification-full-message';
+        msg.textContent = message || '';
+        bodyEl.appendChild(msg);
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+    modal.show();
+}
+
+// Delegate clicks from any element with .message-open to open the modal with full text
+(function initMessageOpenHandlers() {
+    document.addEventListener('click', function(e) {
+        const trigger = e.target.closest('.message-open');
+        if (trigger) {
+            const title = trigger.getAttribute('data-title') || '';
+            const message = trigger.getAttribute('data-message') || '';
+            showNotificationModal(title, message);
+            e.preventDefault();
+            return false;
         }
     });
-    */
-}
+})();
 
 function checkFacultyAccess() {
     // Double-check user position on client side (additional security)
