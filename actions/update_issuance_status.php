@@ -77,8 +77,8 @@ try {
             $message .= " with remarks: $remarks";
         }
 
-        // Get supply request details for notification
-        $request_sql = "SELECT department_unit, request_description FROM supply_request WHERE request_id = ?";
+        // Get supply request details for notification (directly use requester user_id)
+        $request_sql = "SELECT user_id, request_description FROM supply_request WHERE request_id = ?";
         $request_stmt = $conn->prepare($request_sql);
         $request_stmt->bind_param("i", $request_id);
         $request_stmt->execute();
@@ -86,21 +86,16 @@ try {
         
         if ($request_result && $request_result->num_rows > 0) {
             $request_data = $request_result->fetch_assoc();
-            $department = $request_data['department_unit'];
+            $requester_id = (int)$request_data['user_id'];
             $description = $request_data['request_description'];
             
-            // Find the requester user ID based on department
-            $requester_id = findRequesterByDepartment($department, $conn);
-            
-            if ($requester_id) {
+            if ($requester_id > 0) {
                 // Send notification based on status action
                 if ($status_action === 'approved') {
                     notifyRequestApproved($request_id, $action_by, $requester_id, $conn);
                 } elseif ($status_action === 'issued') {
-                    // Notify the requester
+                    // Notify only the requester
                     notifyItemIssued($request_id, $action_by, $requester_id, $description, $conn);
-                    // Also notify all Staff and Faculty users per requirement
-                    notifyStaffAndFacultyForIssuance($request_id, $action_by, $description, $conn);
                 } else {
                     // For other status updates (noted, checked, verified)
                     notifyRequestStatusUpdate($request_id, $status_action, $action_by, $requester_id, $conn);
