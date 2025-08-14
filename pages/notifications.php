@@ -236,8 +236,6 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
                                                   title="Click to read full message">
                                                 <?= htmlspecialchars($notification['message']) ?>
                                             </span>
-                                            <?php if (!empty($notification['related_id'])): ?>
-                                            <?php endif; ?>
                                         <?php endif; ?>
                                     </td>
                                     <td>
@@ -267,9 +265,9 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
                                                     </button>
                                                 </form>
                                             <?php endif; ?>
-                                            <button class="btn btn-sm btn-info" onclick="viewNotification(<?= $notification['id'] ?>)" title="View details">
+                                            <a href="issuance.php?id=<?= $notification['related_id'] ?>" class="btn btn-sm btn-info" title="View details">
                                                 <i class="fas fa-eye"></i>
-                                            </button>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>

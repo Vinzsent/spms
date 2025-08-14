@@ -718,12 +718,28 @@ body {
                 <i class="fas fa-clipboard-list me-2"></i>
                 Requests List
             </h2>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <div class="input-group input-group-sm" style="min-width: 260px;">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" id="searchInput" class="form-control form-control-modern" placeholder="Search all columns...">
+                </div>
+                <select id="statusFilter" class="form-select form-control-modern form-select-sm" style="max-width: 220px;">
+                    <option value="all">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="noted">Noted</option>
+                    <option value="checked">Checked</option>
+                    <option value="verified">Verified</option>
+                    <option value="approved">Approved</option>
+                    <option value="issued">Issued</option>
+                </select>
+                <button id="clearFilters" class="btn btn-sm btn-secondary"><i class="fas fa-times me-1"></i>Clear</button>
+            </div>
         </div>
         
         <div class="table-container">
             <?php if ($total_requests > 0): ?>
                 <div class="table-responsive">
-                    <table class="table table-modern">
+                    <table class="table table-modern" id="issuanceTable">
                         <thead>
                             <tr>
                                 <th><i class="fas fa-calendar me-2"></i>Date Requested</th>
@@ -731,6 +747,7 @@ body {
                                 <th><i class="fas fa-hashtag me-2"></i>Quantity Needed</th>
                                 <th><i class="fas fa-dollar-sign me-2"></i>Total Cost</th>
                                 <th><i class="fas fa-user me-2"></i>Requested By</th>
+                                <th><i class="fas fa-tag me-2"></i>Status Type</th>
                                 <th><i class="fas fa-tasks me-2"></i>Status</th>
                                 <th><i class="fas fa-cogs me-2"></i>Actions</th>
                             </tr>
@@ -768,6 +785,9 @@ body {
                                             <small class="text-muted"><?= htmlspecialchars($row['purpose']) ?></small>
                                         </div>
                                     </td>
+                                    <td style="text-transform: uppercase;">
+                                        <?= htmlspecialchars($row['request_type'] ?? 'N/A') ?>
+                                    </td>
                                     <td>
                                         <?php
                                         $status = 'Pending';
@@ -777,7 +797,7 @@ body {
                                             $status = 'Issued';
                                             $statusClass = 'status-issued';
                                         } elseif (!empty($row['approved_by'])) {
-                                            $status = 'Approve';
+                                            $status = 'Approved';
                                             $statusClass = 'status-approved';
                                         } elseif (!empty($row['verified_by'])) {
                                             $status = 'Verified';
@@ -852,7 +872,10 @@ body {
                 <div class="empty-state">
                     <i class="fas fa-clipboard-list"></i>
                     <h5>No Supply Requests Found</h5>
-                    <p>There are currently no supply requests to manage. Please go back later</p>
+                    <p>There are currently no supply requests to manage.</p>
+                    <a href="supply_request.php" class="btn btn-primary-modern">
+                        <i class="fas fa-plus me-2"></i>Create First Request
+                    </a>
                 </div>
             <?php endif; ?>
         </div>
@@ -1128,6 +1151,35 @@ $(document).ready(function() {
         const params = new URLSearchParams(rowData).toString();
         // Redirect to transaction_list.php with row data as GET params
         window.location.href = 'transaction_list.php?' + params;
+    });
+
+    // Client-side filters: search and status
+    const $searchInput = $('#searchInput');
+    const $statusFilter = $('#statusFilter');
+    const $clearFilters = $('#clearFilters');
+    const $rows = $('#issuanceTable tbody tr');
+
+    function applyFilters() {
+        const query = ($searchInput.val() || '').toString().trim().toLowerCase();
+        const status = ($statusFilter.val() || 'all').toString();
+
+        $rows.each(function() {
+            const $tr = $(this);
+            const rowText = $tr.text().toLowerCase();
+            const badgeText = $tr.find('.status-badge').text().trim().toLowerCase();
+
+            const matchesQuery = !query || rowText.indexOf(query) !== -1;
+            const matchesStatus = status === 'all' || badgeText === status;
+            $tr.toggle(matchesQuery && matchesStatus);
+        });
+    }
+
+    $searchInput.on('input', applyFilters);
+    $statusFilter.on('change', applyFilters);
+    $clearFilters.on('click', function() {
+        $searchInput.val('');
+        $statusFilter.val('all');
+        applyFilters();
     });
 });
 </script>

@@ -209,6 +209,7 @@ if (isset($_SESSION['error'])) {
           <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Quantity Requested</th>
           <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Unit</th>
           <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Request Description</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Request Type</th>
           <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Quality Issued</th>
           <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Unit Cost</th>
           <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Total Cost</th>
@@ -232,7 +233,8 @@ if (isset($_SESSION['error'])) {
             <td><?= htmlspecialchars($row['quantity_requested']) ?></td>
             <td><?= htmlspecialchars($row['unit']) ?></td>
             <td><?= $row['request_description'] ?></td>
-            <td><?= $row['quality_issued'] ? $row['quality_issued'] : '<span style="color: red; font-weight: bold;">No Issued Recorded</span>'; ?></td>
+            <td style="text-transform: uppercase;"><?= htmlspecialchars($row['request_type']) ?></td>
+            <td><?= htmlspecialchars($row['quality_issued']) ? htmlspecialchars($row['quality_issued']) : '<span style="color: red; font-weight: bold;">No Issued Recorded</span>'; ?></td>
             <td>
               ₱<?= !empty($unit_cost)
                   ? number_format($unit_cost, 2)
@@ -269,7 +271,7 @@ if (isset($_SESSION['error'])) {
       </tbody>
       <tfoot>
         <tr>
-          <td colspan="9" class="text-end fw-bold">Total:</td>
+          <td colspan="10" class="text-end fw-bold">Total:</td>
           <td class="fw-bold" id="grandTotalCell">₱<?= number_format($total_sum, 2) ?></td>
           <td></td>
         </tr>

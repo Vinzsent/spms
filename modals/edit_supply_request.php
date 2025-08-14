@@ -14,37 +14,37 @@
         <div class="modal-body row g-3">
           <div class="col-md-4">
             <label>Date Requested</label>
-            <input type="date" name="date_requested" class="form-control" id="editDateRequest" required>
+            <input type="date" name="date_requested" class="form-control" id="editDateRequest">
           </div>
 
           <!-- Date Needed -->
           <div class="col-md-4">
             <label class="form-label">Date Needed</label>
-            <input type="date" class="form-control" name="date_needed" id="editDateNeeded" required>
+            <input type="date" class="form-control" name="date_needed" id="editDateNeeded">
           </div>
 
           <!-- Department Unit -->
           <div class="col-md-4">
             <label class="form-label">Position/Role</label>
-            <input type="text" class="form-control" name="department_unit" id="editDepartmentUnit" required>
+            <input type="text" class="form-control" name="department_unit" id="editDepartmentUnit">
           </div>
 
           <!-- Purpose -->
           <div class="col-md-6">
             <label class="form-label">Purpose</label>
-            <textarea name="purpose" class="form-control" id="editPurpose" required></textarea>
+            <textarea name="purpose" class="form-control" id="editPurpose"></textarea>
           </div>
 
            <!-- Quality Issued -->
            <div class="col-md-6">
             <label class="form-label">Quality Issued</label>
-            <input type="text" class="form-control" name="quality_issued" id="editQualityIssued" required>
+            <input type="text" class="form-control" name="quality_issued" id="editQualityIssued">
           </div>
 
           <!-- Sales Type -->
           <div class="col-md-6">
             <label class="form-label">Sales Type</label>
-            <select name="sales_type" class="form-select" id="editSalesType" required>
+            <select name="sales_type" class="form-select" id="editSalesType">
               <option value="">-- Select Purchased Type --</option>
               <option value="Cash">Cash Purchased</option>
               <option value="Credit">Credit Purchased</option>
@@ -54,7 +54,7 @@
           <!-- Category -->
           <div class="col-md-12">
             <label class="form-label">Category</label>
-            <select class="form-select" name="category" id="editCategory" required>
+            <select class="form-select" name="category" id="editCategory">
               <option value="">-- Select Category --</option>
 
               <optgroup label="Capital Outlay (CO)">
@@ -86,17 +86,17 @@
           <!-- Description -->
           <div class="col-md-12">
             <label class="form-label">Request Description</label>
-            <textarea name="request_description" class="form-control" rows="3" id="editRequestDescription" required></textarea>
+            <textarea name="request_description" class="form-control" rows="3" id="editRequestDescription"></textarea>
           </div>
 
           <!-- Quantity / Unit / Price / Total -->
           <div class="col-md-3">
             <label class="form-label">Quantity Requested</label>
-            <input type="number" class="form-control" name="quantity_requested" id="editQuantity" required>
+            <input type="number" class="form-control" name="quantity_requested" id="editQuantity">
           </div>
           <div class="col-md-3">
             <label class="form-label">Unit</label>
-            <select name="unit" class="form-select" id="editUnit" required>
+            <select name="unit" class="form-select" id="editUnit">
               <option value="">-- Select Unit --</option>
               <!-- Common Units for Supplies -->
               <option value="pc">Piece (pc)</option>
@@ -145,7 +145,7 @@
           </div>
           <div class="col-md-3">
             <label class="form-label">Unit Cost</label>
-            <input type="text" class="form-control" name="unit_cost" id="editPrice" pattern="[0-9]*\.?[0-9]*" required>
+            <input type="text" class="form-control" name="unit_cost" id="editPrice" pattern="[0-9]*\.?[0-9]*" >
           </div>
           <div class="col-md-3">
             <label>Total Cost</label>

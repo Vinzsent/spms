@@ -654,6 +654,12 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
 .form-floating > .form-control:not(:placeholder-shown) ~ label .fas {
   color: #2d7a4d;
 }
+
+/* Dim the underlying modal when the bulk confirmation is active */
+.modal-dim {
+  filter: grayscale(60%) brightness(0.35);
+  pointer-events: none; /* block interaction */
+}
 </style>
 
 <script>
@@ -788,6 +794,15 @@ document.addEventListener('DOMContentLoaded', function() {
   let bulkModal;
   if (bulkModalEl && window.bootstrap) {
     bulkModal = new bootstrap.Modal(bulkModalEl, { backdrop: 'static', keyboard: false });
+
+    // When bulk confirmation shows, dim the underlying add modal
+    const addModalContent = document.querySelector('#addSupplyModal .modal-content');
+    bulkModalEl.addEventListener('show.bs.modal', function() {
+      if (addModalContent) addModalContent.classList.add('modal-dim');
+    });
+    bulkModalEl.addEventListener('hidden.bs.modal', function() {
+      if (addModalContent) addModalContent.classList.remove('modal-dim');
+    });
   }
 
   function needsBulkConfirm() {
