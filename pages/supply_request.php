@@ -336,16 +336,6 @@ if (isset($_SESSION['error'])) {
           }
         },
         {
-          extend: 'pdfHtml5',
-          text: '<i class="fa-solid fa-file-pdf"></i>',
-          orientation: 'landscape',
-          pageSize: 'A4',
-          title: 'Supplier Request',
-          className: 'btn btn-sm',
-          footer: true, // <-- include the footer (TOTAL row)
-          exportOptions: {
-            columns: ':not(:last-child)' // Exclude the last column (Action)
-          },
           customize: function(doc) {
             // Set table borders
             doc.content[1].layout = {
@@ -362,64 +352,6 @@ if (isset($_SESSION['error'])) {
                 return '#2d3748'; // Vertical line color
               }
             };
-
-            // Style customization
-            doc.styles.tableHeader.fillColor = '#FFFFFF';
-            doc.styles.tableHeader.color = '#000000';
-            doc.styles.tableBodyEven = {
-              fillColor: '#FFFFFF'
-            };
-            doc.styles.tableBodyOdd = {
-              fillColor: '#FFFFFF'
-            };
-
-            // Footer row customization
-            const footer = doc.content[1].table.body[doc.content[1].table.body.length - 1];
-            const totalAmount = footer[footer.length - 1].text;
-
-            const newFooter = [{
-                text: '',
-                style: 'tableHeader'
-              },
-              {
-                text: '',
-                style: 'tableHeader'
-              },
-              {
-                text: '',
-                style: 'tableHeader'
-              },
-              {
-                text: '',
-                style: 'tableHeader'
-              },
-              {
-                text: '',
-                style: 'tableHeader'
-              },
-              {
-                text: '',
-                style: 'tableHeader'
-              },
-              {
-                text: '',
-                style: 'tableHeader'
-              },
-              {
-                text: '',
-                style: 'tableHeader'
-              },
-              {
-                text: 'Total:',
-                alignment: 'right',
-                style: 'tableHeader'
-              },
-              {
-                text: totalAmount,
-                style: 'tableHeader'
-              }
-            ];
-
             doc.content[1].table.body[doc.content[1].table.body.length - 1] = newFooter;
           }
         },
