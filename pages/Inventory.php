@@ -7,16 +7,64 @@ include '../includes/header.php';
 $user_type = $_SESSION['user_type'] ?? '';
 $dashboard_link = ($user_type == 'Admin') ? '../dashboard.php' : '../dashboard.php';
 
+// Helpers: parse School Year input into start/end dates (July 1 to June 30)
+function parse_school_year_range($raw) {
+    $raw = trim((string)$raw);
+    if ($raw === '') return [null, null];
+    if (preg_match('/^(20\d{2})\s*-\s*(20\d{2})$/', $raw, $m)) {
+        $startY = (int)$m[1];
+        $endY = (int)$m[2];
+        if ($endY === $startY + 1) {
+            return [sprintf('%04d-07-01', $startY), sprintf('%04d-06-30', $endY)];
+        }
+    } elseif (preg_match('/^(19|20)\d{2}$/', $raw)) {
+        $startY = (int)$raw;
+        return [sprintf('%04d-07-01', $startY), sprintf('%04d-06-30', $startY + 1)];
+    }
+    return [null, null];
+}
+
+// Per-table School Year search values
+$sy_inv_raw  = $_GET['sy_inv']  ?? '';
+$sy_recv_raw = $_GET['sy_recv'] ?? '';
+$sy_logs_raw = $_GET['sy_logs'] ?? '';
+
+list($sy_inv_start, $sy_inv_end)   = parse_school_year_range($sy_inv_raw);
+list($sy_recv_start, $sy_recv_end) = parse_school_year_range($sy_recv_raw);
+list($sy_logs_start, $sy_logs_end) = parse_school_year_range($sy_logs_raw);
+
+// Build optional WHERE conditions per query based on per-table School Year
+$inv_where = '';
+$recv_where = '';
+$logs_where = '';
+if ($sy_inv_start && $sy_inv_end) {
+    $start_esc = $conn->real_escape_string($sy_inv_start);
+    $end_esc   = $conn->real_escape_string($sy_inv_end);
+    $inv_where = " WHERE i.date_created >= '$start_esc' AND i.date_created <= '$end_esc'";
+}
+if ($sy_recv_start && $sy_recv_end) {
+    $start_esc = $conn->real_escape_string($sy_recv_start);
+    $end_esc   = $conn->real_escape_string($sy_recv_end);
+    $recv_where = " WHERE st.date_received >= '$start_esc' AND st.date_received <= '$end_esc'";
+}
+if ($sy_logs_start && $sy_logs_end) {
+    $start_esc = $conn->real_escape_string($sy_logs_start);
+    $end_esc   = $conn->real_escape_string($sy_logs_end);
+    $logs_where = " WHERE sl.date_created >= '$start_esc' AND sl.date_created <= '$end_esc'";
+}
+
 // Get inventory data
 $sql = "SELECT i.*, s.supplier_name 
         FROM inventory i 
         LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
+        $inv_where
         ORDER BY i.date_created DESC";
 $result = $conn->query($sql);
 
 $sql1 = "SELECT st.*, s.supplier_name 
         FROM supplier_transaction st
         JOIN supplier s ON s.supplier_id = st.supplier_id
+        $recv_where
         ORDER BY st.date_received DESC";
 $result1 = $conn->query($sql1);
 
@@ -25,12 +73,21 @@ $stock_logs_sql = "SELECT sl.*, i.item_name, s.supplier_name
                    FROM stock_logs sl 
                    LEFT JOIN inventory i ON sl.inventory_id = i.inventory_id 
                    LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
+                   $logs_where
                    ORDER BY sl.date_created DESC LIMIT 50";
 $stock_logs_result = $conn->query($stock_logs_sql);
 
 // Get suppliers for dropdown
 $suppliers_sql = "SELECT supplier_id, supplier_name FROM supplier WHERE status = 'Active' ORDER BY supplier_name";
 $suppliers_result = $conn->query($suppliers_sql);
+
+// Build School Year options for dropdowns (last 10 years)
+$currYear = (int)date('Y');
+$minYear = $currYear - 10;
+$sy_years = [];
+for ($y = $currYear; $y >= $minYear; $y--) {
+    $sy_years[] = $y . '-' . ($y + 1);
+}
 
 // Calculate statistics
 $total_items = $result ? $result->num_rows : 0;
@@ -486,6 +543,24 @@ body {
     <div class="table-container">
         <div class="table-header">
             <h3>Recieved Items</h3>
+            <form method="GET" class="d-flex align-items-end gap-2">
+                <div>
+                    <label for="sy_recv" class="form-label mb-0 text-white">School Year</label>
+                    <select id="sy_recv" name="sy_recv" class="form-select" onchange="this.form.submit()">
+                        <option value="">All</option>
+                        <?php foreach ($sy_years as $sy): ?>
+                            <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_recv_raw === $sy) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($sy) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="pt-4">
+                    <?php if (!empty($sy_recv_raw)): ?>
+                        <a href="inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv'=>true])) ?>" class="btn btn-outline-light">Reset</a>
+                    <?php endif; ?>
+                </div>
+            </form>
         </div>
         
         <div class="table-responsive">
@@ -559,9 +634,29 @@ body {
     <div class="table-container">
         <div class="table-header">
             <h3>Inventory Items</h3>
-            <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
-                <i class="fas fa-plus"></i> Add Item
-            </button>
+            <div class="d-flex align-items-end gap-2">
+                <form method="GET" class="d-flex align-items-end gap-2 mb-0">
+                    <div>
+                        <label for="sy_inv" class="form-label mb-0 text-white">School Year</label>
+                        <select id="sy_inv" name="sy_inv" class="form-select" onchange="this.form.submit()">
+                            <option value="">All</option>
+                            <?php foreach ($sy_years as $sy): ?>
+                                <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_inv_raw === $sy) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($sy) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="pt-4">
+                        <?php if (!empty($sy_inv_raw)): ?>
+                            <a href="inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_inv'=>true])) ?>" class="btn btn-outline-light">Reset</a>
+                        <?php endif; ?>
+                    </div>
+                </form>
+                <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                    <i class="fas fa-plus"></i> Add Item
+                </button>
+            </div>
         </div>
         
         <div class="table-responsive">
@@ -622,7 +717,7 @@ body {
                                     <button class="btn btn-sm btn-warning" title="Stock Out" onclick="stockOut(<?= $row['inventory_id'] ?>)">
                                         <i class="fas fa-minus"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-info" title="Edit" onclick="openEditInventoryModal(<?= $row['inventory_id'] ?>, '<?= htmlspecialchars(addslashes($row['item_name'])) ?>', '<?= htmlspecialchars(addslashes($row['category'])) ?>', '<?= htmlspecialchars(addslashes($row['unit'])) ?>', <?= (int)$row['current_stock'] ?>, <?= (int)$row['reorder_level'] ?>, '<?= htmlspecialchars(addslashes($row['location'] ?? '')) ?>', <?= json_encode($row['supplier_id']) ?>, <?= json_encode((float)$row['unit_cost']) ?>)" >
+                                    <button class="btn btn-sm btn-info" title="Edit" onclick='openEditInventoryModal(<?= (int)$row['inventory_id'] ?>, <?= json_encode($row['item_name']) ?>, <?= json_encode($row['category']) ?>, <?= json_encode($row['unit']) ?>, <?= (int)$row['current_stock'] ?>, <?= (int)$row['reorder_level'] ?>, <?= json_encode($row['location'] ?? '') ?>, <?= json_encode((int)$row['supplier_id']) ?>, <?= json_encode((float)$row['unit_cost']) ?>)'>
                                         <i class="fas fa-edit"></i>
                                     </button>
                                 </td>
@@ -648,9 +743,29 @@ body {
     <div class="table-container">
         <div class="table-header">
             <h3>Recent Stock Movements</h3>
-            <button class="btn btn-add" onclick="viewAllMovements()">
-                <i class="fas fa-list"></i> View All
-            </button>
+            <div class="d-flex align-items-end gap-2">
+                <form method="GET" class="d-flex align-items-end gap-2 mb-0">
+                    <div>
+                        <label for="sy_logs" class="form-label mb-0 text-white">School Year</label>
+                        <select id="sy_logs" name="sy_logs" class="form-select" onchange="this.form.submit()">
+                            <option value="">All</option>
+                            <?php foreach ($sy_years as $sy): ?>
+                                <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_logs_raw === $sy) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($sy) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="pt-4">
+                        <?php if (!empty($sy_logs_raw)): ?>
+                            <a href="inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_logs'=>true])) ?>" class="btn btn-outline-light">Reset</a>
+                        <?php endif; ?>
+                    </div>
+                </form>
+                <button class="btn btn-add" onclick="viewAllMovements()">
+                    <i class="fas fa-list"></i> View All
+                </button>
+            </div>
         </div>
         
         <div class="table-responsive">
@@ -918,10 +1033,11 @@ body {
 
 <script>
 function stockIn(inventoryId) {
-    $('#movement_inventory_id').val(inventoryId);
-    $('#movement_type').val('IN');
+    document.getElementById('movement_inventory_id').value = inventoryId;
+    document.getElementById('movement_type').value = 'IN';
     fetchItemDetails(inventoryId);
-    $('#stockMovementModal').modal('show');
+    const smModal = new bootstrap.Modal(document.getElementById('stockMovementModal'));
+    smModal.show();
     // Set the movement type and highlight the button after modal is shown
     setTimeout(() => {
         setMovementType('IN');
@@ -929,10 +1045,11 @@ function stockIn(inventoryId) {
 }
 
 function stockOut(inventoryId) {
-    $('#movement_inventory_id').val(inventoryId);
-    $('#movement_type').val('OUT');
+    document.getElementById('movement_inventory_id').value = inventoryId;
+    document.getElementById('movement_type').value = 'OUT';
     fetchItemDetails(inventoryId);
-    $('#stockMovementModal').modal('show');
+    const smModal = new bootstrap.Modal(document.getElementById('stockMovementModal'));
+    smModal.show();
     // Set the movement type and highlight the button after modal is shown
     setTimeout(() => {
         setMovementType('OUT');
