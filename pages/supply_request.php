@@ -336,23 +336,64 @@ if (isset($_SESSION['error'])) {
           }
         },
         {
+          extend: 'pdfHtml5',
+          text: '<i class="fa-solid fa-file-pdf"></i>',
+          title: 'Supply Request Report',
+          className: 'btn btn-sm',
+          footer: true,
+          exportOptions: {
+            columns: ':not(:last-child)' // Exclude the last column (Action)
+          },
           customize: function(doc) {
-            // Set table borders
+            // Set document properties
+            doc.defaultStyle.fontSize = 8;
+            doc.styles.tableHeader.fontSize = 9;
+            doc.styles.tableHeader.bold = true;
+            doc.styles.tableHeader.fillColor = '#1a5f3c';
+            doc.styles.tableHeader.color = 'white';
+            
+            // Set table layout with borders
             doc.content[1].layout = {
               hLineWidth: function(i, node) {
-                return 1; // Horizontal line width
+                return 1;
               },
               vLineWidth: function(i, node) {
-                return 1; // Vertical line width
+                return 1;
               },
               hLineColor: function(i, node) {
-                return '#2d3748'; // Horizontal line color
+                return '#2d3748';
               },
               vLineColor: function(i, node) {
-                return '#2d3748'; // Vertical line color
+                return '#2d3748';
+              },
+              paddingLeft: function(i, node) {
+                return 4;
+              },
+              paddingRight: function(i, node) {
+                return 4;
+              },
+              paddingTop: function(i, node) {
+                return 2;
+              },
+              paddingBottom: function(i, node) {
+                return 2;
               }
             };
-            doc.content[1].table.body[doc.content[1].table.body.length - 1] = newFooter;
+            
+            // Make footer row bold
+            if (doc.content[1].table.body) {
+              const lastRowIndex = doc.content[1].table.body.length - 1;
+              if (lastRowIndex >= 0) {
+                doc.content[1].table.body[lastRowIndex].forEach(function(cell) {
+                  cell.bold = true;
+                  cell.fillColor = '#f8f9fa';
+                });
+              }
+            }
+            
+            // Set page orientation to landscape for better table fit
+            doc.pageOrientation = 'landscape';
+            doc.pageMargins = [20, 20, 20, 20];
           }
         },
         {

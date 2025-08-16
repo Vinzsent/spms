@@ -41,6 +41,7 @@ if (isset($_SESSION['error'])) {
         --light-green: #2d8aad;
         --accent-orange: #fd7e14;;
         --accent-blue: #4a90e2;
+        --accent-green-approved: #28a745;
         --accent-red: #e74c3c;
         --text-white: #ffffff;
         --text-dark: #073b1d;
@@ -153,19 +154,28 @@ if (isset($_SESSION['error'])) {
 
     /* Stats Cards */
     .stats-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
+        
+display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* spacing between cards */
+    justify-content: center; /* or space-between / space-around */
+    padding: 20px;
+
     }
 
     .stat-card {
-        background: var(--text-white);
-        padding: 25px;
-        border-radius: 10px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        text-align: center;
-        transition: transform 0.3s ease;
+        
+
+    flex: 1 1 200px; /* allows cards to grow/shrink and wrap */
+    max-width: 220px;
+    min-width: 180px;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    text-align: center;
+
+
     }
 
     .stat-card:hover {
@@ -198,6 +208,10 @@ if (isset($_SESSION['error'])) {
 
     .stat-card.received .stat-icon {
         background-color: var(--accent-blue);
+    }
+    
+    .stat-card.approved .stat-icon {
+        background-color: var(--accent-green-approved);
     }
 
     .stat-number {
@@ -398,6 +412,16 @@ if (isset($_SESSION['error'])) {
             <div class="stat-number">0</div>
             <div class="stat-label">Received Items</div>
         </div>
+
+   
+<div class="stat-card approved">
+    <div class="stat-icon">
+        <i class="fas fa-thumbs-up"></i>
+    </div>
+    <div class="stat-number">0</div>
+    <div class="stat-label">Approved Request</div>
+</div>
+
     </div>
 
     <!-- Procurement Table -->
@@ -494,6 +518,65 @@ if (isset($_SESSION['error'])) {
             </table>
         </div>
     </div>
+
+    <div class="table-container mt-4">
+    <div class="table-header">
+        <h3>Request List</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Request ID</th>
+                    <th>Date Requested</th>
+                    <th>Date Needed</th>
+                    <th>Department</th>
+                    <th>Name</th>
+                    <th>Purpose</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $request_sql = "SELECT request_id, date_requested, date_needed, department_unit, first_name, last_name, purpose, approved_by FROM supply_request ORDER BY date_requested DESC";
+                $request_result = $conn->query($request_sql);
+
+                if ($request_result && $request_result->num_rows > 0):
+                    while ($row = $request_result->fetch_assoc()):
+                ?>
+                <tr>
+                    <td><?= htmlspecialchars($row['request_id']) ?></td>
+                    <td><?= date('M d, Y', strtotime($row['date_requested'])) ?></td>
+                    <td><?= date('M d, Y', strtotime($row['date_needed'])) ?></td>
+                    <td><?= htmlspecialchars($row['department_unit']) ?></td>
+                    <td><?= htmlspecialchars($row['first_name'] . ', ' . $row['last_name']) ?></td>
+                    <td><?= htmlspecialchars($row['purpose']) ?></td>
+                    <td>
+                        <span class="badge bg-<?= $row['approved_by'] ? 'success' : 'warning' ?>">
+                            <?= $row['approved_by'] ? 'Approved' : 'Pending' ?>
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-primary">View</button>
+                    </td>
+                </tr>
+                <?php
+                    endwhile;
+                else:
+                ?>
+                <tr>
+                    <td colspan="8" class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No supply requests found.</p>
+                    </td>
+                </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 </div>
 
 <!--View Procurement Modal-->

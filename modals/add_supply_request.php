@@ -268,7 +268,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
                 <div class="form-floating">
                   <input type="text" name="brand" class="form-control" id="brandInput" required>
                   <label for="brandInput">
-                    <i class="fas fa-trademark me-1"></i>Brand <span class="text-danger">*</span>
+                    Brand <span class="text-danger">*</span>
                   </label>
                 </div>
               </div>
@@ -277,7 +277,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
                 <div class="form-floating">
                   <input type="text" name="color" class="form-control" id="colorInput" required>
                   <label for="colorInput">
-                    <i class="fas fa-palette me-1"></i>Color <span class="text-danger">*</span>
+                    Color <span class="text-danger">*</span>
                   </label>
                 </div>
               </div>
@@ -286,7 +286,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
                 <div class="form-floating">
                   <input type="text" name="type" class="form-control" id="typeInput" required>
                   <label for="typeInput">
-                    <i class="fas fa-layer-group me-1"></i>Type <span class="text-danger">*</span>
+                    Type <span class="text-danger">*</span>
                   </label>
                 </div>
               </div>
