@@ -7,7 +7,17 @@ include '../includes/header.php';
 // Get user information
 $user_id = $_SESSION['user']['id'] ?? $_SESSION['user_id'] ?? $_SESSION['id'] ?? 0;
 $user_name = $_SESSION['user']['first_name'] ?? $_SESSION['name'] ?? 'User';
-$user_position = $_SESSION['user']['position'] ?? $_SESSION['position'] ?? '';
+$user_position = $_SESSION['user']['position'] ?? $_SESSION['position'] ?? $_SESSION['user_type'] ?? '';
+
+// Debug: Log session information to help troubleshoot position detection
+error_log('Notifications Debug - Session data: ' . print_r($_SESSION, true));
+error_log('Notifications Debug - User position detected: ' . $user_position);
+error_log('Notifications Debug - User type: ' . ($_SESSION['user_type'] ?? 'not set'));
+
+// Also check for user_type as position might be stored there
+if (empty($user_position) && isset($_SESSION['user_type'])) {
+    $user_position = $_SESSION['user_type'];
+}
 
 $dashboard_link = ($_SESSION['user_type'] == 'Admin') ? '../admin_dashboard.php' : '../dashboard.php';
 
@@ -265,9 +275,11 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
                                                     </button>
                                                 </form>
                                             <?php endif; ?>
-                                            <a href="issuance.php?id=<?= $notification['related_id'] ?>" class="btn btn-sm btn-info" title="View details">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
+                                            <?php if (($user_position) !== 'Faculty' && ($user_position) !== 'Staff'): ?>
+                                                <a href="issuance.php?id=<?= $notification['related_id'] ?>" class="btn btn-sm btn-info" title="View details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                 </tr>
