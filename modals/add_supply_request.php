@@ -60,7 +60,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
               </h6>
               <div class="section-divider"></div>
             </div>
-            
+
             <div class="row g-3">
               <div class="col-md-4">
                 <div class="form-floating">
@@ -100,7 +100,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
               </h6>
               <div class="section-divider"></div>
             </div>
-            
+
             <div class="row g-3">
               <div class="col-md-3">
                 <div class="form-floating">
@@ -198,35 +198,63 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
               </h6>
               <div class="section-divider"></div>
             </div>
-            
+
             <div class="row g-3">
               <div class="col-md-6">
                 <div class="form-floating">
                   <select name="category" class="form-select" id="categorySelect" required>
                     <option value="">Select Category</option>
-                    <optgroup label="Capital Outlay (CO)">
-                      <option>ICT Equipment and Devices</option>
-                      <option>Office Equipment</option>
-                      <option>Office Supplies</option>
-                      <option>Air Conditioning Units and Cooling Systems</option>
-                      <option>Furniture and Fixtures</option>
-                      <option>Laboratory Equipment</option>
-                      <option>School Building Improvements</option>
-                      <option>Other Machinery and Equipment</option>
-                    </optgroup>
-                    <optgroup label="Maintenance and Other Operating Expenses (MOOE)">
-                      <option>Office Supplies and Materials</option>
-                      <option>Instructional and Learning Materials</option>
-                      <option>Janitorial and Sanitation Supplies</option>
-                      <option>Repairs and Maintenance – Buildings and Facilities</option>
-                      <option>Repairs and Maintenance – Equipment and Devices</option>
-                      <option>Electrical and Lighting Supplies</option>
-                      <option>Medical and First Aid Supplies</option>
-                      <option>Printing and Reproduction Services</option>
-                      <option>Subscription, License, and Software Services</option>
-                      <option>Utilities and Facility Services</option>
-                      <option>Transportation or Delivery Services</option>
-                    </optgroup>
+                    <optgroup label="ASSETS" class="text-center"></optgroup>
+                      <option>School Building – Main Campus</option>
+                      <option>School Building – BED Campus</option>
+                      <optgroup label="Furniture and Fixtures">
+                        <option>Furniture and Fixtures – Main Campus</option>
+                        <option>Furniture and Fixtures – BED Campus</option>
+                      </optgroup>
+                      <optgroup label="Laboratory Equipment">
+                        <option>Laboratory Equipment – CJE</option>
+                        <option>Laboratory Equipment – HME</option>
+                        <option>Laboratory Equipment – Science (TED)</option>
+                        <option>Laboratory Equipment – Science (BED)</option>
+                        <option>Laboratory Equipment – Physics (BED)</option>
+                        <option>Laboratory Equipment – TLE</option>
+                      </optgroup>
+                      <optgroup label="Office Equipment">
+                        <option>Office Equipment – Main Campus</option>
+                        <option>Office Equipment – BED Campus</option>
+                      </optgroup>
+                      <optgroup label="Computers">
+                        <option>Computers – Main Campus</option>
+                        <option>Computers – BED Campus</option>
+                      </optgroup>
+                      <optgroup label="Others">
+                        <option>Vehicle</option>
+                      </optgroup>
+                      <optgroup label="Intangible Assets">
+                        <option>Software</option>
+                        <option>Patents and Licenses</option>
+                      </optgroup>
+                      <optgroup label="EXPENSES" class="text-center">
+                      <optgroup label="Supplies and Materials">
+                        <option>Office Supplies (Main/BED Campuses)</option>
+                        <option>Medical Supplies (Main/BED Campuses)</option>
+                        <option>School Supplies (Main/BED Campuses)</option>
+                        <option>Textbooks (Main/BED Campuses)</option>
+                      </optgroup>
+                      <optgroup label="Library">
+                        <option>Library Expenses (Main/BED Campuses)</option>
+                      </optgroup>
+                      <optgroup label="Clinic">
+                        <option>Medical Expenses (Main/BED Campuses)</option>
+                      </optgroup>
+                      <optgroup label="Repair and Maintenance">
+                        <option>Repairs and Maintenance (Main/BED Campuses)</option>
+                        <option>Janitorial & Cleaning Expenses (Main/BED Campuses)</option>
+                      </optgroup>
+                      <optgroup label="Others">
+                        <option>Testing Materials (Main/BED Campuses)</option>
+                      </optgroup>
+                      </optgroup>
                   </select>
                   <label for="categorySelect">
                     <i class="fas fa-folder me-1"></i>Category <span class="text-danger">*</span>
@@ -262,7 +290,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
               </h6>
               <div class="section-divider"></div>
             </div>
-            
+
             <div class="row g-3">
               <div class="col-md-4">
                 <div class="form-floating">
@@ -301,7 +329,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
               </h6>
               <div class="section-divider"></div>
             </div>
-            
+
             <div class="row g-3">
               <div class="col-md-4">
                 <div class="form-floating">
@@ -412,488 +440,494 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
 
 <!-- Modern Modal Styles -->
 <style>
-/* Gradient Background for Header */
-.bg-gradient-primary {
-  background: linear-gradient(135deg, #1a5f3c, #2d7a4d);
-}
-
-/* Modal Enhancements */
-.modal-content {
-  border-radius: 15px;
-  overflow: hidden;
-}
-
-.modal-header {
-  padding: 1.5rem;
-}
-
-.modal-icon {
-  width: 60px;
-  height: 60px;
-  background: #2d7a4d;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Section Cards */
-.section-card {
-  background: #fff;
-  border-radius: 10px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e9ecef;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.section-title {
-  color: #495057;
-  font-weight: 600;
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-.section-divider {
-  flex: 1;
-  height: 2px;
-  background: linear-gradient(135deg, #1a5f3c, #2d7a4d);;
-  border-radius: 1px;
-}
-
-/* User Info Card */
-.user-info-card .card {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-radius: 10px;
-}
-
-.user-avatar {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-
-/* Form Floating Enhancements */
-.form-floating {
-  position: relative;
-}
-
-.form-floating > .form-control,
-.form-floating > .form-select {
-  height: 60px;
-  border-radius: 8px;
-  border: 2px solid #e9ecef;
-  transition: all 0.3s ease;
-}
-
-.form-floating > .form-control:focus,
-.form-floating > .form-select:focus {
-  border-color: #2d7a4d;
-  box-shadow: 0 0 0 0.2rem rgba(38, 243, 158, 0.25);
-}
-
-.form-floating > label {
-  padding: 1rem 0.75rem;
-  color: #6c757d;
-  font-weight: 500;
-}
-
-.form-floating > .form-control:focus ~ label,
-.form-floating > .form-control:not(:placeholder-shown) ~ label,
-.form-floating > .form-select ~ label {
-  color: #2d7a4d;
-  transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
-}
-
-/* Cost Summary Card */
-.cost-summary-card .card {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-radius: 10px;
-}
-
-.cost-breakdown {
-  text-align: left;
-}
-
-.cost-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #dee2e6;
-}
-
-.cost-item:last-child {
-  border-bottom: none;
-}
-
-.cost-item.total {
-  font-weight: bold;
-  color: #2d7a4d;
-  font-size: 1.1rem;
-  border-top: 2px solid #2d7a4d;
-  margin-top: 0.5rem;
-  padding-top: 0.75rem;
-}
-
-.cost-label {
-  color: #6c757d;
-}
-
-.cost-value {
-  font-weight: 600;
-  color: #495057;
-}
-
-/* Button Enhancements */
-.btn {
-  border-radius: 8px;
-  padding: 0.75rem 1.5rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #1a5f3c, #2d7a4d);
-  border: none;
-}
-
-.btn-primary:hover {
-  background: linear-gradient(135deg, #1a5f3c, #2d7a4d);
-  transform: translateY(-2px);
-  box-shadow: #2d7a4d;
-}
-
-.btn-outline-secondary {
-  border: 2px solid #6c757d;
-  color: #6c757d;
-}
-
-.btn-outline-secondary:hover {
-  background: #6c757d;
-  border-color: #6c757d;
-  transform: translateY(-2px);
-}
-
-/* Modal Footer */
-.modal-footer {
-  padding: 1.5rem;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .modal-dialog {
-    margin: 1rem;
+  /* Gradient Background for Header */
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #1a5f3c, #2d7a4d);
   }
-  
+
+  /* Modal Enhancements */
+  .modal-content {
+    border-radius: 15px;
+    overflow: hidden;
+  }
+
+  .modal-header {
+    padding: 1.5rem;
+  }
+
+  .modal-icon {
+    width: 60px;
+    height: 60px;
+    background: #2d7a4d;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Section Cards */
   .section-card {
-    padding: 1rem;
+    background: #fff;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e9ecef;
   }
-  
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .section-title {
+    color: #495057;
+    font-weight: 600;
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  .section-divider {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(135deg, #1a5f3c, #2d7a4d);
+    ;
+    border-radius: 1px;
+  }
+
+  /* User Info Card */
+  .user-info-card .card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+  }
+
   .user-avatar {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
   }
-  
+
+  /* Form Floating Enhancements */
+  .form-floating {
+    position: relative;
+  }
+
+  .form-floating>.form-control,
+  .form-floating>.form-select {
+    height: 60px;
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+  }
+
+  .form-floating>.form-control:focus,
+  .form-floating>.form-select:focus {
+    border-color: #2d7a4d;
+    box-shadow: 0 0 0 0.2rem rgba(38, 243, 158, 0.25);
+  }
+
+  .form-floating>label {
+    padding: 1rem 0.75rem;
+    color: #6c757d;
+    font-weight: 500;
+  }
+
+  .form-floating>.form-control:focus~label,
+  .form-floating>.form-control:not(:placeholder-shown)~label,
+  .form-floating>.form-select~label {
+    color: #2d7a4d;
+    transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+  }
+
+  /* Cost Summary Card */
+  .cost-summary-card .card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+  }
+
+  .cost-breakdown {
+    text-align: left;
+  }
+
+  .cost-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .cost-item:last-child {
+    border-bottom: none;
+  }
+
+  .cost-item.total {
+    font-weight: bold;
+    color: #2d7a4d;
+    font-size: 1.1rem;
+    border-top: 2px solid #2d7a4d;
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+  }
+
+  .cost-label {
+    color: #6c757d;
+  }
+
+  .cost-value {
+    font-weight: 600;
+    color: #495057;
+  }
+
+  /* Button Enhancements */
   .btn {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
   }
-}
 
-/* Animation Effects */
-.modal.fade .modal-dialog {
-  transition: transform 0.3s ease-out;
-  transform: translate(0, -50px);
-}
+  .btn-primary {
+    background: linear-gradient(135deg, #1a5f3c, #2d7a4d);
+    border: none;
+  }
 
-.modal.show .modal-dialog {
-  transform: none;
-}
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #1a5f3c, #2d7a4d);
+    transform: translateY(-2px);
+    box-shadow: #2d7a4d;
+  }
 
-/* Form Validation Styles */
-.form-control.is-invalid {
-  border-color: #dc3545;
-  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-}
+  .btn-outline-secondary {
+    border: 2px solid #6c757d;
+    color: #6c757d;
+  }
 
-.form-control.is-valid {
-  border-color: #28a745;
-  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
-}
+  .btn-outline-secondary:hover {
+    background: #6c757d;
+    border-color: #6c757d;
+    transform: translateY(-2px);
+  }
 
-/* Loading States */
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+  /* Modal Footer */
+  .modal-footer {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  }
 
-/* Hover Effects */
-.section-card:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-  transition: all 0.3s ease;
-}
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .modal-dialog {
+      margin: 1rem;
+    }
 
-/* Icon Enhancements */
-.fas {
-  transition: all 0.3s ease;
-}
+    .section-card {
+      padding: 1rem;
+    }
 
-.form-floating > .form-control:focus ~ label .fas,
-.form-floating > .form-control:not(:placeholder-shown) ~ label .fas {
-  color: #2d7a4d;
-}
+    .user-avatar {
+      width: 50px;
+      height: 50px;
+    }
 
-/* Dim the underlying modal when the bulk confirmation is active */
-.modal-dim {
-  filter: grayscale(60%) brightness(0.35);
-  pointer-events: none; /* block interaction */
-}
+    .btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+
+  /* Animation Effects */
+  .modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out;
+    transform: translate(0, -50px);
+  }
+
+  .modal.show .modal-dialog {
+    transform: none;
+  }
+
+  /* Form Validation Styles */
+  .form-control.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+  }
+
+  .form-control.is-valid {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+  }
+
+  /* Loading States */
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Hover Effects */
+  .section-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+  }
+
+  /* Icon Enhancements */
+  .fas {
+    transition: all 0.3s ease;
+  }
+
+  .form-floating>.form-control:focus~label .fas,
+  .form-floating>.form-control:not(:placeholder-shown)~label .fas {
+    color: #2d7a4d;
+  }
+
+  /* Dim the underlying modal when the bulk confirmation is active */
+  .modal-dim {
+    filter: grayscale(60%) brightness(0.35);
+    pointer-events: none;
+    /* block interaction */
+  }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Get form elements with new IDs
-  const quantityInput = document.getElementById('quantityRequested');
-  const unitPriceInput = document.getElementById('unitCost');
-  const totalAmountInput = document.getElementById('addTotalAmount');
-  const hiddenTotalCost = document.getElementById('hiddenTotalCost');
-  const hiddenAmount = document.getElementById('hiddenAmount');
-  const modal = document.getElementById('addSupplyModal');
-  const form = modal.querySelector('form');
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get form elements with new IDs
+    const quantityInput = document.getElementById('quantityRequested');
+    const unitPriceInput = document.getElementById('unitCost');
+    const totalAmountInput = document.getElementById('addTotalAmount');
+    const hiddenTotalCost = document.getElementById('hiddenTotalCost');
+    const hiddenAmount = document.getElementById('hiddenAmount');
+    const modal = document.getElementById('addSupplyModal');
+    const form = modal.querySelector('form');
 
-  // Summary elements
-  const summaryQuantity = document.getElementById('summaryQuantity');
-  const summaryUnitCost = document.getElementById('summaryUnitCost');
-  const summaryTotal = document.getElementById('summaryTotal');
+    // Summary elements
+    const summaryQuantity = document.getElementById('summaryQuantity');
+    const summaryUnitCost = document.getElementById('summaryUnitCost');
+    const summaryTotal = document.getElementById('summaryTotal');
 
-  // Enhanced total calculation with summary update
-  function updateTotal() {
-    const quantity = parseFloat(quantityInput.value) || 0;
-    const unitPrice = parseFloat(unitPriceInput.value) || 0;
-    const total = quantity * unitPrice;
-    
-    // Update total amount field
-    totalAmountInput.value = total.toFixed(2);
-    if (hiddenTotalCost) hiddenTotalCost.value = total.toFixed(2);
-    if (hiddenAmount) hiddenAmount.value = total.toFixed(2);
-    
-    // Update summary display
-    if (summaryQuantity) summaryQuantity.textContent = quantity;
-    if (summaryUnitCost) summaryUnitCost.textContent = `₱${unitPrice.toFixed(2)}`;
-    if (summaryTotal) summaryTotal.textContent = `₱${total.toFixed(2)}`;
-    
-    // Add visual feedback
-    if (total > 0) {
-      summaryTotal.style.color = '#28a745';
-      summaryTotal.style.fontWeight = 'bold';
-    } else {
-      summaryTotal.style.color = '#495057';
-      summaryTotal.style.fontWeight = '600';
-    }
-  }
+    // Enhanced total calculation with summary update
+    function updateTotal() {
+      const quantity = parseFloat(quantityInput.value) || 0;
+      const unitPrice = parseFloat(unitPriceInput.value) || 0;
+      const total = quantity * unitPrice;
 
-  // Enhanced event listeners with debouncing
-  let updateTimeout;
-  function debouncedUpdate() {
-    clearTimeout(updateTimeout);
-    updateTimeout = setTimeout(updateTotal, 100);
-  }
+      // Update total amount field
+      totalAmountInput.value = total.toFixed(2);
+      if (hiddenTotalCost) hiddenTotalCost.value = total.toFixed(2);
+      if (hiddenAmount) hiddenAmount.value = total.toFixed(2);
 
-  // Add event listeners for real-time updates
-  if (quantityInput && unitPriceInput && totalAmountInput) {
-    // Add input validation for quantity field to allow only numbers
-    quantityInput.addEventListener('input', function(e) {
-      // Remove any non-numeric characters except for the first character
-      this.value = this.value.replace(/[^0-9]/g, '');
-      debouncedUpdate();
-    });
-    
-    quantityInput.addEventListener('keypress', function(e) {
-      // Allow only numeric keys, backspace, delete, tab, escape, enter
-      if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter'].includes(e.key)) {
-        e.preventDefault();
-      }
-    });
-    
-    // Add input validation for unit cost field to allow numbers and decimals
-    unitPriceInput.addEventListener('input', function(e) {
-      // Remove any non-numeric characters except for decimal point
-      this.value = this.value.replace(/[^0-9.]/g, '');
-      // Ensure only one decimal point
-      const parts = this.value.split('.');
-      if (parts.length > 2) {
-        this.value = parts[0] + '.' + parts.slice(1).join('');
-      }
-      debouncedUpdate();
-    });
-    
-    unitPriceInput.addEventListener('keypress', function(e) {
-      // Allow only numeric keys, decimal point, backspace, delete, tab, escape, enter
-      if (!/[0-9.]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter'].includes(e.key)) {
-        e.preventDefault();
-      }
-      // Prevent multiple decimal points
-      if (e.key === '.' && this.value.includes('.')) {
-        e.preventDefault();
-      }
-    });
-    
-    // Add focus effects
-    quantityInput.addEventListener('focus', function() {
-      this.parentElement.classList.add('focused');
-    });
-    
-    quantityInput.addEventListener('blur', function() {
-      this.parentElement.classList.remove('focused');
-    });
-    
-    unitPriceInput.addEventListener('focus', function() {
-      this.parentElement.classList.add('focused');
-    });
-    
-    unitPriceInput.addEventListener('blur', function() {
-      this.parentElement.classList.remove('focused');
-    });
-  }
+      // Update summary display
+      if (summaryQuantity) summaryQuantity.textContent = quantity;
+      if (summaryUnitCost) summaryUnitCost.textContent = `₱${unitPrice.toFixed(2)}`;
+      if (summaryTotal) summaryTotal.textContent = `₱${total.toFixed(2)}`;
 
-  // Initialize when modal is shown
-  if (modal) {
-    modal.addEventListener('shown.bs.modal', function() {
-      updateTotal();
-      
-      // Set default date to today
-      const today = new Date().toISOString().split('T')[0];
-      const dateRequested = document.getElementById('dateRequested');
-      if (dateRequested && !dateRequested.value) {
-        dateRequested.value = today;
-      }
-      
-      // Focus on first input
-      setTimeout(() => {
-        const firstInput = modal.querySelector('input:not([readonly]):not([type="hidden"])');
-        if (firstInput) firstInput.focus();
-      }, 300);
-    });
-  }
-
-  // Bulk confirmation modal logic
-  const bulkModalEl = document.getElementById('bulkConfirmModal');
-  const bulkConfirmedEl = document.getElementById('bulkConfirmed');
-  let bulkModal;
-  if (bulkModalEl && window.bootstrap) {
-    bulkModal = new bootstrap.Modal(bulkModalEl, { backdrop: 'static', keyboard: false });
-
-    // When bulk confirmation shows, dim the underlying add modal
-    const addModalContent = document.querySelector('#addSupplyModal .modal-content');
-    bulkModalEl.addEventListener('show.bs.modal', function() {
-      if (addModalContent) addModalContent.classList.add('modal-dim');
-    });
-    bulkModalEl.addEventListener('hidden.bs.modal', function() {
-      if (addModalContent) addModalContent.classList.remove('modal-dim');
-    });
-  }
-
-  function needsBulkConfirm() {
-    const qty = parseInt(quantityInput.value || '0', 10);
-    return qty >= 50;
-  }
-
-  function maybePromptBulkConfirm() {
-    if (!bulkModal) return;
-    if (needsBulkConfirm() && bulkConfirmedEl && bulkConfirmedEl.value !== '1') {
-      bulkModal.show();
-    }
-  }
-
-  if (quantityInput) {
-    quantityInput.addEventListener('change', () => {
-      // Reset confirmation if value goes below threshold
-      if (!needsBulkConfirm() && bulkConfirmedEl) {
-        bulkConfirmedEl.value = '0';
-      }
-      maybePromptBulkConfirm();
-    });
-
-    quantityInput.addEventListener('input', () => {
-      // Live check while typing
-      maybePromptBulkConfirm();
-    });
-  }
-
-  const btnYes = document.getElementById('bulkConfirmYes');
-  const btnNo = document.getElementById('bulkConfirmNo');
-  if (btnYes) {
-    btnYes.addEventListener('click', () => {
-      if (bulkConfirmedEl) bulkConfirmedEl.value = '1';
-      if (bulkModal) bulkModal.hide();
-    });
-  }
-  if (btnNo) {
-    btnNo.addEventListener('click', () => {
-      if (bulkConfirmedEl) bulkConfirmedEl.value = '0';
-      if (bulkModal) bulkModal.hide();
-      if (quantityInput) {
-        quantityInput.focus();
-        quantityInput.select && quantityInput.select();
-      }
-    });
-  }
-
-  // Form submission enhancement with bulk check
-  if (form) {
-    form.addEventListener('submit', function(e) {
-      // Update totals before submission
-      updateTotal();
-
-      // If bulk threshold is met but not confirmed, block and show confirm modal
-      if (needsBulkConfirm() && (!bulkConfirmedEl || bulkConfirmedEl.value !== '1')) {
-        e.preventDefault();
-        maybePromptBulkConfirm();
-        return;
-      }
-      
-      // Add loading state to submit button
-      const submitBtn = form.querySelector('button[type="submit"]');
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Submitting...';
-      }
-      
-      // Re-enable after a delay (in case of validation errors)
-      setTimeout(() => {
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Submit Request';
-        }
-      }, 3000);
-    });
-  }
-
-  // Enhanced form validation
-  const requiredFields = form.querySelectorAll('[required]');
-  requiredFields.forEach(field => {
-    field.addEventListener('blur', function() {
-      if (this.value.trim() === '') {
-        this.classList.add('is-invalid');
+      // Add visual feedback
+      if (total > 0) {
+        summaryTotal.style.color = '#28a745';
+        summaryTotal.style.fontWeight = 'bold';
       } else {
-        this.classList.remove('is-invalid');
-        this.classList.add('is-valid');
+        summaryTotal.style.color = '#495057';
+        summaryTotal.style.fontWeight = '600';
       }
+    }
+
+    // Enhanced event listeners with debouncing
+    let updateTimeout;
+
+    function debouncedUpdate() {
+      clearTimeout(updateTimeout);
+      updateTimeout = setTimeout(updateTotal, 100);
+    }
+
+    // Add event listeners for real-time updates
+    if (quantityInput && unitPriceInput && totalAmountInput) {
+      // Add input validation for quantity field to allow only numbers
+      quantityInput.addEventListener('input', function(e) {
+        // Remove any non-numeric characters except for the first character
+        this.value = this.value.replace(/[^0-9]/g, '');
+        debouncedUpdate();
+      });
+
+      quantityInput.addEventListener('keypress', function(e) {
+        // Allow only numeric keys, backspace, delete, tab, escape, enter
+        if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter'].includes(e.key)) {
+          e.preventDefault();
+        }
+      });
+
+      // Add input validation for unit cost field to allow numbers and decimals
+      unitPriceInput.addEventListener('input', function(e) {
+        // Remove any non-numeric characters except for decimal point
+        this.value = this.value.replace(/[^0-9.]/g, '');
+        // Ensure only one decimal point
+        const parts = this.value.split('.');
+        if (parts.length > 2) {
+          this.value = parts[0] + '.' + parts.slice(1).join('');
+        }
+        debouncedUpdate();
+      });
+
+      unitPriceInput.addEventListener('keypress', function(e) {
+        // Allow only numeric keys, decimal point, backspace, delete, tab, escape, enter
+        if (!/[0-9.]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter'].includes(e.key)) {
+          e.preventDefault();
+        }
+        // Prevent multiple decimal points
+        if (e.key === '.' && this.value.includes('.')) {
+          e.preventDefault();
+        }
+      });
+
+      // Add focus effects
+      quantityInput.addEventListener('focus', function() {
+        this.parentElement.classList.add('focused');
+      });
+
+      quantityInput.addEventListener('blur', function() {
+        this.parentElement.classList.remove('focused');
+      });
+
+      unitPriceInput.addEventListener('focus', function() {
+        this.parentElement.classList.add('focused');
+      });
+
+      unitPriceInput.addEventListener('blur', function() {
+        this.parentElement.classList.remove('focused');
+      });
+    }
+
+    // Initialize when modal is shown
+    if (modal) {
+      modal.addEventListener('shown.bs.modal', function() {
+        updateTotal();
+
+        // Set default date to today
+        const today = new Date().toISOString().split('T')[0];
+        const dateRequested = document.getElementById('dateRequested');
+        if (dateRequested && !dateRequested.value) {
+          dateRequested.value = today;
+        }
+
+        // Focus on first input
+        setTimeout(() => {
+          const firstInput = modal.querySelector('input:not([readonly]):not([type="hidden"])');
+          if (firstInput) firstInput.focus();
+        }, 300);
+      });
+    }
+
+    // Bulk confirmation modal logic
+    const bulkModalEl = document.getElementById('bulkConfirmModal');
+    const bulkConfirmedEl = document.getElementById('bulkConfirmed');
+    let bulkModal;
+    if (bulkModalEl && window.bootstrap) {
+      bulkModal = new bootstrap.Modal(bulkModalEl, {
+        backdrop: 'static',
+        keyboard: false
+      });
+
+      // When bulk confirmation shows, dim the underlying add modal
+      const addModalContent = document.querySelector('#addSupplyModal .modal-content');
+      bulkModalEl.addEventListener('show.bs.modal', function() {
+        if (addModalContent) addModalContent.classList.add('modal-dim');
+      });
+      bulkModalEl.addEventListener('hidden.bs.modal', function() {
+        if (addModalContent) addModalContent.classList.remove('modal-dim');
+      });
+    }
+
+    function needsBulkConfirm() {
+      const qty = parseInt(quantityInput.value || '0', 10);
+      return qty >= 50;
+    }
+
+    function maybePromptBulkConfirm() {
+      if (!bulkModal) return;
+      if (needsBulkConfirm() && bulkConfirmedEl && bulkConfirmedEl.value !== '1') {
+        bulkModal.show();
+      }
+    }
+
+    if (quantityInput) {
+      quantityInput.addEventListener('change', () => {
+        // Reset confirmation if value goes below threshold
+        if (!needsBulkConfirm() && bulkConfirmedEl) {
+          bulkConfirmedEl.value = '0';
+        }
+        maybePromptBulkConfirm();
+      });
+
+      quantityInput.addEventListener('input', () => {
+        // Live check while typing
+        maybePromptBulkConfirm();
+      });
+    }
+
+    const btnYes = document.getElementById('bulkConfirmYes');
+    const btnNo = document.getElementById('bulkConfirmNo');
+    if (btnYes) {
+      btnYes.addEventListener('click', () => {
+        if (bulkConfirmedEl) bulkConfirmedEl.value = '1';
+        if (bulkModal) bulkModal.hide();
+      });
+    }
+    if (btnNo) {
+      btnNo.addEventListener('click', () => {
+        if (bulkConfirmedEl) bulkConfirmedEl.value = '0';
+        if (bulkModal) bulkModal.hide();
+        if (quantityInput) {
+          quantityInput.focus();
+          quantityInput.select && quantityInput.select();
+        }
+      });
+    }
+
+    // Form submission enhancement with bulk check
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        // Update totals before submission
+        updateTotal();
+
+        // If bulk threshold is met but not confirmed, block and show confirm modal
+        if (needsBulkConfirm() && (!bulkConfirmedEl || bulkConfirmedEl.value !== '1')) {
+          e.preventDefault();
+          maybePromptBulkConfirm();
+          return;
+        }
+
+        // Add loading state to submit button
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Submitting...';
+        }
+
+        // Re-enable after a delay (in case of validation errors)
+        setTimeout(() => {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Submit Request';
+          }
+        }, 3000);
+      });
+    }
+
+    // Enhanced form validation
+    const requiredFields = form.querySelectorAll('[required]');
+    requiredFields.forEach(field => {
+      field.addEventListener('blur', function() {
+        if (this.value.trim() === '') {
+          this.classList.add('is-invalid');
+        } else {
+          this.classList.remove('is-invalid');
+          this.classList.add('is-valid');
+        }
+      });
     });
+
+
   });
-
-
-});
 </script>

@@ -67,6 +67,7 @@
           <option value="VP for Academic Affairs">VP for Academic Affairs</option>
           <option value="Admistrative Officer">Admistrative Officer</option>
           <option value="Property Custodian">Property Custodian</option>
+          <option value="Accounting Officer">Accounting Officer</option>
         </select>
       </div>
     </div>

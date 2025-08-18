@@ -4,40 +4,45 @@ include 'includes/db.php';
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+  $email = $_POST['email'];
+  $password = $_POST['password'];
 
-    $stmt = $conn->prepare("SELECT * FROM user WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
+  $stmt = $conn->prepare("SELECT * FROM user WHERE email = ?");
+  $stmt->bind_param("s", $email);
+  $stmt->execute();
+  $result = $stmt->get_result();
 
-    if ($result->num_rows === 1) {
-        $user = $result->fetch_assoc();
-        if (password_verify($password, $user['password'])) {
-            // Store user data in session with proper keys
-            $_SESSION['user'] = $user;
-            $_SESSION['user_id'] = $user['id']; // Store user ID separately
-            $_SESSION['id'] = $user['id']; // Alternative key for compatibility
-            $_SESSION['user_type'] = $user['user_type'];
-            $_SESSION['name'] = $user['name'] ?? $user['first_name'] . ' ' . $user['last_name'] ?? $user['email'];
-            $_SESSION['email'] = $user['email'];
-            
-            // Debug: Log session data
-            error_log('Login successful - User ID: ' . $user['id'] . ', User Type: ' . $user['user_type']);
-            
-            header("Location: dashboard.php");
-            exit;
-        } else {
-            $error = "Incorrect password.";
-        }
+  if ($result->num_rows === 1) {
+    $user = $result->fetch_assoc();
+    if (password_verify($password, $user['password'])) {
+      // Store user data in session with proper keys
+      $_SESSION['user'] = $user;
+      $_SESSION['user_id'] = $user['id']; // Store user ID separately
+      $_SESSION['id'] = $user['id']; // Alternative key for compatibility
+      $_SESSION['user_type'] = $user['user_type'];
+      $_SESSION['name'] = $user['name'] ?? $user['first_name'] . ' ' . $user['last_name'] ?? $user['email'];
+      $_SESSION['title'] = $user['title'];
+      $_SESSION['email'] = $user['email'];
+
+      // Set flag to show login success modal on dashboard
+      $_SESSION['show_login_modal'] = true;
+
+      // Debug: Log session data
+      error_log('Login successful - User ID: ' . $user['id'] . ', User Type: ' . $user['user_type']);
+
+      header("Location: dashboard.php");
+      exit;
     } else {
-        $error = "User not found.";
+      $error = "Incorrect password.";
     }
+  } else {
+    $error = "User not found.";
+  }
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -84,6 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         opacity: 0;
         transform: translateY(30px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -115,13 +121,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       left: -50%;
       width: 200%;
       height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
       animation: rotate 20s linear infinite;
     }
 
     @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     .login-header h1 {
@@ -208,7 +219,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
       transition: left 0.5s;
     }
 
@@ -260,7 +271,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       justify-content: space-around;
       margin-top: 1.5rem;
       padding-top: 1.5rem;
-      border-top: 1px solid rgba(0,0,0,0.1);
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
     }
 
     .feature {
@@ -285,15 +296,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       .login-container {
         max-width: 100%;
       }
-      
+
       .login-body {
         padding: 2rem 1.5rem;
       }
-      
+
       .login-header {
         padding: 1.5rem;
       }
-      
+
       .login-header h1 {
         font-size: 1.8rem;
       }
@@ -341,8 +352,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     @keyframes float {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-20px) rotate(180deg); }
+
+      0%,
+      100% {
+        transform: translateY(0px) rotate(0deg);
+      }
+
+      50% {
+        transform: translateY(-20px) rotate(180deg);
+      }
     }
   </style>
   <!-- Design refresh overrides (preserving color scheme) -->
@@ -353,10 +371,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       grid-template-columns: 0.95fr 1.05fr;
       min-height: 520px;
     }
+
     @media (max-width: 768px) {
-      .login-card { display: block; }
-      .login-container { max-width: 100%; }
+      .login-card {
+        display: block;
+      }
+
+      .login-container {
+        max-width: 100%;
+      }
     }
+
     /* left panel embellishments */
     .login-header {
       display: flex;
@@ -368,6 +393,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
     }
+
     .brand-badge {
       width: 84px;
       height: 84px;
@@ -375,16 +401,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       display: grid;
       place-items: center;
       margin: 0 0 0.75rem 0;
-      background: rgba(255,255,255,0.12);
-      border: 2px solid rgba(255,255,255,0.25);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15) inset;
+      background: rgba(255, 255, 255, 0.12);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) inset;
     }
-    .brand-badge i { font-size: 1.5rem; color: #fff; }
-    .login-body { position: relative; }
-    .helper-links { display: flex; gap: 0.75rem; align-items: center; margin: 0.5rem 0 1.25rem; }
-    .helper-links .form-check { margin: 0; }
-    .helper-links a { margin-left: auto; color: var(--primary-color); text-decoration: none; font-weight: 600; white-space: nowrap; }
-    .helper-links a:hover { text-decoration: underline; }
+
+    .brand-badge i {
+      font-size: 1.5rem;
+      color: #fff;
+    }
+
+    .login-body {
+      position: relative;
+    }
+
+    .helper-links {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      margin: 0.5rem 0 1.25rem;
+    }
+
+    .helper-links .form-check {
+      margin: 0;
+    }
+
+    .helper-links a {
+      margin-left: auto;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .helper-links a:hover {
+      text-decoration: underline;
+    }
+
     /* password toggle */
     .toggle-password {
       position: absolute;
@@ -397,7 +450,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       color: var(--text-light);
       padding: 0;
     }
-    .toggle-password:hover { color: var(--primary-color); }
+
+    .toggle-password:hover {
+      color: var(--primary-color);
+    }
+
     /* theme toggle */
     .theme-toggle {
       position: fixed;
@@ -407,8 +464,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       border-radius: 999px;
       box-shadow: var(--shadow);
     }
+
+    .datetime-container {
+      text-align: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      width: 250px;
+      margin: 0 auto;
+    }
+
+    #date {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    #time {
+      font-size: 2em;
+      font-weight: bold;
+      background: linear-gradient(135deg, #1a5f3c, #2d7a4d);;
+    }
   </style>
 </head>
+
 <body>
   <button id="themeToggle" class="theme-toggle btn btn-light btn-sm" aria-label="Toggle theme">
     <i class="fas fa-moon"></i>
@@ -426,8 +507,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="brand-badge"><i class="fas fa-shield-alt"></i></div>
         <h1><span class="visually-hidden">DCC-DARTS</span>DCC-DARTS</h1>
         <p>Digital Asset Repository and Tracking System</p>
+
+        <div class="datetime-container">
+          <div id="date"></div>
+          <div id="time"></div>
+        </div>
+
       </div>
-      
+
       <div class="login-body">
         <?php if ($error): ?>
           <div class="alert alert-danger">
@@ -443,13 +530,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </label>
             <div class="input-group">
               <i class="fas fa-envelope input-icon"></i>
-              <input type="email" 
-                     name="email" 
-                     id="email" 
-                     class="form-control with-icon" 
-                     placeholder="Enter your email address" 
-                     required 
-                     autocomplete="email">
+              <input type="email"
+                name="email"
+                id="email"
+                class="form-control with-icon"
+                placeholder="Enter your email address"
+                required
+                autocomplete="email">
             </div>
           </div>
 
@@ -459,13 +546,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </label>
             <div class="input-group" style="position: relative;">
               <i class="fas fa-lock input-icon"></i>
-              <input type="password" 
-                     name="password" 
-                     id="password" 
-                     class="form-control with-icon" 
-                     placeholder="Enter your password" 
-                     required 
-                     autocomplete="current-password">
+              <input type="password"
+                name="password"
+                id="password"
+                class="form-control with-icon"
+                placeholder="Enter your password"
+                required
+                autocomplete="current-password">
               <button type="button" class="toggle-password" aria-label="Show password">
                 <i class="far fa-eye"></i>
               </button>
@@ -509,6 +596,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    function updateDateTime() {
+      const now = new Date();
+      const date = now.toLocaleDateString('en-PH', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      const time = now.toLocaleTimeString('en-PH', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+
+      document.getElementById('date').textContent = date;
+      document.getElementById('time').textContent = time;
+    }
+
+    setInterval(updateDateTime, 1000);
+    updateDateTime(); // Initial call
+  </script>
+
+
   <script>
     // Add form validation and enhance UX
     document.addEventListener('DOMContentLoaded', function() {
@@ -578,10 +690,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       form.addEventListener('submit', function(e) {
         const submitBtn = form.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
-        
+
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Signing In...';
         submitBtn.disabled = true;
-        
+
         // Re-enable after 3 seconds if no redirect
         setTimeout(() => {
           submitBtn.innerHTML = originalText;
@@ -598,4 +710,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     });
   </script>
 </body>
+
 </html>

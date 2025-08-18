@@ -508,6 +508,69 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
   [data-bs-theme="dark"] .option-content h5 {
     color: var(--bs-body-color);
   }
+  .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.modal-content {
+  background: #ffffff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  position: relative;
+  max-width: 400px;
+  width: 90%;
+  animation: slideUp 0.4s ease-out;
+}
+
+.modal-icon {
+  font-size: 40px;
+  color: #28a745;
+  margin-bottom: 15px;
+}
+
+.modal-content h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #333;
+}
+
+.modal-content p {
+  margin-top: 10px;
+  font-size: 16px;
+  color: #555;
+}
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 22px;
+  color: #888;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
 </style>
 
 <div class="dashboard-container">
@@ -538,6 +601,28 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <h3 class="card-title">Assignment & Issuance</h3>
         <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
         <a href="pages/issuance.php" class="card-button">Access Module</a>
+      </div>
+
+      <?php elseif (strtolower($user_type) === 'accounting officer'): ?>
+      <!-- Asset Registration Card ONLY for Accounting Officer -->
+      <!-- Asset Registration Card -->
+      <div class="menu-card card-dark">
+        <div class="card-icon">
+          <i class="fas fa-tags"></i>
+        </div>
+        <h3 class="card-title">Asset Registration</h3>
+        <p class="card-description">Register assets with specifications, values, and documents. Generate tags or barcodes automatically.</p>
+        <a href="pages/assets.php" class="card-button">Access Module</a>
+      </div>
+
+      <!-- Procurement Card -->
+      <div class="menu-card card-warning">
+        <div class="card-icon">
+          <i class="fas fa-shopping-cart"></i>
+        </div>
+        <h3 class="card-title">Procurement</h3>
+        <p class="card-description">Log purchased items with supplier details, costs, and receipts. Mark items as received when delivered.</p>
+        <a href="pages/procurement.php" class="card-button">Access Module</a>
       </div>
 
     <?php elseif (strtolower($user_type) === 'school president'): ?>
@@ -744,6 +829,20 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
   </div>
 </div>
 
+<?php if (!empty($_SESSION['show_login_modal'])): ?>
+<div id="loginSuccessModal" class="modal-overlay">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <i class="fas fa-check-circle modal-icon"></i>
+    <h2>Welcome, <?= htmlspecialchars(explode(' ', $_SESSION['title'])[0]) ?> <?= htmlspecialchars(explode(' ', $_SESSION['name'])[0]) ?>!</h2>
+    <p class="text-center">You have successfully logged in to DCC-DARTS.</p>
+    <button class="btn btn-success" onclick="closeModal()">Close</button>
+  </div>
+</div>
+<?php unset($_SESSION['show_login_modal']); ?>
+<?php endif; ?>
+
+
 <!-- Request Type Selection Modal -->
 <div id="requestTypeModal" class="modal-custom">
   <div class="modal-content-custom request-type-modal">
@@ -813,6 +912,16 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
     </form>
   </div>
 </div>
+
+<script>
+function closeModal() {
+  const modal = document.getElementById('loginSuccessModal');
+  if (modal) modal.style.display = 'none';
+}
+
+// Auto-close after 5 seconds
+setTimeout(closeModal, 5000);
+</script>
 
 <script>
   // Request Type Modal Functions

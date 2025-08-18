@@ -66,6 +66,7 @@
           <option value="Purchasing Officer">Purchasing Officer</option>
           <option value="VP for Finance & Administration">VP for Finance & Administration</option>
           <option value="Finance Officer">Finance Officer</option>
+          <option value="Accounting Officer">Accounting Officer</option>
         </select>
       </div>
     </div>

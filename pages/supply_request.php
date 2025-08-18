@@ -147,34 +147,42 @@ if (isset($_SESSION['error'])) {
     </div>
 
     <div class="col-md-4">
-      <label for="filterCategory" class="form-label">Filter by Category</label>
-      <select id="filterCategory" class="form-select">
-        <option value="">-- Filter by Category --</option>
-        <optgroup label="Capital Outlay (CO)">
-          <option value="ICT Equipment and Devices">ICT Equipment and Devices</option>
-          <option value="Office Equipment">Office Equipment</option>
-          <option value="Air Conditioning Units and Cooling Systems">Air Conditioning Units and Cooling Systems</option>
-          <option value="Furniture and Fixtures">Furniture and Fixtures</option>
-          <option value="Laboratory Equipment">Laboratory Equipment</option>
-          <option value="School Building Improvements">School Building Improvements</option>
-          <option value="Other Machinery and Equipment">Other Machinery and Equipment</option>
+      <label for="accountSelect">Select Account Category:</label>
+      <select id="accountSelect" name="accountSelect" class="form-select">
+        <optgroup label="Assets">
+          <option>School Building – Main Campus</option>
+          <option>School Building – BED Campus</option>
+          <option>Furniture and Fixtures – Main Campus</option>
+          <option>Furniture and Fixtures – BED Campus</option>
+          <option>Laboratory Equipment – CJE</option>
+          <option>Laboratory Equipment – HME</option>
+          <option>Laboratory Equipment – Science (TED)</option>
+          <option>Laboratory Equipment – Science (BED)</option>
+          <option>Laboratory Equipment – Physics (BED)</option>
+          <option>Laboratory Equipment – TLE</option>
+          <option>Office Equipment – Main Campus</option>
+          <option>Office Equipment – BED Campus</option>
+          <option>Computers – Main Campus</option>
+          <option>Computers – BED Campus</option>
         </optgroup>
-        <optgroup label="Maintenance and Other Operating Expenses (MOOE)">
-          <option value="Office Supplies and Materials">Office Supplies and Materials</option>
-          <option value="Instructional and Learning Materials">Instructional and Learning Materials</option>
-          <option value="Janitorial and Sanitation Supplies">Janitorial and Sanitation Supplies</option>
-          <option value="Repairs and Maintenance – Buildings and Facilities">Repairs and Maintenance – Buildings and Facilities</option>
-          <option value="Repairs and Maintenance – Equipment and Devices">Repairs and Maintenance – Equipment and Devices</option>
-          <option value="Electrical and Lighting Supplies">Electrical and Lighting Supplies</option>
-          <option value="Medical and First Aid Supplies">Medical and First Aid Supplies</option>
-          <option value="Printing and Reproduction Services">Printing and Reproduction Services</option>
-          <option value="Subscription, License, and Software Services">Subscription, License, and Software Services</option>
-          <option value="Utilities and Facility Services">Utilities and Facility Services</option>
-          <option value="Transportation or Delivery Services">Transportation or Delivery Services</option>
-          <option value="Construction Materials">Construction Materials</option>
-          <option value="Renovation Services">Renovation Services</option>
+
+        <optgroup label="Intangible Assets">
+          <option>Software Patents and Licenses</option>
+        </optgroup>
+
+        <optgroup label="Expenses">
+          <option>Office Supplies (Main/BED Campuses)</option>
+          <option>Medical Supplies (Main/BED Campuses)</option>
+          <option>School Supplies (Main/BED Campuses)</option>
+          <option>Textbooks (Main/BED Campuses)</option>
+          <option>Janitorial & Cleaning Expenses (Main/BED Campuses)</option>
+          <option>Testing Materials (Main/BED Campuses)</option>
+          <option>Library Expenses (Main/BED Campuses)</option>
+          <option>Medical Expenses (Main/BED Campuses)</option>
+          <option>Repairs and Maintenance (Main/BED Campuses)</option>
         </optgroup>
       </select>
+
     </div>
 
     <div class="col-md-2">
@@ -351,7 +359,7 @@ if (isset($_SESSION['error'])) {
             doc.styles.tableHeader.bold = true;
             doc.styles.tableHeader.fillColor = '#1a5f3c';
             doc.styles.tableHeader.color = 'white';
-            
+
             // Set table layout with borders
             doc.content[1].layout = {
               hLineWidth: function(i, node) {
@@ -379,7 +387,7 @@ if (isset($_SESSION['error'])) {
                 return 2;
               }
             };
-            
+
             // Make footer row bold
             if (doc.content[1].table.body) {
               const lastRowIndex = doc.content[1].table.body.length - 1;
@@ -390,7 +398,7 @@ if (isset($_SESSION['error'])) {
                 });
               }
             }
-            
+
             // Set page orientation to landscape for better table fit
             doc.pageOrientation = 'landscape';
             doc.pageMargins = [20, 20, 20, 20];
