@@ -769,7 +769,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Asset Registration</h3>
         <p class="card-description">Register assets with specifications, values, and documents. Generate tags or barcodes automatically.</p>
-        <a href="pages/supply_request.php" class="card-button">Access Module</a>
+        <a href="pages/assets.php" class="card-button">Access Module</a>
       </div>
       <!-- Maintenance Card -->
       <div class="menu-card card-success">
