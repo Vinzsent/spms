@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'Admin Dashboard';
+$pageTitle = 'DARTS';
 include 'includes/auth.php';
 include 'includes/header.php';
 
