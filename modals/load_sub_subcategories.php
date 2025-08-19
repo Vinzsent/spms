@@ -1,7 +1,6 @@
 <?php
 include '../includes/db.php';
 include '../includes/auth.php';
-include '../includes/header.php';
 
 $subcategory_id = intval($_GET['subcategory_id'] ?? 0);
 if ($subcategory_id <= 0) {
@@ -19,12 +18,12 @@ $children = mysqli_query($conn, "SELECT * FROM account_sub_subcategories WHERE s
 ?>
 
 <div class="mb-2">
-  <h6>Parent Subcategory: <strong><?php echo htmlspecialchars($parent_sub_name); ?></strong></h6>
+  <h6>Main Subcategory: <strong><?php echo htmlspecialchars($parent_sub_name); ?></strong></h6>
 </div>
 
 <div class="card mb-3">
   <div class="card-header">
-    <h6 class="mb-0"><i class="fas fa-plus"></i> Add Child Subcategory</h6>
+    <h6 class="mb-0"><i class="fas fa-plus"></i> Subcategory</h6>
   </div>
   <div class="card-body">
     <form class="child-subcategory-form" method="post" onsubmit="submitChildForm(event)">
@@ -32,10 +31,10 @@ $children = mysqli_query($conn, "SELECT * FROM account_sub_subcategories WHERE s
       <input type="hidden" name="subcategory_id" value="<?php echo $subcategory_id; ?>">
       <div class="row g-2">
         <div class="col-md-8">
-          <input class="form-control" type="text" name="child_name" placeholder="Enter child subcategory name" required>
+          <input class="form-control" type="text" name="child_name" placeholder="Enter subcategory name" required>
         </div>
         <div class="col-md-4">
-          <button class="btn btn-success" type="submit"><i class="fas fa-plus"></i> Add</button>
+          <button class="btn btn-success" type="submit"><i class="fas fa-plus"></i> Add Subcategory</button>
         </div>
       </div>
     </form>
@@ -108,7 +107,19 @@ window.submitChildForm = function(e) {
   const fd = new FormData(form);
   fetch('../actions/sub_subcategory_crud.php', { method: 'POST', body: fd })
     .then(r => r.json())
-    .then(j => { if (j.success) { reloadChildList(); } else { alert(j.message||'Error'); } });
+    .then(j => { 
+      if (j.success) { 
+        form.reset(); // Clear the form
+        reloadChildList(); 
+        alert('Subcategory added successfully!');
+      } else { 
+        alert(j.message||'Error adding subcategory'); 
+      } 
+    })
+    .catch(err => {
+      console.error('Error:', err);
+      alert('Network error occurred');
+    });
 }
 
 window.editChild = function(id) {

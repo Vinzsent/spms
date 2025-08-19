@@ -48,10 +48,10 @@ $account_names = mysqli_query($conn, "SELECT at.*, COUNT(sc.id) as subcategory_c
         <table class="table table-bordered table-hover">
             <thead class="table-primary">
                 <tr>
-                    <th style="width: 10%">ID</th>
-                    <th style="width: 50%">Account Name</th>
-                    <th style="width: 15%">Subcategories</th>
-                    <th style="width: 25%">Action</th>
+                    <th style="width: 10%" class="text-center">ID</th>
+                    <th style="width: 50%" class="text-center">Account Name</th>
+                    <th style="width: 15%" class="text-center">Subcategories</th>
+                    <th style="width: 25%" class="text-center">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -63,9 +63,10 @@ $account_names = mysqli_query($conn, "SELECT at.*, COUNT(sc.id) as subcategory_c
                         <span class="badge bg-info"><?php echo $row['subcategory_count']; ?> subcategories</span>
                     </td>
                     <td>
-                        <button type="button" class="btn btn-sm btn-primary me-1" onclick="openSubcategories(<?php echo $row['id']; ?>, '<?php echo htmlspecialchars($row['name']); ?>')">
-                            <i class="fas fa-list"></i> Subcategories
-                        </button>
+                    <a href="load_subcategories.php?id=<?php echo $row['id']; ?>&name=<?php echo urlencode($row['name']); ?>" 
+       class="btn btn-sm btn-primary me-1">
+        <i class="fas fa-list"></i> Subcategories
+    </a>
                         <button type="button" class="btn btn-sm btn-success me-1" onclick="openEditModal(<?php echo $row['id']; ?>, '<?php echo htmlspecialchars($row['name']); ?>')">
                             <i class="fas fa-edit"></i> Edit
                         </button>
@@ -78,7 +79,7 @@ $account_names = mysqli_query($conn, "SELECT at.*, COUNT(sc.id) as subcategory_c
 
                 <!-- Add new row -->
                 <tr class="table-light">
-                    <td><strong>New</strong></td>
+                    <td class="text-center"><strong>New</strong></td>
                     <td><input type="text" name="new_account_name" placeholder="Enter new account type" class="form-control" required></td>
                     <td>-</td>
                     <td><button type="submit" name="add" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> Add Category</button></td>
@@ -285,7 +286,7 @@ $account_names = mysqli_query($conn, "SELECT at.*, COUNT(sc.id) as subcategory_c
 
     function openChildSubcategories(subcategoryId, subcategoryName) {
         const label = document.getElementById('childSubModalLabel');
-        if (label) label.textContent = 'Manage Children for: ' + subcategoryName;
+        if (label) label.textContent = 'Main Subcategory for: ' + subcategoryName;
         const content = document.getElementById('childSubContent');
         if (content) content.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
         const modal = new bootstrap.Modal(document.getElementById('childSubModal'));
