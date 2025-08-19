@@ -1,5 +1,7 @@
 <?php
 include '../includes/db.php';
+include '../includes/auth.php';
+include '../includes/header.php';
 
 $subcategory_id = intval($_GET['subcategory_id'] ?? 0);
 if ($subcategory_id <= 0) {
@@ -42,7 +44,7 @@ $children = mysqli_query($conn, "SELECT * FROM account_sub_subcategories WHERE s
 
 <div class="card">
   <div class="card-header">
-    <h6 class="mb-0"><i class="fas fa-list"></i> Existing Children</h6>
+    <h6 class="mb-0"><i class="fas fa-list"></i> List of Existing Accounts</h6>
   </div>
   <div class="card-body">
     <?php if (mysqli_num_rows($children) > 0): ?>
@@ -95,12 +97,12 @@ $children = mysqli_query($conn, "SELECT * FROM account_sub_subcategories WHERE s
 <script>
 function reloadChildList() {
   const id = <?php echo $subcategory_id; ?>;
-  fetch('../actions/load_sub_subcategories.php?subcategory_id=' + id)
+  fetch('../modals/load_sub_subcategories.php?subcategory_id=' + id)
     .then(r => r.text())
     .then(html => { document.getElementById('childSubContent').innerHTML = html; });
 }
 
-function submitChildForm(e) {
+window.submitChildForm = function(e) {
   e.preventDefault();
   const form = e.target;
   const fd = new FormData(form);
@@ -109,22 +111,25 @@ function submitChildForm(e) {
     .then(j => { if (j.success) { reloadChildList(); } else { alert(j.message||'Error'); } });
 }
 
-function editChild(id) {
+window.editChild = function(id) {
   document.querySelector('.child-name-' + id).classList.add('d-none');
   document.querySelector('.child-edit-form-' + id).classList.remove('d-none');
 }
-function cancelChildEdit(id) {
+
+window.cancelChildEdit = function(id) {
   document.querySelector('.child-name-' + id).classList.remove('d-none');
   document.querySelector('.child-edit-form-' + id).classList.add('d-none');
 }
-function submitChildEdit(e, id) {
+
+window.submitChildEdit = function(e, id) {
   e.preventDefault();
   const fd = new FormData(e.target);
   fetch('../actions/sub_subcategory_crud.php', { method: 'POST', body: fd })
     .then(r => r.json())
     .then(j => { if (j.success) { reloadChildList(); } else { alert(j.message||'Error'); } });
 }
-function deleteChild(id, name) {
+
+window.deleteChild = function(id, name) {
   if (!confirm('Delete "' + name + '"?')) return;
   const fd = new FormData();
   fd.append('action', 'delete');

@@ -69,7 +69,7 @@ $account_names = mysqli_query($conn, "SELECT at.*, COUNT(sc.id) as subcategory_c
                         <button type="button" class="btn btn-sm btn-success me-1" onclick="openEditModal(<?php echo $row['id']; ?>, '<?php echo htmlspecialchars($row['name']); ?>')">
                             <i class="fas fa-edit"></i> Edit
                         </button>
-                        <button type="button" class="btn btn-sm btn-danger me-1" onclick="confirmDelete(<?php echo $row['id']; ?>, '<?php echo htmlspecialchars($row['name']); ?>')">
+                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete(<?php echo $row['id']; ?>, '<?php echo htmlspecialchars($row['name']); ?>')">
                             <i class="fas fa-trash"></i> Delete
                         </button>
                     </td>
@@ -153,6 +153,21 @@ $account_names = mysqli_query($conn, "SELECT at.*, COUNT(sc.id) as subcategory_c
     </div>
 </div>
 
+<!-- Child Subcategories Modal -->
+<div class="modal fade" id="childSubModal" tabindex="-1" aria-labelledby="childSubModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="childSubModalLabel">Manage Child Subcategories</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="childSubContent" class="py-2 text-center text-muted">Loading...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
         crossorigin="anonymous">
@@ -225,6 +240,61 @@ $account_names = mysqli_query($conn, "SELECT at.*, COUNT(sc.id) as subcategory_c
             });
         }
     });
+
+    // Subcategory management functions
+    function editSubcategory(id) {
+        document.querySelector('.subcategory-name-' + id).classList.add('d-none');
+        document.querySelector('.edit-form-' + id).classList.remove('d-none');
+    }
+
+    function cancelEdit(id) {
+        document.querySelector('.subcategory-name-' + id).classList.remove('d-none');
+        document.querySelector('.edit-form-' + id).classList.add('d-none');
+    }
+
+    function deleteSubcategory(id, name, parentId) {
+        if (confirm('Are you sure you want to delete the subcategory "' + name + '"?')) {
+            const formData = new FormData();
+            formData.append('action', 'delete');
+            formData.append('subcategory_id', id);
+            formData.append('parent_id', parentId);
+            
+            fetch('../actions/subcategory_crud.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload subcategories
+                    fetch('../modals/load_subcategories.php?parent_id=' + parentId)
+                        .then(response => response.text())
+                        .then(data => {
+                            document.getElementById('subcategoriesContent').innerHTML = data;
+                        });
+                } else {
+                    alert('Error: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error processing request.');
+            });
+        }
+    }
+
+    function openChildSubcategories(subcategoryId, subcategoryName) {
+        const label = document.getElementById('childSubModalLabel');
+        if (label) label.textContent = 'Manage Children for: ' + subcategoryName;
+        const content = document.getElementById('childSubContent');
+        if (content) content.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+        const modal = new bootstrap.Modal(document.getElementById('childSubModal'));
+        modal.show();
+        fetch('../modals/load_sub_subcategories.php?subcategory_id=' + subcategoryId)
+            .then(r => r.text())
+            .then(html => { document.getElementById('childSubContent').innerHTML = html; })
+            .catch(() => { document.getElementById('childSubContent').innerHTML = '<div class="alert alert-danger">Failed to load.</div>'; });
+    }
 </script>
 </body>
 </html>
