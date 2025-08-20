@@ -205,169 +205,21 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
                   <select name="category" class="form-select" id="categorySelect" required>
                     <option value="">Select Category</option>
                     <?php
-                    // Include the hierarchical options generation function
-                    include '../includes/db.php';
-                    echo generateHierarchicalOptions($conn);
-                    
-                    // Function to generate hierarchical dropdown options
-                    function generateHierarchicalOptions($conn) {
-                        $options = '';
-                        
-                        // Fetch all data organized by account type -> category -> subcategory
-                        $query = "
-                            SELECT 
-                                at.id as account_type_id,
-                                at.name as account_type_name,
-                                c.id as category_id,
-                                c.name as category_name,
-                                s.id as subcategory_id,
-                                s.name as subcategory_name
-                            FROM account_types at
-                            LEFT JOIN categories c ON at.id = c.account_type_id
-                            LEFT JOIN subcategories s ON c.id = s.category_id
-                            WHERE at.name IN ('Assets', 'Expenses')
-                            ORDER BY 
-                                CASE 
-                                    WHEN at.name = 'Assets' THEN 1 
-                                    WHEN at.name = 'Expenses' THEN 2 
-                                    ELSE 3 
-                                END,
-                                c.name, s.name
-                        ";
-                        
-                        $result = $conn->query($query);
-                        $structured_data = [];
-                        
-                        // Organize data into hierarchical structure
-                        while ($row = $result->fetch_assoc()) {
-                            $account_type = $row['account_type_name'];
-                            $category = $row['category_name'];
-                            $subcategory = $row['subcategory_name'];
-                            
-                            if (!isset($structured_data[$account_type])) {
-                                $structured_data[$account_type] = [];
+                    // Use the same organized categories from the main page
+                    if (isset($organized_categories) && !empty($organized_categories)) {
+                        foreach ($organized_categories as $main_category => $subcategories) {
+                            echo '<optgroup label="' . htmlspecialchars($main_category) . '">';
+                            foreach ($subcategories as $subcategory) {
+                                echo '<option value="' . htmlspecialchars($subcategory) . '">' . htmlspecialchars($subcategory) . '</option>';
                             }
-                            
-                            if ($category && !isset($structured_data[$account_type][$category])) {
-                                $structured_data[$account_type][$category] = [];
-                            }
-                            
-                            if ($subcategory) {
-                                $structured_data[$account_type][$category][] = [
-                                    'id' => $row['subcategory_id'],
-                                    'name' => $subcategory
-                                ];
-                            }
+                            echo '</optgroup>';
                         }
-                        
-                        // Generate HTML options (similar to original structure)
-                        foreach ($structured_data as $account_type => $categories) {
-                            if (empty($categories)) continue;
-                            
-                            // Add account type header
-                            $options .= '<optgroup label="' . strtoupper($account_type) . '" class="text-center"></optgroup>';
-                            
-                            // Special handling for additional categories that might not be in the database yet
-                            if ($account_type === 'Assets') {
-                                // Add School Building entries
-                                $options .= '<optgroup label="Property and Equipment">';
-                                $options .= '<option>School Building – Main Campus</option>';
-                                $options .= '<option>School Building – BED Campus</option>';
-                                $options .= '</optgroup>';
-                            }
-                            
-                            foreach ($categories as $category_name => $subcategories) {
-                                if (empty($subcategories)) continue;
-                              
-                                // Special case for expanding subcategory names to match the required format
-                                foreach ($subcategories as $subcategory) {
-                                    $subcategory_name = $subcategory['name'];
-                                    
-                                    // Expand subcategory names to include campus information
-                                    if (in_array($subcategory_name, ['Computers'])) {
-                                        $options .= '<optgroup label="Computers">';
-                                        $options .= '<option>' . htmlspecialchars($subcategory_name) . ' – Main Campus</option>';
-                                        $options .= '<option>' . htmlspecialchars($subcategory_name) . ' – BED Campus</option>';
-
-                                     } elseif(in_array($subcategory_name, ['Office Equipment'])) {
-                                          $options .= '<optgroup label="Office Equipment">';
-                                          $options .= '<option>' . htmlspecialchars($subcategory_name) . ' – Main Campus</option>';
-                                          $options .= '<option>' . htmlspecialchars($subcategory_name) . ' – BED Campus</option>';
-                                          $options .= '</optgroup>';
-                                     } elseif (in_array($subcategory_name, ['Furniture and Fixture'])) {
-                                            $options .= '<optgroup label="Furniture and Fixtures">';
-                                            $options .= '<option>' . htmlspecialchars($subcategory_name) . ' – Main Campus</option>';
-                                            $options .= '<option>' . htmlspecialchars($subcategory_name) . ' – BED Campus</option>';
-                                            $options .= '</optgroup>';
-                                        
-                                    } elseif ($subcategory_name === 'Laboratory Equipment') {
-                                        // Laboratory Equipment has specific department variations
-                                        $options .= '<optgroup label="Laboratory Equipments">';
-                                        $lab_departments = ['CJE', 'HME', 'Science (TED)', 'Science (BED)', 'Physics (BED)', 'TLE'];
-                                        foreach ($lab_departments as $dept) {
-                                            $options .= '<option>Laboratory Equipment – ' . $dept . '</option>';
-                                        }
-                                    } elseif (in_array($subcategory_name, ['Supplies and Materials'])) {
-                                        // Expand Supplies and Materials
-                                        $supply_types = [
-                                            'Office Supplies (Main/BED Campuses)',
-                                            'Medical Supplies (Main/BED Campuses)',
-                                            'School Supplies (Main/BED Campuses)',
-                                            'Textbooks (Main/BED Campuses)'
-                                        ];
-                                        foreach ($supply_types as $supply_type) {
-                                            $options .= '<option>' . $supply_type . '</option>';
-                                        }
-                                    } elseif ($subcategory_name === 'Laboratory Expenses') {
-                                        // Create separate optgroups for expenses subcategories
-                                        $options .= '</optgroup>';
-                                        
-                                        $options .= '<optgroup label="Library">';
-                                        $options .= '<option>Library Expenses (Main/BED Campuses)</option>';
-                                        $options .= '</optgroup>';
-                                        
-                                        $options .= '<optgroup label="Repair and Maintenance">';
-                                        $options .= '<option>Repairs and Maintenance (Main/BED Campuses)</option>';
-                                        $options .= '<option>Janitorial & Cleaning Expenses (Main/BED Campuses)</option>';
-                                        $options .= '</optgroup>';
-
-                                        $options .= '<optgroup label="Laboratory Expenses">';
-                                        $options .= '<option>Laboratory Equipment - CJE</option>';
-                                        $options .= '<option>Laboratory Equipment - HME</option>';
-                                        $options .= '<option>Laboratory Equipment - Science (TED)</option>';
-                                        $options .= '<option>Laboratory Equipment - Science (BED)</option>';
-                                        $options .= '<option>Laboratory Equipment - Physics (BED)</option>';
-                                        $options .= '<option>Laboratory Equipment - TLE</option>';
-                                        $options .= '</optgroup>';
-                                        
-                                        $options .= '<optgroup label="Others">';
-                                        $options .= '<option>Testing Materials (Main/BED Campuses)</option>';
-                                        
-                                        // Continue without closing this optgroup (will be closed in next iteration)
-                                        continue;
-                                    } else {
-                                        // Default case
-                                        $options .= '<option>' . htmlspecialchars($subcategory_name) . '</option>';
-                                    }
-                                }
-                                
-                                $options .= '</optgroup>';
-                            }
-                            
-                            // Add additional categories for Assets
-                            if ($account_type === 'Assets') {
-                                $options .= '<optgroup label="Others">';
-                                $options .= '<option>Vehicle</option>';
-                                $options .= '</optgroup>';
-                                
-                                $options .= '<optgroup label="Intangible Assets">';
-                                $options .= '<option>Software</option>';
-                                $options .= '<option>Patents and Licenses</option>';
-                                $options .= '</optgroup>';
-                            }
-                        }
-                        
-                        return $options;
+                    } else {
+                        // Fallback options if no data available - display as bold headers only
+                        echo '<optgroup label="Property and Equipment"></optgroup>';
+                        echo '<optgroup label="Intangible Assets"></optgroup>';
+                        echo '<optgroup label="Office Supplies"></optgroup>';
+                        echo '<optgroup label="Medical Supplies"></optgroup>';
                     }
                     ?>
                   </select>

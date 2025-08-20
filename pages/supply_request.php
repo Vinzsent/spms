@@ -43,6 +43,52 @@ error_log('Supply Request Page - User ID: ' . $user_id . ', User Name: ' . $user
 $sql = "SELECT * FROM supply_request";
 $result = $conn->query($sql);
 
+// Fetch all category data for dropdown
+$categories_query = "
+    SELECT 
+        at.name as main_category,
+        sc.name as subcategory,
+        ssc.name as sub_subcategory,
+        sssc.name as sub_sub_subcategory
+    FROM account_types at
+    LEFT JOIN account_subcategories sc ON at.id = sc.parent_id
+    LEFT JOIN account_sub_subcategories ssc ON sc.id = ssc.subcategory_id
+    LEFT JOIN account_sub_sub_subcategories sssc ON ssc.id = sssc.sub_subcategory_id
+    ORDER BY at.name, sc.name, ssc.name, sssc.name
+";
+$categories_result = $conn->query($categories_query);
+
+// Organize categories hierarchically
+$organized_categories = [];
+if ($categories_result && $categories_result->num_rows > 0) {
+    while ($row = $categories_result->fetch_assoc()) {
+        $main = $row['main_category'];
+        if (!isset($organized_categories[$main])) {
+            $organized_categories[$main] = [];
+        }
+        
+        if (!empty($row['subcategory'])) {
+            $sub = $row['subcategory'];
+            if (!in_array($sub, $organized_categories[$main])) {
+                $organized_categories[$main][] = $sub;
+            }
+        }
+        
+        if (!empty($row['sub_subcategory'])) {
+            $subsub = $row['sub_subcategory'];
+            if (!in_array($subsub, $organized_categories[$main])) {
+                $organized_categories[$main][] = $subsub;
+            }
+        }
+        
+        if (!empty($row['sub_sub_subcategory'])) {
+            $subsubsub = $row['sub_sub_subcategory'];
+            if (!in_array($subsubsub, $organized_categories[$main])) {
+                $organized_categories[$main][] = $subsubsub;
+            }
+        }
+    }
+}
 
 // Display session messages
 if (isset($_SESSION['message'])) {
@@ -149,40 +195,26 @@ if (isset($_SESSION['error'])) {
     <div class="col-md-4">
       <label for="accountSelect">Select Account Category:</label>
       <select id="accountSelect" name="accountSelect" class="form-select">
-        <optgroup label="Assets">
-          <option>School Building – Main Campus</option>
-          <option>School Building – BED Campus</option>
-          <option>Furniture and Fixtures – Main Campus</option>
-          <option>Furniture and Fixtures – BED Campus</option>
-          <option>Laboratory Equipment – CJE</option>
-          <option>Laboratory Equipment – HME</option>
-          <option>Laboratory Equipment – Science (TED)</option>
-          <option>Laboratory Equipment – Science (BED)</option>
-          <option>Laboratory Equipment – Physics (BED)</option>
-          <option>Laboratory Equipment – TLE</option>
-          <option>Office Equipment – Main Campus</option>
-          <option>Office Equipment – BED Campus</option>
-          <option>Computers – Main Campus</option>
-          <option>Computers – BED Campus</option>
-        </optgroup>
-
-        <optgroup label="Intangible Assets">
-          <option>Software Patents and Licenses</option>
-        </optgroup>
-
-        <optgroup label="Expenses">
-          <option>Office Supplies (Main/BED Campuses)</option>
-          <option>Medical Supplies (Main/BED Campuses)</option>
-          <option>School Supplies (Main/BED Campuses)</option>
-          <option>Textbooks (Main/BED Campuses)</option>
-          <option>Janitorial & Cleaning Expenses (Main/BED Campuses)</option>
-          <option>Testing Materials (Main/BED Campuses)</option>
-          <option>Library Expenses (Main/BED Campuses)</option>
-          <option>Medical Expenses (Main/BED Campuses)</option>
-          <option>Repairs and Maintenance (Main/BED Campuses)</option>
-        </optgroup>
+        <option value="">All Categories</option>
+        <?php
+        // Use the same organized categories structure
+        if (isset($organized_categories) && !empty($organized_categories)) {
+            foreach ($organized_categories as $main_category => $subcategories) {
+                echo '<optgroup label="' . htmlspecialchars($main_category) . '">';
+                foreach ($subcategories as $subcategory) {
+                    echo '<option value="' . htmlspecialchars($subcategory) . '">' . htmlspecialchars($subcategory) . '</option>';
+                }
+                echo '</optgroup>';
+            }
+        } else {
+            // Fallback options if no data available - display as bold headers only
+            echo '<optgroup label="Property and Equipment"></optgroup>';
+            echo '<optgroup label="Intangible Assets"></optgroup>';
+            echo '<optgroup label="Office Supplies"></optgroup>';
+            echo '<optgroup label="Medical Supplies"></optgroup>';
+        }
+        ?>
       </select>
-
     </div>
 
     <div class="col-md-2">
@@ -292,6 +324,19 @@ if (isset($_SESSION['error'])) {
 <?php include '../modals/edit_supply_request.php'; ?>
 
 <?php include '../includes/footer.php'; ?>
+
+<!-- Add missing JavaScript dependencies -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
 
 <script>
   // Function to change request type
