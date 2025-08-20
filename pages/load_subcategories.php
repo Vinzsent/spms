@@ -16,7 +16,7 @@ $parent_row = mysqli_fetch_assoc($parent_res);
 $parent_name = $parent_row['name'] ?? 'Unknown';
 
 // Get subcategories under this parent
-$subcategories_query = "SELECT * FROM account_subcategories WHERE parent_id = $parent_id ORDER BY name";
+$subcategories_query = "SELECT * FROM account_subcategories WHERE parent_id = $parent_id ORDER BY name DESC";
 $subcategories_result = mysqli_query($conn, $subcategories_query);
 ?>
 
@@ -26,7 +26,7 @@ $subcategories_result = mysqli_query($conn, $subcategories_query);
         <h6 class="mb-0"><i class="fas fa-plus"></i> Add New Main Subcategory</h6>
     </div>
     <div class="card-body">
-        <div class="mb-2">Parent Category: <strong><?php echo htmlspecialchars($parent_name); ?></strong></div>
+        <div class="mb-2">Main Category: <strong><?php echo htmlspecialchars($parent_name); ?></strong></div>
         <form class="subcategory-form" method="post">
             <input type="hidden" name="action" value="add">
             <input type="hidden" name="parent_id" value="<?php echo $parent_id; ?>">
@@ -38,6 +38,7 @@ $subcategories_result = mysqli_query($conn, $subcategories_query);
                     <button type="submit" class="btn btn-success">
                         <i class="fas fa-plus"></i> Add Main Subcategory
                     </button>
+                    <a href="assets.php?id=<?php echo $parent_id; ?>&name=<?php echo urlencode($parent_name); ?>"><button type="button" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back to Main Subcategories</button></a>
                 </div>
             </div>
         </form>
@@ -56,47 +57,49 @@ $subcategories_result = mysqli_query($conn, $subcategories_query);
                     <thead class="table-light">
                         <tr>
                             <th>ID</th>
-                            <th>Subcategory Name</th>
+                            <th>Main Subcategory Name</th>
                             <th>Created</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php while ($sub = mysqli_fetch_assoc($subcategories_result)): ?>
-                        <tr>
-                            <td><?php echo $sub['id']; ?></td>
-                            <td>
-                                <span class="subcategory-name-<?php echo $sub['id']; ?>">
-                                    <?php echo htmlspecialchars($sub['name']); ?>
-                                </span>
-                                <form class="subcategory-form d-none edit-form-<?php echo $sub['id']; ?>" method="post">
-                                    <input type="hidden" name="action" value="update">
-                                    <input type="hidden" name="subcategory_id" value="<?php echo $sub['id']; ?>">
-                                    <input type="hidden" name="parent_id" value="<?php echo $parent_id; ?>">
-                                    <div class="input-group input-group-sm">
-                                        <input type="text" name="subcategory_name" class="form-control" value="<?php echo htmlspecialchars($sub['name']); ?>" required>
-                                        <button type="submit" class="btn btn-success btn-sm">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-secondary btn-sm" onclick="cancelEdit(<?php echo $sub['id']; ?>)">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </div>
-                                </form>
-                            </td>
-                            <td><?php echo date('M d, Y', strtotime($sub['created_at'])); ?></td>
-                            <td>
-                                <button type="button" class="btn btn-sm btn-outline-primary me-1" title="Edit subcategory" onclick="editSubcategory(<?php echo $sub['id']; ?>)">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-success me-1" title="Add subcategory" onclick="openChildSubcategories(<?php echo $sub['id']; ?>, '<?php echo htmlspecialchars($sub['name']); ?>')">
-                                    <i class="fas fa-plus-square"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-danger" title="Delete subcategory" onclick="deleteSubcategory(<?php echo $sub['id']; ?>, '<?php echo htmlspecialchars($sub['name']); ?>', <?php echo $parent_id; ?>)">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td><?php echo $sub['id']; ?></td>
+                                <td>
+                                    <span class="subcategory-name-<?php echo $sub['id']; ?>">
+                                        <?php echo htmlspecialchars($sub['name']); ?>
+                                    </span>
+                                    <form class="subcategory-form d-none edit-form-<?php echo $sub['id']; ?>" method="post">
+                                        <input type="hidden" name="action" value="update">
+                                        <input type="hidden" name="subcategory_id" value="<?php echo $sub['id']; ?>">
+                                        <input type="hidden" name="parent_id" value="<?php echo $parent_id; ?>">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" name="subcategory_name" class="form-control" value="<?php echo htmlspecialchars($sub['name']); ?>" required>
+                                            <button type="submit" class="btn btn-success btn-sm">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-secondary btn-sm" onclick="cancelEdit(<?php echo $sub['id']; ?>)">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </td>
+                                <td><?php echo date('M d, Y', strtotime($sub['created_at'])); ?></td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-primary me-1" title="Edit subcategory" onclick="editSubcategory(<?php echo $sub['id']; ?>)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <a href="add_sub_subcategories.php?id=<?php echo $sub['id']; ?>&name=<?php echo urlencode($sub['name']); ?>"
+                                        class="btn btn-sm btn-outline-success me-1"
+                                        title="Add subcategory">
+                                        <i class="fas fa-plus-square"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" title="Delete subcategory" onclick="deleteSubcategory(<?php echo $sub['id']; ?>, '<?php echo htmlspecialchars($sub['name']); ?>', <?php echo $parent_id; ?>)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
                         <?php endwhile; ?>
                     </tbody>
                 </table>
@@ -126,49 +129,74 @@ $subcategories_result = mysqli_query($conn, $subcategories_query);
 </div>
 
 <script>
-// Submit add/update via AJAX
-document.addEventListener('submit', function(e) {
-    if (e.target.classList.contains('subcategory-form')) {
-        e.preventDefault();
-        const fd = new FormData(e.target);
-        fetch('../actions/subcategory_crud.php', { method: 'POST', body: fd })
+    // Submit add/update via AJAX
+    document.addEventListener('submit', function(e) {
+        if (e.target.classList.contains('subcategory-form')) {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            fetch('../actions/subcategory_crud.php', {
+                    method: 'POST',
+                    body: fd
+                })
+                .then(r => r.json())
+                .then(j => {
+                    if (j.success) {
+                        location.reload();
+                    } else {
+                        alert(j.message || 'Error');
+                    }
+                })
+                .catch(() => alert('Network error'));
+        }
+    });
+
+    function editSubcategory(id) {
+        document.querySelector('.subcategory-name-' + id).classList.add('d-none');
+        document.querySelector('.edit-form-' + id).classList.remove('d-none');
+    }
+
+    function cancelEdit(id) {
+        document.querySelector('.subcategory-name-' + id).classList.remove('d-none');
+        document.querySelector('.edit-form-' + id).classList.add('d-none');
+    }
+
+    function deleteSubcategory(id, name, parentId) {
+        if (!confirm('Delete "' + name + '"?')) return;
+        const fd = new FormData();
+        fd.append('action', 'delete');
+        fd.append('subcategory_id', id);
+        fd.append('parent_id', parentId);
+        fetch('../actions/subcategory_crud.php', {
+                method: 'POST',
+                body: fd
+            })
             .then(r => r.json())
-            .then(j => { if (j.success) { location.reload(); } else { alert(j.message||'Error'); } })
+            .then(j => {
+                if (j.success) {
+                    location.reload();
+                } else {
+                    alert(j.message || 'Error');
+                }
+            })
             .catch(() => alert('Network error'));
     }
-});
 
-function editSubcategory(id) {
-    document.querySelector('.subcategory-name-' + id).classList.add('d-none');
-    document.querySelector('.edit-form-' + id).classList.remove('d-none');
-}
-function cancelEdit(id) {
-    document.querySelector('.subcategory-name-' + id).classList.remove('d-none');
-    document.querySelector('.edit-form-' + id).classList.add('d-none');
-}
-function deleteSubcategory(id, name, parentId) {
-    if (!confirm('Delete "' + name + '"?')) return;
-    const fd = new FormData();
-    fd.append('action','delete');
-    fd.append('subcategory_id', id);
-    fd.append('parent_id', parentId);
-    fetch('../actions/subcategory_crud.php', { method: 'POST', body: fd })
-        .then(r=>r.json())
-        .then(j=>{ if(j.success){ location.reload(); } else { alert(j.message||'Error'); } })
-        .catch(()=>alert('Network error'));
-}
-function openChildSubcategories(subcategoryId, subcategoryName) {
-    const label = document.getElementById('childSubModalLabel');
-    if (label) label.textContent = 'Main Subcategory for: ' + subcategoryName;
-    const content = document.getElementById('childSubContent');
-    if (content) content.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
-    const modal = new bootstrap.Modal(document.getElementById('childSubModal'));
-    modal.show();
-    fetch('../modals/load_sub_subcategories.php?subcategory_id=' + subcategoryId)
-        .then(r => r.text())
-        .then(html => { document.getElementById('childSubContent').innerHTML = html; })
-        .catch(() => { document.getElementById('childSubContent').innerHTML = '<div class="alert alert-danger">Failed to load.</div>'; });
-}
+    function openChildSubcategories(subcategoryId, subcategoryName) {
+        const label = document.getElementById('childSubModalLabel');
+        if (label) label.textContent = 'Main Subcategory for: ' + subcategoryName;
+        const content = document.getElementById('childSubContent');
+        if (content) content.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+        const modal = new bootstrap.Modal(document.getElementById('childSubModal'));
+        modal.show();
+        fetch('../modals/load_sub_subcategories.php?subcategory_id=' + subcategoryId)
+            .then(r => r.text())
+            .then(html => {
+                document.getElementById('childSubContent').innerHTML = html;
+            })
+            .catch(() => {
+                document.getElementById('childSubContent').innerHTML = '<div class="alert alert-danger">Failed to load.</div>';
+            });
+    }
 </script>
 
 <?php include '../includes/footer.php'; ?>
