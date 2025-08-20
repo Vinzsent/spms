@@ -1,7 +1,7 @@
 <?php
 include '../includes/db.php';
-include '../includes/header.php';
 include '../includes/auth.php';
+include '../includes/header.php';
 
 // Fetch account types with subcategory count
 $account_names = mysqli_query($conn, "SELECT at.*, COUNT(sc.id) as subcategory_count FROM account_types at LEFT JOIN account_subcategories sc ON at.id = sc.parent_id GROUP BY at.id ORDER BY at.id");
@@ -17,36 +17,31 @@ $account_names = mysqli_query($conn, "SELECT at.*, COUNT(sc.id) as subcategory_c
       crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <title>DCC-DARTS</title>
+    <link rel="stylesheet" href="../assets/css/category-theme.css">
 </head>
-<style>
-    .container {
-        width: 70%;
-        margin: 80px auto;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        background: #fdfdfd;
-    }
-    .text-center {
-        text-align: center;
-    }
-</style>
 <body>
-<div class="container">
+<div class="page-container">
 
-    <h1 class="text-center mb-4">Assets Category</h1>
+    <div class="page-hero">
+        <h2>Assets Category</h2>
+        <div class="subtitle">Browse main categories and manage their subcategories</div>
+    </div>
 
     <!-- Back button -->
     <div class="mb-3">
-        <button type="button" class="btn btn-secondary" onclick="window.location.href='../dashboard.php'">
-            <i class="fa-solid fa-arrow-left"></i> Back
+        <button type="button" class="btn btn-modern btn-outline-brand" onclick="window.location.href='../dashboard.php'">
+            <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
         </button>
     </div>
 
     <!-- Table for Account Types -->
-    <form action="../actions/assets_category_crud.php" method="post">
-        <table class="table table-bordered table-hover">
-            <thead class="table-primary">
+    <form action="../actions/assets_category_crud.php" method="post" class="card-modern">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <span><i class="fa-solid fa-layer-group me-2"></i>Account Types</span>
+        </div>
+        <div class="card-body p-0">
+        <table class="table table-modern table-hover mb-0">
+            <thead class="table-light">
                 <tr>
                     <th style="width: 10%" class="text-center">ID</th>
                     <th style="width: 50%" class="text-center">Account Name</th>
@@ -63,14 +58,14 @@ $account_names = mysqli_query($conn, "SELECT at.*, COUNT(sc.id) as subcategory_c
                         <span class="badge bg-info"><?php echo $row['subcategory_count']; ?> subcategories</span>
                     </td>
                     <td>
-                    <a href="load_subcategories.php?id=<?php echo $row['id']; ?>&name=<?php echo urlencode($row['name']); ?>" 
-       class="btn btn-sm btn-primary me-1">
-        <i class="fas fa-list"></i> Subcategories
-    </a>
-                        <button type="button" class="btn btn-sm btn-success me-1" onclick="openEditModal(<?php echo $row['id']; ?>, '<?php echo htmlspecialchars($row['name']); ?>')">
+                        <a href="load_subcategories.php?id=<?php echo $row['id']; ?>&name=<?php echo urlencode($row['name']); ?>" 
+                           class="btn btn-sm btn-modern btn-brand btn-primary me-1">
+                            <i class="fas fa-eye"></i> View Subcategories
+                        </a>
+                        <button type="button" class="btn btn-sm btn-modern btn-outline-brand me-1" onclick="openEditModal(<?php echo $row['id']; ?>, '<?php echo htmlspecialchars($row['name']); ?>')">
                             <i class="fas fa-edit"></i> Edit
                         </button>
-                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete(<?php echo $row['id']; ?>, '<?php echo htmlspecialchars($row['name']); ?>')">
+                        <button type="button" class="btn btn-sm btn-modern btn-danger" onclick="confirmDelete(<?php echo $row['id']; ?>, '<?php echo htmlspecialchars($row['name']); ?>')">
                             <i class="fas fa-trash"></i> Delete
                         </button>
                     </td>
@@ -82,10 +77,11 @@ $account_names = mysqli_query($conn, "SELECT at.*, COUNT(sc.id) as subcategory_c
                     <td class="text-center"><strong>New</strong></td>
                     <td><input type="text" name="new_account_name" placeholder="Enter new account type" class="form-control" required></td>
                     <td>-</td>
-                    <td><button type="submit" name="add" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> Add Category</button></td>
+                    <td><button type="submit" name="add" class="btn btn-sm btn-modern btn-accent"><i class="fas fa-plus"></i> Add Category</button></td>
                 </tr>
             </tbody>
         </table>
+        </div>
     </form>
 </div>
 

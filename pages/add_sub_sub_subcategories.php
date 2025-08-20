@@ -14,15 +14,19 @@ $jname = isset($_GET['name']) ? $_GET['name'] : '';
     <meta charset="UTF-8">
     <title>Subcategory Details</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/category-theme.css">
 </head>
-<body class="p-4">
+<body class="p-0">
 
-<div class="container">
-    <h4 class="mb-3">📂 Subcategory Details for <?php echo htmlspecialchars($jname); ?></h4>
+<div class="page-container">
+    <div class="page-hero">
+        <h2>Sub Sub Subcategories</h2>
+        <div class="subtitle">Manage third-level subcategories under <strong><?php echo htmlspecialchars($jname); ?></strong></div>
+    </div>
 
-    <div class="card shadow p-3">
-        <table class="table table-bordered table-hover align-middle">
-            <thead class="table-dark">
+    <div class="card card-modern p-0">
+        <table class="table table-modern table-hover align-middle mb-0">
+            <thead class="table-light">
                 <tr>
                     <th class="text-center">ID</th>
                     <th class="text-center">Subcategory Name</th>
@@ -53,15 +57,15 @@ $jname = isset($_GET['name']) ? $_GET['name'] : '';
                                     <input type='hidden' name='grandchild_id' value='{$rid}'>
                                     <div class='input-group input-group-sm'>
                                         <input type='text' name='grandchild_name' class='form-control' value='{$rname}' required>
-                                        <button type='submit' class='btn btn-success btn-sm' style='color: white;'><i class='fas fa-check'></i></button>
-                                        <button type='button' class='btn btn-secondary btn-sm' onclick='cancelChild({$rid})' style='color: white;'><i class='fas fa-times'></i></button>
+                                        <button type='submit' class='btn btn-brand btn-sm btn-modern' style='color: white;'><i class='fas fa-check'></i></button>
+                                        <button type='button' class='btn btn-secondary btn-sm btn-modern' onclick='cancelChild({$rid})' style='color: white;'><i class='fas fa-times'></i></button>
                                     </div>
                                 </form>
                             </td>
                             <td class='text-center'>{$rc}</td>
                             <td class='text-center'>
-                                <button type='button' class='btn btn-sm btn-warning me-1' title='Edit' onclick='editChild({$rid})'>Edit</button>
-                                <button type='button' class='btn btn-sm btn-danger' title='Delete' onclick='deleteChild({$rid}, {$jname})'>Delete</button>
+                                <button type='button' class='btn btn-sm btn-outline-brand me-1 btn-modern' title='Edit' onclick='editChild({$rid})'>Edit</button>
+                                <button type='button' class='btn btn-sm btn-danger btn-modern' title='Delete' onclick='deleteChild({$rid}, {$jname})'>Delete</button>
                             </td>
                         </tr>";
                     }
@@ -81,14 +85,14 @@ $jname = isset($_GET['name']) ? $_GET['name'] : '';
                         </td>
                         <td class="text-center">Auto</td>
                         <td class="text-center">
-                            <button type="submit" class="btn btn-success btn-sm">Add</button>
+                            <button type="submit" class="btn btn-brand btn-sm btn-modern">Add</button>
                         </td>
                     </form>
                 </tr>
             </tbody>
         </table>
 
-        <a href="javascript:history.back()" class="btn btn-primary mt-3">
+        <a href="javascript:history.back()" class="btn btn-modern btn-outline-brand mt-3">
             ⬅ Go Back to the Previous Page
         </a>
     </div>
