@@ -27,6 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     try {
         $item_name = trim($_POST['item_name'] ?? '');
+        $invoice_no = trim($_POST['invoice_no'] ?? '');
+        $sales_type = trim($_POST['sales_type'] ?? '');
         $supplier_id = trim($_POST['supplier_id'] ?? '');
         $quantity = trim($_POST['quantity'] ?? '');
         $unit = trim($_POST['unit'] ?? '');
@@ -75,11 +77,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Prepare and execute SQL statement for procurement table
         $stmt = $conn->prepare("
-            INSERT INTO procurement (
-                item_name, supplier_id, quantity, unit, unit_price, total_amount, 
+            INSERT INTO supplier_transaction (
+                item_name, invoice_no, sales_type, supplier_id, quantity, unit, unit_price, total_amount, 
                 invoice_path, delivery_receipt_path, notes, status, 
                 created_by
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         if (!$stmt) {
@@ -89,8 +91,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user_id = $_SESSION['user']['id'] ?? 1;
 
         $stmt->bind_param(
-            "siisdsssssi",
+            "sssiisdsssssi",
             $item_name,
+            $invoice_no,
+            $sales_type,
             $supplier_id,
             $quantity,
             $unit,

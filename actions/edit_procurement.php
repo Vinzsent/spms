@@ -18,6 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $unit = trim($_POST['unit'] ?? '');
         $unit_price = trim($_POST['unit_price'] ?? '');
         $notes = trim($_POST['notes'] ?? '');
+        $invoice_no = trim($_POST['invoice_no'] ?? '');
+        $sales_type = trim($_POST['sales_type'] ?? '');
+        $category = trim($_POST['category'] ?? '');
+        $total_amount = floatval($_POST['total_amount'] ?? 0);
         
         // Validation
         if (empty($procurement_id)) {
@@ -40,20 +44,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         $user_id = $_SESSION['user']['id'] ?? 1;
-        $total_amount = $quantity * $unit_price;
+        // Recalculate total amount to ensure accuracy
+        $total_amount = floatval($quantity) * floatval($unit_price);
         
         // Update procurement record
         $stmt = $conn->prepare("
-            UPDATE procurement SET 
+            UPDATE supplier_transaction SET 
                 item_name = ?,
                 supplier_id = ?,
+                invoice_no = ?,
+                sales_type = ?,
+                category = ?,
                 quantity = ?,
                 unit = ?,
                 unit_price = ?,
                 total_amount = ?,
                 notes = ?,
                 last_updated_by = ?,
-                date_updated = CURRENT_TIMESTAMP
+                date_updated = CURRENT_TIMESTAMP()
             WHERE procurement_id = ?
         ");
 
@@ -61,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Prepare failed: " . $conn->error);
         }
 
-        $stmt->bind_param("sissdssii", $item_name, $supplier_id, $quantity, $unit, $unit_price, $total_amount, $notes, $user_id, $procurement_id);
+        $stmt->bind_param("sisssissdsii", $item_name, $supplier_id, $invoice_no, $sales_type, $category, $quantity, $unit, $unit_price, $total_amount, $notes, $user_id, $procurement_id);
 
         if (!$stmt->execute()) {
             throw new Exception("Execute failed: " . $stmt->error);

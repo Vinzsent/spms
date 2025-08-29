@@ -30,6 +30,100 @@ if (!empty($whereClause)) {
                     AND sr.approved_date <> ''";
 }
 
+// Helpers: parse School Year input into start/end dates (July 1 to June 30)
+function parse_school_year_range($raw)
+{
+    $raw = trim((string)$raw);
+    if ($raw === '') return [null, null];
+    if (preg_match('/^(20\d{2})\s*-\s*(20\d{2})$/', $raw, $m)) {
+        $startY = (int)$m[1];
+        $endY = (int)$m[2];
+        if ($endY === $startY + 1) {
+            return [sprintf('%04d-07-01', $startY), sprintf('%04d-06-30', $endY)];
+        }
+    } elseif (preg_match('/^(19|20)\d{2}$/', $raw)) {
+        $startY = (int)$raw;
+        return [sprintf('%04d-07-01', $startY), sprintf('%04d-06-30', $startY + 1)];
+    }
+    return [null, null];
+}
+
+// Per-table School Year search values
+$sy_inv_raw  = $_GET['sy_inv']  ?? '';
+$sy_recv_raw = $_GET['sy_recv'] ?? '';
+$sy_logs_raw = $_GET['sy_logs'] ?? '';
+
+list($sy_inv_start, $sy_inv_end)   = parse_school_year_range($sy_inv_raw);
+list($sy_recv_start, $sy_recv_end) = parse_school_year_range($sy_recv_raw);
+list($sy_logs_start, $sy_logs_end) = parse_school_year_range($sy_logs_raw);
+
+// Build optional WHERE conditions per query based on per-table School Year
+$inv_where = '';
+$recv_where = '';
+$logs_where = '';
+if ($sy_inv_start && $sy_inv_end) {
+    $start_esc = $conn->real_escape_string($sy_inv_start);
+    $end_esc   = $conn->real_escape_string($sy_inv_end);
+    $inv_where = " WHERE i.date_created >= '$start_esc' AND i.date_created <= '$end_esc'";
+}
+if ($sy_recv_start && $sy_recv_end) {
+    $start_esc = $conn->real_escape_string($sy_recv_start);
+    $end_esc   = $conn->real_escape_string($sy_recv_end);
+    $recv_where = " WHERE st.date_received >= '$start_esc' AND st.date_received <= '$end_esc'";
+}
+if ($sy_logs_start && $sy_logs_end) {
+    $start_esc = $conn->real_escape_string($sy_logs_start);
+    $end_esc   = $conn->real_escape_string($sy_logs_end);
+    $logs_where = " WHERE sl.date_created >= '$start_esc' AND sl.date_created <= '$end_esc'";
+}
+
+// Fetch all category data for dropdown
+$categories_query = "
+    SELECT 
+        at.name as main_category,
+        sc.name as subcategory,
+        ssc.name as sub_subcategory,
+        sssc.name as sub_sub_subcategory
+    FROM account_types at
+    LEFT JOIN account_subcategories sc ON at.id = sc.parent_id
+    LEFT JOIN account_sub_subcategories ssc ON sc.id = ssc.subcategory_id
+    LEFT JOIN account_sub_sub_subcategories sssc ON ssc.id = sssc.sub_subcategory_id
+    ORDER BY at.name, sc.name, ssc.name, sssc.name
+";
+$categories_result = $conn->query($categories_query);
+
+// Organize categories hierarchically
+$organized_categories = [];
+if ($categories_result && $categories_result->num_rows > 0) {
+    while ($row = $categories_result->fetch_assoc()) {
+        $main = $row['main_category'];
+        if (!isset($organized_categories[$main])) {
+            $organized_categories[$main] = [];
+        }
+
+        if (!empty($row['subcategory'])) {
+            $sub = $row['subcategory'];
+            if (!in_array($sub, $organized_categories[$main])) {
+                $organized_categories[$main][] = $sub;
+            }
+        }
+
+        if (!empty($row['sub_subcategory'])) {
+            $subsub = $row['sub_subcategory'];
+            if (!in_array($subsub, $organized_categories[$main])) {
+                $organized_categories[$main][] = $subsub;
+            }
+        }
+
+        if (!empty($row['sub_sub_subcategory'])) {
+            $subsubsub = $row['sub_sub_subcategory'];
+            if (!in_array($subsubsub, $organized_categories[$main])) {
+                $organized_categories[$main][] = $subsubsub;
+            }
+        }
+    }
+}
+
 // Get approved supply requests
 /*$approved_requests_sql = "SELECT 
     sr.id AS request_id,
@@ -43,10 +137,11 @@ JOIN user u ON sr.user_id = u.id;
 ";
 $approved_requests_result = $conn->query($approved_requests_sql);*/
 
-// Get inventory data
+// Get purchased data
 $sql = "SELECT i.*, s.supplier_name 
-        FROM inventory i 
+        FROM supplier_transaction i 
         LEFT JOIN supplier s ON i.supplier_id = s.supplier_id
+        $recv_where
         ORDER BY i.date_created DESC";
 $result = $conn->query($sql);
 
@@ -460,7 +555,7 @@ if (isset($_SESSION['error'])) {
                 <i class="fas fa-thumbs-up"></i>
             </div>
             <div class="stat-number">
-                <?php 
+                <?php
                 $approved_count_sql = "SELECT COUNT(*) as count FROM supply_request WHERE approved_by IS NOT NULL";
                 $approved_count_result = $conn->query($approved_count_sql);
                 $approved_count = $approved_count_result->fetch_assoc()['count'];
@@ -471,10 +566,10 @@ if (isset($_SESSION['error'])) {
         </div>
     </div>
 
-    <!-- Inventory Table -->
+    <!-- Purchase Items Table -->
     <div class="table-container">
         <div class="table-header">
-            <h3>Inventory Items</h3>
+            <h3>Purchase Items</h3>
             <div class="d-flex align-items-end gap-2">
                 <form method="GET" class="d-flex align-items-end gap-2 mb-0">
                     <div>
@@ -490,76 +585,67 @@ if (isset($_SESSION['error'])) {
                     </div>
                     <div class="pt-4">
                         <?php if (!empty($sy_inv_raw)): ?>
-                            <a href="inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_inv'=>true])) ?>" class="btn btn-outline-light">Reset</a>
+                            <a href="inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_inv' => true])) ?>" class="btn btn-outline-light">Reset</a>
                         <?php endif; ?>
                     </div>
                 </form>
-                <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addProcurementModal">
                     <i class="fas fa-plus"></i> Add Item
                 </button>
             </div>
         </div>
-        
+
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead class="table-dark">
                     <tr>
-                        <th>Item Name</th>
-                        <th>Category</th>
-                        <th>Current Stock</th>
-                        <th>Unit</th>
-                        <th>Reorder Level</th>
+                        <th>Date Received</th>
+                        <th>Invoice Number</th>
                         <th>Supplier</th>
-                        <th>Location</th>
-                        <th>Last Updated</th>
+                        <th>Sales Type</th>
+                        <th>Category</th>
+                        <th>Item Description</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Amount</th>
                         <th>Status</th>
-                        <th>Actions</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if ($result && $result->num_rows > 0): ?>
                         <?php while ($row = $result->fetch_assoc()): ?>
-                            <?php
-                            $stock_level = 'normal';
-                            if ($row['current_stock'] == 0) {
-                                $stock_level = 'out';
-                            } elseif ($row['current_stock'] <= $row['reorder_level']) {
-                                $stock_level = 'critical';
-                            } elseif ($row['current_stock'] <= ($row['reorder_level'] * 1.5)) {
-                                $stock_level = 'low';
-                            }
-                            ?>
                             <tr>
-                                <td><?= htmlspecialchars($row['item_name']) ?></td>
-                                <td><?= htmlspecialchars($row['category']) ?></td>
-                                <td>
-                                    <strong><?= $row['current_stock'] ?></strong>
-                                    <span class="stock-level <?= $stock_level ?> ms-2">
-                                        <?= strtoupper($stock_level) ?>
-                                    </span>
-                                </td>
-                                <td><?= $row['unit'] ?></td>
-                                <td><?= $row['reorder_level'] ?></td>
+                                <td><?= date('M d, Y', strtotime($row['date_created'])) ?></td>
+                                <td><?= htmlspecialchars($row['invoice_no']) ?></td>
                                 <td><?= htmlspecialchars($row['supplier_name']) ?></td>
-                                <td><?= htmlspecialchars($row['location'] ?? 'N/A') ?></td>
-                                <td><?= date('M d, Y', strtotime($row['date_updated'])) ?></td>
+                                <td><?= htmlspecialchars($row['sales_type']) ?></td>
+                                <td><?= htmlspecialchars($row['category']) ?></td>
+                                <td><?= htmlspecialchars($row['item_name']) ?></td>
+                                <td><?= htmlspecialchars($row['quantity']) . ' ' . htmlspecialchars($row['unit']) ?></td>
+                                <td><?= htmlspecialchars($row['unit_price']) ?></td>
+                                <td><?= htmlspecialchars($row['total_amount']) ?></td>
                                 <td>
-                                    <span class="badge bg-<?= $stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success') ?>">
-                                        <?= ucfirst($stock_level) ?>
+                                    <span class="badge bg-success">
+                                        Purchased
                                     </span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-primary" title="View Details" onclick="viewItem(<?= $row['inventory_id'] ?>)">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-success" title="Stock In" onclick="stockIn(<?= $row['inventory_id'] ?>)">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-warning" title="Stock Out" onclick="stockOut(<?= $row['inventory_id'] ?>)">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-info" title="Edit" onclick='openEditInventoryModal(<?= (int)$row['inventory_id'] ?>, <?= json_encode($row['item_name']) ?>, <?= json_encode($row['category']) ?>, <?= json_encode($row['unit']) ?>, <?= (int)$row['current_stock'] ?>, <?= (int)$row['reorder_level'] ?>, <?= json_encode($row['location'] ?? '') ?>, <?= json_encode((int)$row['supplier_id']) ?>, <?= json_encode((float)$row['unit_cost']) ?>)'>
+                                    <button class="btn btn-sm btn-info edit-procurement-btn" title="Edit"
+                                        data-procurement-id="<?= $row['procurement_id'] ?>"
+                                        data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
+                                        data-invoice-no="<?= htmlspecialchars($row['invoice_no']) ?>"
+                                        data-quantity="<?= $row['quantity'] ?>"
+                                        data-unit="<?= htmlspecialchars($row['unit']) ?>"
+                                        data-unit-price="<?= $row['unit_price'] ?>"
+                                        data-sales-type="<?= htmlspecialchars($row['sales_type']) ?>"
+                                        data-category="<?= htmlspecialchars($row['category']) ?>"
+                                        data-supplier-id="<?= $row['supplier_id'] ?>">
                                         <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger delete-procurement-btn" title="Delete"
+                                        data-procurement-id="<?= $row['procurement_id'] ?>">
+                                        <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -569,7 +655,7 @@ if (isset($_SESSION['error'])) {
                             <td colspan="10" class="text-center py-4">
                                 <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
                                 <p class="text-muted">No inventory items found</p>
-                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProcurementModal">
                                     Add First Item
                                 </button>
                             </td>
@@ -581,7 +667,7 @@ if (isset($_SESSION['error'])) {
     </div>
 
 
-<!-- Approved Request List -->
+    <!-- Approved Request List -->
     <div class="table-container mt-4">
         <div class="table-header">
             <h3>Approved Request List</h3>
@@ -705,30 +791,67 @@ if (isset($_SESSION['error'])) {
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">New Purchase Record</h5>
+                <h5 class="modal-title">Add New Purchase Record</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="../actions/add_procurement.php" method="POST" enctype="multipart/form-data">
                 <div class="modal-body">
                     <div class="row g-3">
+                        <!-- Row 1: Item Name and Invoice No -->
                         <div class="col-md-6">
                             <label class="form-label">Item Name</label>
                             <input type="text" name="item_name" class="form-control" required>
                         </div>
                         <div class="col-md-6">
+                            <label class="form-label">Invoice No.</label>
+                            <input type="text" name="invoice_no" class="form-control" required>
+                        </div>
+
+                        <!-- Row 2: Supplier and Category -->
+                        <div class="col-md-6">
                             <label class="form-label">Supplier</label>
                             <select name="supplier_id" class="form-select" required>
                                 <option value="">Select Supplier</option>
-                                <?php while ($supplier = $suppliers_result->fetch_assoc()): ?>
-                                    <option value="<?= $supplier['supplier_id'] ?>">
-                                        <?= htmlspecialchars($supplier['supplier_name']) ?>
-                                    </option>
-                                <?php endwhile; ?>
+                                <?php
+                                if ($suppliers_result) {
+                                    $suppliers_result->data_seek(0);
+                                    while ($supplier = $suppliers_result->fetch_assoc()):
+                                ?>
+                                        <option value="<?= $supplier['supplier_id'] ?>">
+                                            <?= htmlspecialchars($supplier['supplier_name']) ?>
+                                        </option>
+                                <?php
+                                    endwhile;
+                                }
+                                ?>
                             </select>
                         </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Category</label>
+                            <select name="category" class="form-select" required>
+                                <option value="">Select Category</option>
+                                <?php
+                                if (isset($organized_categories) && !empty($organized_categories)) {
+                                    foreach ($organized_categories as $main_category => $subcategories) {
+                                        echo '<optgroup label="' . htmlspecialchars($main_category) . '">';
+                                        foreach ($subcategories as $subcategory) {
+                                            echo '<option value="' . htmlspecialchars($subcategory) . '">' . htmlspecialchars($subcategory) . '</option>';
+                                        }
+                                        echo '</optgroup>';
+                                    }
+                                } else {
+                                    echo '<option value="Office Supplies">Office Supplies</option>';
+                                    echo '<option value="Medical Supplies">Medical Supplies</option>';
+                                    echo '<option value="Property and Equipment">Property and Equipment</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+
+                        <!-- Row 3: Quantity, Unit, Unit Price -->
                         <div class="col-md-4">
                             <label class="form-label">Quantity</label>
-                            <input type="number" name="quantity" class="form-control" required>
+                            <input type="number" name="quantity" class="form-control" required id="quantity">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Unit</label>
@@ -739,12 +862,29 @@ if (isset($_SESSION['error'])) {
                                 <option value="kg">Kilogram</option>
                                 <option value="liter">Liter</option>
                                 <option value="set">Set</option>
+                                <option value="pack">Pack</option>
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Unit Price</label>
-                            <input type="number" name="unit_price" step="0.01" class="form-control" required>
+                            <input type="number" name="unit_price" step="0.01" class="form-control" required id="unit_price">
                         </div>
+
+                        <!-- Row 4: Sales Type and Total Amount -->
+                        <div class="col-md-6">
+                            <label class="form-label">Sales Type</label>
+                            <select name="sales_type" class="form-select" required>
+                                <option value="">Select Sales Type</option>
+                                <option value="Credit">Credit</option>
+                                <option value="Cash">Cash</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Total Amount</label>
+                            <input type="number" name="total_amount" step="0.01" class="form-control" readonly id="total_amount">
+                        </div>
+
+                        <!-- Row 5: File Uploads -->
                         <div class="col-md-6">
                             <label class="form-label">Invoice</label>
                             <input type="file" name="invoice" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
@@ -753,6 +893,8 @@ if (isset($_SESSION['error'])) {
                             <label class="form-label">Delivery Receipt</label>
                             <input type="file" name="delivery_receipt" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
                         </div>
+
+                        <!-- Row 6: Notes -->
                         <div class="col-12">
                             <label class="form-label">Notes</label>
                             <textarea name="notes" class="form-control" rows="3"></textarea>
@@ -768,6 +910,130 @@ if (isset($_SESSION['error'])) {
     </div>
 </div>
 
+<!-- Edit Procurement Modal -->
+<div class="modal fade" id="editProcurementModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Purchase Record</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="../actions/edit_procurement.php" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" name="procurement_id" id="edit_procurement_id">
+                    <div class="row g-3">
+                        <!-- Row 1: Item Name and Invoice No -->
+                        <div class="col-md-6">
+                            <label class="form-label">Item Name</label>
+                            <input type="text" name="item_name" id="edit_item_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Invoice No.</label>
+                            <input type="text" name="invoice_no" id="edit_invoice_no" class="form-control" required>
+                        </div>
+
+                        <!-- Row 2: Supplier and Category -->
+                        <div class="col-md-6">
+                            <label class="form-label">Supplier</label>
+                            <select name="supplier_id" id="edit_supplier_id" class="form-select" required>
+                                <option value="">Select Supplier</option>
+                                <?php
+                                if ($suppliers_result) {
+                                    $suppliers_result->data_seek(0);
+                                    while ($supplier = $suppliers_result->fetch_assoc()):
+                                ?>
+                                        <option value="<?= $supplier['supplier_id'] ?>">
+                                            <?= htmlspecialchars($supplier['supplier_name']) ?>
+                                        </option>
+                                <?php
+                                    endwhile;
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Category</label>
+                            <select name="category" id="edit_category" class="form-select" required>
+                                <option value="">Select Category</option>
+                                <?php
+                                if (isset($organized_categories) && !empty($organized_categories)) {
+                                    foreach ($organized_categories as $main_category => $subcategories) {
+                                        echo '<optgroup label="' . htmlspecialchars($main_category) . '">';
+                                        foreach ($subcategories as $subcategory) {
+                                            echo '<option value="' . htmlspecialchars($subcategory) . '">' . htmlspecialchars($subcategory) . '</option>';
+                                        }
+                                        echo '</optgroup>';
+                                    }
+                                } else {
+                                    echo '<option value="Office Supplies">Office Supplies</option>';
+                                    echo '<option value="Medical Supplies">Medical Supplies</option>';
+                                    echo '<option value="Property and Equipment">Property and Equipment</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+
+                        <!-- Row 3: Quantity, Unit, Unit Price -->
+                        <div class="col-md-4">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" name="quantity" id="edit_quantity" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Unit</label>
+                            <select name="unit" id="edit_unit" class="form-select" required>
+                                <option value="">Select Unit</option>
+                                <option value="pc">Piece</option>
+                                <option value="box">Box</option>
+                                <option value="kg">Kilogram</option>
+                                <option value="liter">Liter</option>
+                                <option value="set">Set</option>
+                                <option value="pack">Pack</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Unit Price</label>
+                            <input type="number" name="unit_price" id="edit_unit_price" step="0.01" class="form-control" required>
+                        </div>
+
+                        <!-- Row 4: Sales Type and Total Amount -->
+                        <div class="col-md-6">
+                            <label class="form-label">Sales Type</label>
+                            <select name="sales_type" id="edit_sales_type" class="form-select" required>
+                                <option value="">Select Sales Type</option>
+                                <option value="Credit">Credit</option>
+                                <option value="Cash">Cash</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Total Amount</label>
+                            <input type="number" name="total_amount" id="edit_total_amount" step="0.01" class="form-control" readonly>
+                        </div>
+
+                        <!-- Row 5: File Uploads -->
+                        <div class="col-md-6">
+                            <label class="form-label">Invoice (Optional - leave empty to keep current)</label>
+                            <input type="file" name="invoice" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Delivery Receipt (Optional - leave empty to keep current)</label>
+                            <input type="file" name="delivery_receipt" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                        </div>
+
+                        <!-- Row 6: Notes -->
+                        <div class="col-12">
+                            <label class="form-label">Notes</label>
+                            <textarea name="notes" id="edit_notes" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Purchase</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -784,6 +1050,22 @@ if (isset($_SESSION['error'])) {
             const unitPrice = parseFloat($('input[name="unit_price"]').val()) || 0;
             const total = quantity * unitPrice;
             // You can add a total display field if needed
+        });
+
+        // Auto-calculate total amount
+        $('#quantity, #unit_price').on('input', function() {
+            const quantity = parseFloat($('#quantity').val()) || 0;
+            const unitPrice = parseFloat($('#unit_price').val()) || 0;
+            const total = quantity * unitPrice;
+            $('#total_amount').val(total.toFixed(2));
+        });
+
+        // Auto-calculate total amount for edit modal
+        $('#edit_quantity, #edit_unit_price').on('input', function() {
+            const quantity = parseFloat($('#edit_quantity').val()) || 0;
+            const unitPrice = parseFloat($('#edit_unit_price').val()) || 0;
+            const total = quantity * unitPrice;
+            $('#edit_total_amount').val(total.toFixed(2));
         });
 
         // View Modal functionality
@@ -863,28 +1145,42 @@ if (isset($_SESSION['error'])) {
         });
 
         // Edit Modal functionality
-        $('.edit-btn').on('click', function() {
+        $('.edit-procurement-btn').on('click', function() {
             const button = $(this);
-            $('#edit-id').val(button.data('id'));
-            $('#edit-item').val(button.data('item'));
-            $('#edit-quantity').val(button.data('quantity'));
-            $('#edit-unit').val(button.data('unit'));
-            $('#edit-supplier').val(button.data('supplier'));
-            $('#edit-price').val(button.data('price'));
-            $('#edit-notes').val(button.data('notes'));
-
-            // Populate supplier options if not already done
-            if ($('#edit-supplier option').length <= 1) {
-                const addModalSupplier = $('select[name="supplier_id"] option').clone();
-                $('#edit-supplier').html(addModalSupplier);
-            }
+            $('#edit_procurement_id').val(button.data('procurement-id'));
+            $('#edit_item_name').val(button.data('item-name'));
+            $('#edit_invoice_no').val(button.data('invoice-no'));
+            $('#edit_quantity').val(button.data('quantity'));
+            $('#edit_unit').val(button.data('unit'));
+            $('#edit_unit_price').val(button.data('unit-price'));
+            $('#edit_sales_type').val(button.data('sales-type'));
+            $('#edit_category').val(button.data('category'));
+            $('#edit_supplier_id').val(button.data('supplier-id'));
+            
+            // Calculate and set total amount
+            const total = button.data('quantity') * button.data('unit-price');
+            $('#edit_total_amount').val(total.toFixed(2));
+            
+            // Show the modal
+            const editModal = new bootstrap.Modal(document.getElementById('editProcurementModal'));
+            editModal.show();
+            
+            console.log('Edit modal populated with:', {
+                id: button.data('procurement-id'),
+                itemName: button.data('item-name'),
+                invoiceNo: button.data('invoice-no'),
+                quantity: button.data('quantity'),
+                unit: button.data('unit'),
+                unitPrice: button.data('unit-price'),   
+                salesType: button.data('sales-type')
+            });
         });
 
         // Approve Modal functionality
         $('.approve-btn').on('click', function() {
             const button = $(this);
-            $('#approve-id').val(button.data('id'));
-            $('#approve-item-name').text(button.data('item'));
+            $('#approve-id').val(button.data('procurement-id'));
+            $('#approve-item-name').text(button.data('item-name'));
             $('#approve-quantity').text(button.data('quantity'));
             $('#approve-unit').text(button.data('unit'));
             $('#approve-supplier').text(button.data('supplier'));
@@ -892,12 +1188,41 @@ if (isset($_SESSION['error'])) {
             $('#approve-notes').text(button.data('notes'));
         });
 
-        // Auto-calculate total in edit modal
-        $('#edit-quantity, #edit-price').on('input', function() {
-            const quantity = parseFloat($('#edit-quantity').val()) || 0;
-            const unitPrice = parseFloat($('#edit-price').val()) || 0;
-            const total = quantity * unitPrice;
-            // You can add a total display field if needed
+        // Procurement item action functions
+        function viewProcurementItem(id) {
+            // Open a modal or redirect to view procurement item details
+            console.log('View procurement item:', id);
+            // You can implement a view modal here or redirect to a details page
+            alert('View functionality - ID: ' + id);
+        }
+
+        function deleteProcurementItem(id) {
+            if (confirm('Are you sure you want to delete this procurement item?')) {
+                // Send AJAX request to delete the item
+                $.ajax({
+                    url: '../actions/delete_procurement.php',
+                    type: 'POST',
+                    data: { id: id },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Item deleted successfully');
+                            location.reload(); // Reload the page to reflect changes
+                        } else {
+                            alert('Error deleting item: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Error occurred while deleting the item');
+                    }
+                });
+            }
+        }
+        
+        // Delete procurement item functionality
+        $('.delete-procurement-btn').on('click', function() {
+            const button = $(this);
+            deleteProcurementItem(button.data('procurement-id'));
         });
     });
 </script>
