@@ -1,0 +1,93 @@
+/* Dark mode styles that work with Bootstrap 5 */
+[data-bs-theme="dark"] {
+  color-scheme: dark;
+  --bs-body-color: #dee2e6;
+  --bs-body-bg: #212529;
+  --bs-border-color: #495057;
+  --bs-secondary-color: #adb5bd;
+  --bs-tertiary-bg: #2c3034;
+  --bs-light-bg-subtle: #2c3034;
+}
+
+/* Dark mode specific styles for cards */
+[data-bs-theme="dark"] .card {
+  background-color: var(--bs-tertiary-bg);
+  border-color: var(--bs-border-color);
+}
+
+/* Dark mode for tables */
+[data-bs-theme="dark"] .table {
+  --bs-table-bg: var(--bs-body-bg);
+  --bs-table-color: var(--bs-body-color);
+  --bs-table-border-color: var(--bs-border-color);
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.05);
+  --bs-table-hover-bg: rgba(255, 255, 255, 0.1);
+}
+
+/* Dark mode for form controls */
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select,
+[data-bs-theme="dark"] .input-group-text {
+  background-color: #2c3034;
+  border-color: #495057;
+  color: #dee2e6;
+}
+
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+  background-color: #2c3034;
+  color: #dee2e6;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Dark mode for modals */
+[data-bs-theme="dark"] .modal-content {
+  background-color: #2c3034;
+  color: #dee2e6;
+}
+
+[data-bs-theme="dark"] .modal-header,
+[data-bs-theme="dark"] .modal-footer {
+  border-color: #495057;
+}
+
+/* Dark mode for dropdowns */
+[data-bs-theme="dark"] .dropdown-menu {
+  background-color: #2c3034;
+  border-color: #495057;
+}
+
+[data-bs-theme="dark"] .dropdown-item {
+  color: #dee2e6;
+}
+
+[data-bs-theme="dark"] .dropdown-item:hover,
+[data-bs-theme="dark"] .dropdown-item:focus {
+  background-color: #3d4146;
+  color: #fff;
+}
+
+/* Dark mode for pagination */
+[data-bs-theme="dark"] .page-link {
+  background-color: #2c3034;
+  border-color: #495057;
+  color: #dee2e6;
+}
+
+[data-bs-theme="dark"] .page-item.active .page-link {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+/* Dark mode for alerts */
+[data-bs-theme="dark"] .alert {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #dee2e6;
+}
+
+/* Smooth transition for dark mode */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
