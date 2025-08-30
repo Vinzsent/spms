@@ -46,6 +46,7 @@ $result = $conn->query($sql);
 // Fetch all category data for dropdown
 $categories_query = "
     SELECT 
+        at.id as category_id,
         at.name as main_category,
         sc.name as subcategory,
         ssc.name as sub_subcategory,
@@ -54,7 +55,8 @@ $categories_query = "
     LEFT JOIN account_subcategories sc ON at.id = sc.parent_id
     LEFT JOIN account_sub_subcategories ssc ON sc.id = ssc.subcategory_id
     LEFT JOIN account_sub_sub_subcategories sssc ON ssc.id = sssc.sub_subcategory_id
-    ORDER BY at.name, sc.name, ssc.name, sssc.name
+    WHERE at.id BETWEEN 14 AND 29
+    ORDER BY at.id, sc.name, ssc.name, sssc.name
 ";
 $categories_result = $conn->query($categories_query);
 
@@ -107,6 +109,36 @@ if (isset($_SESSION['error'])) {
 }
 ?>
 
+<style>
+   /* Center only specific optgroup labels in category dropdown */
+   #categorySelect optgroup[label="Assets"],
+  #categorySelect optgroup[label="Expenses"] {
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    color: #1a5f3c;
+    background-color: #f8f9fa;
+    padding: 8px 0;
+  }
+
+  /* Keep other optgroups left-aligned */
+  #categorySelect optgroup:not([label="Assets"]):not([label="Expenses"]) {
+    text-align: left;
+    font-weight: bold;
+    font-size: 14px;
+    color: #1a5f3c;
+    background-color: #f8f9fa;
+    padding: 8px 0;
+  }
+
+  #categorySelect option {
+    text-align: left;
+    padding-left: 20px;
+    font-weight: normal;
+    color: #333;
+  }
+</style>
+
 <?php include('../includes/navbar.php'); ?>
 <div class="container" style="margin-top: 100px;">
 
@@ -114,26 +146,26 @@ if (isset($_SESSION['error'])) {
   <div class="row mb-4">
     <div class="col-md-12">
       <div class="card border-dark">
-        <div class="card-header py-2" style="background-color: #1a5f3c; color: white;">
-          <h6 class="mb-0"><i class="fas fa-user-circle me-2"></i>Current User Information</h6>
+        <div class="card-header" style="background-color: #1a5f3c; color: white; padding: 2px 6px;">
+          <h6 class="mb-0" style="font-size: 12px;"><i class="fas fa-user-circle me-2"></i>Current User Information</h6>
         </div>
-        <div class="card-body py-2">
+        <div class="card-body" style="padding: 2px 6px;">
           <div class="row align-items-center">
             <div class="col-md-8">
               <div class="d-flex align-items-center">
                 <div class="me-3">
-                  <i class="fas fa-user-circle fa-2x" style="color: #1a5f3c;"></i>
+                  <i class="fas fa-user-circle fa-lg" style="color: #1a5f3c;"></i>
                 </div>
                 <div>
-                  <h5 class="mb-1"><?= htmlspecialchars($user_name) ?></h5>
-                  <p class="mb-1 text-muted">
+                  <h5 class="mb-1" style="font-size: 12px;"><?= htmlspecialchars($user_name) ?></h5>
+                  <p class="mb-1 text-muted" style="font-size: 10px;">
                     <?php if (!empty($user_type)): ?>
                       | <strong>Position:</strong> <?= htmlspecialchars(strtoupper($user_type)) ?>
                     <?php endif; ?>
                   </p>
                   <?php if (empty($user_id)): ?>
                     <div class="mt-2">
-                      <small class="text-warning">
+                      <small class="text-warning" style="font-size: 10px;">
                         <i class="fas fa-exclamation-triangle me-1"></i>Warning: User ID not found in session
                       </small>
                     </div>
@@ -142,7 +174,7 @@ if (isset($_SESSION['error'])) {
               </div>
             </div>
             <div class="col-md-4 text-end">
-              <button class="btn btn-sm" style="background-color: #fd7e14; color: white;" data-bs-toggle="modal" data-bs-target="#addSupplyModal">
+              <button class="btn btn-sm" style="background-color: #fd7e14; color: white; font-size: 12px; padding: 2px 6px;" data-bs-toggle="modal" data-bs-target="#addSupplyModal">
                 <i class="fas fa-plus me-2"></i>New Supply Request
               </button>
             </div>
@@ -153,72 +185,73 @@ if (isset($_SESSION['error'])) {
   </div>
 
   <div class="d-flex justify-content-between align-items-center mb-2">
-    <h3>Supply Request</h3>
+    <h3 style="font-size: 16px;">Supply Request</h3>
     <div>
-      <button class="btn btn-sm" style="background-color: #fd7e14; color: white;" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
+      <button class="btn btn-sm" style="background-color: #fd7e14; color: white; font-size: 12px; padding: 2px 6px;" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
     </div>
   </div>
 
   <!-- Request Type Display -->
   <?php if (!empty($request_type)): ?>
-    <div class="alert alert-info text-center mb-4" role="alert">
+    <div class="alert alert-info text-center mb-4" role="alert" style="padding: 6px;">
       <i class="fas fa-info-circle me-2"></i>
-      <strong>Request Type:</strong>
-      <span class="badge bg-primary ms-2">
+      <strong style="font-size: 12px;">Request Type:</strong>
+      <span class="badge bg-primary ms-2" style="font-size: 10px;">
         <?= ucfirst($request_type) ?>
       </span>
-      <button type="button" class="btn btn-sm btn-outline-secondary ms-3" onclick="changeRequestType()">
+      <button type="button" class="btn btn-sm btn-outline-secondary ms-3" style="font-size: 12px; padding: 2px 6px;" onclick="changeRequestType()">
         <i class="fas fa-edit me-1"></i>Change Type
       </button>
     </div>
   <?php endif; ?>
 
-  <h5 class="text-center">List of employee request</h5>
+  <h5 class="text-center" style="font-size: 14px;">List of employee request</h5>
   <hr>
+  
   <!-- Filter Row -->
   <div class="row align-items-end mb-2 g-2">
     <div class="col-md-2">
-      <label for="dtSearch" class="form-label">Search</label>
-      <input type="search" id="dtSearch" class="form-control" placeholder="Search...">
+      <label for="dtSearch" class="form-label" style="font-size: 12px;">Search</label>
+      <input type="search" id="dtSearch" class="form-control" style="font-size: 12px; padding: 2px 6px;" placeholder="Search...">
     </div>
 
     <div class="col-md-2">
-      <label for="filterDateStart" class="form-label">Date Range (From)</label>
-      <input type="date" id="filterDateStart" class="form-control">
+      <label for="filterDateStart" class="form-label" style="font-size: 12px;">Date Range (From)</label>
+      <input type="date" id="filterDateStart" class="form-control" style="font-size: 12px; padding: 2px 6px;">
     </div>
 
     <div class="col-md-2">
-      <label for="filterDateEnd" class="form-label">Date Range (To)</label>
-      <input type="date" id="filterDateEnd" class="form-control">
+      <label for="filterDateEnd" class="form-label" style="font-size: 12px;">Date Range (To)</label>
+      <input type="date" id="filterDateEnd" class="form-control" style="font-size: 12px; padding: 2px 6px;">
     </div>
 
     <div class="col-md-4">
-      <label for="accountSelect">Select Account Category:</label>
-      <select id="accountSelect" name="accountSelect" class="form-select">
-        <option value="">All Categories</option>
-        <?php
-        // Use the same organized categories structure
-        if (isset($organized_categories) && !empty($organized_categories)) {
-            foreach ($organized_categories as $main_category => $subcategories) {
-                echo '<optgroup label="' . htmlspecialchars($main_category) . '">';
-                foreach ($subcategories as $subcategory) {
-                    echo '<option value="' . htmlspecialchars($subcategory) . '">' . htmlspecialchars($subcategory) . '</option>';
-                }
-                echo '</optgroup>';
-            }
-        } else {
-            // Fallback options if no data available - display as bold headers only
-            echo '<optgroup label="Property and Equipment"></optgroup>';
-            echo '<optgroup label="Intangible Assets"></optgroup>';
-            echo '<optgroup label="Office Supplies"></optgroup>';
-            echo '<optgroup label="Medical Supplies"></optgroup>';
-        }
-        ?>
+      <label for="accountSelect" style="font-size: 12px;">Select Account Category:</label>
+      <select id="accountSelect" name="accountSelect" class="form-select" style="font-size: 12px; padding: 2px 6px;">
+        <option value="">Select Category</option>
+                    <?php
+                    // Use the same organized categories from the main page
+                    if (isset($organized_categories) && !empty($organized_categories)) {
+                        foreach ($organized_categories as $main_category => $subcategories) {
+                            echo '<optgroup label="' . htmlspecialchars($main_category) . '">';
+                            foreach ($subcategories as $subcategory) {
+                                echo '<option value="' . htmlspecialchars($subcategory) . '">' . htmlspecialchars($subcategory) . '</option>';
+                            }
+                            echo '</optgroup>';
+                        }
+                    } else {
+                        // Fallback options if no data available - display as bold headers only
+                        echo '<optgroup label="Property and Equipment"></optgroup>';
+                        echo '<optgroup label="Intangible Assets"></optgroup>';
+                        echo '<optgroup label="Office Supplies"></optgroup>';
+                        echo '<optgroup label="Medical Supplies"></optgroup>';
+                    }
+                    ?>
       </select>
     </div>
 
     <div class="col-md-2">
-      <label class="form-label d-block">Export</label>
+      <label class="form-label d-block" style="font-size: 12px;">Export</label>
       <div id="exportContainer"></div>
     </div>
   </div>
@@ -226,34 +259,31 @@ if (isset($_SESSION['error'])) {
   <!-- Quick Date Filters -->
   <div class="row mb-2">
     <div class="col-12">
-      <label class="form-label">Quick Date Filters:</label>
+      <label class="form-label" style="font-size: 12px;">Quick Date Filters:</label>
       <div class="btn-group" role="group">
-        <button type="button" class="btn btn-outline-primary btn-sm" id="currentMonth">Current Month</button>
-        <button type="button" class="btn btn-outline-primary btn-sm" id="currentYear">Current Year</button>
-        <button type="button" class="btn btn-outline-primary btn-sm" id="lastMonth">Last Month</button>
-        <button type="button" class="btn btn-outline-primary btn-sm" id="lastYear">Last Year</button>
-        <button type="button" class="btn btn-outline-secondary btn-sm" id="clearDateFilter">Clear Date Filter</button>
+        <button type="button" class="btn btn-outline-primary btn-sm" style="font-size: 12px; padding: 2px 6px;" id="currentMonth">Current Month</button>
+        <button type="button" class="btn btn-outline-primary btn-sm" style="font-size: 12px; padding: 2px 6px;" id="currentYear">Current Year</button>
+        <button type="button" class="btn btn-outline-primary btn-sm" style="font-size: 12px; padding: 2px 6px;" id="lastMonth">Last Month</button>
+        <button type="button" class="btn btn-outline-primary btn-sm" style="font-size: 12px; padding: 2px 6px;" id="lastYear">Last Year</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" style="font-size: 12px; padding: 2px 6px;" id="clearDateFilter">Clear Date Filter</button>
       </div>
     </div>
   </div>
   <hr>
+
   <!-- Transactions Table -->
   <div class="table-responsive">
-    <table id="transactionsTable" class="table table-bordered table-striped">
+    <table id="transactionsTable" class="table table-bordered table-striped table-sm">
       <thead>
         <tr>
-          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Date Requested</th>
-          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Date Needed</th>
-          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Position/Role</th>
-          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Purpose of the request</th>
-          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Quantity Requested</th>
-          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Unit</th>
-          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Request Description</th>
-          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Category</th>
-          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Request Type</th>
-          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Unit Cost</th>
-          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Total Cost</th>
-          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Action</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Date Requested</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Date Needed</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Quantity</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Unit</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Description</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Unit Cost</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Total Cost</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -265,29 +295,26 @@ if (isset($_SESSION['error'])) {
           $computed_total_cost = $quantity * $unit_cost;
           $total_sum += $computed_total_cost;
         ?>
-          <tr>
-            <td><?= $row['date_requested'] ?></td>
-            <td><?= htmlspecialchars($row['date_needed']) ?></td>
-            <td><?= $row['department_unit'] ?></td>
-            <td><?= htmlspecialchars($row['purpose']) ?></td>
-            <td><?= htmlspecialchars($row['quantity_requested']) ?></td>
-            <td><?= htmlspecialchars($row['unit']) ?></td>
-            <td><?= $row['request_description'] ?></td>
-            <td><?= htmlspecialchars($row['category']) ?></td>
-            <td style="text-transform: uppercase;"><?= htmlspecialchars($row['request_type']) ?></td>
-            <td>
+          <tr style="font-size: 11px;">
+            <td style="padding: 4px 6px;"><?= $row['date_requested'] ?></td>
+            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['date_needed']) ?></td>
+            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['quantity_requested']) ?></td>
+            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['unit']) ?></td>
+            <td style="padding: 4px 6px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><?= $row['request_description'] ?></td>
+            <td style="padding: 4px 6px;">
               ₱<?= !empty($unit_cost)
                   ? number_format($unit_cost, 2)
-                  : ' <span style="color: red; font-weight: bold;">No Unit Cost Recorded</span>'; ?>
+                  : ' <span style="color: red; font-weight: bold; font-size: 12px;">No Cost</span>'; ?>
             </td>
-            <td>
+            <td style="padding: 4px 6px;">
               ₱<?= !empty($computed_total_cost)
                   ? number_format($computed_total_cost, 2)
-                  : ' <span style="color: red; font-weight: bold;">No Total Cost Recorded</span>'; ?>
+                  : ' <span style="color: red; font-weight: bold; font-size: 12px;">No Cost</span>'; ?>
             </td>
-            <td>
+            <td style="padding: 4px 6px;">
               <button
-                class="btn btn-sm editBtn" style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;"
+                class="btn btn-xs editBtn" 
+                style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 2px 6px; border-radius: 3px;"
                 data-request-id="<?= $row['request_id'] ?>"
                 data-date-requested="<?= htmlspecialchars($row['date_requested']) ?>"
                 data-date-needed="<?= htmlspecialchars($row['date_needed']) ?>"
@@ -302,18 +329,18 @@ if (isset($_SESSION['error'])) {
                 data-unit-cost="<?= $unit_cost ?>"
                 data-total-cost="<?= $computed_total_cost ?>"
                 data-bs-toggle="modal"
-                data-bs-target="#editSupplyModal"><i class="fas fa-edit me-1"></i>
-                Edit Request Details
+                data-bs-target="#editSupplyModal">
+                <i class="fas fa-edit" style="font-size: 12px;"></i> Edit
               </button>
             </td>
           </tr>
         <?php endwhile; ?>
       </tbody>
       <tfoot>
-        <tr>
-          <td colspan="10" class="text-end fw-bold">Total:</td>
-          <td class="fw-bold" id="grandTotalCell">₱<?= number_format($total_sum, 2) ?></td>
-          <td></td>
+        <tr style="font-size: 12px;">
+          <td colspan="6" class="text-end fw-bold" style="padding: 6px;">Total:</td>
+          <td class="fw-bold" id="grandTotalCell" style="padding: 6px;">₱<?= number_format($total_sum, 2) ?></td>
+          <td style="padding: 6px;"></td>
         </tr>
       </tfoot>
     </table>

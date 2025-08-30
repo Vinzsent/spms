@@ -8,15 +8,15 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
     <div class="modal-content border-0 shadow-lg">
       <!-- Modern Header with Gradient -->
       <div class="modal-header border-0 bg-gradient-primary text-white">
-        <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center" style="height: 10px;">
           <div class="modal-icon me-3">
             <i class="fas fa-clipboard-list fa-2x"></i>
           </div>
           <div>
             <h5 class="modal-title mb-0 fw-bold" id="supplyModalLabel">
               <i class="fas fa-plus-circle me-2"></i>New Supply Request
+              <small class="text-white-50" style="font-size: 15px;">(Submit your supply request for processing)</small>
             </h5>
-            <small class="text-white-50">Submit your supply request for processing</small>
           </div>
         </div>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -27,33 +27,15 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
           <!-- User Information Card -->
           <div class="user-info-card mb-4">
             <div class="card border-0 bg-light">
-              <div class="card-body p-3">
-                <div class="d-flex align-items-center">
-                  <div class="user-avatar me-3">
-                    <i class="fas fa-user-circle fa-3x text-primary"></i>
-                  </div>
-                  <div class="flex-grow-1">
-                    <h6 class="mb-1 fw-bold text-dark">
-                      <i class="fas fa-user me-2"></i>Requesting User
-                    </h6>
-                    <p class="mb-1 text-muted"><?= htmlspecialchars($user_name) ?></p>
-                    <span class="badge bg-primary">ID: <?= htmlspecialchars($user_id) ?></span>
-                  </div>
-                  <div class="user-status">
-                    <span class="badge bg-success">
-                      <i class="fas fa-check-circle me-1"></i>Active
-                    </span>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
-
+          
           <!-- Hidden User ID -->
           <input type="hidden" name="user_id" value="<?= htmlspecialchars($user_id) ?>">
-
+          <input type="hidden" name="department_unit" class="form-control bg-light" value="<?= htmlspecialchars($user_type) ?>" readonly id="positionRole">
+          <input type="hidden" name="user_name" value="<?= htmlspecialchars($user_name) ?>">
           <!-- Request Details Section -->
-          <div class="section-card mb-4">
+          <div class="section-card mb-4" style="margin-top: -40px;">
             <div class="section-header mb-3">
               <h6 class="section-title">
                 <i class="fas fa-calendar-alt me-2 text-primary"></i>Request Details
@@ -62,7 +44,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
             </div>
 
             <div class="row g-3">
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <div class="form-floating">
                   <input type="date" name="date_requested" class="form-control" id="dateRequested" required>
                   <input type="hidden" id="selectedRequestType" name="request_type" value="<?= $request_type ?>">
@@ -72,7 +54,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
                 </div>
               </div>
 
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <div class="form-floating">
                   <input type="date" name="date_needed" class="form-control" id="dateNeeded" required>
                   <label for="dateNeeded">
@@ -81,123 +63,28 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
                 </div>
               </div>
 
-              <div class="col-md-4">
-                <div class="form-floating">
-                  <input type="text" name="department_unit" class="form-control bg-light" value="<?= htmlspecialchars($user_type) ?>" readonly id="positionRole">
-                  <label for="positionRole">
-                    <i class="fas fa-id-badge me-1"></i>Position/Role <span class="text-danger">*</span>
-                  </label>
-                </div>
+              <div class="col-md-6">
+              <div class="form-floating">
+                <textarea name="purpose" class="form-control" id="purposeText" style="height: 60px" required></textarea>
+                <label for="purposeText">
+                  <i class="fas fa-bullseye me-1"></i>Purpose <span class="text-danger">*</span>
+                </label>
               </div>
+            </div>
+
             </div>
           </div>
 
-          <!-- Item Information Section -->
-          <div class="section-card mb-4">
-            <div class="section-header mb-3">
-              <h6 class="section-title">
-                <i class="fas fa-box me-2 text-primary"></i>Item Information
-              </h6>
-              <div class="section-divider"></div>
-            </div>
-
-            <div class="row g-3">
-              <div class="col-md-3">
-                <div class="form-floating">
-                  <input type="number" name="quantity_requested" class="form-control" id="quantityRequested" required>
-                  <label for="quantityRequested">
-                    <i class="fas fa-hashtag me-1"></i>Quantity <span class="text-danger">*</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="form-floating">
-                  <select name="unit" class="form-select" id="unitSelect" required>
-                    <option value="">Select Unit</option>
-                    <optgroup label="Common Units">
-                      <option value="pc">Piece (pc)</option>
-                      <option value="box">Box</option>
-                      <option value="pack">Pack</option>
-                      <option value="pad">Pad</option>
-                      <option value="ream">Ream</option>
-                      <option value="dozen">Dozen</option>
-                    </optgroup>
-                    <optgroup label="Liquid & Cleaning">
-                      <option value="bottle">Bottle</option>
-                      <option value="gallon">Gallon</option>
-                      <option value="liter">Liter (L)</option>
-                      <option value="ml">Milliliter (ml)</option>
-                      <option value="roll">Roll</option>
-                      <option value="bar">Bar</option>
-                    </optgroup>
-                    <optgroup label="Measurement">
-                      <option value="meter">Meter</option>
-                      <option value="cm">Centimeter (cm)</option>
-                      <option value="ft">Foot (ft)</option>
-                      <option value="kg">Kilogram (kg)</option>
-                      <option value="g">Gram (g)</option>
-                      <option value="ton">Ton</option>
-                      <option value="tube">Tube</option>
-                      <option value="can">Can</option>
-                    </optgroup>
-                    <optgroup label="Laboratory & Medical">
-                      <option value="vial">Vial</option>
-                      <option value="sachet">Sachet</option>
-                    </optgroup>
-                    <optgroup label="Equipment">
-                      <option value="unit">Unit</option>
-                      <option value="set">Set</option>
-                      <option value="kit">Kit</option>
-                      <option value="pair">Pair</option>
-                      <option value="lot">Lot</option>
-                      <option value="package">Package</option>
-                    </optgroup>
-                    <optgroup label="Services">
-                      <option value="trip">Trip</option>
-                      <option value="hour">Hour</option>
-                      <option value="day">Day</option>
-                      <option value="service">Service</option>
-                    </optgroup>
-                  </select>
-                  <label for="unitSelect">
-                    <i class="fas fa-ruler me-1"></i>Unit <span class="text-danger">*</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="form-floating">
-                  <select name="sales_type" class="form-select" id="salesType" required>
-                    <option value="">Select Type</option>
-                    <option value="Cash">Cash Purchased</option>
-                    <option value="Credit">Credit Purchased</option>
-                  </select>
-                  <label for="salesType">
-                    <i class="fas fa-money-bill me-1"></i>Purchase Type <span class="text-danger">*</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="form-floating">
-                  <input type="text" name="quality_issued" class="form-control" id="qualityIssued">
-                  <label for="qualityIssued">
-                    <i class="fas fa-star me-1"></i>Quality (Optional)
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-
+          
           <!-- Category & Description Section -->
-          <div class="section-card mb-4">
+          <div class="section-card mb-4" style="margin-top: -10px;">
             <div class="section-header mb-3">
               <h6 class="section-title">
-                <i class="fas fa-tags me-2 text-primary"></i>Category & Description
+                <i class="fas fa-tags me-2 text-primary"></i>Category & Item Description
               </h6>
               <div class="section-divider"></div>
             </div>
+            
 
             <div class="row g-3">
               <div class="col-md-6">
@@ -228,38 +115,81 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
                   </label>
                 </div>
               </div>
-
-              <div class="col-md-6">
+              
+              <div class="col-md-3">
                 <div class="form-floating">
-                  <textarea name="purpose" class="form-control" id="purposeText" style="height: 100px" required></textarea>
-                  <label for="purposeText">
-                    <i class="fas fa-bullseye me-1"></i>Purpose <span class="text-danger">*</span>
+                  <input type="number" name="quantity_requested" class="form-control" id="quantityRequested" required>
+                  <label for="quantityRequested">
+                    <i class="fas fa-hashtag me-1"></i>Quantity <span class="text-danger">*</span>
                   </label>
                 </div>
               </div>
 
-              <div class="col-12">
+              <div class="form-floating col-md-3">
+                <select name="unit" class="form-select" id="unitSelect" required>
+                  <option value="">Select Unit</option>
+                  <optgroup label="Common Units">
+                    <option value="pc">Piece (pc)</option>
+                    <option value="box">Box</option>
+                    <option value="pack">Pack</option>
+                    <option value="pad">Pad</option>
+                    <option value="ream">Ream</option>
+                    <option value="dozen">Dozen</option>
+                  </optgroup>
+                  <optgroup label="Liquid & Cleaning">
+                    <option value="bottle">Bottle</option>
+                    <option value="gallon">Gallon</option>
+                    <option value="liter">Liter (L)</option>
+                    <option value="ml">Milliliter (ml)</option>
+                    <option value="roll">Roll</option>
+                    <option value="bar">Bar</option>
+                  </optgroup>
+                  <optgroup label="Measurement">
+                    <option value="meter">Meter</option>
+                    <option value="cm">Centimeter (cm)</option>
+                    <option value="ft">Foot (ft)</option>
+                    <option value="kg">Kilogram (kg)</option>
+                    <option value="g">Gram (g)</option>
+                    <option value="ton">Ton</option>
+                    <option value="tube">Tube</option>
+                    <option value="can">Can</option>
+                  </optgroup>
+                  <optgroup label="Laboratory & Medical">
+                    <option value="vial">Vial</option>
+                    <option value="sachet">Sachet</option>
+                  </optgroup>
+                  <optgroup label="Equipment">
+                    <option value="unit">Unit</option>
+                    <option value="set">Set</option>
+                    <option value="kit">Kit</option>
+                    <option value="pair">Pair</option>
+                    <option value="lot">Lot</option>
+                    <option value="package">Package</option>
+                  </optgroup>
+                  <optgroup label="Services">
+                    <option value="trip">Trip</option>
+                    <option value="hour">Hour</option>
+                    <option value="day">Day</option>
+                    <option value="service">Service</option>
+                  </optgroup>
+                </select>
+
+                <label for="unitSelect">
+                  <i class="fas fa-ruler me-1"></i>Unit <span class="text-danger">*</span>
+                </label>
+              </div>
+
+              <div class="col-md-12">
                 <div class="form-floating">
-                  <textarea name="request_description" class="form-control" id="requestDescription" style="height: 100px" required></textarea>
+                  <textarea name="request_description" class="form-control" id="requestDescription" style="height: 70px" required></textarea>
                   <label for="requestDescription">
                     <i class="fas fa-align-left me-1"></i>Request Description <span class="text-danger">*</span>
                   </label>
                 </div>
               </div>
-            </div>
-          </div>
+              
 
-          <!-- Item Specifications Section -->
-          <div class="section-card mb-4">
-            <div class="section-header mb-3">
-              <h6 class="section-title">
-                <i class="fas fa-cogs me-2 text-primary"></i>Item Specifications
-              </h6>
-              <div class="section-divider"></div>
-            </div>
-
-            <div class="row g-3">
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <div class="form-floating">
                   <input type="text" name="brand" class="form-control" id="brandInput" required>
                   <label for="brandInput">
@@ -268,7 +198,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
                 </div>
               </div>
 
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <div class="form-floating">
                   <input type="text" name="color" class="form-control" id="colorInput" required>
                   <label for="colorInput">
@@ -277,6 +207,53 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
                 </div>
               </div>
 
+                <div class="col-md-3">
+                  <div class="form-floating">
+                    <input type="text" name="unit_cost" class="form-control" id="unitCost" pattern="[0-9]*\.?[0-9]*">
+                    <label for="unitCost">
+                      <i class="fas fa-dollar-sign me-1"></i>Unit Cost (Optional)
+                    </label>
+                  </div>
+
+                  <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>Leave blank if unknown
+                  </small>
+                </div>
+                
+                <div class="col-md-3">
+                  <div class="form-floating">
+                    <input type="text" id="addTotalAmount" class="form-control bg-light" readonly>
+                    <label for="addTotalAmount">
+                      <i class="fas fa-calculator me-1"></i>Total Cost
+                    </label>
+                  </div>
+                  <input type="hidden" name="total_cost" id="hiddenTotalCost">
+                  <input type="hidden" name="amount" id="hiddenAmount">
+                </div>
+
+               <!-- <div class="col-md-4">
+                  <div class="cost-summary-card">
+                    <div class="card border-0 bg-light">
+                      <div class="card-body text-center p-3">
+                        <h6 class="mb-2 text-muted">Cost Summary</h6>
+                        <div class="cost-breakdown">
+                          <div class="cost-item">
+                            <span class="cost-label">Quantity:</span>
+                            <span class="cost-value" id="summaryQuantity">0</span>
+                          </div>
+                          <div class="cost-item">
+                            <span class="cost-label">Unit Cost:</span>
+                            <span class="cost-value" id="summaryUnitCost">₱0.00</span>
+                          </div>
+                          <div class="cost-item total">
+                            <span class="cost-label">Total:</span>
+                            <span class="cost-value" id="summaryTotal">₱0.00</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               <div class="col-md-4">
                 <div class="form-floating">
                   <input type="text" name="type" class="form-control" id="typeInput" required>
@@ -284,84 +261,68 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
                     Type <span class="text-danger">*</span>
                   </label>
                 </div>
-              </div>
+              </div>-->
             </div>
           </div>
-
-          <!-- Cost Information Section -->
-          <div class="section-card mb-4">
-            <div class="section-header mb-3">
-              <h6 class="section-title">
-                <i class="fas fa-calculator me-2 text-primary"></i>Cost Information
-              </h6>
-              <div class="section-divider"></div>
-            </div>
-
-            <div class="row g-3">
-              <div class="col-md-4">
-                <div class="form-floating">
-                  <input type="text" name="unit_cost" class="form-control" id="unitCost" pattern="[0-9]*\.?[0-9]*">
-                  <label for="unitCost">
-                    <i class="fas fa-dollar-sign me-1"></i>Unit Cost (Optional)
-                  </label>
+            <!-- Item Information Section
+            <div class="section-card mb-4">
+              <div class="row g-3">
+                <div class="col-md-3">
                 </div>
-                <small class="text-muted">
-                  <i class="fas fa-info-circle me-1"></i>Leave blank if unknown
-                </small>
-              </div>
-
-              <div class="col-md-4">
-                <div class="form-floating">
-                  <input type="text" id="addTotalAmount" class="form-control bg-light" readonly>
-                  <label for="addTotalAmount">
-                    <i class="fas fa-calculator me-1"></i>Total Cost
-                  </label>
+  
+                <div class="col-md-3">
+                  <div class="form-floating">
+                    <select name="sales_type" class="form-select" id="salesType" required>
+                      <option value="">Select Type</option>
+                      <option value="Cash">Cash Purchased</option>
+                      <option value="Credit">Credit Purchased</option>
+                    </select>
+                    <label for="salesType">
+                      <i class="fas fa-money-bill me-1"></i>Purchase Type <span class="text-danger">*</span>
+                    </label>
+                  </div>
                 </div>
-                <input type="hidden" name="total_cost" id="hiddenTotalCost">
-                <input type="hidden" name="amount" id="hiddenAmount">
-              </div>
-
-              <div class="col-md-4">
-                <div class="cost-summary-card">
-                  <div class="card border-0 bg-light">
-                    <div class="card-body text-center p-3">
-                      <h6 class="mb-2 text-muted">Cost Summary</h6>
-                      <div class="cost-breakdown">
-                        <div class="cost-item">
-                          <span class="cost-label">Quantity:</span>
-                          <span class="cost-value" id="summaryQuantity">0</span>
-                        </div>
-                        <div class="cost-item">
-                          <span class="cost-label">Unit Cost:</span>
-                          <span class="cost-value" id="summaryUnitCost">₱0.00</span>
-                        </div>
-                        <div class="cost-item total">
-                          <span class="cost-label">Total:</span>
-                          <span class="cost-value" id="summaryTotal">₱0.00</span>
-                        </div>
-                      </div>
-                    </div>
+                 Item Specifications Section
+  
+                <div class="col-md-3">
+                  <div class="form-floating">
+                    <input type="text" name="quality_issued" class="form-control" id="qualityIssued">
+                    <label for="qualityIssued">
+                      <i class="fas fa-star me-1"></i>Quality (Optional)
+                    </label>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+
+          <!-- Item Specifications Section 
+          <div class="section-card mb-4">
+            <div class="section-header mb-3">
+              <h6 class="section-title">
+                <i class="fas fa-cogs me-2 text-primary"></i>Item Specifications
+              </h6>
+              <div class="section-divider"></div>
+            </div>-->
+
+            
+
+       
 
         <!-- Modern Footer -->
-        <div class="modal-footer border-0 bg-light">
+        <div class="modal-footer border-0 bg-light" style="margin-top: -10px; padding: 8px 16px;">
           <div class="d-flex justify-content-between w-100">
             <div class="form-info">
-              <small class="text-muted">
+              <small class="text-muted" style="font-size: 12px;">
                 <i class="fas fa-info-circle me-1"></i>
                 Fields marked with <span class="text-danger">*</span> are required
               </small>
             </div>
             <div class="action-buttons">
-              <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">
+              <button type="button" class="btn btn-outline-secondary me-2" style="font-size: 12px; padding: 10px 12px;" data-bs-dismiss="modal">
                 <i class="fas fa-times me-1"></i>Cancel
               </button>
-              <button type="submit" class="btn btn-primary">
+              <button type="submit" class="btn btn-primary" style="font-size: 12px; padding: 12px 12px;">
                 <i class="fas fa-paper-plane me-1"></i>Submit Request
               </button>
             </div>
@@ -369,7 +330,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
         </div>
       </form>
     </div>
-  </div>
+  </div> </div>
 </div>
 
 <!-- Bulk Request Confirmation Modal -->
@@ -656,6 +617,34 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
     filter: grayscale(60%) brightness(0.35);
     pointer-events: none;
     /* block interaction */
+  }
+
+  /* Center only specific optgroup labels in category dropdown */
+  #categorySelect optgroup[label="Assets"],
+  #categorySelect optgroup[label="Expenses"] {
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    color: #1a5f3c;
+    background-color: #f8f9fa;
+    padding: 8px 0;
+  }
+
+  /* Keep other optgroups left-aligned */
+  #categorySelect optgroup:not([label="Assets"]):not([label="Expenses"]) {
+    text-align: left;
+    font-weight: bold;
+    font-size: 14px;
+    color: #1a5f3c;
+    background-color: #f8f9fa;
+    padding: 8px 0;
+  }
+
+  #categorySelect option {
+    text-align: left;
+    padding-left: 20px;
+    font-weight: normal;
+    color: #333;
   }
 </style>
 
