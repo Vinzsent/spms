@@ -33,6 +33,18 @@
                             <label class="fw-bold">Category:</label>
                             <p id="viewCategory" class="form-control-plaintext"></p>
                         </div>
+                        <div class="form-group mb-3">
+                            <label class="fw-bold">Item Name:</label>
+                            <p id="viewItemName" class="form-control-plaintext"></p>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="fw-bold">Brand:</label>
+                            <p id="viewBrand" class="form-control-plaintext"></p>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="fw-bold">Color:</label>
+                            <p id="viewColor" class="form-control-plaintext"></p>
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <h6>Item Details</h6>

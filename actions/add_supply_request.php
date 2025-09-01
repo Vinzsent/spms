@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     error_log('Form submitted with data: ' . print_r($_POST, true));
     
     // Debug: Check if all required fields are present
-    $required_fields = ['date_requested', 'date_needed', 'department_unit', 'purpose', 'category', 'request_description', 'total_cost', 'quantity_requested', 'unit', 'amount', 'request_type', 'user_id'];
+    $required_fields = ['date_requested', 'date_needed', 'department_unit', 'purpose', 'category', 'item_name', 'request_description', 'total_cost', 'quantity_requested', 'unit', 'amount', 'request_type', 'user_id'];
     $missing_fields = [];
     foreach ($required_fields as $field) {
         if (empty($_POST[$field])) {
@@ -36,6 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $category                 = trim($_POST['category'] ?? '');
         $item_name                = trim($_POST['item_name'] ?? '');
         $request_description      = trim($_POST['request_description'] ?? '');
+        $brand                    = trim($_POST['brand'] ?? '');
+        $color                 = trim($_POST['color'] ?? '');
         $unit_cost                = trim($_POST['unit_cost'] ?? '');
         $total_cost               = trim($_POST['total_cost'] ?? '');
         $quantity_requested       = trim($_POST['quantity_requested'] ?? '');
@@ -48,8 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Prepare and execute SQL statement for supply_request table
         $stmt = $conn->prepare("
             INSERT INTO supply_request (
-                date_requested, date_needed, department_unit, purpose, sales_type, category, item_name, request_description, unit_cost, total_cost, quantity_requested, unit, quality_issued, amount, request_type, user_id
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                date_requested, date_needed, department_unit, purpose, sales_type, category, item_name, request_description, brand, color, unit_cost, total_cost, quantity_requested, unit, quality_issued, amount, request_type, user_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         if (!$stmt) {
@@ -57,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $stmt->bind_param(
-            "sssssssssssssssi",
+            "sssssssssssssssssi",
             $date_requested,    
             $date_needed,
             $department_unit,
@@ -66,6 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $category,
             $item_name,
             $request_description,
+            $brand,
+            $color,
             $unit_cost,
             $total_cost,
             $quantity_requested,

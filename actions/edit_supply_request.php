@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     error_log('Edit form submitted with data: ' . print_r($_POST, true));
     
     // Debug: Check if all required fields are present
-    $required_fields = ['request_id', 'date_requested', 'date_needed', 'department_unit', 'purpose', 'sales_type', 'category', 'request_description', 'quantity_requested', 'unit'];
+    $required_fields = ['request_id', 'date_requested', 'date_needed', 'department_unit', 'purpose', 'category', 'item_name', 'request_description', 'quantity_requested', 'unit', 'brand', 'color'];
     $missing_fields = [];
     foreach ($required_fields as $field) {
         if (empty($_POST[$field])) {
@@ -31,24 +31,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $date_needed              = trim($_POST['date_needed'] ?? '');
         $department_unit          = trim($_POST['department_unit'] ?? '');
         $purpose                  = trim($_POST['purpose'] ?? '');
-        $sales_type               = trim($_POST['sales_type'] ?? '');
         $category                 = trim($_POST['category'] ?? '');
+        $item_name                = trim($_POST['item_name'] ?? '');
         $request_description      = trim($_POST['request_description'] ?? '');
+        $brand                    = trim($_POST['brand'] ?? '');
+        $color                    = trim($_POST['color'] ?? '');
         $unit_cost                = trim($_POST['unit_cost'] ?? '');
         $total_cost               = trim($_POST['total_cost'] ?? '');
         $quantity_requested       = trim($_POST['quantity_requested'] ?? '');
         $unit                     = trim($_POST['unit'] ?? '');
         $quality_issued           = trim($_POST['quality_issued'] ?? '');
         $amount                   = trim($_POST['amount'] ?? $total_cost); // Use total_cost as fallback for amount
+        
         $stmt = $conn->prepare("
             UPDATE supply_request SET 
                 date_requested = ?, 
                 date_needed = ?, 
                 department_unit = ?, 
                 purpose = ?, 
-                sales_type = ?, 
                 category = ?, 
+                item_name = ?,
                 request_description = ?, 
+                brand = ?,
+                color = ?,
                 unit_cost = ?, 
                 total_cost = ?, 
                 quantity_requested = ?, 
@@ -63,14 +68,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $stmt->bind_param(
-            "sssssssssssssi",
+            "sssssssssssssssi",
             $date_requested,
             $date_needed,
             $department_unit,
             $purpose,
-            $sales_type,
             $category,
+            $item_name,
             $request_description,
+            $brand,
+            $color,
             $unit_cost,
             $total_cost,
             $quantity_requested,

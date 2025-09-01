@@ -390,6 +390,9 @@ if (isset($_SESSION['error'])) {
                 data-purpose="<?= trim($row['purpose']) ?>"
                 data-sales-type="<?= htmlspecialchars($row['sales_type']) ?>"
                 data-category="<?= htmlspecialchars($row['category']) ?>"
+                data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
+                data-brand="<?= htmlspecialchars($row['brand']) ?>"
+                data-color="<?= htmlspecialchars($row['color']) ?>"
                 data-quantity-requested="<?= htmlspecialchars($row['quantity_requested']) ?>"
                 data-unit="<?= $row['unit'] ?>"
                 data-request-description="<?= htmlspecialchars($row['request_description']) ?>"
@@ -411,6 +414,9 @@ if (isset($_SESSION['error'])) {
                 data-purpose="<?= trim($row['purpose']) ?>"
                 data-sales-type="<?= htmlspecialchars($row['sales_type']) ?>"
                 data-category="<?= htmlspecialchars($row['category']) ?>"
+                data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
+                data-brand="<?= htmlspecialchars($row['brand']) ?>"
+                data-color="<?= htmlspecialchars($row['color']) ?>"
                 data-quantity-requested="<?= htmlspecialchars($row['quantity_requested']) ?>"
                 data-unit="<?= $row['unit'] ?>"
                 data-request-description="<?= htmlspecialchars($row['request_description']) ?>"
@@ -943,6 +949,9 @@ if (isset($_SESSION['error'])) {
       const purpose = $(this).data('purpose');
       const salesType = $(this).data('sales-type');
       const category = $(this).data('category');
+      const itemName = $(this).data('item-name');
+      const brand = $(this).data('brand');
+      const color = $(this).data('color');
       const quantityRequested = $(this).data('quantity-requested');
       const unit = $(this).data('unit');
       const requestDescription = $(this).data('request-description');
@@ -952,7 +961,7 @@ if (isset($_SESSION['error'])) {
       
       console.log('Data retrieved:', {
         dateRequested, dateNeeded, departmentUnit, purpose, salesType, category,
-        quantityRequested, unit, requestDescription, qualityIssued, unitCost, totalCost
+        itemName, brand, color, quantityRequested, unit, requestDescription, qualityIssued, unitCost, totalCost
       });
 
       // Debug: Check if modal elements exist
@@ -963,6 +972,9 @@ if (isset($_SESSION['error'])) {
       console.log('viewPurpose exists:', $('#viewPurpose').length > 0);
       console.log('viewSalesType exists:', $('#viewSalesType').length > 0);
       console.log('viewCategory exists:', $('#viewCategory').length > 0);
+      console.log('viewItemName exists:', $('#viewItemName').length > 0);
+      console.log('viewBrand exists:', $('#viewBrand').length > 0);
+      console.log('viewColor exists:', $('#viewColor').length > 0);
       console.log('viewQuantity exists:', $('#viewQuantity').length > 0);
       console.log('viewUnit exists:', $('#viewUnit').length > 0);
       console.log('viewRequestDescription exists:', $('#viewRequestDescription').length > 0);
@@ -977,6 +989,9 @@ if (isset($_SESSION['error'])) {
       $('#viewPurpose').text(purpose || 'N/A');
       $('#viewSalesType').text(salesType || 'N/A');
       $('#viewCategory').text(category || 'N/A');
+      $('#viewItemName').text(itemName || 'N/A');
+      $('#viewBrand').text(brand || 'N/A');
+      $('#viewColor').text(color || 'N/A');
       $('#viewQuantity').text(quantityRequested || 'N/A');
       $('#viewUnit').text(unit || 'N/A');
       $('#viewRequestDescription').text(requestDescription || 'N/A');
@@ -988,7 +1003,7 @@ if (isset($_SESSION['error'])) {
       $('#viewSupplyModal').data('viewData', {
         requestId: $(this).data('request-id'),
         dateRequested, dateNeeded, departmentUnit, purpose, salesType, category,
-        quantityRequested, unit, requestDescription, qualityIssued, unitCost, totalCost
+        itemName, brand, color, quantityRequested, unit, requestDescription, qualityIssued, unitCost, totalCost
       });
     });
 
@@ -1012,6 +1027,9 @@ if (isset($_SESSION['error'])) {
         $('#editPurpose').val(viewData.purpose || '');
         $('#editSalesType').val(viewData.salesType || '');
         $('#editCategorySelect').val(viewData.category || '');
+        $('#editItemName').val(viewData.itemName || '');
+        $('#editBrand').val(viewData.brand || '');
+        $('#editColor').val(viewData.color || '');
         $('#editRequestDescription').val(viewData.requestDescription || '');
         $('#editQualityIssued').val(viewData.qualityIssued || '');
         $('#editQuantity').val(viewData.quantityRequested || '');
@@ -1047,6 +1065,9 @@ if (isset($_SESSION['error'])) {
       console.log('editPurpose exists:', $('#editPurpose').length > 0);
       console.log('editSalesType exists:', $('#editSalesType').length > 0);
       console.log('editCategorySelect exists:', $('#editCategorySelect').length > 0);
+      console.log('editItemName exists:', $('#editItemName').length > 0);
+      console.log('editBrand exists:', $('#editBrand').length > 0);
+      console.log('editColor exists:', $('#editColor').length > 0);
       console.log('editRequestDescription exists:', $('#editRequestDescription').length > 0);
       console.log('editQualityIssued exists:', $('#editQualityIssued').length > 0);
       console.log('editQuantity exists:', $('#editQuantity').length > 0);
@@ -1062,6 +1083,9 @@ if (isset($_SESSION['error'])) {
       const purpose = $(this).data('purpose');
       const salesType = $(this).data('sales-type');
       const category = $(this).data('category');
+      const itemName = $(this).data('item-name');
+      const brand = $(this).data('brand');
+      const color = $(this).data('color');
       const requestDescription = $(this).data('request-description');
       const qualityIssued = $(this).data('quality-issued');
       const quantityRequested = $(this).data('quantity-requested');
@@ -1071,7 +1095,7 @@ if (isset($_SESSION['error'])) {
 
       console.log('Data retrieved for edit:', {
         requestId, dateRequested, dateNeeded, departmentUnit, purpose, salesType, category,
-        requestDescription, qualityIssued, quantityRequested, unit, unitCost, totalCost
+        itemName, brand, color, requestDescription, qualityIssued, quantityRequested, unit, unitCost, totalCost
       });
 
       // Set values in the edit modal
@@ -1082,6 +1106,9 @@ if (isset($_SESSION['error'])) {
       $('#editPurpose').val(purpose || '');
       $('#editSalesType').val(salesType || '');
       $('#editCategorySelect').val(category || '');
+      $('#editItemName').val(itemName || '');
+      $('#editBrand').val(brand || '');
+      $('#editColor').val(color || '');
       $('#editRequestDescription').val(requestDescription || '');
       $('#editQualityIssued').val(qualityIssued || '');
       $('#editQuantity').val(quantityRequested || '');
