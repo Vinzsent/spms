@@ -69,10 +69,10 @@ $sql = "SELECT i.*, s.supplier_name
         ORDER BY i.date_created DESC";
 $result = $conn->query($sql);
 
-$sql1 = "SELECT st.*, s.supplier_name 
+$sql1 = "SELECT st.*, s.supplier_name
         FROM supplier_transaction st
         JOIN supplier s ON s.supplier_id = st.supplier_id
-        $recv_where
+        WHERE st.status IN ('Pending')
         ORDER BY st.date_received DESC";
 $result1 = $conn->query($sql1);
 
@@ -665,7 +665,7 @@ if (isset($_SESSION['error'])) {
     <!-- Recieved Items Table -->
     <div class="table-container">
         <div class="table-header">
-            <h3>Recieved Items</h3>
+            <h3>Received Items</h3>
             <form method="GET" class="d-flex align-items-end gap-2">
                 <div>
                     <label for="sy_recv" class="form-label mb-0 text-white">School Year</label>
@@ -697,6 +697,7 @@ if (isset($_SESSION['error'])) {
                         <th>Category</th>
                         <th>Item Description</th>
                         <th>Quantity</th>
+                        <th>Unit</th>
                         <th>Unit Price</th>
                         <th>Amount</th>
                         <th>Status</th>
@@ -727,7 +728,8 @@ if (isset($_SESSION['error'])) {
                             <td><?= htmlspecialchars($row['sales_type']) ?></td>
                             <td><?= htmlspecialchars($row['category']) ?></td>
                             <td><?= htmlspecialchars($row['item_name']) ?></td>
-                            <td><?= htmlspecialchars($row['quantity']) . ' ' . htmlspecialchars($row['unit']) ?></td>
+                            <td><?= htmlspecialchars($row['quantity']) ?></td>
+                            <td><?= htmlspecialchars($row['unit']) ?></td>
                             <td><?= htmlspecialchars($row['unit_price']) ?></td>
                             <td><?= htmlspecialchars($row['total_amount']) ?></td>
                             <td>
@@ -736,23 +738,26 @@ if (isset($_SESSION['error'])) {
                                 </span>
                             </td>
                             <td>
-                            <button class="btn btn-sm btn-success mark-received-btn" data-bs-toggle="modal" data-bs-target="#receivedModal" title="Mark as Received"
-                                        data-transaction-id="<?= $row['procurement_id'] ?>"
-                                        data-item-name="<?= htmlspecialchars($row['item_name']) ?>"\
-                                        data-quantity="<?= $row['quantity'] ?>"
-                                        data-unit="<?= htmlspecialchars($row['unit']) ?>"
-                                        data-supplier="<?= htmlspecialchars($row['supplier_name']) ?>"
-                                        data-unit-price="<?= $row['unit_price'] ?>"
-                                        data-notes="<?= htmlspecialchars($row['notes'] ?? '') ?>">
-                                        <i class="fas fa-check"></i>
-                                    </button>
+                            <?php if ($row['status'] !== 'Received'): ?>
+    <button class="btn btn-sm btn-primary mark-received-btn" 
+            data-bs-toggle="modal" 
+            data-bs-target="#receivedModal" 
+            title="Add to Inventory"
+            data-transaction-id="<?= $row['procurement_id'] ?>"
+            data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
+            data-quantity="<?= $row['quantity'] ?>"
+            data-unit="<?= htmlspecialchars($row['unit']) ?>"
+            data-supplier="<?= htmlspecialchars($row['supplier_name']) ?>"
+            data-unit-price="<?= $row['unit_price'] ?>"
+            data-notes="<?= htmlspecialchars($row['notes'] ?? '') ?>">
+        <i class="fas fa-plus"></i>
+    </button>
+<?php endif; ?>
 
-                                <!-- Add to Inventory button (submits mapped data to existing add endpoint) -->
-                                <?php if (strtolower(trim($row['status'])) !== 'pending'): ?>
+                                <!-- Add to Inventory button (submits mapped data to existing add endpoint)
                                 <button type="button" class="btn btn-sm btn-primary" onclick="addToInventoryFromRow(this)" title="Add to Inventory">
                                     <i class="fas fa-plus-circle"></i>
-                                </button>
-                                <?php endif; ?>
+                                </button> -->
                             </td>
                             </tr>
                         <?php endwhile; ?>
@@ -819,7 +824,7 @@ if (isset($_SESSION['error'])) {
                     <div class="text-center mb-3">
                         <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
                     </div>
-                    <p class="text-center">Are you sure you want to mark this item as received?</p>
+                    <p class="text-center">Are you sure you want to mark this item as received and Add the item to the inventory?</p>
                     <div class="text-center mb-3">
                         <strong id="display-item-name"></strong>
                     </div>
@@ -1139,6 +1144,7 @@ if (isset($_SESSION['error'])) {
 
 <!-- Hidden form for Add to Inventory from Received row -->
 <form id="addInventoryHiddenForm" action="../actions/add_inventory.php" method="POST" style="display:none;">
+    <input type="hidden" name="procurement_id" id="ai_procurement_id">
     <input type="hidden" name="item_name" id="ai_item_name">
     <input type="hidden" name="category" id="ai_category">
     <input type="hidden" name="current_stock" id="ai_current_stock">
@@ -1148,6 +1154,7 @@ if (isset($_SESSION['error'])) {
     <input type="hidden" name="unit_cost" id="ai_unit_cost">
     <input type="hidden" name="location" id="ai_location" value="Warehouse">
     <input type="hidden" name="description" id="ai_description">
+    <input type="text" name="status" id="ai_status">
 </form>
 
 <!-- Edit Inventory Modal -->
@@ -1182,7 +1189,14 @@ if (isset($_SESSION['error'])) {
                     <div class="row g-2 mt-2">
                         <div class="col-md-6">
                             <label class="form-label">Unit</label>
-                            <input type="text" class="form-control" name="unit" id="ei_unit" required>
+                            <select name="unit" id="ei_unit" class="form-select" required>
+                                <option value="">--Select Unit--</option>
+                                <option value="unit">Unit</option>
+                                <option value="pack">Pack</option>
+                                <option value="box">Box</option>
+                                <option value="set">Set</option>
+                                <option value="ream">Ream</option>
+                            </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Unit Cost</label>
@@ -1434,21 +1448,25 @@ if (isset($_SESSION['error'])) {
             return;
         }
 
+        const procurementId = row.getAttribute('data-transaction-id') || '';
         const itemName = row.getAttribute('data-description') || '';
         const category = row.getAttribute('data-category') || '';
         const quantity = row.getAttribute('data-quantity') || '0';
         const unit = row.getAttribute('data-unit') || '';
         const supplierId = row.getAttribute('data-supplier-id') || '';
         const unitPrice = row.getAttribute('data-unit-price') || '0';
+        const status = row.getAttribute('data-status') || '';
 
         // Debug: Log all retrieved values
         console.log('Retrieved data from row:', {
+            procurementId: procurementId,
             itemName: itemName,
             category: category,
             unit: unit,
             quantity: quantity,
             supplierId: supplierId,
-            unitPrice: unitPrice
+            unitPrice: unitPrice,
+            status: status
         });
 
         // More lenient validation - only check for truly essential fields
@@ -1467,10 +1485,12 @@ if (isset($_SESSION['error'])) {
         document.getElementById('ai_category').value = finalCategory;
         document.getElementById('ai_current_stock').value = finalQuantity;
         document.getElementById('ai_unit').value = finalUnit;
+        document.getElementById('ai_status').value = status;
         document.getElementById('ai_supplier_id').value = supplierId;
         document.getElementById('ai_unit_cost').value = unitPrice;
         document.getElementById('ai_reorder_level').value = Math.max(1, Math.floor(finalQuantity * 0.2));
         document.getElementById('ai_description').value = `From invoice ${row.getAttribute('data-invoice') || ''}`;
+        document.getElementById('ai_procurement_id').value = procurementId;
 
         // Debug: Log the final values being submitted
         console.log('Final values being submitted:', {
@@ -1480,7 +1500,8 @@ if (isset($_SESSION['error'])) {
             unit: finalUnit,
             supplier_id: supplierId,
             unit_cost: unitPrice,
-            reorder_level: Math.max(1, Math.floor(finalQuantity * 0.2))
+            reorder_level: Math.max(1, Math.floor(finalQuantity * 0.2)),
+            status: status
         });
 
         // Submit
