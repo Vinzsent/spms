@@ -220,7 +220,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
                   <div class="form-floating">
                     <input type="text" name="unit_cost" class="form-control" id="unitCost" pattern="[0-9]*\.?[0-9]*">
                     <label for="unitCost">
-                      <i class="fas fa-dollar-sign me-1"></i>Unit Cost (Optional)
+                      <i class="fas fa-peso-sign me-1"></i>Unit Cost (Optional)
                     </label>
                   </div>
 

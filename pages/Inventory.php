@@ -730,8 +730,8 @@ if (isset($_SESSION['error'])) {
                             <td><?= htmlspecialchars($row['item_name']) ?></td>
                             <td><?= htmlspecialchars($row['quantity']) ?></td>
                             <td><?= htmlspecialchars($row['unit']) ?></td>
-                            <td><?= htmlspecialchars($row['unit_price']) ?></td>
-                            <td><?= htmlspecialchars($row['total_amount']) ?></td>
+                            <td>₱ <?= htmlspecialchars($row['unit_price']) ?></td>
+                            <td>₱ <?= htmlspecialchars($row['total_amount']) ?></td>
                             <td>
                                 <span class="badge bg-success">
                                     <?= htmlspecialchars($row['status']) ?>
@@ -739,20 +739,19 @@ if (isset($_SESSION['error'])) {
                             </td>
                             <td>
                             <?php if ($row['status'] !== 'Received'): ?>
-    <button class="btn btn-sm btn-primary mark-received-btn" 
-            data-bs-toggle="modal" 
-            data-bs-target="#receivedModal" 
-            title="Add to Inventory"
-            data-transaction-id="<?= $row['procurement_id'] ?>"
-            data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
-            data-quantity="<?= $row['quantity'] ?>"
-            data-unit="<?= htmlspecialchars($row['unit']) ?>"
-            data-supplier="<?= htmlspecialchars($row['supplier_name']) ?>"
-            data-unit-price="<?= $row['unit_price'] ?>"
-            data-notes="<?= htmlspecialchars($row['notes'] ?? '') ?>">
-        <i class="fas fa-plus"></i>
-    </button>
-<?php endif; ?>
+                                <button type="button" class="btn btn-sm btn-primary" onclick="addToInventoryFromRow(this)" title="Add to Inventory"
+                                        data-transaction-id="<?= $row['procurement_id'] ?>"
+                                        data-description="<?= htmlspecialchars($row['item_name']) ?>"
+                                        data-category="<?= htmlspecialchars($row['category']) ?>"
+                                        data-quantity="<?= $row['quantity'] ?>"
+                                        data-unit="<?= htmlspecialchars($row['unit']) ?>"
+                                        data-supplier-id="<?= $row['supplier_id'] ?>"
+                                        data-unit-price="<?= $row['unit_price'] ?>"
+                                        data-invoice="<?= htmlspecialchars($row['invoice_number'] ?? '') ?>"
+                                        data-status="<?= htmlspecialchars($row['status']) ?>">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            <?php endif; ?>
 
                                 <!-- Add to Inventory button (submits mapped data to existing add endpoint)
                                 <button type="button" class="btn btn-sm btn-primary" onclick="addToInventoryFromRow(this)" title="Add to Inventory">
