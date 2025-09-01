@@ -1,0 +1,83 @@
+/* Category Management Theme - matches dark green modern dashboard */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --brand-950: #0a2c22;
+  --brand-900: #0b3b2e;
+  --brand-800: #124d3c;
+  --brand-700: #16604a;
+  --brand-600: #1a7559;
+  --brand-500: #1e8a67;
+  --brand-400: #27a07a;
+  --accent-600: #f97316; /* orange */
+  --accent-500: #fb923c;
+  --accent-700: #ea580c;
+  --bg-50: #ffffff;
+  --panel: #ffffff;
+  --muted: #6c757d;
+  /* Light theme surfaces */
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb;
+}
+
+html, body {
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: #ffffff !important;
+  color: #212529 !important;
+}
+
+body {
+  background-color: #ffffff !important;
+}
+
+.page-container { padding: 24px; }
+
+.page-hero {
+  background: linear-gradient(160deg, #ecfdf5, #e6f6ef);
+  border: 1px solid #e6f0ea;
+  border-radius: 14px;
+  padding: 20px 20px;
+  margin: 12px 0 18px 0;
+  box-shadow: white;
+}
+.page-hero h1, .page-hero h2, .page-hero h3 { margin: 0; font-weight: 700; color: #0f5132; }
+.page-hero .subtitle { color: var(--muted); margin-top: 4px; font-weight: 500; }
+
+.card-modern { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; box-shadow: 0 6px 16px rgba(0,0,0,.06); }
+.card-modern .card-header { background: #ffffff; border-bottom: 1px solid var(--card-border); color: #212529; font-weight: 600; }
+.card-modern .card-body { color: #212529; }
+
+.table-modern { color: #212529; background: transparent; }
+.table-modern thead { background: #f8fafc; color: #212529; }
+.table-modern tbody tr:hover { background: rgba(39, 160, 122, 0.08); }
+.table-modern td, .table-modern th { border-color: var(--card-border) !important; }
+
+.badge-info, .badge.bg-info { background-color: var(--brand-600) !important; }
+
+.btn-modern { border-radius: 8px; font-weight: 600; letter-spacing: .2px; }
+.btn-brand { background: var(--brand-600); border-color: var(--brand-600); color: #fff; }
+.btn-brand:hover { background: var(--brand-500); border-color: var(--brand-500); }
+.btn-outline-brand { color: var(--brand-400); border-color: var(--brand-600); }
+.btn-outline-brand:hover { color: #fff; background: var(--brand-600); }
+
+/* Accent (orange) for primary CTA matching dashboard +Add Item */
+.btn-accent { background: var(--accent-600); border-color: var(--accent-600); color: #fff; }
+.btn-accent:hover { background: var(--accent-700); border-color: var(--accent-700); }
+.btn-outline-accent { color: var(--accent-500); border-color: var(--accent-600); }
+.btn-outline-accent:hover { color: #fff; background: var(--accent-600); }
+
+.form-control, .form-select { background: #ffffff; border: 1px solid var(--card-border); color: #212529; }
+.form-control::placeholder { color: #6c757d; }
+.input-group-text { background: #ffffff; border: 1px solid var(--card-border); color: #495057; }
+
+.text-muted { color: var(--muted) !important; }
+
+/* Utilities */
+.mt-24{ margin-top:24px; }
+.gap-8{ gap:8px; }
+
+/* Fix Bootstrap default table header contrast in dark */
+.table thead.table-light th { background-color: #f8fafc !important; color: #212529 !important; }
+
+/* Badges */
+.badge.bg-info { background-color: #27a07a !important; }
