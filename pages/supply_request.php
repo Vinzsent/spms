@@ -40,7 +40,7 @@ if (empty($request_type)) {
 error_log('Supply Request Page - Session variables: ' . print_r($_SESSION, true));
 error_log('Supply Request Page - User ID: ' . $user_id . ', User Name: ' . $user_name . ', User Type: ' . $user_type);
 
-$sql = "SELECT * FROM supply_request";
+$sql = "SELECT * FROM supply_request WHERE status IS NULL";
 $result = $conn->query($sql);
 
 // Fetch all category data for dropdown

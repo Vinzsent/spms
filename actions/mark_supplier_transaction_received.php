@@ -95,7 +95,7 @@ date_updated = CURRENT_TIMESTAMP
                     VALUES (?, ?, ?, ?, ?, ?, 0, ?, 'Active', ?, ?)
                 ");
                 $insertStmt->bind_param(
-                    "ssisdiiii",
+                    "sssissiii",
                     $transaction['item_name'],
                     $transaction['category'],
                     $transaction['item_name'],

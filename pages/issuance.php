@@ -587,6 +587,36 @@ body {
 .bg-primary { background: #007bff; }
 </style>
 
+<!-- Extra styles for loading overlay and stock movement UI -->
+<style>
+  .loading-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.35);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+  }
+  .loading-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .movement-toggle .btn {
+    min-width: 120px;
+  }
+  /* Semi-transparent black similar to the screenshot */
+  .modal-backdrop.show {
+    background-color: rgba(0, 0, 0, 0.55) !important; /* adjust 0.45–0.6 to taste */
+    opacity: 1 !important; /* prevent Bootstrap's extra opacity stacking */
+  }
+</style>
+
 <!-- Sidebar -->
 <div class="sidebar">
     <div class="sidebar-header">
@@ -716,7 +746,7 @@ body {
         <div class="section-header">
             <h2 class="section-title">
                 <i class="fas fa-clipboard-list me-2"></i>
-                Requests List
+                Supply Requests List
             </h2>
             <div class="d-flex flex-wrap gap-2 align-items-center">
                 <div class="input-group input-group-sm" style="min-width: 260px;">
@@ -761,7 +791,7 @@ body {
                                     </td>
                                     <td>
                                         <div>
-                                            <strong><?= htmlspecialchars($row['request_description']) ?></strong>
+                                            <strong><?= htmlspecialchars($row['item_name']) ?></strong>
                                             <br>
                                             <small class="text-muted">
                                                 Category: <?= htmlspecialchars($row['category']) ?>
@@ -821,7 +851,7 @@ body {
                                                     data-bs-target="#viewRequestModal"
                                                     data-request-id="<?= $row['request_id'] ?>"
                                                     data-date="<?= htmlspecialchars($row['date_requested']) ?>"
-                                                    data-description="<?= htmlspecialchars($row['request_description']) ?>"
+                                                    data-description="<?= htmlspecialchars($row['item_name']) ?>"
                                                     data-quantity="<?= $row['quantity_requested'] ?>"
                                                     data-unit="<?= htmlspecialchars($row['unit']) ?>"
                                                     data-cost="<?= $row['total_cost'] ?>"
@@ -980,6 +1010,10 @@ body {
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times me-1"></i>Close
                 </button>
+
+                <button type="button" class="btn btn-primary issued-redirect-btn d-none" data-user-type="<?= strtolower($user_type) ?>" disabled>
+                    <i class="fas fa-save me-1"></i>Issued
+                </button>
             </div>
         </div>
     </div>
@@ -1036,14 +1070,74 @@ body {
     </div>
 </div>
 
+<!-- Global Loading Overlay -->
+<div id="globalLoader" class="loading-overlay">
+  <div class="loading-card">
+    <div class="spinner-border text-success" role="status" aria-hidden="true"></div>
+    <div>
+      <div class="fw-semibold">Searching inventory…</div>
+      <small class="text-muted">Please wait</small>
+    </div>
+  </div>
+</div>
+
+<!-- Stock Movement Modal -->
+<div class="modal fade modal-modern" id="stockMovementModal" tabindex="-1" aria-labelledby="stockMovementLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="stockMovementLabel"><i class="fas fa-boxes me-2"></i>Stock Movement</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="stockMovementForm">
+        <div class="modal-body">
+          <input type="hidden" name="inventory_id" id="smInventoryId">
+          <input type="hidden" name="request_id" id="smRequestId">
+          <div class="mb-3">
+            <label class="form-label-modern">Item</label>
+            <input type="text" id="smItemName" class="form-control form-control-modern" readonly>
+            <div class="form-text" id="smStockInfo">Current stock: <span id="smCurrentStock">-</span></div>
+          </div>
+          <div class="mb-3 movement-toggle">
+            <label class="form-label-modern d-block">Movement Type</label>
+            <div class="btn-group" role="group" aria-label="Movement type">
+              <input type="hidden" name="movement_type" id="smMovementType" value="OUT">
+              <button type="button" class="btn btn-success" id="btnStockIn">+ Stock In</button>
+              <button type="button" class="btn btn-warning" id="btnStockOut">— Stock Out</button>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label-modern">Quantity</label>
+            <input type="number" name="quantity" id="smQuantity" class="form-control form-control-modern" min="1" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label-modern">Notes</label>
+            <textarea name="notes" id="smNotes" rows="3" class="form-control form-control-modern" placeholder="Add any notes..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary-modern" id="smSubmitBtn"><i class="fas fa-save me-1"></i>Record Movement</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
+// Current user's role from PHP session (lowercased)
+const CURRENT_USER_TYPE = '<?= strtolower($user_type) ?>';
+// Roles allowed to click Issued
+const ISSUED_ALLOWED_ROLES = ['admin', 'supply in-charge', 'property custodian'];
+
 $(document).ready(function() {
     // View Request Modal
     $(document).on('click', '[data-bs-target="#viewRequestModal"]', function() {
-        const data = $(this).data();
+        const $trigger = $(this);
+        const data = $trigger.data();
         
         // Populate basic info
         $('#viewDate').text(new Date(data.date).toLocaleDateString('en-US', {
@@ -1064,6 +1158,29 @@ $(document).ready(function() {
         updateTimelineStatus('verified', data.verified, data.verifiedDate);
         updateTimelineStatus('approved', data.approved, data.approvedDate);
         updateTimelineStatus('issued', data.issued, data.issuedDate);
+
+        // Control Issued button visibility and payload
+        const $issuedBtn = $('.issued-redirect-btn');
+        const hasNoted = !!(data.noted);
+        const hasApproved = !!(data.approved);
+        const isRoleAllowed = ISSUED_ALLOWED_ROLES.includes(CURRENT_USER_TYPE);
+
+        if (hasNoted && hasApproved) {
+            $issuedBtn.removeClass('d-none');
+            // Enable/disable based on role
+            if (isRoleAllowed) {
+                $issuedBtn.prop('disabled', false).removeAttr('title');
+            } else {
+                $issuedBtn.prop('disabled', true).attr('title', 'Only Admin, Supply In-charge, or Property Custodian can issue items');
+            }
+            // Reset prior data then copy all data-* properties from the trigger
+            $issuedBtn.removeData();
+            $.each(data, function(key, val) {
+                $issuedBtn.data(key, val);
+            });
+        } else {
+            $issuedBtn.addClass('d-none').prop('disabled', true).removeData();
+        }
     });
     
     function updateTimelineStatus(type, user, date) {
@@ -1078,6 +1195,18 @@ $(document).ready(function() {
             info.text('Pending');
         }
     }
+    
+    // Hide Issued button if already issued
+    function updateIssuedButtonVisibility() {
+        const issuedText = ($('#issuedInfo').text() || '').trim().toLowerCase();
+        const $btn = $('.issued-redirect-btn');
+        if (issuedText && issuedText !== 'pending') {
+            $btn.addClass('d-none');
+        } else {
+            $btn.removeClass('d-none');
+        }
+    }
+    $(document).on('shown.bs.modal', '#viewRequestModal', updateIssuedButtonVisibility);
     
     // Update Status Modal
     $(document).on('click', '[data-bs-target="#updateStatusModal"]', function() {
@@ -1129,14 +1258,142 @@ $(document).ready(function() {
         });
     });
 
-    // Issued button click handler for Supply In-charge
+    // Issued button click handler: search inventory and open modal
     $(document).on('click', '.issued-redirect-btn', function() {
-        // Gather row data
+        if ($(this).prop('disabled')) return; // Role guard
+
         const rowData = $(this).data();
-        // Build query string
-        const params = new URLSearchParams(rowData).toString();
-        // Redirect to transaction_list.php with row data as GET params
-        window.location.href = 'transaction_list.php?' + params;
+        const itemName = rowData.description; // uses data-description from row
+        const requestedQty = parseInt(rowData.quantity, 10) || 1;
+        const requestId = rowData.requestId || rowData['request-id'] || rowData.request_id;
+
+        const $loader = $('#globalLoader');
+        $loader.find('.fw-semibold').text('Searching inventory…');
+        $loader.show();
+
+        // Search by exact item name first
+        $.get('../actions/search_inventory_by_name.php', { q: itemName })
+          .done(function(resp) {
+            if (!resp || resp.success !== true) {
+                alert(resp && resp.message ? resp.message : 'Item not found in inventory');
+                return;
+            }
+
+            if (resp.match === 'exact' && resp.item) {
+                openStockMovementModal(resp.item, requestedQty, requestId);
+            } else if (resp.match === 'partial' && resp.items && resp.items.length > 0) {
+                // If multiple matches, pick the first for now; could be enhanced to choose
+                openStockMovementModal(resp.items[0], requestedQty, requestId);
+            } else {
+                alert('No matching inventory items found');
+            }
+          })
+          .fail(function(xhr){
+            console.log('Search error:', xhr.responseText);
+            alert('Error searching inventory');
+          })
+          .always(function() {
+            $loader.hide();
+          });
+    });
+
+    function openStockMovementModal(item, requestedQty, requestId) {
+        // Prefill modal fields
+        $('#smInventoryId').val(item.inventory_id);
+        $('#smRequestId').val(requestId);
+        $('#smItemName').val(item.item_name);
+        $('#smCurrentStock').text(item.current_stock + ' ' + (item.unit || ''));
+        $('#smQuantity').val(requestedQty);
+        // Default to Stock Out for issuance
+        setMovementType('OUT');
+        $('#smNotes').val('');
+
+        // Hide Request Details modal if open to avoid stacking
+        const viewReqEl = document.getElementById('viewRequestModal');
+        if (viewReqEl) {
+            const vrm = bootstrap.Modal.getInstance(viewReqEl) || new bootstrap.Modal(viewReqEl);
+            try { vrm.hide(); } catch (e) {}
+        }
+
+        // Show Stock Movement modal with static backdrop to keep background dark
+        const smEl = document.getElementById('stockMovementModal');
+        const sm = new bootstrap.Modal(smEl, { backdrop: 'static', keyboard: false });
+        sm.show();
+    }
+
+    function setMovementType(type) {
+        const upper = (type || 'OUT').toUpperCase();
+        $('#smMovementType').val(upper);
+        if (upper === 'IN') {
+            $('#btnStockIn').addClass('btn-success').removeClass('btn-outline-success');
+            $('#btnStockOut').addClass('btn-outline-warning').removeClass('btn-warning');
+        } else {
+            $('#btnStockOut').addClass('btn-warning').removeClass('btn-outline-warning');
+            $('#btnStockIn').addClass('btn-outline-success').removeClass('btn-success');
+        }
+    }
+
+    $('#btnStockIn').on('click', function() { setMovementType('IN'); });
+    $('#btnStockOut').on('click', function() { setMovementType('OUT'); });
+
+    // Submit stock movement
+    $('#stockMovementForm').on('submit', function(e) {
+        e.preventDefault();
+        const $btn = $('#smSubmitBtn');
+        const $loader = $('#globalLoader');
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Recording...');
+        $loader.find('.fw-semibold').text('Recording stock movement…');
+        $loader.show();
+
+        const payload = {
+            ajax: 1,
+            inventory_id: $('#smInventoryId').val(),
+            movement_type: $('#smMovementType').val(),
+            quantity: $('#smQuantity').val(),
+            notes: $('#smNotes').val()
+        };
+
+        $.post('../actions/stock_movement.php', payload, function(resp) {
+            if (!resp || resp.success !== true) {
+                alert(resp && resp.message ? resp.message : 'Failed to record stock movement');
+                return;
+            }
+            // After successful stock movement, mark the request as issued
+            const reqId = $('#smRequestId').val();
+            $.post('../actions/update_issuance_status.php', {
+                request_id: reqId,
+                status_action: 'issued',
+                action_by: '<?= addslashes($user_name) ?>',
+                remarks: 'Auto-marked after stock movement'
+            }, function(uresp) {
+                if (uresp && uresp.success) {
+                    // Close modal and refresh
+                    $('#stockMovementModal').modal('hide');
+                    alert('Stock movement recorded and request marked as Issued.');
+                    location.reload();
+                } else {
+                    alert('Stock movement saved, but failed to update issuance status: ' + (uresp && uresp.message ? uresp.message : 'Unknown error'));
+                }
+            }, 'json').fail(function(xhr){
+                console.log('Issuance update error:', xhr.responseText);
+                alert('Stock movement saved, but error updating issuance status');
+            });
+        }, 'json')
+        .fail(function(xhr){
+            console.log('Record movement error:', xhr.responseText);
+            alert('Error recording stock movement');
+        })
+        .always(function(){
+            $btn.prop('disabled', false).html('<i class="fas fa-save me-1"></i>Record Movement');
+            $loader.hide();
+        });
+    });
+
+    // Ensure no lingering backdrop when Stock Movement modal closes
+    $(document).on('hidden.bs.modal', '#stockMovementModal', function () {
+        // Remove any remaining backdrops and restore body scroll
+        $('.modal-backdrop').remove();
+        $('body').removeClass('modal-open').css('padding-right', '');
     });
 
     // Client-side filters: search and status

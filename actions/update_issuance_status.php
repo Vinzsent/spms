@@ -102,6 +102,15 @@ try {
                 }
             }
         }
+
+        // Only update main status to 'Issued' if the action is specifically 'issued'
+        if ($status_action === 'issued') {
+            $status_update_sql = "UPDATE supply_request SET status = 'Issued' WHERE request_id = ?";
+            $status_update_stmt = $conn->prepare($status_update_sql);
+            $status_update_stmt->bind_param("i", $request_id);
+            $status_update_stmt->execute();
+            $status_update_stmt->close();
+        }
         
         $request_stmt->close();
 

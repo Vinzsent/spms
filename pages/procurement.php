@@ -987,7 +987,7 @@ if (isset($_SESSION['error'])) {
                         <?php endwhile; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="10" class="text-center py-4">
+                            <td colspan="11" class="text-center py-4">
                                 <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
                                 <p class="text-muted">No inventory items found</p>
                                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProcurementModal">
