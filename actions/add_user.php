@@ -10,11 +10,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $suffix          = trim($_POST['suffix'] ?? '');
     $academic_title  = trim($_POST['academic_title'] ?? '');
     $user_type       = trim($_POST['user_type'] ?? '');
-    $email           = trim($_POST['email'] ?? '');
+    $username        = trim($_POST['username'] ?? '');
     $password        = password_hash($_POST['password'] ?? '', PASSWORD_DEFAULT);
 
     // Simple validation
-    if (empty($first_name) || empty($last_name) || empty($email) || empty($_POST['password']) || empty($user_type)) {
+    if (empty($first_name) || empty($last_name) || empty($username) || empty($_POST['password']) || empty($user_type)) {
         echo "Required fields are missing.";
         exit;
     }
@@ -22,12 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Insert into the database
     $stmt = $conn->prepare("
         INSERT INTO user 
-        (title, first_name, middle_name, last_name, suffix, academic_title, user_type, email, password) 
+        (title, first_name, middle_name, last_name, suffix, academic_title, user_type, username, password) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     $stmt->bind_param("sssssssss", 
         $title, $first_name, $middle_name, $last_name, $suffix, 
-        $academic_title, $user_type, $email, $password
+        $academic_title, $user_type, $username, $password
     );
 
     if ($stmt->execute()) {

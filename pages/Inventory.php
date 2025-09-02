@@ -363,7 +363,7 @@ if (isset($_SESSION['error'])) {
         max-width: calc(100% - 60px);
         padding-right: 10px;
     }
-    
+
     /* Ensure alerts have proper spacing from sidebar on larger screens */
     @media (min-width: 769px) {
         .alert {
@@ -372,7 +372,7 @@ if (isset($_SESSION['error'])) {
             padding-left: 20px;
             padding-right: 20px;
         }
-        
+
         .alert .flex-grow-1 {
             max-width: calc(100% - 80px);
             padding-right: 15px;
@@ -384,12 +384,12 @@ if (isset($_SESSION['error'])) {
             font-size: 0.9rem;
             padding: 12px 15px;
         }
-        
+
         .alert .d-flex {
             flex-direction: column;
             align-items: flex-start !important;
         }
-        
+
         .alert .btn-close {
             align-self: flex-end;
             margin-top: -10px;
@@ -538,25 +538,25 @@ if (isset($_SESSION['error'])) {
         .stats-container {
             grid-template-columns: 1fr;
         }
-        
+
         .alert {
             margin-left: 10px;
             margin-right: 10px;
             font-size: 0.9rem;
             padding: 12px 15px;
         }
-        
+
         .alert .d-flex {
             flex-direction: column;
             align-items: flex-start !important;
         }
-        
+
         .alert .btn-close {
             align-self: flex-end;
             margin-top: -10px;
             margin-right: -10px;
         }
-        
+
         .alert .flex-grow-1 {
             max-width: 100%;
             margin-right: 30px;
@@ -690,7 +690,7 @@ if (isset($_SESSION['error'])) {
             <table class="table table-hover mb-0 table-striped">
                 <thead class="table-dark">
                     <tr>
-                    <th>Date Received</th>
+                        <th>Date Received</th>
                         <th>Invoice Number</th>
                         <th>Supplier</th>
                         <th>Sales Type</th>
@@ -720,49 +720,47 @@ if (isset($_SESSION['error'])) {
                                 data-quantity="<?= (int)($row['quantity'] ?? 0) ?>"
                                 data-unit="<?= htmlspecialchars($row['unit'] ?? '') ?>"
                                 data-unit-price="<?= htmlspecialchars($row['unit_price'] ?? '0.00') ?>"
-                                data-invoice="<?= htmlspecialchars($row['invoice_no'] ?? '') ?>"
-                            >
-                            <td><?= date('M d, Y', strtotime($row['date_created'])) ?></td>
-                            <td><?= htmlspecialchars($row['invoice_no']) ?></td>
-                            <td><?= htmlspecialchars($row['supplier_name']) ?></td>
-                            <td><?= htmlspecialchars($row['sales_type']) ?></td>
-                            <td><?= htmlspecialchars($row['category']) ?></td>
-                            <td><?= htmlspecialchars($row['item_name']) ?></td>
-                            <td><?= htmlspecialchars($row['quantity']) ?></td>
-                            <td><?= htmlspecialchars($row['unit']) ?></td>
-                            <td>₱ <?= htmlspecialchars($row['unit_price']) ?></td>
-                            <td>₱ <?= htmlspecialchars($row['total_amount']) ?></td>
-                            <td>
-                                <span class="badge bg-success">
-                                    <?= htmlspecialchars($row['status']) ?>
-                                </span>
-                            </td>
-                            <td>
-                            <?php if ($row['status'] !== 'Received'): ?>
-                                <button type="button" class="btn btn-sm btn-primary" onclick="addToInventoryFromRow(this)" title="Add to Inventory"
-                                        data-transaction-id="<?= $row['procurement_id'] ?>"
-                                        data-description="<?= htmlspecialchars($row['item_name']) ?>"
-                                        data-category="<?= htmlspecialchars($row['category']) ?>"
-                                        data-quantity="<?= $row['quantity'] ?>"
-                                        data-unit="<?= htmlspecialchars($row['unit']) ?>"
-                                        data-supplier-id="<?= $row['supplier_id'] ?>"
-                                        data-unit-price="<?= $row['unit_price'] ?>"
-                                        data-invoice="<?= htmlspecialchars($row['invoice_number'] ?? '') ?>"
-                                        data-status="<?= htmlspecialchars($row['status']) ?>">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            <?php endif; ?>
+                                data-invoice="<?= htmlspecialchars($row['invoice_no'] ?? '') ?>">
+                                <td><?= date('M d, Y', strtotime($row['date_created'])) ?></td>
+                                <td><?= htmlspecialchars($row['invoice_no']) ?></td>
+                                <td><?= htmlspecialchars($row['supplier_name']) ?></td>
+                                <td><?= htmlspecialchars($row['sales_type']) ?></td>
+                                <td><?= htmlspecialchars($row['category']) ?></td>
+                                <td><?= htmlspecialchars($row['item_name']) ?></td>
+                                <td><?= htmlspecialchars($row['quantity']) ?></td>
+                                <td><?= htmlspecialchars($row['unit']) ?></td>
+                                <td>₱ <?= htmlspecialchars($row['unit_price']) ?></td>
+                                <td>₱ <?= htmlspecialchars($row['total_amount']) ?></td>
+                                <td>
+                                    <span class="badge bg-success">
+                                        <?= htmlspecialchars($row['status']) ?>
+                                    </span>
+                                </td>
+                                <td>
+                                        <button type="button" class="btn btn-sm btn-success mark-received-btn" data-bs-toggle="modal" data-bs-target="#receivedModal" title="Mark as Received"
+                                            data-transaction-id="<?= $row['procurement_id'] ?>"
+                                            data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
+                                            data-category="<?= htmlspecialchars($row['category']) ?>"
+                                            data-quantity="<?= $row['quantity'] ?>"
+                                            data-unit="<?= htmlspecialchars($row['unit']) ?>"
+                                            data-supplier-id="<?= $row['supplier_id'] ?>"
+                                            data-unit-price="<?= $row['unit_price'] ?>"
+                                            data-invoice="<?= htmlspecialchars($row['invoice_number'] ?? '') ?>"
+                                            data-status="<?= htmlspecialchars($row['status']) ?>">
+                                            <i class="fas fa-check-circle"></i>
+                                        </button>
 
-                                <!-- Add to Inventory button (submits mapped data to existing add endpoint)
+
+                                    <!-- Add to Inventory button (submits mapped data to existing add endpoint)
                                 <button type="button" class="btn btn-sm btn-primary" onclick="addToInventoryFromRow(this)" title="Add to Inventory">
                                     <i class="fas fa-plus-circle"></i>
                                 </button> -->
-                            </td>
+                                </td>
                             </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="10" class="text-center py-4">
+                            <td colspan="12" class="text-center py-4">
                                 <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
                                 <p class="text-muted">No recieved items found</p>
                             </td>
@@ -804,49 +802,49 @@ if (isset($_SESSION['error'])) {
 
 
         <!-- Approve/Received Modal -->
-<div class="modal fade" id="receivedModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Mark as Received Items</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="approveForm" action="../actions/mark_supplier_transaction_received.php" method="POST">
-                <input type="hidden" id="approve-id" name="procurement_id" style="display: none;">
-                <input type="hidden" id="approve-item-name" name="item_name" style="display: none;">
-                <input type="hidden" id="approve-quantity" name="quantity" style="display: none;">
-                <input type="hidden" id="approve-unit" name="unit" style="display: none;">
-                <input type="hidden" id="approve-supplier" name="supplier" style="display: none;">
-                <input type="hidden" id="approve-price" name="price" style="display: none;">
-                <input type="hidden" id="approve-notes" name="notes" style="display: none;">
-                <div class="modal-body">
-                    <div class="text-center mb-3">
-                        <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+        <div class="modal fade" id="receivedModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Mark as Received Items</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <p class="text-center">Are you sure you want to mark this item as received and Add the item to the inventory?</p>
-                    <div class="text-center mb-3">
-                        <strong id="display-item-name"></strong>
-                    </div>
+                    <form id="approveForm" action="../actions/mark_supplier_transaction_received.php" method="POST">
+                        <input type="hidden" id="approve-id" name="procurement_id" style="display: none;">
+                        <input type="hidden" id="approve-item-name" name="item_name" style="display: none;">
+                        <input type="hidden" id="approve-quantity" name="quantity" style="display: none;">
+                        <input type="hidden" id="approve-unit" name="unit" style="display: none;">
+                        <input type="hidden" id="approve-supplier" name="supplier" style="display: none;">
+                        <input type="hidden" id="approve-price" name="price" style="display: none;">
+                        <input type="hidden" id="approve-notes" name="notes" style="display: none;">
+                        <div class="modal-body">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+                            </div>
+                            <p class="text-center">Are you sure you want to mark this item as received and add the item to the inventory?</p>
+                            <div class="text-center mb-3">
+                                <strong id="display-item-name"></strong>
+                            </div>
 
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <label class="form-label">Received Date</label>
-                            <input type="date" name="received_date" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">Received Date</label>
+                                    <input type="date" name="received_date" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Received Notes (Optional)</label>
+                                    <textarea name="received_notes" class="form-control" rows="3" placeholder="Any additional notes about the received items..."></textarea>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-12">
-                            <label class="form-label">Received Notes (Optional)</label>
-                            <textarea name="received_notes" class="form-control" rows="3" placeholder="Any additional notes about the received items..."></textarea>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success">Mark as Received</button>
                         </div>
-                    </div>
+                    </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">Mark as Received</button>
-                </div>
-            </form>
+            </div>
         </div>
-    </div>
-</div>
 
 
         <!-- Inventory Table -->
@@ -1261,13 +1259,13 @@ if (isset($_SESSION['error'])) {
     // Session message variables
     var sessionMessage = '<?= addslashes($session_message) ?>';
     var sessionError = '<?= addslashes($session_error) ?>';
-    
+
     $(document).ready(function() {
         // Show session message modal if there are messages
         if (sessionMessage || sessionError) {
             showSessionMessageModal();
         }
-        
+
         // Mark as Received Modal functionality
         // Mark as Received Modal functionality
         $('.mark-received-btn').on('click', function() {
@@ -1279,7 +1277,7 @@ if (isset($_SESSION['error'])) {
             const supplier = button.data('supplier');
             const unitPrice = button.data('unit-price');
             const notes = button.data('notes');
-            
+
             // Populate hidden fields
             $('#approve-id').val(transactionId);
             $('#approve-item-name').val(itemName);
@@ -1288,10 +1286,10 @@ if (isset($_SESSION['error'])) {
             $('#approve-supplier').val(supplier);
             $('#approve-price').val(unitPrice);
             $('#approve-notes').val(notes);
-            
+
             // Display item name in modal
             $('#display-item-name').text(itemName);
-            
+
             console.log('Mark as Received modal populated with:', {
                 id: transactionId,
                 itemName: itemName,
@@ -1311,7 +1309,7 @@ if (isset($_SESSION['error'])) {
         var title = document.getElementById('sessionModalTitle');
         var icon = document.getElementById('sessionModalIcon');
         var message = document.getElementById('sessionModalMessage');
-        
+
         if (sessionMessage) {
             // Success message
             header.className = 'modal-header bg-success text-white';
@@ -1325,7 +1323,7 @@ if (isset($_SESSION['error'])) {
             icon.innerHTML = '<i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem;"></i>';
             message.textContent = sessionError;
         }
-        
+
         modal.show();
     }
 
@@ -1333,7 +1331,7 @@ if (isset($_SESSION['error'])) {
     window.changeStatusToReceived = function() {
         const procurementId = $('#approve-id').val();
         const itemName = $('#approve-item-name').val();
-        
+
         if (!procurementId) {
             alert('Error: Procurement ID not found');
             return;
@@ -1344,7 +1342,7 @@ if (isset($_SESSION['error'])) {
             $.ajax({
                 url: '../actions/change_procurement_status.php',
                 type: 'POST',
-                data: { 
+                data: {
                     procurement_id: procurementId,
                     new_status: 'Received'
                 },
@@ -1521,9 +1519,6 @@ if (isset($_SESSION['error'])) {
         const modal = new bootstrap.Modal(document.getElementById('editInventoryModal'));
         modal.show();
     }
-
-
-
 </script>
 
 <?php include '../includes/footer.php'; ?>

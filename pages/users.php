@@ -358,7 +358,7 @@ if (isset($_SESSION['error'])) {
                         <tr>
                             <th>Name</th>
                             <th>Position</th>
-                            <th>Email</th>
+                            <th>Username</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -381,7 +381,7 @@ if (isset($_SESSION['error'])) {
                                     <?= htmlspecialchars(strtoupper($row['user_type'])) ?>
                                 </span>
                             </td>
-                            <td><?= htmlspecialchars($row['email']) ?></td>
+                            <td><?= htmlspecialchars($row['username']) ?></td>
                             <td>
                                 <button class="btn btn-warning"
                                   onclick="openEditModal(
@@ -393,7 +393,7 @@ if (isset($_SESSION['error'])) {
                                     '<?= addslashes($row['suffix']) ?>',
                                     '<?= addslashes($row['academic_title']) ?>',
                                     '<?= addslashes($row['user_type']) ?>',
-                                    '<?= addslashes($row['email']) ?>'
+                                    '<?= addslashes($row['username']) ?>'
                                   )">
                                   <i class="fas fa-edit me-1"></i>Edit
                                 </button>
@@ -408,7 +408,7 @@ if (isset($_SESSION['error'])) {
                                     '<?= addslashes($row['suffix']) ?>',
                                     '<?= addslashes($row['academic_title']) ?>',
                                     '<?= addslashes ($row['user_type']) ?>',
-                                    '<?= addslashes($row['email']) ?>'
+                                    '<?= addslashes($row['username']) ?>'
                                   )">
                                   <i class="fas fa-trash me-1"></i>Delete
                                 </button>
@@ -463,7 +463,7 @@ window.onclick = function(event) {
   }
 }
 
-function openEditModal(id, title, firstName, middleName, lastName, suffix, academicTitle, userType, email) {
+function openEditModal(id, title, firstName, middleName, lastName, suffix, academicTitle, userType, username) {
   document.getElementById('edit-id').value = id;
   document.getElementById('edit-title').value = title;
   document.getElementById('edit-firstname').value = firstName;
@@ -472,7 +472,7 @@ function openEditModal(id, title, firstName, middleName, lastName, suffix, acade
   document.getElementById('edit-suffix').value = suffix || '';
   document.getElementById('edit-academictitle').value = academicTitle || '';
   document.getElementById('edit-usertype').value = userType;
-  document.getElementById('edit-email').value = email;
+  document.getElementById('edit-username').value = username;
   
   // Show the edit modal
   document.getElementById('editUser').style.display = 'block';

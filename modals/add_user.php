@@ -80,10 +80,10 @@
     </h6>
     <div class="row g-3">
       <div class="col-md-12">
-        <label for="add-email" class="form-label">
-          <i class="fas fa-envelope me-1"></i>Email Address <span class="text-danger">*</span>
+        <label for="add-username" class="form-label">
+          <i class="fas fa-envelope me-1"></i>Username <span class="text-danger">*</span>
         </label>
-        <input class="form-control" type="email" name="email" id="add-email" placeholder="user@example.com" required>
+        <input class="form-control" type="text" name="username" id="add-username" placeholder="user@example.com" required>
       </div>
     </div>
     

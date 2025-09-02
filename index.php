@@ -4,11 +4,11 @@ include 'includes/db.php';
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $email = $_POST['email'];
+  $username = $_POST['username'];
   $password = $_POST['password'];
 
-  $stmt = $conn->prepare("SELECT * FROM user WHERE email = ?");
-  $stmt->bind_param("s", $email);
+  $stmt = $conn->prepare("SELECT * FROM user WHERE username = ?");
+  $stmt->bind_param("s", $username);
   $stmt->execute();
   $result = $stmt->get_result();
 
@@ -20,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $_SESSION['user_id'] = $user['id']; // Store user ID separately
       $_SESSION['id'] = $user['id']; // Alternative key for compatibility
       $_SESSION['user_type'] = $user['user_type'];
-      $_SESSION['name'] = $user['name'] ?? $user['first_name'] . ' ' . $user['last_name'] ?? $user['email'];
+      $_SESSION['name'] = $user['name'] ?? $user['first_name'] . ' ' . $user['last_name'] ?? $user['username'];
       $_SESSION['title'] = $user['title'];
-      $_SESSION['email'] = $user['email'];
+      $_SESSION['username'] = $user['username'];
 
       // Set flag to show login success modal on dashboard
       $_SESSION['show_login_modal'] = true;
@@ -525,18 +525,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <form method="POST" id="loginForm">
           <div class="form-group">
-            <label for="email" class="form-label">
-              <i class="fas fa-envelope me-2"></i>Email Address
+            <label for="username" class="form-label">
+              <i class="fas fa-envelope me-2"></i>Username
             </label>
             <div class="input-group">
               <i class="fas fa-envelope input-icon"></i>
               <input type="email"
-                name="email"
-                id="email"
+                name="username"
+                id="username"
                 class="form-control with-icon"
-                placeholder="Enter your email address"
+                placeholder="Enter your username"
                 required
-                autocomplete="email">
+                autocomplete="username">
             </div>
           </div>
 
@@ -625,16 +625,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Add form validation and enhance UX
     document.addEventListener('DOMContentLoaded', function() {
       const form = document.getElementById('loginForm');
-      const emailInput = document.getElementById('email');
+      const usernameInput = document.getElementById('username');
       const passwordInput = document.getElementById('password');
       const togglePasswordBtn = document.querySelector('.toggle-password');
       const themeToggle = document.getElementById('themeToggle');
 
-      // Auto-focus on email field
-      emailInput.focus();
+      // Auto-focus on username field
+      usernameInput.focus();
 
       // Add input validation
-      emailInput.addEventListener('input', function() {
+      usernameInput.addEventListener('input', function() {
         if (this.validity.valid) {
           this.classList.remove('is-invalid');
           this.classList.add('is-valid');

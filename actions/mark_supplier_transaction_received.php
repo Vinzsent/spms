@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // 2. Update transaction status to received
             $stmt = $conn->prepare("
                 UPDATE supplier_transaction SET 
-                    status = 'Received',
+                    status = 'Added',
 date_updated = CURRENT_TIMESTAMP
                 WHERE procurement_id = ?
             ");

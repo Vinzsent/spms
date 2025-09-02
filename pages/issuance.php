@@ -615,7 +615,7 @@ body {
         <div class="nav-item">
             <a href="supply_request.php" class="nav-link">
                 <i class="fas fa-clipboard-list"></i>
-                Request List
+                Supply Request List
             </a>
         </div>
         <div class="nav-item">
