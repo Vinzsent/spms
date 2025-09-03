@@ -47,10 +47,15 @@ if ($role === 'supply in-charge') {
     $whereClause = "WHERE LOWER(sr.request_type) = 'property'";
 }
 
+
+$inventory_query = "SELECT * FROM inventory";
+$inventory_result = $conn->query($inventory_query);
+
 $sql = "SELECT sr.*, 
         sr.noted_by, sr.checked_by, sr.verified_by, sr.issued_by, sr.approved_by,
         sr.noted_date, sr.checked_date, sr.verified_date, sr.issued_date, sr.approved_date,
-        CONCAT_WS(' ', u.first_name, u.last_name) AS requester_name
+        CONCAT_WS(' ', u.first_name, u.last_name) AS requester_name,
+        u.user_type AS requester_position
         FROM supply_request sr 
         LEFT JOIN user u ON u.id = sr.user_id
         $whereClause
@@ -812,7 +817,7 @@ body {
                                         <div>
                                             <strong><?= htmlspecialchars($row['requester_name'] ?: 'Unknown') ?></strong>
                                             <br>
-                                            <small class="text-muted"><?= htmlspecialchars($row['purpose']) ?></small>
+                                            <small class="text-muted"><?= htmlspecialchars($row['requester_position']) ?></small>
                                         </div>
                                     </td>
                                     <td style="text-transform: uppercase;">
@@ -850,6 +855,8 @@ body {
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#viewRequestModal"
                                                     data-request-id="<?= $row['request_id'] ?>"
+                                                    data-requester-name="<?= htmlspecialchars($row['requester_name'] ?: 'Unknown') ?>"
+                                                    data-requester-position="<?= htmlspecialchars($row['requester_position'] ?: 'N/A') ?>"
                                                     data-date="<?= htmlspecialchars($row['date_requested']) ?>"
                                                     data-description="<?= htmlspecialchars($row['item_name']) ?>"
                                                     data-quantity="<?= $row['quantity_requested'] ?>"
@@ -921,6 +928,10 @@ body {
                                 <div class="info-item">
                                     <span class="info-label">Department:</span>
                                     <span class="info-value" id="viewDepartment"></span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Requester:</span>
+                                    <span class="info-value" id="viewRequester"></span>
                                 </div>
                                 <div class="info-item">
                                     <span class="info-label">Purpose:</span>
@@ -1011,7 +1022,7 @@ body {
                     <i class="fas fa-times me-1"></i>Close
                 </button>
 
-                <button type="button" class="btn btn-primary issued-redirect-btn d-none" data-user-type="<?= strtolower($user_type) ?>" disabled>
+                <button type="button" class="btn btn-primary issued-redirect-btn d-none">
                     <i class="fas fa-save me-1"></i>Issued
                 </button>
             </div>
@@ -1070,6 +1081,135 @@ body {
     </div>
 </div>
 
+<!-- Stock Movement Modal -->
+<div class="modal fade modal-modern" id="stockMovementModal" tabindex="-1" aria-labelledby="stockMovementLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="stockMovementLabel"><i class="fas fa-boxes me-2"></i>Stock Movement - Inventory Details</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="stockMovementForm">
+        <div class="modal-body">
+          <input type="hidden" name="inventory_id" id="smInventoryId">
+          <input type="hidden" name="request_id" id="smRequestId">
+          
+          <!-- Request Information Section -->
+          <div class="row mb-3">
+            <div class="col-12">
+              <div class="info-card">
+                <h6 class="info-title"><i class="fas fa-user me-2"></i>Request Information</h6>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label class="form-label-modern">Requester</label>
+                      <input type="text" name="requester_name" id="smRequester" class="form-control form-control-modern" readonly>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label class="form-label-modern">Position</label>
+                      <input type="text" id="smPosition" class="form-control form-control-modern" readonly>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Inventory Details Section -->
+          <div class="row mb-3">
+            <div class="col-12">
+              <div class="info-card">
+                <h6 class="info-title"><i class="fas fa-database me-2"></i>Available Item</h6>
+                <div class="row">
+                  <div class="col-md-3">
+                    <div class="mb-3">
+                      <label class="form-label-modern">Item Name</label>
+                      <input type="text" id="smItemName" class="form-control form-control-modern" readonly>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="mb-3">
+                      <label class="form-label-modern">Status</label>
+                      <input type="text" id="smStatus" class="form-control form-control-modern" readonly>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label class="form-label-modern">Category</label>
+                      <input type="text" id="smCategory" class="form-control form-control-modern" readonly>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="mb-3">
+                      <label class="form-label-modern">Unit</label>
+                      <input type="text" id="smUnit" class="form-control form-control-modern" readonly>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="mb-3">
+                      <label class="form-label-modern">Unit Cost</label>
+                      <input type="text" id="smUnitCost" class="form-control form-control-modern" readonly>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="mb-3">
+                      <label class="form-label-modern">Current Stock</label>
+                      <input type="text" id="smCurrentStockDisplay" class="form-control form-control-modern" readonly>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Movement Action Section -->
+          <div class="row">
+            <div class="col-12">
+              <div class="info-card">
+                <h6 class="info-title"><i class="fas fa-exchange-alt me-2"></i>Stock Movement Action</h6>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="mb-3 movement-toggle">
+                      <label class="form-label-modern d-block">Movement Type</label>
+                      <div class="btn-group" role="group" aria-label="Movement type">
+                        <input type="hidden" name="movement_type" id="smMovementType" value="OUT">
+                        <button type="button" class="btn btn-warning" id="btnStockOut">— Stock Out</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label class="form-label-modern">Quantity to Issue</label>
+                      <input type="number" name="quantity" id="smQuantity" class="form-control form-control-modern" min="1" required>
+                      <div class="form-text">Enter quantity to be issued</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-12">
+                    <div class="mb-3">
+                      <label class="form-label-modern">Movement Notes</label>
+                      <textarea name="notes" id="smNotes" rows="2" class="form-control form-control-modern" placeholder="Add any notes about this stock movement..."></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary-modern" id="smSubmitBtn"><i class="fas fa-save me-1"></i>Record Stock & Issue Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <!-- Global Loading Overlay -->
 <div id="globalLoader" class="loading-overlay">
   <div class="loading-card">
@@ -1081,57 +1221,32 @@ body {
   </div>
 </div>
 
-<!-- Stock Movement Modal -->
-<div class="modal fade modal-modern" id="stockMovementModal" tabindex="-1" aria-labelledby="stockMovementLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="stockMovementLabel"><i class="fas fa-boxes me-2"></i>Stock Movement</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <form id="stockMovementForm">
-        <div class="modal-body">
-          <input type="hidden" name="inventory_id" id="smInventoryId">
-          <input type="hidden" name="request_id" id="smRequestId">
-          <div class="mb-3">
-            <label class="form-label-modern">Item</label>
-            <input type="text" id="smItemName" class="form-control form-control-modern" readonly>
-            <div class="form-text" id="smStockInfo">Current stock: <span id="smCurrentStock">-</span></div>
-          </div>
-          <div class="mb-3 movement-toggle">
-            <label class="form-label-modern d-block">Movement Type</label>
-            <div class="btn-group" role="group" aria-label="Movement type">
-              <input type="hidden" name="movement_type" id="smMovementType" value="OUT">
-              <button type="button" class="btn btn-success" id="btnStockIn">+ Stock In</button>
-              <button type="button" class="btn btn-warning" id="btnStockOut">— Stock Out</button>
-            </div>
-          </div>
-          <div class="mb-3">
-            <label class="form-label-modern">Quantity</label>
-            <input type="number" name="quantity" id="smQuantity" class="form-control form-control-modern" min="1" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label-modern">Notes</label>
-            <textarea name="notes" id="smNotes" rows="3" class="form-control form-control-modern" placeholder="Add any notes..."></textarea>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary-modern" id="smSubmitBtn"><i class="fas fa-save me-1"></i>Record Movement</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
 // Current user's role from PHP session (lowercased)
 const CURRENT_USER_TYPE = '<?= strtolower($user_type) ?>';
-// Roles allowed to click Issued
+// Roles allowed to click Issued (keep lowercase)
 const ISSUED_ALLOWED_ROLES = ['admin', 'supply in-charge', 'property custodian'];
+
+// Helper: truthy flag parser (prevents ReferenceError)
+function isTrueFlag(v) {
+  const s = (v ?? '').toString().trim().toLowerCase();
+  return s === '1' || s === 'true' || s === 'yes' || s === 'y';
+}
+
+// Normalize role strings for robust comparison
+function normalizeRole(str) {
+  return (str || '')
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/[\u2010-\u2015]/g, '-') // normalize all unicode dashes to hyphen
+    .replace(/\s+/g, ' ');            // collapse multiple spaces
+}
+const NORMALIZED_USER_ROLE = normalizeRole(CURRENT_USER_TYPE);
+const ALLOWED_ROLE_SET = new Set(ISSUED_ALLOWED_ROLES.map(normalizeRole));
 
 $(document).ready(function() {
     // View Request Modal
@@ -1144,6 +1259,8 @@ $(document).ready(function() {
             year: 'numeric', month: 'long', day: 'numeric'
         }));
         $('#viewDepartment').text(data.department);
+        const requesterName = data.requester_name || data.requesterName || 'Unknown';
+        $('#viewRequester').text(requesterName);
         $('#viewPurpose').text(data.purpose);
         $('#viewCategory').text(data.category);
         $('#viewDescription').text(data.description);
@@ -1161,25 +1278,32 @@ $(document).ready(function() {
 
         // Control Issued button visibility and payload
         const $issuedBtn = $('.issued-redirect-btn');
-        const hasNoted = !!(data.noted);
-        const hasApproved = !!(data.approved);
-        const isRoleAllowed = ISSUED_ALLOWED_ROLES.includes(CURRENT_USER_TYPE);
-
-        if (hasNoted && hasApproved) {
+        const hasNotedName = !!(data.noted && String(data.noted).trim().length > 0);
+        const hasNotedDate = !!(data.notedDate && String(data.notedDate).trim().length > 0);
+        const isRoleAllowed = ALLOWED_ROLE_SET.has(NORMALIZED_USER_ROLE);
+        console.debug('[Issuance] role check', { userType: CURRENT_USER_TYPE, normalized: NORMALIZED_USER_ROLE, isRoleAllowed });
+        console.debug('[Issuance] status gates (noted requirement)', { hasNotedName, hasNotedDate, issued: data.issued });
+ 
+        const currentStatus = (data.currentStatus || data['current-status'] || data.current_status || '').toString().trim().toLowerCase();
+        const isAlreadyIssued = isTrueFlag(data.issued) || currentStatus === 'issued';
+        console.debug('[Issuance] gating summary', { currentStatus, isAlreadyIssued });
+ 
+        // Show/enabled if: role allowed AND not already issued AND (noted_by AND noted_date are present)
+        if (isRoleAllowed && !isAlreadyIssued && hasNotedName && hasNotedDate) {
             $issuedBtn.removeClass('d-none');
-            // Enable/disable based on role
-            if (isRoleAllowed) {
-                $issuedBtn.prop('disabled', false).removeAttr('title');
-            } else {
-                $issuedBtn.prop('disabled', true).attr('title', 'Only Admin, Supply In-charge, or Property Custodian can issue items');
-            }
+            $issuedBtn.removeClass('disabled').prop('disabled', false).css('pointer-events','auto').removeAttr('title');
             // Reset prior data then copy all data-* properties from the trigger
             $issuedBtn.removeData();
             $.each(data, function(key, val) {
                 $issuedBtn.data(key, val);
             });
         } else {
-            $issuedBtn.addClass('d-none').prop('disabled', true).removeData();
+            const reason = isAlreadyIssued
+                ? 'This request is already Issued.'
+                : (!isRoleAllowed
+                    ? 'Only Admin, Supply In-charge, or Property Custodian can issue items'
+                    : 'Button enabled only after Noted By and Noted Date are set');
+            $issuedBtn.addClass('d-none disabled').prop('disabled', true).css('pointer-events','').attr('title', reason).removeData();
         }
     });
     
@@ -1263,12 +1387,30 @@ $(document).ready(function() {
         if ($(this).prop('disabled')) return; // Role guard
 
         const rowData = $(this).data();
-        const itemName = rowData.description; // uses data-description from row
-        const requestedQty = parseInt(rowData.quantity, 10) || 1;
-        const requestId = rowData.requestId || rowData['request-id'] || rowData.request_id;
+        // Prefer data-* from button, fallback to modal fields
+        let itemName = rowData.description;
+        if (!itemName) itemName = ($('#viewDescription').text() || '').trim();
+        let requestedQty = parseInt(rowData.quantity, 10);
+        if (!requestedQty || Number.isNaN(requestedQty)) {
+            const qtyText = ($('#viewQuantity').text() || '').trim();
+            const m = qtyText.match(/\d+/);
+            requestedQty = m ? parseInt(m[0], 10) : 1;
+        }
+        const requestId = rowData.requestId || rowData['request-id'] || rowData.request_id || ($('#updateRequestId').val() || '').trim();
+        const requesterName = rowData.requesterName || rowData.requester_name || ($('#viewRequester').text() || '').trim() || 'Unknown';
+        const position = rowData.position || rowData['requester-position'] || rowData.requesterPosition || ($('#viewPosition').text() || '').trim() || 'Unknown';
+        
+        // Get category from Request Details modal
+        const categoryFromRequest = rowData.category || ($('#viewCategory').text() || '').trim();
+
+        if (!itemName) {
+            alert('Missing item name to search.');
+            return;
+        }
 
         const $loader = $('#globalLoader');
         $loader.find('.fw-semibold').text('Searching inventory…');
+        const startTs = Date.now();
         $loader.show();
 
         // Search by exact item name first
@@ -1280,10 +1422,10 @@ $(document).ready(function() {
             }
 
             if (resp.match === 'exact' && resp.item) {
-                openStockMovementModal(resp.item, requestedQty, requestId);
+                openStockMovementModal(resp.item, requestedQty, requestId, requesterName, position, categoryFromRequest);
             } else if (resp.match === 'partial' && resp.items && resp.items.length > 0) {
                 // If multiple matches, pick the first for now; could be enhanced to choose
-                openStockMovementModal(resp.items[0], requestedQty, requestId);
+                openStockMovementModal(resp.items[0], requestedQty, requestId, requesterName, position, categoryFromRequest);
             } else {
                 alert('No matching inventory items found');
             }
@@ -1293,16 +1435,34 @@ $(document).ready(function() {
             alert('Error searching inventory');
           })
           .always(function() {
-            $loader.hide();
+            const elapsed = Date.now() - startTs;
+            const remaining = Math.max(0, (typeof MIN_LOADER_MS !== 'undefined' ? MIN_LOADER_MS : 0) - elapsed);
+            setTimeout(function(){ $loader.hide(); }, remaining);
           });
     });
-
-    function openStockMovementModal(item, requestedQty, requestId) {
-        // Prefill modal fields
+    
+    function openStockMovementModal(item, requestedQty, requestId, requesterName, position, categoryFromRequest) {
+        // Prefill request information
         $('#smInventoryId').val(item.inventory_id);
         $('#smRequestId').val(requestId);
-        $('#smItemName').val(item.item_name);
-        $('#smCurrentStock').text(item.current_stock + ' ' + (item.unit || ''));
+        $('#smRequester').val(requesterName || 'Unknown');
+        $('#smPosition').val(position || 'Unknown');
+        $('#smRequestIdDisplay').val(requestId);
+        
+        // Prefill inventory details - only fields that exist in current modal
+        console.log('Item data:', item); // Debug log to see all item data
+        $('#smItemName').val(item.item_name || '');
+        $('#smUnit').val(item.unit || '');
+        $('#smUnitCost').val(item.unit_cost ? '₱' + parseFloat(item.unit_cost).toLocaleString(undefined, {
+            minimumFractionDigits: 2, maximumFractionDigits: 2
+        }) : '');
+        $('#smCurrentStockDisplay').val((item.current_stock || '0') + ' ' + (item.unit || ''));
+        $('#smStatus').val(item.status || '');
+        console.log('Category value being set:', item.category); // Debug log for category specifically
+        $('#smCategory').val(item.category || '');
+        $('#smCategory').val(categoryFromRequest); // Update category with value from Request Details modal
+        
+        // Set movement details
         $('#smQuantity').val(requestedQty);
         // Default to Stock Out for issuance
         setMovementType('OUT');
@@ -1320,7 +1480,7 @@ $(document).ready(function() {
         const sm = new bootstrap.Modal(smEl, { backdrop: 'static', keyboard: false });
         sm.show();
     }
-
+    
     function setMovementType(type) {
         const upper = (type || 'OUT').toUpperCase();
         $('#smMovementType').val(upper);
@@ -1350,7 +1510,8 @@ $(document).ready(function() {
             inventory_id: $('#smInventoryId').val(),
             movement_type: $('#smMovementType').val(),
             quantity: $('#smQuantity').val(),
-            notes: $('#smNotes').val()
+            notes: $('#smNotes').val(),
+            request_id: $('#smRequestId').val()
         };
 
         $.post('../actions/stock_movement.php', payload, function(resp) {

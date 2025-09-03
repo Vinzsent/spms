@@ -589,9 +589,6 @@ if (isset($_SESSION['error'])) {
             <li><a href="Inventory.php" class="nav-link active">
                     <i class="fas fa-boxes"></i> Inventory
                 </a></li>
-            <li><a href="transaction_list.php" class="nav-link">
-                    <i class="fas fa-exchange-alt"></i> Supply Request
-                </a></li>
             <li><a href="../logout.php" class="nav-link logout">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a></li>

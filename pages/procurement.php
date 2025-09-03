@@ -1229,6 +1229,7 @@ if (isset($_SESSION['error'])) {
                         <div class="col-md-3">
                             <label class="form-label">Brand and Model <span class="text-danger">*</span></label>
                             <input type="text" name="brand_model" class="form-control" required>
+
                         </div>
 
                         <div class="col-md-3">
@@ -1239,6 +1240,7 @@ if (isset($_SESSION['error'])) {
                         <div class="col-md-3">
                             <label class="form-label">Type <span class="text-danger">*</span></label>
                             <input type="text" name="type" class="form-control" required>
+                            <p>optional </p>
                         </div>
 
                         <!-- Row 5: File Uploads 

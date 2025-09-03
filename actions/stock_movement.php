@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $movement_type = trim($_POST['movement_type'] ?? '');
     $quantity = intval($_POST['quantity'] ?? 0);
     $notes = trim($_POST['notes'] ?? '');
+    $request_id = intval($_POST['request_id'] ?? 0);
 
     // Validation
     if ($inventory_id <= 0 || !in_array($movement_type, ['IN', 'OUT']) || $quantity <= 0) {
@@ -77,10 +78,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         // Log the movement
-        $log_sql = "INSERT INTO stock_logs (inventory_id, movement_type, quantity, previous_stock, new_stock, notes, created_by) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $log_sql = "INSERT INTO stock_logs (inventory_id, movement_type, quantity, previous_stock, new_stock, notes, request_id, created_by) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $log_stmt = $conn->prepare($log_sql);
-        $log_stmt->bind_param("isiissi", $inventory_id, $movement_type, $quantity, $previous_stock, $new_stock, $notes, $user_id);
+        $log_stmt->bind_param("isiissii", $inventory_id, $movement_type, $quantity, $previous_stock, $new_stock, $notes, $request_id, $user_id);
 
         if (!$log_stmt->execute()) {
             throw new Exception("Error logging stock movement");

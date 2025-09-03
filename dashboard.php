@@ -588,7 +588,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Supply Requisition</h3>
         <p class="card-description">Request items and track approvals. Managers can approve, reject, or monitor all requests in real-time.</p>
-        <button onclick="showRequestTypeModal()" class="card-button">Access Module</button>
+        <button onclick="showRequestTypeModal()" class="card-button">Access</button>
       </div>
 
     <?php elseif (strtolower($user_type) === 'immediate head'): ?>
@@ -600,7 +600,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Assignment & Issuance</h3>
         <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
-        <a href="pages/issuance.php" class="card-button">Access Module</a>
+        <a href="pages/issuance.php" class="card-button">Access</a>
       </div>
 
       <?php elseif (strtolower($user_type) === 'accounting officer'): ?>
@@ -612,7 +612,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Asset Registration</h3>
         <p class="card-description">Register assets with specifications, values, and documents. Generate tags or barcodes automatically.</p>
-        <a href="pages/assets.php" class="card-button">Access Module</a>
+        <a href="pages/assets.php" class="card-button">Access</a>
       </div>
 
       <!-- Procurement Card -->
@@ -622,7 +622,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Procurement</h3>
         <p class="card-description">Log purchased items with supplier details, costs, and receipts. Mark items as received when delivered.</p>
-        <a href="pages/procurement.php" class="card-button">Access Module</a>
+        <a href="pages/procurement.php" class="card-button">Access</a>
       </div>
 
     <?php elseif (strtolower($user_type) === 'school president'): ?>
@@ -634,7 +634,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Assignment & Issuance</h3>
         <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
-        <a href="pages/issuance.php" class="card-button">Access Module</a>
+        <a href="pages/issuance.php" class="card-button">Access</a>
       </div>
 
     <?php elseif (strtolower($user_type) === 'vp for finance & administration'): ?>
@@ -646,7 +646,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Assignment & Issuance</h3>
         <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
-        <a href="pages/issuance.php" class="card-button">Access Module</a>
+        <a href="pages/issuance.php" class="card-button">Access</a>
       </div>
 
       <?php elseif (strtolower($user_type) === 'purchasing officer'): ?>
@@ -659,7 +659,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Assignment & Issuance</h3>
         <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
-        <a href="pages/issuance.php" class="card-button">Access Module</a>
+        <a href="pages/issuance.php" class="card-button">Access</a>
       </div>
 
       <!-- Procurement Card -->
@@ -669,7 +669,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Procurement</h3>
         <p class="card-description">Log purchased items with supplier details, costs, and receipts. Mark items as received when delivered.</p>
-        <a href="pages/procurement.php" class="card-button">Access Module</a>
+        <a href="pages/procurement.php" class="card-button">Access</a>
       </div>
 
     <?php elseif (strtolower($user_type) === 'supply in-charge' || strtolower($user_type) === 'property custodian'): ?>
@@ -682,7 +682,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Assignment & Issuance</h3>
         <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
-        <a href="pages/issuance.php" class="card-button">Access Module</a>
+        <a href="pages/issuance.php" class="card-button">Access</a>
       </div>
 
       <!-- Received Items Card -->
@@ -692,7 +692,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Received Items</h3>
         <p class="card-description">Record and track new supplier transactions. Manage incoming inventory and update stock levels.</p>
-        <a href="pages/transaction_list.php" class="card-button">Access Module</a>
+        <a href="pages/transaction_list.php" class="card-button">Access</a>
       </div>
       
       <!-- Inventory Card -->
@@ -702,7 +702,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Inventory Management</h3>
         <p class="card-description">Track real-time stock levels with detailed logs. Get alerts for low inventory and manage supplies.</p>
-        <a href="pages/inventory.php" class="card-button">Access Module</a>
+        <a href="pages/inventory.php" class="card-button">Access</a>
       </div>
 
       <!-- Procurement Card -->
@@ -712,7 +712,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Procurement</h3>
         <p class="card-description">Log purchased items with supplier details, costs, and receipts. Mark items as received when delivered.</p>
-        <a href="pages/procurement.php" class="card-button">Access Module</a>
+        <a href="pages/procurement.php" class="card-button">Access</a>
       </div>
 
     <?php else: ?>
@@ -724,7 +724,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Supply Requisition</h3>
         <p class="card-description">Request items and track approvals. Managers can approve, reject, or monitor all requests in real-time.</p>
-        <button onclick="showRequestTypeModal()" class="card-button">Access Module</button>
+        <button onclick="showRequestTypeModal()" class="card-button">Access</button>
       </div>
       <!-- Assignment Card -->
       <div class="menu-card card-primary">
@@ -733,7 +733,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Assignment & Issuance</h3>
         <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
-        <a href="pages/issuance.php" class="card-button">Access Module</a>
+        <a href="pages/issuance.php" class="card-button">Access</a>
       </div>
       <!-- Procurement Card -->
       <div class="menu-card card-warning">
@@ -742,7 +742,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Procurement</h3>
         <p class="card-description">Log purchased items with supplier details, costs, and receipts. Mark items as received when delivered.</p>
-        <a href="pages/procurement.php" class="card-button">Access Module</a>
+        <a href="pages/procurement.php" class="card-button">Access</a>
       </div>
       <!-- Received Items Card -->
       <div class="menu-card card-primary">
@@ -751,7 +751,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Received Items</h3>
         <p class="card-description">Record and track new supplier transactions. Manage incoming inventory and update stock levels.</p>
-        <a href="pages/transaction_list.php" class="card-button">Access Module</a>
+        <a href="pages/transaction_list.php" class="card-button">Access</a>
       </div>
       <!-- Inventory Card -->
       <div class="menu-card card-info">
@@ -760,7 +760,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Inventory Management</h3>
         <p class="card-description">Track real-time stock levels with detailed logs. Get alerts for low inventory and manage supplies.</p>
-        <a href="pages/inventory.php" class="card-button">Access Module</a>
+        <a href="pages/inventory.php" class="card-button">Access</a>
       </div>
       <!-- Asset Registration Card -->
       <div class="menu-card card-dark">
@@ -769,7 +769,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Asset Registration</h3>
         <p class="card-description">Register assets with specifications, values, and documents. Generate tags or barcodes automatically.</p>
-        <a href="pages/assets.php" class="card-button">Access Module</a>
+        <a href="pages/assets.php" class="card-button">Access</a>
       </div>
       <!-- Maintenance Card -->
       <div class="menu-card card-success">
@@ -778,7 +778,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Maintenance</h3>
         <p class="card-description">Schedule and record asset maintenance with complete service history and cost tracking.</p>
-        <a href="pages/supply_request.php" class="card-button">Access Module</a>
+        <a href="pages/supply_request.php" class="card-button">Access</a>
       </div>
       <!-- Audit Card -->
       <div class="menu-card card-warning">
@@ -787,7 +787,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Audit</h3>
         <p class="card-description">Conduct inventory audits by comparing system data with physical counts for accuracy.</p>
-        <a href="pages/supply_request.php" class="card-button">Access Module</a>
+        <a href="pages/supply_request.php" class="card-button">Access</a>
       </div>
       <!-- Disposal Card -->
       <div class="menu-card card-info">
@@ -796,7 +796,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Disposal</h3>
         <p class="card-description">Manage disposal of obsolete items with approval workflows and reason documentation.</p>
-        <a href="pages/supply_request.php" class="card-button">Access Module</a>
+        <a href="pages/supply_request.php" class="card-button">Access</a>
       </div>
       <!-- Reports Card -->
       <div class="menu-card card-dark">
@@ -805,7 +805,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Reports</h3>
         <p class="card-description">Generate comprehensive reports on requisitions, inventory, maintenance, and disposals.</p>
-        <a href="pages/supply_request.php" class="card-button">Access Module</a>
+        <a href="pages/supply_request.php" class="card-button">Access</a>
       </div>
       <!-- Notifications Card -->
       <div class="menu-card card-primary">

@@ -1,6 +1,6 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-success px-3 fixed-top">
-  <a class="navbar-brand" href="#">Asset Management</a>
+  <a class="navbar-brand" href="#">DARTS</a>
   <div class="ms-auto d-flex align-items-center">
     <div class="d-flex align-items-center me-3 position-relative">
       <img src="/spms/assets/images/user.png" alt="Profile" class="avatar rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">

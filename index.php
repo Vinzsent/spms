@@ -7,10 +7,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $username = $_POST['username'];
   $password = $_POST['password'];
 
+  // Debug: Log the attempted username
+  error_log('Login attempt with username: ' . $username);
+
   $stmt = $conn->prepare("SELECT * FROM user WHERE username = ?");
   $stmt->bind_param("s", $username);
   $stmt->execute();
   $result = $stmt->get_result();
+
+  // Debug: Log query result count
+  error_log('Query returned ' . $result->num_rows . ' rows for username: ' . $username);
 
   if ($result->num_rows === 1) {
     $user = $result->fetch_assoc();
@@ -34,9 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       exit;
     } else {
       $error = "Incorrect password.";
+      error_log('Password verification failed for username: ' . $username);
     }
   } else {
     $error = "User not found.";
+    error_log('User not found for username: ' . $username);
   }
 }
 ?>
@@ -530,7 +538,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </label>
             <div class="input-group">
               <i class="fas fa-envelope input-icon"></i>
-              <input type="email"
+              <input type="text"
                 name="username"
                 id="username"
                 class="form-control with-icon"
