@@ -575,7 +575,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
 
 <div class="dashboard-container">
   <div class="dashboard-header">
-    <h1>Welcome to Asset Management Dashboard</h1>
+    <h1>Welcome to DARTS</h1>
     <p>Manage your assets efficiently with our comprehensive tools</p>
   </div>
 

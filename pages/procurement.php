@@ -369,6 +369,8 @@ if (isset($_SESSION['error'])) {
         border-radius: 10px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         overflow: hidden;
+        margin-bottom: 2rem;
+        width: 100%;
     }
 
     .table-header {
@@ -400,89 +402,316 @@ if (isset($_SESSION['error'])) {
         transform: translateY(-2px);
     }
 
-    /* Modal Styles */
-    .modal-header {
-        background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
-        color: var(--text-white);
-        border-bottom: none;
+    /* Optimized Table Layout */
+    .table {
+        margin-bottom: 0;
+        font-size: 0.85rem;
+        width: 100%;
+        table-layout: fixed;
     }
 
-    .modal-header .btn-close {
-        filter: brightness(0) invert(1);
-    }
-
-    .modal-body {
-        padding: 2rem;
-    }
-
-    .form-control-plaintext {
-        background-color: var(--bg-light);
-        border: 1px solid #e9ecef;
-        border-radius: 0.375rem;
-        padding: 0.375rem 0.75rem;
-        font-weight: 500;
-    }
-
-    .badge {
-        font-size: 0.875rem;
-        padding: 0.5rem 0.75rem;
-    }
-
-    .modal-footer {
-        border-top: 1px solid #e9ecef;
-        padding: 1rem 2rem;
-    }
-
-    /* Action buttons in table */
-    .btn-sm {
-        margin: 0 2px;
-        transition: all 0.3s ease;
-    }
-
-    .btn-sm:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Mobile menu toggle */
-    .mobile-menu-toggle {
-        background: var(--primary-green);
-        border: none;
-        border-radius: 5px;
-        padding: 8px 12px;
-        color: white;
-        font-size: 1.1rem;
-    }
-
-    .mobile-menu-toggle:hover {
-        background: var(--dark-green);
-        color: white;
-    }
-
-    /* Table improvements for mobile */
-    .table-responsive {
-        border-radius: 8px;
+    .table thead th {
+        padding: 12px 8px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        text-overflow: ellipsis;
         overflow: hidden;
     }
 
-    /* Ensure table cells don't wrap unnecessarily */
-    .table td,
-    .table th {
-        white-space: nowrap;
+    .table tbody td {
+        padding: 12px 8px;
         vertical-align: middle;
+        font-size: 0.85rem;
+        line-height: 1.3;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 
-    /* Allow text wrapping for specific columns on mobile */
-    @media (max-width: 768px) {
+    /* Optimized Column Widths for Monitor Fit */
+    .table td:nth-child(1), /* Date */
+    .table th:nth-child(1) {
+        width: 8%;
+        min-width: 90px;
+    }
 
-        .table td:nth-child(5),
-        /* Category */
-        .table td:nth-child(6) {
-            /* Item Name */
-            white-space: normal;
-            word-wrap: break-word;
-            max-width: 120px;
+    .table td:nth-child(2), /* Invoice */
+    .table th:nth-child(2) {
+        width: 8%;
+        min-width: 80px;
+    }
+
+    .table td:nth-child(3), /* Supplier */
+    .table th:nth-child(3) {
+        width: 12%;
+        min-width: 100px;
+    }
+
+    .table td:nth-child(4), /* Sales Type */
+    .table th:nth-child(4) {
+        width: 7%;
+        min-width: 70px;
+    }
+
+    .table td:nth-child(5), /* Category */
+    .table th:nth-child(5) {
+        width: 15%;
+        min-width: 120px;
+        white-space: normal;
+        word-wrap: break-word;
+    }
+
+    .table td:nth-child(6), /* Item Name */
+    .table th:nth-child(6) {
+        width: 18%;
+        min-width: 140px;
+        white-space: normal;
+        word-wrap: break-word;
+    }
+
+    .table td:nth-child(7), /* Quantity */
+    .table th:nth-child(7) {
+        width: 8%;
+        min-width: 70px;
+        text-align: center;
+    }
+
+    .table td:nth-child(8), /* Unit Price */
+    .table th:nth-child(8) {
+        width: 8%;
+        min-width: 80px;
+        text-align: right;
+    }
+
+    .table td:nth-child(9), /* Amount */
+    .table th:nth-child(9) {
+        width: 9%;
+        min-width: 90px;
+        text-align: right;
+    }
+
+    .table td:nth-child(10), /* Status */
+    .table th:nth-child(10) {
+        width: 7%;
+        min-width: 70px;
+        text-align: center;
+    }
+
+    .table td:nth-child(11), /* Action */
+    .table th:nth-child(11) {
+        width: 10%;
+        min-width: 120px;
+        text-align: center;
+    }
+
+    /* Badge styling - keep default colors */
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.6rem;
+        border-radius: 0.375rem;
+    }
+
+    /* Action buttons - keep default styling but optimize spacing */
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        margin: 0 1px;
+        font-size: 0.75rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1400px) {
+        .table {
+            font-size: 0.8rem;
         }
+        
+        .table thead th,
+        .table tbody td {
+            padding: 10px 6px;
+        }
+    }
+
+    @media (max-width: 1200px) {
+        .table {
+            font-size: 0.75rem;
+        }
+        
+        .table thead th,
+        .table tbody td {
+            padding: 8px 4px;
+        }
+        
+        .btn-sm {
+            padding: 0.2rem 0.4rem;
+            font-size: 0.7rem;
+        }
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        width: 280px;
+        background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
+        color: var(--text-white);
+        z-index: 1000;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar-header {
+        padding: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-header h3 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: var(--text-white);
+    }
+
+    .welcome-text {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-top: 5px;
+    }
+
+    .sidebar-nav {
+        padding: 20px 0;
+    }
+
+    .nav-item {
+        padding: 0;
+        margin: 0;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        color: var(--text-white);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+    }
+
+    .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: var(--text-white);
+        border-left-color: var(--accent-orange);
+    }
+
+    .nav-link.active {
+        background-color: rgba(255, 255, 255, 0.15);
+        border-left-color: var(--accent-orange);
+        font-weight: 600;
+    }
+
+    .nav-link i {
+        margin-right: 12px;
+        width: 20px;
+        text-align: center;
+    }
+
+    .nav-link.logout {
+        color: var(--accent-red);
+        margin-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Main Content */
+    .main-content {
+        margin-left: 280px;
+        padding: 20px;
+        min-height: 100vh;
+        background-color: var(--bg-light);
+    }
+
+    .content-header {
+        background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
+        color: var(--text-white);
+        padding: 30px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .content-header h1 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 2.2rem;
+    }
+
+    /* Stats Cards */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        padding: 20px;
+        max-width: 100%;
+    }
+
+    .stat-card {
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        font-size: 1.5rem;
+        color: var(--text-white);
+    }
+
+    .stat-icon.users {
+        background-color: var(--primary-green);
+    }
+
+    .stat-icon.suppliers {
+        background-color: var(--accent-orange);
+    }
+
+    .stat-card.pending .stat-icon {
+        background-color: var(--accent-red);
+    }
+
+    .stat-card.received .stat-icon {
+        background-color: var(--accent-blue);
+    }
+
+    .stat-card.approved .stat-icon {
+        background-color: var(--accent-green-approved);
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+        font-weight: 500;
     }
 
     /* Responsive Design */
@@ -804,6 +1033,12 @@ if (isset($_SESSION['error'])) {
             <li><a href="suppliers.php" class="nav-link">
                     <i class="fas fa-users"></i> Supplier List
                 </a></li>
+            <li><a href="canvas_form.php" class="nav-link">
+                    <i class="fas fa-clipboard-list"></i> Canvass Form
+                </a></li>
+            <li><a href="purchase_order.php" class="nav-link">
+                    <i class="fas fa-shopping-basket"></i> Purchase Order
+                </a></li>
             <li><a href="procurement.php" class="nav-link active">
                     <i class="fas fa-shopping-cart"></i> Procurement
                 </a></li>
@@ -923,8 +1158,8 @@ if (isset($_SESSION['error'])) {
             <table class="table table-hover mb-0">
                 <thead class="table-dark">
                     <tr>
-                        <th>Date Purchased</th>
-                        <th>Invoice Number</th>
+                        <th title="Date Purchased">Date Purchased</th>
+                        <th title="Invoice Number">Invoice Number</th>
                         <th>Supplier</th>
                         <th>Sales Type</th>
                         <th>Category</th>
@@ -941,47 +1176,60 @@ if (isset($_SESSION['error'])) {
                         <?php while ($row = $result->fetch_assoc()): ?>
                             <tr>
                                 <td><?= date('M d, Y', strtotime($row['date_created'])) ?></td>
-                                <td><?= htmlspecialchars($row['invoice_no']) ?></td>
+                                <td><strong><?= htmlspecialchars($row['invoice_no']) ?></strong></td>
                                 <td><?= htmlspecialchars($row['supplier_name']) ?></td>
                                 <td><?= htmlspecialchars($row['sales_type']) ?></td>
                                 <td><?= htmlspecialchars($row['category']) ?></td>
-                                <td><?= htmlspecialchars($row['item_name']) ?></td>
-                                <td><?= htmlspecialchars($row['quantity']) . ' ' . htmlspecialchars($row['unit']) ?></td>
-                                <td><?= htmlspecialchars($row['unit_price']) ?></td>
-                                <td><?= htmlspecialchars($row['total_amount']) ?></td>
-                                <td>
-                                    <span class="badge"
-                                        style="background-color: <?= ($row['status'] === 'Pending') ? '#fd7e14' : (($row['status'] === 'Received') ? '#198754' : '#6c757d') ?>;">
-                                        <?= htmlspecialchars($row['status']) ?>
-                                    </span>
+                                <td><strong><?= htmlspecialchars($row['item_name']) ?></strong></td>
+                                <td class="text-center"><?= htmlspecialchars($row['quantity']) . ' ' . htmlspecialchars($row['unit']) ?></td>
+                                <td class="text-end">₱<?= number_format($row['unit_price'], 2) ?></td>
+                                <td class="text-end"><strong>₱<?= number_format($row['total_amount'], 2) ?></strong></td>
+                                <td class="text-center">
+                                    <?php
+                                    $status = $row['status'];
+                                    $badgeClass = '';
+                                    switch(strtolower($status)) {
+                                        case 'pending':
+                                            $badgeClass = 'bg-warning';
+                                            break;
+                                        case 'received':
+                                            $badgeClass = 'bg-success';
+                                            break;
+                                        default:
+                                            $badgeClass = 'bg-secondary';
+                                    }
+                                    ?>
+                                    <span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($status) ?></span>
                                 </td>
-                                <td>
-                                    <button class="btn btn-sm btn-info edit-procurement-btn" title="Edit"
-                                        data-procurement-id="<?= $row['procurement_id'] ?>"
-                                        data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
-                                        data-invoice-no="<?= htmlspecialchars($row['invoice_no']) ?>"
-                                        data-quantity="<?= $row['quantity'] ?>"
-                                        data-unit="<?= htmlspecialchars($row['unit']) ?>"
-                                        data-unit-price="<?= $row['unit_price'] ?>"
-                                        data-sales-type="<?= htmlspecialchars($row['sales_type']) ?>"
-                                        data-category="<?= htmlspecialchars($row['category']) ?>"
-                                        data-supplier-id="<?= $row['supplier_id'] ?>">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-danger delete-procurement-btn" title="Delete"
-                                        data-procurement-id="<?= $row['procurement_id'] ?>">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-success mark-received-btn" title="Mark as Received"
-                                        data-transaction-id="<?= $row['procurement_id'] ?>"
-                                        data-item-name="<?= htmlspecialchars($row['item_name']) ?>" \
-                                        data-quantity="<?= $row['quantity'] ?>"
-                                        data-unit="<?= htmlspecialchars($row['unit']) ?>"
-                                        data-supplier="<?= htmlspecialchars($row['supplier_name']) ?>"
-                                        data-unit-price="<?= $row['unit_price'] ?>"
-                                        data-notes="<?= htmlspecialchars($row['notes'] ?? '') ?>">
-                                        <i class="fas fa-check"></i>
-                                    </button>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-info edit-procurement-btn" title="Edit"
+                                            data-procurement-id="<?= $row['procurement_id'] ?>"
+                                            data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
+                                            data-invoice-no="<?= htmlspecialchars($row['invoice_no']) ?>"
+                                            data-quantity="<?= $row['quantity'] ?>"
+                                            data-unit="<?= htmlspecialchars($row['unit']) ?>"
+                                            data-unit-price="<?= $row['unit_price'] ?>"
+                                            data-sales-type="<?= htmlspecialchars($row['sales_type']) ?>"
+                                            data-category="<?= htmlspecialchars($row['category']) ?>"
+                                            data-supplier-id="<?= $row['supplier_id'] ?>">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger delete-procurement-btn" title="Delete"
+                                            data-procurement-id="<?= $row['procurement_id'] ?>">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-success mark-received-btn" title="Mark as Received"
+                                            data-transaction-id="<?= $row['procurement_id'] ?>"
+                                            data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
+                                            data-quantity="<?= $row['quantity'] ?>"
+                                            data-unit="<?= htmlspecialchars($row['unit']) ?>"
+                                            data-supplier="<?= htmlspecialchars($row['supplier_name']) ?>"
+                                            data-unit-price="<?= $row['unit_price'] ?>"
+                                            data-notes="<?= htmlspecialchars($row['notes'] ?? '') ?>">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
@@ -1057,7 +1305,7 @@ if (isset($_SESSION['error'])) {
                     else:
                         ?>
                         <tr>
-                            <td colspan="9" class="text-center py-4">
+                            <td colspan="8" class="text-center py-4">
                                 <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                                 <p class="text-muted">No supply requests found.</p>
                             </td>

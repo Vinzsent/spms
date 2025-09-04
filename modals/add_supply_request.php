@@ -115,6 +115,42 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
                   </label>
                 </div>
               </div>
+
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input type="text" name="item_name" class="form-control" id="itemName" style="height: 70px" required>
+                  <label for="itemName">
+                    <i class="fas fa-align-items me-1"></i>Item Name <span class="text-danger">*</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <textarea name="request_description" class="form-control auto-resize" id="requestDescription" style="height: 70px; min-height: 70px; resize: vertical;" required></textarea>
+                  <label for="requestDescription">
+                    <i class="fas fa-align-left me-1"></i>Description <span class="text-danger">*</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-floating">
+                  <input type="text" name="brand" class="form-control" id="brandInput" required>
+                  <label for="brandInput">
+                    Brand <span class="text-danger">*</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-floating">
+                  <input type="text" name="color" class="form-control" id="colorInput" required>
+                  <label for="colorInput">
+                    Color <span class="text-danger">*</span>
+                  </label>
+                </div>
+              </div>
               
               <div class="col-md-3">
                 <div class="form-floating">
@@ -177,43 +213,6 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
                 <label for="unitSelect">
                   <i class="fas fa-ruler me-1"></i>Unit <span class="text-danger">*</span>
                 </label>
-              </div>
-
-              <div class="col-md-6">
-                <div class="form-floating">
-                  <input type="text" name="item_name" class="form-control" id="itemName" style="height: 70px" required>
-                  <label for="itemName">
-                    <i class="fas fa-align-items me-1"></i>Item Name <span class="text-danger">*</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="form-floating">
-                  <textarea name="request_description" class="form-control" id="requestDescription" style="height: 70px" required></textarea>
-                  <label for="requestDescription">
-                    <i class="fas fa-align-left me-1"></i>Description <span class="text-danger">*</span>
-                  </label>
-                </div>
-              </div>
-              
-
-              <div class="col-md-3">
-                <div class="form-floating">
-                  <input type="text" name="brand" class="form-control" id="brandInput" required>
-                  <label for="brandInput">
-                    Brand <span class="text-danger">*</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="form-floating">
-                  <input type="text" name="color" class="form-control" id="colorInput" required>
-                  <label for="colorInput">
-                    Color <span class="text-danger">*</span>
-                  </label>
-                </div>
               </div>
 
                 <div class="col-md-3">
@@ -892,6 +891,34 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
         }
       });
     });
+
+    // Auto-resize textarea functionality
+    function autoResizeTextarea(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.max(70, textarea.scrollHeight) + 'px';
+    }
+
+    // Initialize auto-resize for description textarea
+    const descriptionTextarea = document.getElementById('requestDescription');
+    if (descriptionTextarea) {
+      // Set initial height
+      autoResizeTextarea(descriptionTextarea);
+      
+      // Add event listeners for auto-resize
+      descriptionTextarea.addEventListener('input', function() {
+        autoResizeTextarea(this);
+      });
+      
+      descriptionTextarea.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          setTimeout(() => autoResizeTextarea(this), 0);
+        }
+      });
+      
+      descriptionTextarea.addEventListener('paste', function() {
+        setTimeout(() => autoResizeTextarea(this), 0);
+      });
+    }
 
 
   });
