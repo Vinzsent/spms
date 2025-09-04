@@ -623,7 +623,7 @@ $existing_pos_result = $conn->query($existing_pos_sql);
 
 <!-- Main Content -->
 <div class="main-content">
-    <div class="content-header">
+    <div class="content-header page-title">
         <h1>Purchase Order</h1>
         <p>Create and manage purchase orders for procurement</p>
     </div>
@@ -666,23 +666,24 @@ $existing_pos_result = $conn->query($existing_pos_sql);
                     <th style="width: 20%;">AMOUNT</th>
                 </tr>
             </thead>
-            <tbody>
-                <!-- Initial empty rows -->
-                <?php for($i = 1; $i <= 10; $i++): ?>
-                <tr>
-                    <td><?= $i ?></td>
-                    <td><input type="text" placeholder="Enter item description" onchange="calculateRowTotal(this)"></td>
-                    <td><input type="number" placeholder="0" onchange="calculateRowTotal(this)" min="0"></td>
-                    <td><input type="number" placeholder="0.00" onchange="calculateRowTotal(this)" min="0" step="0.01"></td>
-                    <td class="amount-cell">₱0.00</td>
-                </tr>
-                <?php endfor; ?>
+            <tbody id="itemsTableBody">
+                <!-- Dynamic rows will be added here -->
                 <tr style="background-color: var(--primary-green); color: white; font-weight: bold;">
                     <td colspan="4" style="text-align: right; padding-right: 20px;">TOTAL AMOUNT:</td>
                     <td id="totalAmount">₱0.00</td>
                 </tr>
             </tbody>
         </table>
+
+        <!-- Row Management Buttons -->
+        <div class="row-management" style="margin: 20px 0; text-align: center;">
+            <button type="button" class="btn-po btn-secondary" onclick="addPORow()">
+                <i class="fas fa-plus"></i> Add Row
+            </button>
+            <button type="button" class="btn-po btn-secondary" onclick="removeLastPORow()">
+                <i class="fas fa-minus"></i> Remove Row
+            </button>
+        </div>
 
         <!-- Payment Section -->
         <div class="payment-section">
@@ -777,6 +778,34 @@ $existing_pos_result = $conn->query($existing_pos_sql);
 
     // Print PO
     function printPO() {
+        // Hide completely empty rows to save space during print
+        const rows = Array.from(document.querySelectorAll('#itemsTable tbody tr:not(:last-child)'));
+        const modifiedRows = [];
+        
+        rows.forEach(row => {
+            const description = row.cells[1].querySelector('input')?.value.trim() || '';
+            const qty = row.cells[2].querySelector('input')?.value.trim() || '';
+            const unitCost = row.cells[3].querySelector('input')?.value.trim() || '';
+            const amount = row.cells[4].textContent.replace('₱', '').trim();
+            const total = parseFloat(amount) || 0;
+
+            if (!description && !qty && !unitCost && total === 0) {
+                row.classList.add('print-hide');
+                modifiedRows.push(row);
+            }
+        });
+
+        const restore = () => {
+            modifiedRows.forEach(r => r.classList.remove('print-hide'));
+        };
+
+        // Ensure restoration after printing
+        const afterPrint = () => {
+            restore();
+            window.removeEventListener('afterprint', afterPrint);
+        };
+        window.addEventListener('afterprint', afterPrint);
+
         window.print();
     }
 
@@ -916,6 +945,53 @@ $existing_pos_result = $conn->query($existing_pos_sql);
         });
     }
 
+    // Add new row to the purchase order table
+    function addPORow() {
+        const tbody = document.getElementById('itemsTableBody');
+        const totalRow = tbody.lastElementChild; // Get the total row
+        const rowCount = tbody.querySelectorAll('tr:not(:last-child)').length + 1;
+        
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td>${rowCount}</td>
+            <td><input type="text" placeholder="Enter item description" onchange="calculateRowTotal(this)"></td>
+            <td><input type="number" placeholder="0" onchange="calculateRowTotal(this)" min="0"></td>
+            <td><input type="number" placeholder="0.00" onchange="calculateRowTotal(this)" min="0" step="0.01"></td>
+            <td class="amount-cell">₱0.00</td>
+        `;
+        
+        // Insert before the total row
+        tbody.insertBefore(newRow, totalRow);
+    }
+    
+    // Remove last row from the purchase order table
+    function removeLastPORow() {
+        const tbody = document.getElementById('itemsTableBody');
+        const rows = tbody.querySelectorAll('tr:not(:last-child)'); // Exclude total row
+        
+        if (rows.length > 0) {
+            rows[rows.length - 1].remove();
+            // Update row numbers
+            updateRowNumbers();
+            calculateGrandTotal();
+        }
+    }
+    
+    // Update row numbers after adding/removing rows
+    function updateRowNumbers() {
+        const tbody = document.getElementById('itemsTableBody');
+        const rows = tbody.querySelectorAll('tr:not(:last-child)');
+        
+        rows.forEach((row, index) => {
+            row.cells[0].textContent = index + 1;
+        });
+    }
+    
+    // Initialize with one empty row
+    document.addEventListener('DOMContentLoaded', function() {
+        addPORow();
+    });
+
     // Generate new PO number
     function generateNewPONumber() {
         fetch('../actions/generate_po_number.php')
@@ -938,21 +1014,227 @@ $existing_pos_result = $conn->query($existing_pos_sql);
 </script>
 
 <style media="print">
-    .sidebar, .action-buttons {
+    @page {
+        size: A4;
+        margin: 0.5in;
+    }
+
+    .page-title {
+        display: none !important;
+    }
+    
+    .sidebar, .action-buttons, .row-management {
         display: none !important;
     }
     
     .main-content {
         margin-left: 0 !important;
+        padding: 0 !important;
     }
     
     .po-container {
         box-shadow: none !important;
-        padding: 20px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        font-size: 10pt;
+        line-height: 1.2;
     }
     
     body {
         background: white !important;
+        font-family: Arial, sans-serif;
+        font-size: 10pt;
+    }
+    
+    /* Header styling */
+    .po-header {
+        text-align: center;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #000;
+        padding-bottom: 10px;
+    }
+    
+    .po-header h1 {
+        font-size: 14pt;
+        font-weight: bold;
+        margin: 0;
+        text-transform: uppercase;
+    }
+    
+    .po-header .college-info {
+        font-size: 9pt;
+        margin: 2px 0;
+    }
+    
+    /* Form details section */
+    .po-details {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        font-size: 9pt;
+    }
+    
+    .po-details .left-details,
+    .po-details .right-details {
+        width: 48%;
+    }
+    
+    .po-details label {
+        font-weight: bold;
+        display: inline-block;
+        width: 80px;
+    }
+    
+    .po-details input {
+        border: none;
+        border-bottom: 1px solid #000;
+        background: transparent;
+        font-size: 9pt;
+        padding: 2px;
+    }
+    
+    /* Table styling */
+    .po-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+        font-size: 9pt;
+    }
+    
+    .po-table th,
+    .po-table td {
+        border: 1px solid #000;
+        padding: 4px;
+        text-align: left;
+        vertical-align: top;
+    }
+    
+    .po-table th {
+        background-color: #f0f0f0;
+        font-weight: bold;
+        text-align: center;
+        font-size: 8pt;
+        text-transform: uppercase;
+    }
+    
+    .po-table .qty-col,
+    .po-table .unit-cost-col,
+    .po-table .amount-col {
+        text-align: right;
+        width: 12%;
+    }
+    
+    .po-table .item-col {
+        width: 40%;
+    }
+    
+    .po-table .unit-col {
+        width: 12%;
+        text-align: center;
+    }
+    
+    .po-table .no-col {
+        width: 8%;
+        text-align: center;
+    }
+    
+    .po-table input {
+        border: none;
+        background: transparent;
+        width: 100%;
+        font-size: 9pt;
+        padding: 2px;
+    }
+    
+    /* Total row styling */
+    .po-table .total-row {
+        background-color: #f0f0f0 !important;
+        font-weight: bold;
+    }
+    
+    .po-table .total-row td {
+        text-align: right;
+        font-size: 10pt;
+    }
+    
+    /* Signature section */
+    .signature-section {
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 9pt;
+    }
+    
+    .signature-box {
+        width: 30%;
+        text-align: center;
+    }
+    
+    .signature-line {
+        border-top: 1px solid #000;
+        margin-top: 30px;
+        padding-top: 5px;
+        font-weight: bold;
+    }
+    
+    .signature-title {
+        font-size: 8pt;
+        margin-top: 2px;
+    }
+    
+    /* Payment section */
+    .payment-section {
+        margin-top: 15px;
+        font-size: 9pt;
+        border: 1px solid #000;
+        padding: 8px;
+    }
+    
+    .payment-section h4 {
+        margin: 0 0 8px 0;
+        font-size: 10pt;
+        text-transform: uppercase;
+    }
+    
+    .payment-details {
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .payment-details .payment-item {
+        margin-right: 20px;
+    }
+    
+    .payment-details label {
+        font-weight: bold;
+        margin-right: 5px;
+    }
+    
+    .payment-details input {
+        border: none;
+        border-bottom: 1px solid #000;
+        background: transparent;
+        font-size: 9pt;
+        padding: 2px;
+        width: 120px;
+    }
+    
+    /* Compact spacing for one-page fit */
+    h1, h2, h3, h4, h5, h6 {
+        margin: 5px 0;
+    }
+    
+    p {
+        margin: 3px 0;
+    }
+    
+    .form-group {
+        margin-bottom: 8px;
+    }
+    
+    /* Hide empty rows in print */
+    .print-hide {
+        display: none !important;
     }
 </style>
 
