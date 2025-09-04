@@ -424,32 +424,26 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
                     <th style="width: 15%;">TOTAL COST</th>
                 </tr>
             </thead>
-            <tbody>
-                <!-- Initial empty rows -->
-                <?php for($i = 1; $i <= 15; $i++): ?>
-                <tr>
-                    <td>
-                        <select onchange="calculateRowTotal(this)">
-                            <option value="">Select Supplier</option>
-                            <?php foreach ($suppliers_array as $supplier): ?>
-                                <option value="<?= htmlspecialchars($supplier['supplier_name']) ?>">
-                                    <?= htmlspecialchars($supplier['supplier_name']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </td>
-                    <td><textarea placeholder="Enter item description" onchange="calculateRowTotal(this)" oninput="autoResize(this)" style="resize: none; overflow: hidden; min-height: 20px; width: 100%; border: none; background: transparent; text-align: left; padding: 5px;"></textarea></td>
-                    <td><input type="number" placeholder="0" onchange="calculateRowTotal(this)" min="0"></td>
-                    <td><input type="number" placeholder="0.00" onchange="calculateRowTotal(this)" min="0" step="0.01"></td>
-                    <td class="total-cost-cell">₱0.00</td>
-                </tr>
-                <?php endfor; ?>
+            <tbody id="canvassTableBody">
+                <!-- Dynamic rows will be added here -->
                 <tr style="background-color: var(--primary-green); color: white; font-weight: bold;">
                     <td colspan="4" style="text-align: right; padding-right: 20px;">GRAND TOTAL:</td>
                     <td id="grandTotal">₱0.00</td>
                 </tr>
             </tbody>
         </table>
+
+       
+
+        <!-- Row Management Buttons -->
+        <div class="row-management" style="margin: 20px 0; text-align: center;">
+            <button type="button" class="btn-canvass btn-secondary" onclick="addRow()">
+                <i class="fas fa-plus"></i> Add Row
+            </button>
+            <button type="button" class="btn-canvass btn-secondary" onclick="removeLastRow()">
+                <i class="fas fa-minus"></i> Remove Row
+            </button>
+        </div>
 
         <!-- Signature Section -->
         <div class="signature-section">
@@ -635,11 +629,48 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         textarea.style.height = Math.max(textarea.scrollHeight, 20) + 'px';
     }
 
-    // Generate new canvass number (no longer needed since we removed canvass_number)
-    function generateNewCanvassNumber() {
-        // This function is no longer needed since we removed canvass_number requirement
-        console.log('Canvass number generation is no longer required');
+    // Add new row to the table
+    function addRow() {
+        const tbody = document.getElementById('canvassTableBody');
+        const grandTotalRow = tbody.lastElementChild; // Get the grand total row
+        
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td>
+                <select onchange="calculateRowTotal(this)">
+                    <option value="">Select Supplier</option>
+                    <?php foreach ($suppliers_array as $supplier): ?>
+                        <option value="<?= htmlspecialchars($supplier['supplier_name']) ?>">
+                            <?= htmlspecialchars($supplier['supplier_name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </td>
+            <td><textarea placeholder="Enter item description" onchange="calculateRowTotal(this)" oninput="autoResize(this)" style="resize: none; overflow: hidden; min-height: 20px; width: 100%; border: none; background: transparent; text-align: left; padding: 5px;"></textarea></td>
+            <td><input type="number" placeholder="0" onchange="calculateRowTotal(this)" min="0"></td>
+            <td><input type="number" placeholder="0.00" onchange="calculateRowTotal(this)" min="0" step="0.01"></td>
+            <td class="total-cost-cell">₱0.00</td>
+        `;
+        
+        // Insert before the grand total row
+        tbody.insertBefore(newRow, grandTotalRow);
     }
+    
+    // Remove last row from the table
+    function removeLastRow() {
+        const tbody = document.getElementById('canvassTableBody');
+        const rows = tbody.querySelectorAll('tr:not(:last-child)'); // Exclude grand total row
+        
+        if (rows.length > 0) {
+            rows[rows.length - 1].remove();
+            calculateGrandTotal();
+        }
+    }
+    
+    // Initialize with one empty row
+    document.addEventListener('DOMContentLoaded', function() {
+        addRow();
+    });
 </script>
 
 <style media="print">
@@ -658,7 +689,7 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         color: black;
     }
     
-    .sidebar, .action-buttons, .content-header, .no-print {
+    .sidebar, .action-buttons, .content-header, .no-print, .row-management {
         display: none !important;
     }
     
