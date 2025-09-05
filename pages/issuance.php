@@ -103,7 +103,7 @@ if (isset($_SESSION['error'])) {
 
 <style>
 :root {
-    --primary-color: #1a5f3c;
+    --primary-color: #073b1d;
     --secondary-color: #ff6b35;
     --accent-color: #28a745;
     --light-bg: #f8f9fa;
@@ -654,15 +654,14 @@ body {
             </a>
         </div>
         <div class="nav-item">
-            <a href="procurement.php" class="nav-link">
-                <i class="fas fa-shopping-cart"></i>
-                Procurement
+            <a href="issuance.php" class="nav-link active">
+                <i class="fas fa-hand-holding-usd"></i>
+                Issuance
             </a>
         </div>
         <div class="nav-item">
-            <a href="inventory.php" class="nav-link">
-                <i class="fas fa-box"></i>
-                Inventory
+            <a href="Inventory.php" class="nav-link">
+                <i class="fas fa-boxes"></i> Inventory
             </a>
         </div>
         <!--<div class="nav-item">
@@ -671,12 +670,6 @@ body {
                 Transactions
             </a>
         </div>-->
-        <div class="nav-item">
-            <a href="issuance.php" class="nav-link active">
-                <i class="fas fa-hand-holding-usd"></i>
-                Issuance
-            </a>
-        </div>
         <div class="nav-item">
             <a href="notifications.php" class="nav-link">
                 <i class="fas fa-bell"></i>

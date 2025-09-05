@@ -672,7 +672,30 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <a href="pages/procurement.php" class="card-button">Access</a>
       </div>
 
-    <?php elseif (strtolower($user_type) === 'supply in-charge' || strtolower($user_type) === 'property custodian'): ?>
+      <?php elseif (strtolower($user_type) === 'property custodian'): ?>
+      <!-- Supply Requisition Card ONLY for School President -->
+
+         <!-- Assignment Card -->
+      <div class="menu-card card-primary">
+        <div class="card-icon">
+          <i class="fas fa-user-check"></i>
+        </div>
+        <h3 class="card-title">Assignment & Issuance</h3>
+        <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
+        <a href="pages/issuance.php" class="card-button">Access</a>
+      </div>
+
+      <!-- Inventory Card -->
+      <div class="menu-card card-info">
+        <div class="card-icon">
+          <i class="fas fa-warehouse"></i>
+        </div>
+        <h3 class="card-title">Inventory Management</h3>
+        <p class="card-description">Track real-time stock levels with detailed logs. Get alerts for low inventory and manage supplies.</p>
+        <a href="pages/property_inventory.php" class="card-button">Access</a>
+      </div>
+
+    <?php elseif (strtolower($user_type) === 'supply in-charge' || strtolower($user_type)): ?>
       <!-- Supply Requisition Card ONLY for School President -->
 
       <!-- Assignment Card -->

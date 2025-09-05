@@ -7,6 +7,37 @@ include '../includes/header.php';
 $user_type = $_SESSION['user_type'] ?? '';
 $user_id = $_SESSION['user']['id'] ?? 0;
 
+// Check if we're in edit mode
+$edit_mode = isset($_GET['edit']) && is_numeric($_GET['edit']);
+$po_data = null;
+$po_items = [];
+
+if ($edit_mode) {
+    $po_id = intval($_GET['edit']);
+    
+    // Fetch purchase order data
+    $po_query = "SELECT * FROM purchase_orders WHERE po_id = ?";
+    $stmt = $conn->prepare($po_query);
+    $stmt->bind_param("i", $po_id);
+    $stmt->execute();
+    $po_result = $stmt->get_result();
+    
+    if ($po_result->num_rows > 0) {
+        $po_data = $po_result->fetch_assoc();
+        
+        // Fetch purchase order items
+        $items_query = "SELECT * FROM purchase_order_items WHERE po_id = ? ORDER BY item_number ASC";
+        $stmt = $conn->prepare($items_query);
+        $stmt->bind_param("i", $po_id);
+        $stmt->execute();
+        $items_result = $stmt->get_result();
+        
+        while ($item = $items_result->fetch_assoc()) {
+            $po_items[] = $item;
+        }
+    }
+}
+
 // Handle AJAX requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Content-Type: application/json');
@@ -602,14 +633,20 @@ $existing_pos_result = $conn->query($existing_pos_sql);
             <li><a href="suppliers.php" class="nav-link">
                     <i class="fas fa-users"></i> Supplier List
                 </a></li>
+                <li><a href="procurement.php" class="nav-link">
+                        <i class="fas fa-shopping-cart"></i> Procurement
+                    </a></li>
             <li><a href="canvas_form.php" class="nav-link">
                     <i class="fas fa-clipboard-list"></i> Canvass Form
+                </a></li>
+            <li><a href="canvass_form_list.php" class="nav-link">
+                    <i class="fas fa-list"></i> Canvass List
                 </a></li>
             <li><a href="purchase_order.php" class="nav-link active">
                     <i class="fas fa-shopping-basket"></i> Purchase Order
                 </a></li>
-            <li><a href="procurement.php" class="nav-link">
-                    <i class="fas fa-shopping-cart"></i> Procurement
+            <li><a href="purchase_order_list.php" class="nav-link">
+                    <i class="fas fa-file-invoice"></i> Purchase Order List
                 </a></li>
             <li><a href="inventory.php" class="nav-link">
                     <i class="fas fa-boxes"></i> Inventory
@@ -631,27 +668,30 @@ $existing_pos_result = $conn->query($existing_pos_sql);
     <!-- Purchase Order Form -->
     <div class="po-container">
         <div class="po-header">
-            <h2 class="po-title">PURCHASE ORDER</h2>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h2 class="po-title" style="margin-bottom: 10px;">PURCHASE ORDER</h2>
+            </div>
             <div class="po-info">
                 <div class="po-info-item">
                     <span class="po-info-label">PO No.:</span>
-                    <input type="text" class="po-info-input" id="poNumber" placeholder="Enter PO Number">
+                    <input type="text" class="po-info-input" id="poNumber" placeholder="Enter PO Number" value="<?= $edit_mode && $po_data ? htmlspecialchars($po_data['po_number']) : '' ?>">
                 </div>
                 <div class="po-info-item">
                     <span class="po-info-label">Date:</span>
-                    <input type="date" class="po-info-input" id="poDate" value="<?= date('Y-m-d') ?>">
+                    <input type="date" class="po-info-input" id="poDate" value="<?= $edit_mode && $po_data ? $po_data['po_date'] : date('Y-m-d') ?>">
                 </div>
             </div>
         </div>
+        <a href="purchase_order_list.php" class="btn view-button mb-3" style="background-color: var(--accent-orange); color: white; text-decoration: none; padding: 8px 16px; border-radius: 5px; display: inline-block; font-size: 14px;"><i class="fas fa-eye"></i> View Purchase Order List</a>
 
         <div class="po-details">
             <div class="po-details-row">
                 <span class="po-details-label">TO:</span>
-                <input type="text" class="po-details-input" id="supplierName" placeholder="Enter Supplier Name">
+                <input type="text" class="po-details-input" id="supplierName" placeholder="Enter Supplier Name" value="<?= $edit_mode && $po_data ? htmlspecialchars($po_data['supplier_name']) : '' ?>">
             </div>
             <div class="po-details-row">
                 <span class="po-details-label">ADDRESS:</span>
-                <input type="text" class="po-details-input" id="supplierAddress" placeholder="Enter Supplier Address">
+                <input type="text" class="po-details-input" id="supplierAddress" placeholder="Enter Supplier Address" value="<?= $edit_mode && $po_data ? htmlspecialchars($po_data['supplier_address']) : '' ?>">
             </div>
         </div>
 
@@ -677,10 +717,10 @@ $existing_pos_result = $conn->query($existing_pos_sql);
 
         <!-- Row Management Buttons -->
         <div class="row-management" style="margin: 20px 0; text-align: center;">
-            <button type="button" class="btn-po btn-secondary" onclick="addPORow()">
+            <button type="button" class="btn-po btn-success" onclick="addPORow()">
                 <i class="fas fa-plus"></i> Add Row
             </button>
-            <button type="button" class="btn-po btn-secondary" onclick="removeLastPORow()">
+            <button type="button" class="btn-po btn-danger" style="background-color: var(--accent-red); color: white;" onclick="removeLastPORow()">
                 <i class="fas fa-minus"></i> Remove Row
             </button>
         </div>
@@ -729,6 +769,8 @@ $existing_pos_result = $conn->query($existing_pos_sql);
             </button>
         </div>
     </div>
+    
+    
 </div>
 
 <script>
@@ -826,7 +868,8 @@ $existing_pos_result = $conn->query($existing_pos_sql);
         const items = [];
         const rows = document.querySelectorAll('#itemsTable tbody tr:not(:last-child)');
         rows.forEach((row, index) => {
-            const description = row.cells[1].querySelector('input').value;
+            const descriptionElement = row.cells[1].querySelector('select') || row.cells[1].querySelector('input');
+            const description = descriptionElement ? descriptionElement.value : '';
             const quantity = parseFloat(row.cells[2].querySelector('input').value) || 0;
             const unit_cost = parseFloat(row.cells[3].querySelector('input').value) || 0;
             
@@ -849,6 +892,13 @@ $existing_pos_result = $conn->query($existing_pos_sql);
             cash_amount: parseFloat(cashAmount.replace(/[^\d.-]/g, '')) || 0,
             items: items
         };
+
+        // Add po_id if in edit mode
+        const urlParams = new URLSearchParams(window.location.search);
+        const editId = urlParams.get('edit');
+        if (editId) {
+            data.po_id = editId;
+        }
         
         // Debug: Log the data being sent
         console.log('Data being sent:', data);
@@ -945,16 +995,44 @@ $existing_pos_result = $conn->query($existing_pos_sql);
         });
     }
 
+    // Load canvass items for dropdown
+    let canvassItems = [];
+    
+    function loadCanvassItems() {
+        fetch('../api/get_canvass_items.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                canvassItems = data.items;
+            } else {
+                console.error('Failed to load canvass items:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading canvass items:', error);
+        });
+    }
+
     // Add new row to the purchase order table
     function addPORow() {
         const tbody = document.getElementById('itemsTableBody');
         const totalRow = tbody.lastElementChild; // Get the total row
         const rowCount = tbody.querySelectorAll('tr:not(:last-child)').length + 1;
         
+        // Build options for the dropdown
+        let optionsHtml = '<option value="">Choose item from canvass list</option>';
+        canvassItems.forEach(item => {
+            optionsHtml += `<option value="${item.description}">${item.description}</option>`;
+        });
+        
         const newRow = document.createElement('tr');
         newRow.innerHTML = `
             <td>${rowCount}</td>
-            <td><input type="text" placeholder="Enter item description" onchange="calculateRowTotal(this)"></td>
+            <td>
+                <select class="form-select form-select-sm" onchange="calculateRowTotal(this)">
+                    ${optionsHtml}
+                </select>
+            </td>
             <td><input type="number" placeholder="0" onchange="calculateRowTotal(this)" min="0"></td>
             <td><input type="number" placeholder="0.00" onchange="calculateRowTotal(this)" min="0" step="0.01"></td>
             <td class="amount-cell">₱0.00</td>
@@ -962,6 +1040,58 @@ $existing_pos_result = $conn->query($existing_pos_sql);
         
         // Insert before the total row
         tbody.insertBefore(newRow, totalRow);
+    }
+
+    // Add row with existing data for edit mode
+    function addPORowWithData(itemNumber, description, quantity, unitCost) {
+        const tbody = document.getElementById('itemsTableBody');
+        const totalRow = tbody.lastElementChild; // Get the total row
+        
+        // Build options for the dropdown
+        let optionsHtml = '<option value="">Choose items that you canvass</option>';
+        
+        // Check if the existing description is in canvass items
+        let foundInCanvass = false;
+        canvassItems.forEach(item => {
+            const selected = item.description === description ? 'selected' : '';
+            if (item.description === description) foundInCanvass = true;
+            optionsHtml += `<option value="${item.description}" ${selected}>${item.description}</option>`;
+        });
+        
+        // If the existing description is not in canvass items, add it as a selected option
+        if (!foundInCanvass && description && description.trim() !== '') {
+            optionsHtml += `<option value="${description}" selected>${description}</option>`;
+        }
+        
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td>${itemNumber}</td>
+            <td>
+                <select class="form-select form-select-sm" onchange="calculateRowTotal(this)">
+                    ${optionsHtml}
+                </select>
+            </td>
+            <td><input type="number" placeholder="0" onchange="calculateRowTotal(this)" min="0"></td>
+            <td><input type="number" placeholder="0.00" onchange="calculateRowTotal(this)" min="0" step="0.01"></td>
+            <td class="amount-cell">₱0.00</td>
+        `;
+        
+        // Insert before the total row
+        tbody.insertBefore(newRow, totalRow);
+        
+        // Populate the row with existing data
+        const quantityInput = newRow.cells[2].querySelector('input');
+        const unitCostInput = newRow.cells[3].querySelector('input');
+        
+        quantityInput.value = quantity;
+        unitCostInput.value = unitCost;
+        
+        // Calculate and display total
+        const lineTotal = quantity * unitCost;
+        newRow.cells[4].textContent = '₱' + lineTotal.toFixed(2);
+        
+        // Recalculate grand total
+        calculateGrandTotal();
     }
     
     // Remove last row from the purchase order table
@@ -987,9 +1117,29 @@ $existing_pos_result = $conn->query($existing_pos_sql);
         });
     }
     
-    // Initialize with one empty row
+    // Initialize with one empty row or load existing data
     document.addEventListener('DOMContentLoaded', function() {
-        addPORow();
+        // Load canvass items first
+        loadCanvassItems();
+        
+        <?php if ($edit_mode && !empty($po_items)): ?>
+            // Wait for canvass items to load before adding existing PO items
+            setTimeout(() => {
+                <?php foreach ($po_items as $item): ?>
+                    addPORowWithData(
+                        <?= $item['item_number'] ?>,
+                        '<?= htmlspecialchars($item['item_description']) ?>',
+                        <?= $item['quantity'] ?>,
+                        <?= $item['unit_cost'] ?>
+                    );
+                <?php endforeach; ?>
+            }, 500);
+        <?php else: ?>
+            // Wait for canvass items to load before adding empty row
+            setTimeout(() => {
+                addPORow();
+            }, 500);
+        <?php endif; ?>
     });
 
     // Generate new PO number
@@ -1017,6 +1167,10 @@ $existing_pos_result = $conn->query($existing_pos_sql);
     @page {
         size: A4;
         margin: 0.5in;
+    }
+    
+    .view-button{
+        display: none !important;
     }
 
     .page-title {

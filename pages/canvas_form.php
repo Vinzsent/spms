@@ -6,6 +6,37 @@ include '../includes/header.php';
 
 $user_type = $_SESSION['user_type'] ?? '';
 
+// Check if we're in edit mode
+$edit_mode = isset($_GET['edit']) && is_numeric($_GET['edit']);
+$canvass_data = null;
+$canvass_items = [];
+
+if ($edit_mode) {
+    $canvass_id = intval($_GET['edit']);
+    
+    // Fetch canvass data
+    $canvass_query = "SELECT * FROM canvass WHERE canvass_id = ?";
+    $stmt = $conn->prepare($canvass_query);
+    $stmt->bind_param("i", $canvass_id);
+    $stmt->execute();
+    $canvass_result = $stmt->get_result();
+    
+    if ($canvass_result->num_rows > 0) {
+        $canvass_data = $canvass_result->fetch_assoc();
+        
+        // Fetch canvass items
+        $items_query = "SELECT * FROM canvass_items WHERE canvass_id = ? ORDER BY item_number ASC";
+        $stmt = $conn->prepare($items_query);
+        $stmt->bind_param("i", $canvass_id);
+        $stmt->execute();
+        $items_result = $stmt->get_result();
+        
+        while ($item = $items_result->fetch_assoc()) {
+            $canvass_items[] = $item;
+        }
+    }
+}
+
 // Fetch suppliers from database
 $suppliers_query = "SELECT supplier_id, supplier_name FROM supplier ORDER BY supplier_name ASC";
 $suppliers_result = $conn->query($suppliers_query);
@@ -376,14 +407,20 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             <li><a href="suppliers.php" class="nav-link">
                     <i class="fas fa-users"></i> Supplier List
                 </a></li>
+                <li><a href="procurement.php" class="nav-link">
+                        <i class="fas fa-shopping-cart"></i> Procurement
+                    </a></li>
             <li><a href="canvas_form.php" class="nav-link active">
                     <i class="fas fa-clipboard-list"></i> Canvass Form
+                </a></li>
+            <li><a href="canvass_form_list.php" class="nav-link">
+                    <i class="fas fa-list"></i> Canvass List
                 </a></li>
             <li><a href="purchase_order.php" class="nav-link">
                     <i class="fas fa-shopping-basket"></i> Purchase Order
                 </a></li>
-            <li><a href="procurement.php" class="nav-link">
-                    <i class="fas fa-shopping-cart"></i> Procurement
+            <li><a href="purchase_order_list.php" class="nav-link">
+                    <i class="fas fa-file-invoice"></i> Purchase Order List
                 </a></li>
             <li><a href="inventory.php" class="nav-link">
                     <i class="fas fa-boxes"></i> Inventory
@@ -409,10 +446,11 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             <div class="canvass-info">
                 <div class="canvass-info-item">
                     <span class="canvass-info-label">Date:</span>
-                    <input type="date" class="canvass-info-input" id="canvassDate" value="<?= date('Y-m-d') ?>">
+                    <input type="date" class="canvass-info-input" id="canvassDate" value="<?= $edit_mode && $canvass_data ? $canvass_data['canvass_date'] : date('Y-m-d') ?>">
                 </div>
             </div>
         </div>
+        <a href="canvass_form_list.php" class="btn mb-3 view-button" style="background-color: var(--accent-orange); color: white; text-decoration: none;"><i class="fas fa-eye"></i> View Canvass List</a>
         <!-- Canvass Table -->
         <table class="canvass-table" id="canvassTable">
             <thead>
@@ -437,10 +475,10 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
 
         <!-- Row Management Buttons -->
         <div class="row-management" style="margin: 20px 0; text-align: center;">
-            <button type="button" class="btn-canvass btn-secondary" onclick="addRow()">
+            <button type="button" class="btn-canvass btn-success" onclick="addRow()">
                 <i class="fas fa-plus"></i> Add Row
             </button>
-            <button type="button" class="btn-canvass btn-secondary" onclick="removeLastRow()">
+            <button type="button" class="btn-canvass btn-danger" style="background-color: var(--accent-red); color: white;" onclick="removeLastRow()">
                 <i class="fas fa-minus"></i> Remove Row
             </button>
         </div>
@@ -598,6 +636,11 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             items: items
         };
         
+        <?php if ($edit_mode && $canvass_data): ?>
+        data.canvass_id = <?= $canvass_data['canvass_id'] ?>;
+        data.edit_mode = true;
+        <?php endif; ?>
+        
         fetch('../actions/save_canvass.php', {
             method: 'POST',
             headers: {
@@ -608,8 +651,13 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         .then(response => response.json())
         .then(result => {
             if (result.success) {
+                <?php if ($edit_mode): ?>
+                alert('Canvass updated successfully!');
+                window.location.href = 'canvass_form_list.php';
+                <?php else: ?>
                 alert('Canvass saved successfully!\nCanvass ID: ' + result.canvass_id);
                 location.reload();
+                <?php endif; ?>
             } else {
                 alert('Failed to save canvass: ' + result.message);
             }
@@ -655,6 +703,54 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         // Insert before the grand total row
         tbody.insertBefore(newRow, grandTotalRow);
     }
+
+    // Add row with existing data for edit mode
+    function addRowWithData(supplier, description, quantity, unitCost) {
+        const tbody = document.getElementById('canvassTableBody');
+        const grandTotalRow = tbody.lastElementChild; // Get the grand total row
+        
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td>
+                <select onchange="calculateRowTotal(this)">
+                    <option value="">Select Supplier</option>
+                    <?php foreach ($suppliers_array as $supplier): ?>
+                        <option value="<?= htmlspecialchars($supplier['supplier_name']) ?>">
+                            <?= htmlspecialchars($supplier['supplier_name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </td>
+            <td><textarea placeholder="Enter item description" onchange="calculateRowTotal(this)" oninput="autoResize(this)" style="resize: none; overflow: hidden; min-height: 20px; width: 100%; border: none; background: transparent; text-align: left; padding: 5px;"></textarea></td>
+            <td><input type="number" placeholder="0" onchange="calculateRowTotal(this)" min="0"></td>
+            <td><input type="number" placeholder="0.00" onchange="calculateRowTotal(this)" min="0" step="0.01"></td>
+            <td class="total-cost-cell">₱0.00</td>
+        `;
+        
+        // Insert before the grand total row
+        tbody.insertBefore(newRow, grandTotalRow);
+        
+        // Populate the row with existing data
+        const select = newRow.cells[0].querySelector('select');
+        const textarea = newRow.cells[1].querySelector('textarea');
+        const quantityInput = newRow.cells[2].querySelector('input');
+        const unitCostInput = newRow.cells[3].querySelector('input');
+        
+        select.value = supplier;
+        textarea.value = description;
+        quantityInput.value = quantity;
+        unitCostInput.value = unitCost;
+        
+        // Calculate and display total
+        const totalCost = quantity * unitCost;
+        newRow.cells[4].textContent = '₱' + totalCost.toFixed(2);
+        
+        // Auto-resize textarea
+        autoResize(textarea);
+        
+        // Recalculate grand total
+        calculateGrandTotal();
+    }
     
     // Remove last row from the table
     function removeLastRow() {
@@ -667,9 +763,21 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         }
     }
     
-    // Initialize with one empty row
+    // Initialize with one empty row or load existing data
     document.addEventListener('DOMContentLoaded', function() {
-        addRow();
+        <?php if ($edit_mode && !empty($canvass_items)): ?>
+            // Load existing canvass items
+            <?php foreach ($canvass_items as $item): ?>
+                addRowWithData(
+                    '<?= htmlspecialchars($item['supplier_name']) ?>',
+                    '<?= htmlspecialchars($item['item_description']) ?>',
+                    <?= $item['quantity'] ?>,
+                    <?= $item['unit_cost'] ?>
+                );
+            <?php endforeach; ?>
+        <?php else: ?>
+            addRow();
+        <?php endif; ?>
     });
 </script>
 
@@ -689,7 +797,11 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         color: black;
     }
     
-    .sidebar, .action-buttons, .content-header, .no-print, .row-management {
+    .sidebar, .action-buttons, .content-header, .no-print, .row-management .view-button {
+        display: none !important;
+    }
+
+    .view-button{
         display: none !important;
     }
     

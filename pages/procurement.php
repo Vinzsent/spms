@@ -1030,20 +1030,23 @@ if (isset($_SESSION['error'])) {
             <li><a href="../dashboard.php" class="nav-link">
                     <i class="fas fa-chart-line"></i> Dashboard
                 </a></li>
-            <li><a href="suppliers.php" class="nav-link">
+                <li><a href="suppliers.php" class="nav-link">
                     <i class="fas fa-users"></i> Supplier List
                 </a></li>
+                <li><a href="procurement.php" class="nav-link active">
+                        <i class="fas fa-shopping-cart"></i> Procurement
+                    </a></li>
             <li><a href="canvas_form.php" class="nav-link">
                     <i class="fas fa-clipboard-list"></i> Canvass Form
+                </a></li>
+            <li><a href="canvass_form_list.php" class="nav-link">
+                    <i class="fas fa-list"></i> Canvass List
                 </a></li>
             <li><a href="purchase_order.php" class="nav-link">
                     <i class="fas fa-shopping-basket"></i> Purchase Order
                 </a></li>
-            <li><a href="procurement.php" class="nav-link active">
-                    <i class="fas fa-shopping-cart"></i> Procurement
-                </a></li>
-            <li><a href="inventory.php" class="nav-link">
-                    <i class="fas fa-boxes"></i> Inventory
+            <li><a href="purchase_order_list.php" class="nav-link">
+                    <i class="fas fa-file-invoice"></i> Purchase Order List
                 </a></li>
             <!--<li><a href="transaction_list.php" class="nav-link">
                     <i class="fas fa-exchange-alt"></i> Transactions
