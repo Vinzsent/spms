@@ -428,9 +428,25 @@ if (isset($_SESSION['error'])) {
 
     /* Print Styles */
     @media print {
+        @page {
+            size: A4 portrait;
+            margin: 1cm;
+        }
+
+        body {
+            font-family: Arial, sans-serif !important;
+            font-size: 12px !important;
+            color: black !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+        }
+
         .sidebar,
         .action-buttons,
-        .row-management {
+        .row-management,
+        .content-header,
+        .issuance-header {
             display: none !important;
         }
 
@@ -442,18 +458,92 @@ if (isset($_SESSION['error'])) {
         .issuance-container {
             box-shadow: none !important;
             margin: 0 !important;
-        }
-
-        .content-header {
-            display: none !important;
-        }
-
-        body {
             background: white !important;
         }
 
         .form-content {
-            padding: 20px !important;
+            padding: 0 !important;
+        }
+
+        .print-container {
+            display: block !important;
+            width: 100% !important;
+            margin: 0 auto !important;
+        }
+
+        .print-title {
+            text-align: center !important;
+            margin: 0 0 10px 0 !important;
+            text-transform: uppercase !important;
+            font-size: 14px !important;
+            font-weight: bold !important;
+        }
+
+        .print-info {
+            margin-bottom: 10px !important;
+            font-size: 12px !important;
+        }
+
+        .print-info p {
+            margin: 3px 0 !important;
+        }
+
+        .print-table {
+            border-collapse: collapse !important;
+            width: 100% !important;
+            margin-bottom: 20px !important;
+            font-size: 12px !important;
+        }
+
+        .print-table th,
+        .print-table td {
+            border: 1px solid black !important;
+            padding: 5px !important;
+            text-align: center !important;
+        }
+
+        .print-table th {
+            background: #f2f2f2 !important;
+            font-weight: bold !important;
+        }
+
+        .print-signatures {
+            margin-top: 20px !important;
+            font-size: 12px !important;
+        }
+
+        .print-sign-section {
+            margin-bottom: 30px !important;
+        }
+
+        .print-sign-name {
+            text-transform: uppercase !important;
+            font-weight: bold !important;
+            text-decoration: underline !important;
+            display: block !important;
+            margin-top: 40px !important;
+        }
+
+        .print-role {
+            display: block !important;
+            margin-top: -2px !important;
+        }
+
+        .print-received {
+            margin-top: 40px !important;
+        }
+
+        .print-line {
+            margin-top: 40px !important;
+            border-top: 1px solid black !important;
+            width: 200px !important;
+        }
+
+        /* Hide regular form elements */
+        .form-header-info,
+        .items-section,
+        .signatures-section {
+            display: none !important;
         }
     }
 
@@ -516,7 +606,13 @@ if (isset($_SESSION['error'])) {
             <li><a href="supply_request.php" class="nav-link">
                     <i class="fas fa-clipboard-list"></i> Supply Request
                 </a></li>
-            <li><a href="property_issuance.php" class="nav-link">
+            <li><a href="office_inventory.php" class="nav-link">
+                    <i class="fas fa-building"></i> Office Inventory
+                </a></li>
+            <li><a href="property_inventory.php" class="nav-link">
+                    <i class="fas fa-boxes"></i> Property Inventory
+                </a></li>
+            <li><a href="property_issuance.php" class="nav-link active">
                     <i class="fas fa-hand-holding"></i> Property Issuance
                 </a></li>
             <li><a href="../logout.php" class="nav-link logout">
@@ -678,6 +774,66 @@ if (isset($_SESSION['error'])) {
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Print Layout (Hidden by default, shown only when printing) -->
+    <div class="print-container" style="display: none;">
+        <h2 class="print-title">Property Issuance/Transfer Slip</h2>
+
+        <div class="print-info">
+            <p>Transferring Department/Unit/Office: <span id="print-transferring">_____________________________</span> Date of Transfer: <span id="print-date">__________</span></p>
+            <p>Receiving Department/Unit/Office: <span id="print-receiving">_______________________________</span> Time: <span id="print-time">__________</span></p>
+            <p>Reason of Transfer: <span id="print-reason">_____________________________________________________________________</span></p>
+        </div>
+
+        <table class="print-table">
+            <thead>
+                <tr>
+                    <th style="width:10%;">Number of Items</th>
+                    <th style="width:20%;">Items</th>
+                    <th style="width:20%;">Description</th>
+                    <th style="width:20%;">Serial Number</th>
+                    <th style="width:15%;">Transferring Code</th>
+                    <th style="width:15%;">Receiving Code</th>
+                </tr>
+            </thead>
+            <tbody id="print-table-body">
+                <!-- Rows will be populated by JavaScript -->
+                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
+            </tbody>
+        </table>
+
+        <div class="print-signatures">
+            <div class="print-sign-section">
+                <p>Prepared by:</p>
+                <span class="print-sign-name">Mary Grace M. Baytola</span>
+                <span class="print-role">Property Custodian</span>
+            </div>
+
+            <div class="print-sign-section">
+                <p>Noted By:</p>
+                <span class="print-sign-name">Marilou S. Suarez</span>
+                <span class="print-role">Administrative Officer</span>
+            </div>
+
+            <div class="print-sign-section">
+                <p>Approved by:</p>
+                <span class="print-sign-name">Dr. Delia C. Advincula</span>
+                <span class="print-role">VP for Finance and Administration</span>
+            </div>
+
+            <div class="print-received">
+                <p>Received by:</p>
+                <div class="print-line"></div>
+            </div>
         </div>
     </div>
 </div>

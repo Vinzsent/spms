@@ -583,6 +583,14 @@ if (isset($_SESSION['error'])) {
             <li><a href="supply_request.php" class="nav-link">
                     <i class="fas fa-clipboard-list"></i> Supply Request
                 </a></li>
+
+                <li><a href="office_inventory.php" class="nav-link active">
+                        <i class="fas fa-building"></i> Office Inventory
+                    </a></li>
+
+                <li><a href="property_inventory.php" class="nav-link active">
+                        <i class="fas fa-boxes"></i> Property Inventory
+                    </a></li>
             <li><a href="property_issuance.php" class="nav-link">
                     <i class="fas fa-hand-holding"></i> Property Issuance
                 </a></li>
