@@ -1,0 +1,42 @@
+-- Create transfer_requests table for equipment/furniture transfer requests
+CREATE TABLE IF NOT EXISTS `transfer_requests` (
+  `transfer_id` int(11) NOT NULL AUTO_INCREMENT,
+  `transfer_number` varchar(50) NOT NULL UNIQUE,
+  `description` text NOT NULL,
+  `serial_model` varchar(255) DEFAULT NULL,
+  `transfer_type` varchar(50) NOT NULL,
+  `reason_transfer` text NOT NULL,
+  `transfer_date` date NOT NULL,
+  `from_department` varchar(100) NOT NULL,
+  `from_property_code` varchar(50) DEFAULT NULL,
+  `from_building_room` varchar(100) DEFAULT NULL,
+  `to_department` varchar(100) NOT NULL,
+  `to_property_code` varchar(50) DEFAULT NULL,
+  `to_building_room` varchar(100) DEFAULT NULL,
+  `status` enum('Pending','Noted','Checked','Approved','Completed','Cancelled') DEFAULT 'Pending',
+  `requested_by` varchar(255) DEFAULT NULL,
+  `requested_date` datetime DEFAULT NULL,
+  `noted_by` varchar(255) DEFAULT NULL,
+  `noted_date` datetime DEFAULT NULL,
+  `checked_by` varchar(255) DEFAULT NULL,
+  `checked_date` datetime DEFAULT NULL,
+  `approved_by` varchar(255) DEFAULT NULL,
+  `approved_date` datetime DEFAULT NULL,
+  `completed_by` varchar(255) DEFAULT NULL,
+  `completed_date` datetime DEFAULT NULL,
+  `created_by` varchar(255) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `notes` text DEFAULT NULL,
+  PRIMARY KEY (`transfer_id`),
+  KEY `idx_transfer_number` (`transfer_number`),
+  KEY `idx_status` (`status`),
+  KEY `idx_from_department` (`from_department`),
+  KEY `idx_to_department` (`to_department`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Add foreign key constraint if users table exists
+-- ALTER TABLE `transfer_requests` ADD CONSTRAINT `fk_transfer_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;

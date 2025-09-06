@@ -615,6 +615,9 @@ if (isset($_SESSION['error'])) {
             <li><a href="property_issuance.php" class="nav-link active">
                     <i class="fas fa-hand-holding"></i> Property Issuance
                 </a></li>
+                <li><a href="equipment_transfer_request.php" class="nav-link">
+                    <i class="fas fa-hand-holding"></i> Request form for Transfer
+                </a></li>
             <li><a href="../logout.php" class="nav-link logout">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a></li>

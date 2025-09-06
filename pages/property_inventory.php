@@ -566,9 +566,8 @@ if (isset($_SESSION['error'])) {
 
 <!-- Sidebar -->
 <div class="sidebar">
-    <div class="sidebar-header">
-        <h4 class="">ASSET</h4>
-        <h4>MANAGEMENT</h4>
+<div class="sidebar-header">
+        <h3>DARTS</h3>
         <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
     </div>
 
@@ -584,7 +583,7 @@ if (isset($_SESSION['error'])) {
                     <i class="fas fa-clipboard-list"></i> Supply Request
                 </a></li>
 
-                <li><a href="office_inventory.php" class="nav-link active">
+                <li><a href="office_inventory.php" class="nav-link">
                         <i class="fas fa-building"></i> Office Inventory
                     </a></li>
 
@@ -667,7 +666,7 @@ if (isset($_SESSION['error'])) {
     <!-- Recieved Items Table -->
     <div class="table-container">
         <div class="table-header">
-            <h3>Received Items</h3>
+            <h3>Received Property</h3>
             <form method="GET" class="d-flex align-items-end gap-2">
                 <div>
                     <label for="sy_recv" class="form-label mb-0 text-white">School Year</label>
