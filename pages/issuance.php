@@ -655,7 +655,7 @@ body {
         </div>
         <div class="nav-item">
             <a href="issuance.php" class="nav-link active">
-                <i class="fas fa-hand-holding-usd"></i>
+                <i class="fas fa-hand-holding"></i>
                 Issuance
             </a>
         </div>

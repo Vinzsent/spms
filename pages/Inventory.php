@@ -54,19 +54,65 @@ if ($sy_logs_start && $sy_logs_end) {
     $logs_where = " WHERE sl.date_created >= '$start_esc' AND sl.date_created <= '$end_esc'";
 }
 
-// Get purchased data
-$sql = "SELECT i.*, s.supplier_name 
-        FROM inventory i 
-        LEFT JOIN supplier s ON i.supplier_id = s.supplier_id
-        ORDER BY i.date_created DESC";
-$result = $conn->query($sql);
+// Get search parameters
+$search_item = $_GET['search_item'] ?? '';
+$search_unit = $_GET['search_unit'] ?? '';
+$search_location = $_GET['search_location'] ?? '';
+$search_status = $_GET['search_status'] ?? '';
+$page = max(1, (int)($_GET['page'] ?? 1));
+$per_page = max(5, min(100, (int)($_GET['per_page'] ?? 10)));
+$offset = ($page - 1) * $per_page;
 
-// Get inventory data
+// Build search conditions
+$search_conditions = [];
+if (!empty($search_item)) {
+    $search_conditions[] = "i.item_name LIKE '%" . $conn->real_escape_string($search_item) . "%'";
+}
+if (!empty($search_unit)) {
+    $search_conditions[] = "i.unit LIKE '%" . $conn->real_escape_string($search_unit) . "%'";
+}
+if (!empty($search_location)) {
+    $search_conditions[] = "i.location LIKE '%" . $conn->real_escape_string($search_location) . "%'";
+}
+if (!empty($search_status)) {
+    if ($search_status === 'out') {
+        $search_conditions[] = "i.current_stock = 0";
+    } elseif ($search_status === 'critical') {
+        $search_conditions[] = "i.current_stock > 0 AND i.current_stock <= i.reorder_level";
+    } elseif ($search_status === 'low') {
+        $search_conditions[] = "i.current_stock > i.reorder_level AND i.current_stock <= (i.reorder_level * 1.5)";
+    } elseif ($search_status === 'normal') {
+        $search_conditions[] = "i.current_stock > (i.reorder_level * 1.5)";
+    }
+}
+
+// Combine search conditions with existing where clause
+$combined_where = $inv_where;
+if (!empty($search_conditions)) {
+    $search_where = " (" . implode(" AND ", $search_conditions) . ")";
+    if (!empty($inv_where)) {
+        $combined_where = $inv_where . " AND" . $search_where;
+    } else {
+        $combined_where = " WHERE" . $search_where;
+    }
+}
+
+// Get total count for pagination
+$count_sql = "SELECT COUNT(*) as total 
+             FROM inventory i 
+             LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
+             $combined_where";
+$count_result = $conn->query($count_sql);
+$total_records = $count_result ? $count_result->fetch_assoc()['total'] : 0;
+$total_pages = ceil($total_records / $per_page);
+
+// Get inventory data with pagination
 $sql = "SELECT i.*, s.supplier_name 
         FROM inventory i 
         LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
-        $inv_where
-        ORDER BY i.date_created DESC";
+        $combined_where
+        ORDER BY i.date_created DESC
+        LIMIT $per_page OFFSET $offset";
 $result = $conn->query($sql);
 
 $sql1 = "SELECT st.*, s.supplier_name
@@ -520,6 +566,58 @@ if (isset($_SESSION['error'])) {
         background-color: rgba(255, 193, 7, 0.1);
     }
 
+    /* Search and Pagination Styles */
+    .search-controls {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .search-controls .form-label {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 5px;
+    }
+
+    .search-controls .form-control,
+    .search-controls .form-select {
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .search-controls .form-control:focus,
+    .search-controls .form-select:focus {
+        border-color: var(--primary-green);
+        box-shadow: 0 0 0 0.2rem rgba(7, 59, 29, 0.25);
+    }
+
+    .pagination {
+        margin-bottom: 0;
+    }
+
+    .pagination .page-link {
+        color: var(--primary-green);
+        border-color: #dee2e6;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .pagination .page-link:hover {
+        color: var(--text-white);
+        background-color: var(--primary-green);
+        border-color: var(--primary-green);
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-green);
+        border-color: var(--primary-green);
+        color: var(--text-white);
+    }
+
+    .pagination-info {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
         .sidebar {
@@ -561,6 +659,26 @@ if (isset($_SESSION['error'])) {
             max-width: 100%;
             margin-right: 30px;
         }
+
+        /* Mobile responsive for search controls */
+        .search-controls .row {
+            margin: 0;
+        }
+
+        .search-controls .col-md-3,
+        .search-controls .col-md-2,
+        .search-controls .col-md-1 {
+            margin-bottom: 1rem;
+        }
+
+        .pagination {
+            justify-content: center;
+        }
+
+        .pagination-info {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
     }
 </style>
 
@@ -583,8 +701,14 @@ if (isset($_SESSION['error'])) {
             <li><a href="supply_request.php" class="nav-link">
                     <i class="fas fa-clipboard-list"></i> Supply Request
                 </a></li>
+            <li><a href="issuance.php" class="nav-link">
+                    <i class="fas fa-hand-holding"></i> Issuance
+                </a></li>
             <li><a href="Inventory.php" class="nav-link active">
                     <i class="fas fa-boxes"></i> Inventory
+                </a></li>
+            <li><a href="notifications.php" class="nav-link">
+                    <i class="fas fa-bell"></i> Notifications
                 </a></li>
             <li><a href="../logout.php" class="nav-link logout">
                     <i class="fas fa-sign-out-alt"></i> Logout
@@ -656,144 +780,45 @@ if (isset($_SESSION['error'])) {
         </div>
     </div>
 
-    <!-- Recieved Items Table -->
-    <div class="table-container">
-        <div class="table-header">
-            <h3>Received Items</h3>
-            <form method="GET" class="d-flex align-items-end gap-2">
-                <div>
-                    <label for="sy_recv" class="form-label mb-0 text-white">School Year</label>
-                    <select id="sy_recv" name="sy_recv" class="form-select" onchange="this.form.submit()">
-                        <option value="">All</option>
-                        <?php foreach ($sy_years as $sy): ?>
-                            <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_recv_raw === $sy) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($sy) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="pt-4">
-                    <?php if (!empty($sy_recv_raw)): ?>
-                        <a href="inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv' => true])) ?>" class="btn btn-outline-light">Reset</a>
-                    <?php endif; ?>
-                </div>
-            </form>
-        </div>
-
-        <div class="table-responsive">
-            <table class="table table-hover mb-0 table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Date Received</th>
-                        <th>Invoice Number</th>
-                        <th>Supplier</th>
-                        <th>Sales Type</th>
-                        <th>Category</th>
-                        <th>Item Description</th>
-                        <th>Quantity</th>
-                        <th>Unit</th>
-                        <th>Unit Price</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if ($result1 && $result1->num_rows > 0): ?>
-                        <?php while ($row = $result1->fetch_assoc()): ?>
-                            <?php
-                            if ($row['sales_type'] == 0) {
-                            } elseif ($row['sales_type']) {
-                            } elseif ($row['sales_type']) {
-                            }
-                            ?>
-                            <tr
-                                data-supplier-id="<?= (int)($row['supplier_id'] ?? 0) ?>"
-                                data-category="<?= htmlspecialchars($row['category'] ?? '') ?>"
-                                data-description="<?= htmlspecialchars($row['item_name'] ?? '') ?>"
-                                data-quantity="<?= (int)($row['quantity'] ?? 0) ?>"
-                                data-unit="<?= htmlspecialchars($row['unit'] ?? '') ?>"
-                                data-unit-price="<?= htmlspecialchars($row['unit_price'] ?? '0.00') ?>"
-                                data-invoice="<?= htmlspecialchars($row['invoice_no'] ?? '') ?>">
-                                <td><?= date('M d, Y', strtotime($row['date_created'])) ?></td>
-                                <td><?= htmlspecialchars($row['invoice_no']) ?></td>
-                                <td><?= htmlspecialchars($row['supplier_name']) ?></td>
-                                <td><?= htmlspecialchars($row['sales_type']) ?></td>
-                                <td><?= htmlspecialchars($row['category']) ?></td>
-                                <td><?= htmlspecialchars($row['item_name']) ?></td>
-                                <td><?= htmlspecialchars($row['quantity']) ?></td>
-                                <td><?= htmlspecialchars($row['unit']) ?></td>
-                                <td>₱ <?= htmlspecialchars($row['unit_price']) ?></td>
-                                <td>₱ <?= htmlspecialchars($row['total_amount']) ?></td>
-                                <td>
-                                    <span class="badge bg-success">
-                                        <?= htmlspecialchars($row['status']) ?>
-                                    </span>
-                                </td>
-                                <td>
-                                        <button type="button" class="btn btn-sm btn-success mark-received-btn" data-bs-toggle="modal" data-bs-target="#receivedModal" title="Mark as Received"
-                                            data-transaction-id="<?= $row['procurement_id'] ?>"
-                                            data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
-                                            data-category="<?= htmlspecialchars($row['category']) ?>"
-                                            data-quantity="<?= $row['quantity'] ?>"
-                                            data-unit="<?= htmlspecialchars($row['unit']) ?>"
-                                            data-supplier-id="<?= $row['supplier_id'] ?>"
-                                            data-unit-price="<?= $row['unit_price'] ?>"
-                                            data-invoice="<?= htmlspecialchars($row['invoice_number'] ?? '') ?>"
-                                            data-status="<?= htmlspecialchars($row['status']) ?>">
-                                            <i class="fas fa-check-circle"></i>
-                                        </button>
-
-
-                                    <!-- Add to Inventory button (submits mapped data to existing add endpoint)
-                                <button type="button" class="btn btn-sm btn-primary" onclick="addToInventoryFromRow(this)" title="Add to Inventory">
-                                    <i class="fas fa-plus-circle"></i>
-                                </button> -->
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="12" class="text-center py-4">
-                                <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
-                                <p class="text-muted">No recieved items found</p>
-                            </td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
     <!-- Inventory Table -->
     <div class="table-container">
         <div class="table-header">
             <h3>Inventory Items</h3>
-            <div class="d-flex align-items-end gap-2">
-                <form method="GET" class="d-flex align-items-end gap-2 mb-0">
-                    <div>
-                        <label for="sy_inv" class="form-label mb-0 text-white">School Year</label>
-                        <select id="sy_inv" name="sy_inv" class="form-select" onchange="this.form.submit()">
-                            <option value="">All</option>
-                            <?php foreach ($sy_years as $sy): ?>
-                                <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_inv_raw === $sy) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($sy) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="pt-4">
-                        <?php if (!empty($sy_inv_raw)): ?>
-                            <a href="inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_inv' => true])) ?>" class="btn btn-outline-light">Reset</a>
-                        <?php endif; ?>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <form method="GET" class="d-flex flex-wrap gap-2 align-items-center">
+                    <!-- Preserve existing parameters -->
+                    <?php if (!empty($sy_inv_raw)): ?>
+                        <input type="hidden" name="sy_inv" value="<?= htmlspecialchars($sy_inv_raw) ?>">
+                    <?php endif; ?>
+                    <?php if (!empty($search_unit)): ?>
+                        <input type="hidden" name="search_unit" value="<?= htmlspecialchars($search_unit) ?>">
+                    <?php endif; ?>
+                    <?php if (!empty($search_location)): ?>
+                        <input type="hidden" name="search_location" value="<?= htmlspecialchars($search_location) ?>">
+                    <?php endif; ?>
+                    <?php if (!empty($search_status)): ?>
+                        <input type="hidden" name="search_status" value="<?= htmlspecialchars($search_status) ?>">
+                    <?php endif; ?>
+                    <?php if (!empty($per_page)): ?>
+                        <input type="hidden" name="per_page" value="<?= htmlspecialchars($per_page) ?>">
+                    <?php endif; ?>
+
+                    <div class="input-group input-group-sm" style="min-width: 260px;">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" name="search_item" class="form-control" placeholder="Search by item name..." value="<?= htmlspecialchars($search_item) ?>">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                        <a href="Inventory.php" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-times"></i> Clear
+                        </a>
                     </div>
                 </form>
-                <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                <button class="btn btn-add btn-sm" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
                     <i class="fas fa-plus"></i> Add Item
                 </button>
             </div>
         </div>
-
 
         <!-- Approve/Received Modal -->
         <div class="modal fade" id="receivedModal" tabindex="-1">
@@ -843,15 +868,13 @@ if (isset($_SESSION['error'])) {
 
         <!-- Inventory Table -->
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0" id="inventoryTable">
                 <thead class="table-dark">
                     <tr>
                         <th>Item Name</th>
-                        <th>Category</th>
+                        <th>Description</th>
                         <th>Current Stock</th>
                         <th>Unit</th>
-                        <th>Reorder Level</th>
-                        <th>Supplier</th>
                         <th>Location</th>
                         <th>Last Updated</th>
                         <th>Status</th>
@@ -873,16 +896,11 @@ if (isset($_SESSION['error'])) {
                             ?>
                             <tr>
                                 <td><?= htmlspecialchars($row['item_name']) ?></td>
-                                <td><?= htmlspecialchars($row['category']) ?></td>
-                                <td>
+                                <td><?= htmlspecialchars($row['description']) ?></td>
+                                <td class="text-center">
                                     <strong><?= $row['current_stock'] ?></strong>
-                                    <span class="stock-level <?= $stock_level ?> ms-2">
-                                        <?= strtoupper($stock_level) ?>
-                                    </span>
                                 </td>
                                 <td><?= $row['unit'] ?></td>
-                                <td><?= $row['reorder_level'] ?></td>
-                                <td><?= htmlspecialchars($row['supplier_name']) ?></td>
                                 <td><?= htmlspecialchars($row['location'] ?? 'N/A') ?></td>
                                 <td><?= date('M d, Y', strtotime($row['date_updated'])) ?></td>
                                 <td>
@@ -891,9 +909,6 @@ if (isset($_SESSION['error'])) {
                                     </span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-primary" title="View Details" onclick="viewItem(<?= $row['inventory_id'] ?>)">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
                                     <button class="btn btn-sm btn-success" title="Stock In" onclick="stockIn(<?= $row['inventory_id'] ?>)">
                                         <i class="fas fa-plus"></i>
                                     </button>
@@ -908,12 +923,181 @@ if (isset($_SESSION['error'])) {
                         <?php endwhile; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="10" class="text-center py-4">
+                            <td colspan="8" class="text-center py-4">
                                 <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
-                                <p class="text-muted">No inventory items found</p>
-                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
-                                    Add First Item
-                                </button>
+                                <p class="text-muted">
+                                    <?php if (!empty($search_item) || !empty($search_unit) || !empty($search_location) || !empty($search_status)): ?>
+                                        No inventory items found matching your search criteria.
+                                    <?php else: ?>
+                                        No inventory items found.
+                                    <?php endif; ?>
+                                </p>
+                                <?php if (empty($search_item) && empty($search_unit) && empty($search_location) && empty($search_status)): ?>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                                        Add First Item
+                                    </button>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <?php if ($total_pages > 1): ?>
+            <div class="d-flex justify-content-between align-items-center p-3 bg-light">
+                <div class="text-muted">
+                    Showing <?= ($offset + 1) ?> to <?= min($offset + $per_page, $total_records) ?> of <?= $total_records ?> entries
+                </div>
+
+                <nav aria-label="Inventory pagination">
+                    <ul class="pagination mb-0">
+                        <?php if ($page > 1): ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => 1])) ?>">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            </li>
+                        <?php endif; ?>
+
+                        <?php
+                        $start_page = max(1, $page - 2);
+                        $end_page = min($total_pages, $page + 2);
+
+                        for ($i = $start_page; $i <= $end_page; $i++):
+                        ?>
+                            <li class="page-item <?= $i == $page ? 'active' : '' ?>">
+                                <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>">
+                                    <?= $i ?>
+                                </a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <?php if ($page < $total_pages): ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $total_pages])) ?>">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        <?php endif; ?>
+                    </ul>
+                </nav>
+            </div>
+        <?php endif; ?>
+
+
+    </div>
+
+    <!-- Recieved Items Table -->
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Received Items</h3>
+            <form method="GET" class="d-flex align-items-end gap-2">
+                <div>
+                    <label for="sy_recv" class="form-label mb-0 text-white">School Year</label>
+                    <select id="sy_recv" name="sy_recv" class="form-select" onchange="this.form.submit()">
+                        <option value="">All</option>
+                        <?php foreach ($sy_years as $sy): ?>
+                            <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_recv_raw === $sy) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($sy) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="pt-4">
+                    <?php if (!empty($sy_recv_raw)): ?>
+                        <a href="inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv' => true])) ?>" class="btn btn-outline-light">Reset</a>
+                    <?php endif; ?>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Date Received</th>
+                        <th>Invoice Number</th>
+                        <th>Supplier</th>
+                        <th>Sales Type</th>
+                        <th>Category</th>
+                        <th>Item Description</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                        <th>Unit Price</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if ($result1 && $result1->num_rows > 0): ?>
+                        <?php while ($row = $result1->fetch_assoc()): ?>
+                            <?php
+                            // Sales type handling - can be expanded based on business logic
+                            $sales_type_display = $row['sales_type'];
+                            ?>
+                            <tr
+                                data-supplier-id="<?= (int)($row['supplier_id'] ?? 0) ?>"
+                                data-category="<?= htmlspecialchars($row['category'] ?? '') ?>"
+                                data-description="<?= htmlspecialchars($row['item_name'] ?? '') ?>"
+                                data-quantity="<?= (int)($row['quantity'] ?? 0) ?>"
+                                data-unit="<?= htmlspecialchars($row['unit'] ?? '') ?>"
+                                data-unit-price="<?= htmlspecialchars($row['unit_price'] ?? '0.00') ?>"
+                                data-invoice="<?= htmlspecialchars($row['invoice_no'] ?? '') ?>">
+                                <td><?= date('M d, Y', strtotime($row['date_created'])) ?></td>
+                                <td><?= htmlspecialchars($row['invoice_no']) ?></td>
+                                <td><?= htmlspecialchars($row['supplier_name']) ?></td>
+                                <td><?= htmlspecialchars($row['sales_type']) ?></td>
+                                <td><?= htmlspecialchars($row['category']) ?></td>
+                                <td><?= htmlspecialchars($row['item_name']) ?></td>
+                                <td><?= htmlspecialchars($row['quantity']) ?></td>
+                                <td><?= htmlspecialchars($row['unit']) ?></td>
+                                <td>₱ <?= htmlspecialchars($row['unit_price']) ?></td>
+                                <td>₱ <?= htmlspecialchars($row['total_amount']) ?></td>
+                                <td>
+                                    <span class="badge bg-success">
+                                        <?= htmlspecialchars($row['status']) ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-success mark-received-btn" data-bs-toggle="modal" data-bs-target="#receivedModal" title="Mark as Received"
+                                        data-transaction-id="<?= $row['procurement_id'] ?>"
+                                        data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
+                                        data-category="<?= htmlspecialchars($row['category']) ?>"
+                                        data-quantity="<?= $row['quantity'] ?>"
+                                        data-unit="<?= htmlspecialchars($row['unit']) ?>"
+                                        data-supplier-id="<?= $row['supplier_id'] ?>"
+                                        data-unit-price="<?= $row['unit_price'] ?>"
+                                        data-invoice="<?= htmlspecialchars($row['invoice_number'] ?? '') ?>"
+                                        data-status="<?= htmlspecialchars($row['status']) ?>">
+                                        <i class="fas fa-check-circle"></i>
+                                    </button>
+
+
+                                    <!-- Add to Inventory button (submits mapped data to existing add endpoint)
+                                <button type="button" class="btn btn-sm btn-primary" onclick="addToInventoryFromRow(this)" title="Add to Inventory">
+                                    <i class="fas fa-plus-circle"></i>
+                                </button> -->
+                                </td>
+                            </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="12" class="text-center py-4">
+                                <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No received items found</p>
                             </td>
                         </tr>
                     <?php endif; ?>
@@ -1260,6 +1444,14 @@ if (isset($_SESSION['error'])) {
             showSessionMessageModal();
         }
 
+        // Initialize search functionality
+        initializeSearchFilters();
+
+        // Auto-submit form when per_page changes
+        $('#per_page').on('change', function() {
+            $(this).closest('form').submit();
+        });
+
         // Mark as Received Modal functionality
         // Mark as Received Modal functionality
         $('.mark-received-btn').on('click', function() {
@@ -1497,6 +1689,64 @@ if (isset($_SESSION['error'])) {
 
         // Submit
         document.getElementById('addInventoryHiddenForm').submit();
+    }
+
+    // Initialize search filters functionality
+    function initializeSearchFilters() {
+        // Server-side search is now handled by the form submission
+        // No client-side filtering needed since search works across all items
+
+        // Highlight search terms in results
+        highlightSearchTerms();
+    }
+
+    // Highlight search terms in table results
+    function highlightSearchTerms() {
+        const searchItem = '<?= addslashes($search_item) ?>';
+        const searchUnit = '<?= addslashes($search_unit) ?>';
+        const searchLocation = '<?= addslashes($search_location) ?>';
+
+        if (searchItem) {
+            highlightText('tbody td:nth-child(1)', searchItem);
+        }
+        if (searchUnit) {
+            highlightText('tbody td:nth-child(4)', searchUnit);
+        }
+        if (searchLocation) {
+            highlightText('tbody td:nth-child(5)', searchLocation);
+        }
+    }
+
+    // Helper function to highlight text
+    function highlightText(selector, searchTerm) {
+        if (!searchTerm) return;
+
+        $(selector).each(function() {
+            const text = $(this).text();
+            const regex = new RegExp('(' + escapeRegExp(searchTerm) + ')', 'gi');
+            const highlightedText = text.replace(regex, '<mark class="bg-warning">$1</mark>');
+            if (highlightedText !== text) {
+                $(this).html(highlightedText);
+            }
+        });
+    }
+
+    // Escape special regex characters
+    function escapeRegExp(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    // Clear all search filters
+    function clearAllFilters() {
+        window.location.href = 'Inventory.php';
+    }
+
+    // Quick filter functions
+    function filterByStatus(status) {
+        const url = new URL(window.location);
+        url.searchParams.set('search_status', status);
+        url.searchParams.delete('page'); // Reset to first page
+        window.location.href = url.toString();
     }
 
     // Open Edit Inventory modal with data

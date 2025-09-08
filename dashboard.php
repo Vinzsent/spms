@@ -706,18 +706,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <h3 class="card-title">Assignment & Issuance</h3>
         <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
         <a href="pages/issuance.php" class="card-button">Access</a>
-      </div>
-
-      <!-- Received Items Card -->
-      <div class="menu-card card-primary">
-        <div class="card-icon">
-          <i class="fas fa-box-open"></i>
-        </div>
-        <h3 class="card-title">Received Items</h3>
-        <p class="card-description">Record and track new supplier transactions. Manage incoming inventory and update stock levels.</p>
-        <a href="pages/transaction_list.php" class="card-button">Access</a>
-      </div>
-      
+      </div>      
       <!-- Inventory Card -->
       <div class="menu-card card-info">
         <div class="card-icon">
@@ -726,16 +715,6 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <h3 class="card-title">Inventory Management</h3>
         <p class="card-description">Track real-time stock levels with detailed logs. Get alerts for low inventory and manage supplies.</p>
         <a href="pages/inventory.php" class="card-button">Access</a>
-      </div>
-
-      <!-- Procurement Card -->
-      <div class="menu-card card-warning">
-        <div class="card-icon">
-          <i class="fas fa-shopping-cart"></i>
-        </div>
-        <h3 class="card-title">Procurement</h3>
-        <p class="card-description">Log purchased items with supplier details, costs, and receipts. Mark items as received when delivered.</p>
-        <a href="pages/procurement.php" class="card-button">Access</a>
       </div>
 
     <?php else: ?>

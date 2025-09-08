@@ -352,8 +352,19 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
     }
 
     .btn-success:hover {
-        background-color: #1e7e34;
+        background-color: var(--primary-green);
         transform: translateY(-2px);
+    }
+
+    .btn-danger:hover {
+        background-color: var(--primary-green);
+        transform: translateY(-5px);
+    }
+
+    .btn-danger {
+        background-color: var(--accent-red);
+        transform: translateY(-2px);
+        color: var(--text-white);
     }
 
     /* Mobile Responsiveness */
@@ -475,7 +486,7 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             <button type="button" class="btn-canvass btn-success" onclick="addRow()">
                 <i class="fas fa-plus"></i> Add Row
             </button>
-            <button type="button" class="btn-canvass btn-danger" style="background-color: var(--accent-red); color: white;" onclick="removeLastRow()">
+            <button type="button" class="btn-danger btn-canvass" onclick="removeLastRow()">
                 <i class="fas fa-minus"></i> Remove Row
             </button>
         </div>

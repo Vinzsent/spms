@@ -54,19 +54,29 @@
         <select class="form-select" name="user_type" id="add-usertype" required>
           <option value="">-- Select Position --</option>
           <option value="Admin">Administrator</option>
-          <option value="Staff">Staff</option>
+          <option value="Immediate Head">Immediate Head</option>
+          <option value="Immediate Head - CELA">Immediate Head - CELA</option>
+          <option value="Immediate Head - CJE">Immediate Head - CJE</option>
+          <option value="Immediate Head - CBM">Immediate Head - CBM</option>
+          <option value="Immediate Head - ITE">Immediate Head - ITE</option>
+          <option value="Immediate Head - HRM">Immediate Head - HRM</option>
           <option value="Faculty">Faculty</option>
+          <option value="Faculty - CELA">Faculty - CELA</option>
+          <option value="Faculty - CJE">Faculty - CJE</option>
+          <option value="Faculty - CBM">Faculty - CBM</option>
+          <option value="Faculty - ITE">Faculty - ITE</option>
+          <option value="Faculty - HRM">Faculty - HRM</option>
+          <option value="Staff">Staff</option>
           <option value="MIS Head">MIS Head</option>
           <option value="MIS Computer Programmer">MIS Computer Programmer</option>
           <option value="School President">School President</option>
-          <option value="Immediate Head">Immediate Head</option>
           <option value="Supply In-charge">Supply In-charge</option>
+          <option value="Property Custodian">Property Custodian</option>
           <option value="Purchasing Officer">Purchasing Officer</option>
           <option value="VP for Finance & Administration">VP for Finance & Administration</option>
           <option value="Finance Officer">Finance Officer</option>
           <option value="VP for Academic Affairs">VP for Academic Affairs</option>
           <option value="Admistrative Officer">Admistrative Officer</option>
-          <option value="Property Custodian">Property Custodian</option>
           <option value="Accounting Officer">Accounting Officer</option>
         </select>
       </div>
