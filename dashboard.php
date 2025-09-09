@@ -591,6 +591,15 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <button onclick="showRequestTypeModal()" class="card-button">Access</button>
       </div>
 
+      <div class="menu-card">
+        <div class="card-icon" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0);">
+          <i class="fas fa-boxes"></i>
+        </div>
+        <h3 class="card-title">Property Requisition</h3>
+        <p class="card-description">Request property items and track approvals. Choose between consumable and non-consumable items.</p>
+        <button onclick="showPropertyRequestTypeModal()" class="card-button">Access</button>
+      </div>
+
     <?php elseif (strtolower($user_type) === 'immediate head'): ?>
       <!-- Supply Requisition Card ONLY for Immediate Head -->
       <!-- Assignment Card -->
@@ -872,7 +881,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <div class="option-content">
           <h5>Property</h5>
-          <p>Request for equipment, furniture, and other durable assets</p>
+          <p>Request, transfer, and issue for equipment, furniture, and other durable assets</p>
         </div>
         <div class="option-arrow">
           <i class="fas fa-chevron-right"></i>
@@ -885,6 +894,54 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <div class="option-content">
           <h5>Consumables</h5>
+          <p>Request, transfer, and issue for supplies, materials, and other consumable items</p>
+        </div>
+        <div class="option-arrow">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer-custom">
+      <button type="button" class="btn btn-outline-secondary" onclick="hidePropertyRequestTypeModal()">
+        <i class="fas fa-times me-1"></i>Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Property Request Type Selection Modal -->
+<div id="propertyRequestTypeModal" class="modal-custom">
+  <div class="modal-content-custom request-type-modal">
+    <div class="text-center mb-4">
+      <div class="request-type-icon mx-auto mb-3">
+        <i class="fas fa-clipboard-list"></i>
+      </div>
+      <h4>Select Request Type</h4>
+      <p class="text-muted">Choose the type of request you want to submit</p>
+    </div>
+    
+    <div class="request-type-options">
+      <div class="request-option" onclick="selectRequestType('property')">
+        <div class="option-icon">
+          <i class="fas fa-building"></i>
+        </div>
+        <div class="option-content">
+          <h5>Consumables</h5>
+          <p>Request for equipment, furniture, and other durable assets</p>
+        </div>
+        <div class="option-arrow">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+      
+      <div class="request-option" onclick="selectRequestType('consumables')">
+        <div class="option-icon">
+          <i class="fas fa-box-open"></i>
+        </div>
+        <div class="option-content">
+          <h5>Non-Consumables</h5>
           <p>Request for supplies, materials, and other consumable items</p>
         </div>
         <div class="option-arrow">
@@ -894,7 +951,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
     </div>
     
     <div class="modal-footer-custom">
-      <button type="button" class="btn btn-outline-secondary" onclick="hideRequestTypeModal()">
+      <button type="button" class="btn btn-outline-secondary" onclick="hidePropertyRequestTypeModal()">
         <i class="fas fa-times me-1"></i>Cancel
       </button>
     </div>
@@ -932,6 +989,50 @@ function closeModal() {
 
 // Auto-close after 5 seconds
 setTimeout(closeModal, 5000);
+
+// Property Request Type Modal Functions
+function showPropertyRequestTypeModal() {
+  const modal = document.getElementById('propertyRequestTypeModal');
+  if (modal) {
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function hidePropertyRequestTypeModal() {
+  const modal = document.getElementById('propertyRequestTypeModal');
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }
+}
+
+function selectRequestType(type) {
+  // Store the selected type in sessionStorage
+  sessionStorage.setItem('selectedRequestType', type);
+  
+  // Redirect to the appropriate page based on selection
+  if (type === 'property') {
+    window.location.href = 'property_request.php?type=consumables';
+  } else {
+    window.location.href = 'property_request.php?type=non-consumables';
+  }
+}
+
+// Close modal when clicking outside the modal content
+window.addEventListener('click', function(event) {
+  const modal = document.getElementById('propertyRequestTypeModal');
+  if (event.target === modal) {
+    hidePropertyRequestTypeModal();
+  }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    hidePropertyRequestTypeModal();
+  }
+});
 </script>
 
 <script>
@@ -952,6 +1053,58 @@ setTimeout(closeModal, 5000);
     
     // Redirect to supply request page with the selected type
     window.location.href = 'pages/supply_request.php?type=' + type;
+  }
+
+  // Password Modal Functions
+  function showPasswordModal() {
+    document.getElementById('passwordModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function hidePasswordModal() {
+    document.getElementById('passwordModal').style.display = 'none';
+    document.getElementById('adminPassword').value = '';
+    document.body.style.overflow = 'auto';
+  }
+
+  // Close modals when clicking outside
+  window.onclick = function(event) {
+    var requestModal = document.getElementById('propertyRequestTypeModal');
+    var passwordModal = document.getElementById('passwordModal');
+    
+    if (event.target == requestModal) {
+      hidePropertyRequestTypeModal();
+    }
+    if (event.target == passwordModal) {
+      hidePasswordModal();
+    }
+  }
+
+  // Close modals with Escape key
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      hidePropertyRequestTypeModal();
+      hidePasswordModal();
+    }
+  });
+
+   // Request Type Modal Functions
+   function showPropertyRequestTypeModal() {
+    document.getElementById('propertyRequestTypeModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function hidePropertyRequestTypeModal() {
+    document.getElementById('propertyRequestTypeModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }
+
+  function selectRequestType(type) {
+    // Store the selected request type in sessionStorage
+    sessionStorage.setItem('selectedRequestType', type);
+    
+    // Redirect to supply request page with the selected type
+    window.location.href = 'pages/property_request.php?type=' + type;
   }
 
   // Password Modal Functions

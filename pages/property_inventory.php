@@ -46,7 +46,7 @@ if ($sy_inv_start && $sy_inv_end) {
 if ($sy_recv_start && $sy_recv_end) {
     $start_esc = $conn->real_escape_string($sy_recv_start);
     $end_esc   = $conn->real_escape_string($sy_recv_end);
-    $recv_where = " WHERE st.date_received >= '$start_esc' AND st.date_received <= '$end_esc'";
+    $recv_where = " WHERE COALESCE(st.date_received, st.date_created) >= '$start_esc' AND COALESCE(st.date_received, st.date_created) <= '$end_esc'";
 }
 if ($sy_logs_start && $sy_logs_end) {
     $start_esc = $conn->real_escape_string($sy_logs_start);
@@ -61,19 +61,52 @@ $sql = "SELECT i.*, s.supplier_name
         ORDER BY i.date_created DESC";
 $result = $conn->query($sql);
 
-// Get inventory data
+// Normalize user role from session (supports multiple keys and casing)
+$sessionRoleRaw = $_SESSION['user_type'] ?? ($_SESSION['role'] ?? '');
+$userRoleNormalized = strtolower(trim((string)$sessionRoleRaw));
+
+// Inventory query
+// Inventory query
+$main_where_conditions = [];
+if (!empty($inv_where)) {
+    $main_where_conditions[] = substr($inv_where, 7); // Remove ' WHERE ' from the start
+}
+
+if ($userRoleNormalized === 'property custodian') {
+    $main_where_conditions[] = "i.receiver = 'Property Custodian'";
+}
+
+$main_where_clause = '';
+if (!empty($main_where_conditions)) {
+    $main_where_clause = ' WHERE ' . implode(' AND ', $main_where_conditions);
+}
+
 $sql = "SELECT i.*, s.supplier_name 
         FROM inventory i 
         LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
-        $inv_where
+        $main_where_clause
         ORDER BY i.date_created DESC";
-$result = $conn->query($sql);
 
-$sql1 = "SELECT st.*, s.supplier_name
+// We will execute this query later with pagination
+// $result = $conn->query($sql);
+
+// Supplier transaction query
+if ($userRoleNormalized === 'property custodian') {
+    $sql1 = "SELECT st.*, s.supplier_name
         FROM supplier_transaction st
-        JOIN supplier s ON s.supplier_id = st.supplier_id
-        WHERE st.status IN ('Pending')
-        ORDER BY st.date_received DESC";
+        INNER JOIN supplier s ON s.supplier_id = st.supplier_id
+        " . (empty($recv_where) ? " WHERE 1=1" : $recv_where) . "
+        AND LOWER(st.receiver) = 'property custodian'
+        ORDER BY COALESCE(st.date_received, st.date_created) DESC
+    ";
+} else {
+    $sql1 = "SELECT st.*, s.supplier_name
+        FROM supplier_transaction st
+        INNER JOIN supplier s ON s.supplier_id = st.supplier_id
+        " . (empty($recv_where) ? " WHERE 1=1" : $recv_where) . " AND st.status = 'Pending'
+        ORDER BY COALESCE(st.date_received, st.date_created) DESC
+    ";
+}
 $result1 = $conn->query($sql1);
 
 // Get stock movement logs
@@ -662,11 +695,223 @@ if (isset($_SESSION['error'])) {
             <div class="stat-label">Recent Movements</div>
         </div>
     </div>
-
-    <!-- Recieved Items Table -->
+    <!-- Inventory Table -->
     <div class="table-container">
         <div class="table-header">
-            <h3>Received Property</h3>
+            <h3>Inventory Items</h3>
+            <div class="d-flex align-items-end gap-2">
+                <form method="GET" class="d-flex align-items-end gap-2 mb-0">
+                    <div>
+                        <label for="sy_inv" class="form-label mb-0 text-white">School Year</label>
+                        <select id="sy_inv" name="sy_inv" class="form-select" onchange="this.form.submit()">
+                            <option value="">All</option>
+                            <?php foreach ($sy_years as $sy): ?>
+                                <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_inv_raw === $sy) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($sy) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="pt-4">
+                        <?php if (!empty($sy_inv_raw)): ?>
+                            <a href="inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_inv' => true])) ?>" class="btn btn-outline-light">Reset</a>
+                        <?php endif; ?>
+                    </div>
+                </form>
+                <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                    <i class="fas fa-plus"></i> Add Item
+                </button>
+            </div>
+        </div>
+
+
+        <!-- Approve/Received Modal -->
+        <div class="modal fade" id="receivedModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Mark as Received Items</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form id="approveForm" action="../actions/mark_supplier_transaction_received.php" method="POST">
+                        <input type="hidden" id="approve-id" name="procurement_id" style="display: none;">
+                        <input type="hidden" id="approve-item-name" name="item_name" style="display: none;">
+                        <input type="hidden" id="approve-quantity" name="quantity" style="display: none;">
+                        <input type="hidden" id="approve-unit" name="unit" style="display: none;">
+                        <input type="hidden" id="approve-supplier" name="supplier" style="display: none;">
+                        <input type="hidden" id="approve-price" name="price" style="display: none;">
+                        <input type="hidden" id="approve-notes" name="notes" style="display: none;">
+                        <input type="hidden" id="approve-receiver" name="receiver" style="display: none;">
+                        <div class="modal-body">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+                            </div>
+                            <p class="text-center">Are you sure you want to mark this item as received and add the item to the inventory?</p>
+                            <div class="text-center mb-3">
+                                <strong id="display-item-name"></strong>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">Received Date</label>
+                                    <input type="date" name="received_date" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Received Notes (Optional)</label>
+                                    <textarea name="received_notes" class="form-control" rows="3" placeholder="Any additional notes about the received items..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success">Mark as Received</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <?php
+// Pagination settings
+$records_per_page = 10;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $records_per_page;
+
+// Build the WHERE clause for pagination and counting
+$count_where_conditions = [];
+if (!empty($inv_where)) {
+    $count_where_conditions[] = substr($inv_where, 7); // Remove ' WHERE ' from the start
+}
+
+$userRole = $userRoleNormalized; // use normalized role determined earlier
+if ($userRole === 'property custodian') {
+    $count_where_conditions[] = "i.receiver = 'Property Custodian'";
+}
+
+$count_where_clause = '';
+if (!empty($count_where_conditions)) {
+    $count_where_clause = ' WHERE ' . implode(' AND ', $count_where_conditions);
+}
+
+// Get total number of records based on the final WHERE clause
+$count_sql = "SELECT COUNT(*) as total FROM inventory i $count_where_clause";
+$count_result = $conn->query($count_sql);
+$total_records = $count_result->fetch_assoc()['total'];
+$total_pages = ceil($total_records / $records_per_page);
+
+// Get inventory data with pagination
+$sql = "SELECT i.*, s.supplier_name 
+        FROM inventory i 
+        LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
+        $count_where_clause
+        ORDER BY i.date_created DESC
+        LIMIT $records_per_page OFFSET $offset";
+
+$result = $conn->query($sql);
+?>
+
+
+<div class="table-responsive">
+    <div id="inventoryTable">
+    <table class="table table-hover mb-0">
+        <thead class="table-dark">
+            <tr>
+                <th>Item Name</th>
+                <th>Current Stock</th>
+                <th>Unit</th>
+                <th>Supplier</th>
+                <th>Location</th>
+                <th>Last Updated</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if ($result && $result->num_rows > 0): ?>
+                <?php while ($row = $result->fetch_assoc()): ?>
+                    <?php
+                    $stock_level = 'normal';
+                    if ($row['current_stock'] == 0) {
+                        $stock_level = 'out';
+                    } elseif ($row['current_stock'] <= $row['reorder_level']) {
+                        $stock_level = 'critical';
+                    } elseif ($row['current_stock'] <= ($row['reorder_level'] * 1.5)) {
+                        $stock_level = 'low';
+                    }
+                    ?>
+                    <tr>
+                        <td><?= htmlspecialchars($row['item_name']) ?></td>
+                        <td class="text-center"><strong><?= $row['current_stock'] ?></strong></td>
+                        <td><?= $row['unit'] ?></td>
+                        <td><?= htmlspecialchars($row['supplier_name']) ?></td>
+                        <td><?= htmlspecialchars($row['location'] ?? 'N/A') ?></td>
+                        <td><?= date('M d, Y', strtotime($row['date_updated'])) ?></td>
+                        <td>
+                            <span class="badge bg-<?= $stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success') ?>">
+                                <?= ucfirst($stock_level) ?>
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-success" title="Stock In" onclick="stockIn(<?= $row['inventory_id'] ?>)">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-warning" title="Stock Out" onclick="stockOut(<?= $row['inventory_id'] ?>)">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-info" title="Edit"
+                                onclick='openEditInventoryModal(
+                                    <?= (int)$row['inventory_id'] ?>,
+                                    <?= json_encode($row['item_name']) ?>,
+                                    <?= json_encode($row['category']) ?>,
+                                    <?= json_encode($row['unit']) ?>,
+                                    <?= (int)$row['current_stock'] ?>,
+                                    <?= (int)$row['reorder_level'] ?>,
+                                    <?= json_encode($row['location'] ?? '') ?>,
+                                    <?= json_encode((int)$row['supplier_id']) ?>,
+                                    <?= json_encode((float)$row['unit_cost']) ?>
+                                )'>
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="10" class="text-center py-4">
+                        <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No inventory items found</p>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                            Add First Item
+                        </button>
+                    </td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+    </div>
+
+<?php if ($total_pages > 1): ?>
+    <nav>
+        <ul class="pagination justify-content-center mt-3" id="paginationContainer">
+            <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                <a class="page-link" href="#" onclick="loadInventory(<?= $page - 1 ?>); return false;">&laquo;</a>
+            </li>
+            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                    <a class="page-link" href="#" onclick="loadInventory(<?= $i ?>); return false;"><?= $i ?></a>
+                </li>
+            <?php endfor; ?>
+            <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                <a class="page-link" href="#" onclick="loadInventory(<?= $page + 1 ?>); return false;">&raquo;</a>
+            </li>
+        </ul>
+    </nav>
+<?php endif; ?>
+
+
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Acquired Supplies</h3>
             <form method="GET" class="d-flex align-items-end gap-2">
                 <div>
                     <label for="sy_recv" class="form-label mb-0 text-white">School Year</label>
@@ -772,162 +1017,6 @@ if (isset($_SESSION['error'])) {
         </div>
     </div>
 
-    <!-- Inventory Table -->
-    <div class="table-container">
-        <div class="table-header">
-            <h3>Inventory Items</h3>
-            <div class="d-flex align-items-end gap-2">
-                <form method="GET" class="d-flex align-items-end gap-2 mb-0">
-                    <div>
-                        <label for="sy_inv" class="form-label mb-0 text-white">School Year</label>
-                        <select id="sy_inv" name="sy_inv" class="form-select" onchange="this.form.submit()">
-                            <option value="">All</option>
-                            <?php foreach ($sy_years as $sy): ?>
-                                <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_inv_raw === $sy) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($sy) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="pt-4">
-                        <?php if (!empty($sy_inv_raw)): ?>
-                            <a href="inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_inv' => true])) ?>" class="btn btn-outline-light">Reset</a>
-                        <?php endif; ?>
-                    </div>
-                </form>
-                <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
-                    <i class="fas fa-plus"></i> Add Item
-                </button>
-            </div>
-        </div>
-
-
-        <!-- Approve/Received Modal -->
-        <div class="modal fade" id="receivedModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Mark as Received Items</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <form id="approveForm" action="../actions/mark_supplier_transaction_received.php" method="POST">
-                        <input type="hidden" id="approve-id" name="procurement_id" style="display: none;">
-                        <input type="hidden" id="approve-item-name" name="item_name" style="display: none;">
-                        <input type="hidden" id="approve-quantity" name="quantity" style="display: none;">
-                        <input type="hidden" id="approve-unit" name="unit" style="display: none;">
-                        <input type="hidden" id="approve-supplier" name="supplier" style="display: none;">
-                        <input type="hidden" id="approve-price" name="price" style="display: none;">
-                        <input type="hidden" id="approve-notes" name="notes" style="display: none;">
-                        <div class="modal-body">
-                            <div class="text-center mb-3">
-                                <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
-                            </div>
-                            <p class="text-center">Are you sure you want to mark this item as received and add the item to the inventory?</p>
-                            <div class="text-center mb-3">
-                                <strong id="display-item-name"></strong>
-                            </div>
-
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <label class="form-label">Received Date</label>
-                                    <input type="date" name="received_date" class="form-control" value="<?= date('Y-m-d') ?>" required>
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label">Received Notes (Optional)</label>
-                                    <textarea name="received_notes" class="form-control" rows="3" placeholder="Any additional notes about the received items..."></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-success">Mark as Received</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- Inventory Table -->
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Item Name</th>
-                        <th>Category</th>
-                        <th>Current Stock</th>
-                        <th>Unit</th>
-                        <th>Reorder Level</th>
-                        <th>Supplier</th>
-                        <th>Location</th>
-                        <th>Last Updated</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if ($result && $result->num_rows > 0): ?>
-                        <?php while ($row = $result->fetch_assoc()): ?>
-                            <?php
-                            $stock_level = 'normal';
-                            if ($row['current_stock'] == 0) {
-                                $stock_level = 'out';
-                            } elseif ($row['current_stock'] <= $row['reorder_level']) {
-                                $stock_level = 'critical';
-                            } elseif ($row['current_stock'] <= ($row['reorder_level'] * 1.5)) {
-                                $stock_level = 'low';
-                            }
-                            ?>
-                            <tr>
-                                <td><?= htmlspecialchars($row['item_name']) ?></td>
-                                <td><?= htmlspecialchars($row['category']) ?></td>
-                                <td>
-                                    <strong><?= $row['current_stock'] ?></strong>
-                                    <span class="stock-level <?= $stock_level ?> ms-2">
-                                        <?= strtoupper($stock_level) ?>
-                                    </span>
-                                </td>
-                                <td><?= $row['unit'] ?></td>
-                                <td><?= $row['reorder_level'] ?></td>
-                                <td><?= htmlspecialchars($row['supplier_name']) ?></td>
-                                <td><?= htmlspecialchars($row['location'] ?? 'N/A') ?></td>
-                                <td><?= date('M d, Y', strtotime($row['date_updated'])) ?></td>
-                                <td>
-                                    <span class="badge bg-<?= $stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success') ?>">
-                                        <?= ucfirst($stock_level) ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary" title="View Details" onclick="viewItem(<?= $row['inventory_id'] ?>)">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-success" title="Stock In" onclick="stockIn(<?= $row['inventory_id'] ?>)">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-warning" title="Stock Out" onclick="stockOut(<?= $row['inventory_id'] ?>)">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-info" title="Edit" onclick='openEditInventoryModal(<?= (int)$row['inventory_id'] ?>, <?= json_encode($row['item_name']) ?>, <?= json_encode($row['category']) ?>, <?= json_encode($row['unit']) ?>, <?= (int)$row['current_stock'] ?>, <?= (int)$row['reorder_level'] ?>, <?= json_encode($row['location'] ?? '') ?>, <?= json_encode((int)$row['supplier_id']) ?>, <?= json_encode((float)$row['unit_cost']) ?>)'>
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="10" class="text-center py-4">
-                                <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
-                                <p class="text-muted">No inventory items found</p>
-                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
-                                    Add First Item
-                                </button>
-                            </td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
 
     <!-- Stock Movement Logs -->
     <div class="table-container">
@@ -1153,6 +1242,7 @@ if (isset($_SESSION['error'])) {
     <input type="hidden" name="location" id="ai_location" value="Warehouse">
     <input type="hidden" name="description" id="ai_description">
     <input type="text" name="status" id="ai_status">
+    <input type="text" name="receiver" id="ai_receiver">
 </form>
 
 <!-- Edit Inventory Modal -->
@@ -1278,6 +1368,7 @@ if (isset($_SESSION['error'])) {
             const supplier = button.data('supplier');
             const unitPrice = button.data('unit-price');
             const notes = button.data('notes');
+            const receiver = button.data('receiver');
 
             // Populate hidden fields
             $('#approve-id').val(transactionId);
@@ -1287,6 +1378,7 @@ if (isset($_SESSION['error'])) {
             $('#approve-supplier').val(supplier);
             $('#approve-price').val(unitPrice);
             $('#approve-notes').val(notes);
+            $('#approve-receiver').val(receiver);
 
             // Display item name in modal
             $('#display-item-name').text(itemName);
@@ -1298,7 +1390,8 @@ if (isset($_SESSION['error'])) {
                 unit: unit,
                 supplier: supplier,
                 unitPrice: unitPrice,
-                notes: notes
+                notes: notes,
+                receiver: receiver
             });
         });
     });
@@ -1489,6 +1582,7 @@ if (isset($_SESSION['error'])) {
         document.getElementById('ai_reorder_level').value = Math.max(1, Math.floor(finalQuantity * 0.2));
         document.getElementById('ai_description').value = `From invoice ${row.getAttribute('data-invoice') || ''}`;
         document.getElementById('ai_procurement_id').value = procurementId;
+        document.getElementById('ai_receiver').value = 'Property Custodian';
 
         // Debug: Log the final values being submitted
         console.log('Final values being submitted:', {
@@ -1499,7 +1593,8 @@ if (isset($_SESSION['error'])) {
             supplier_id: supplierId,
             unit_cost: unitPrice,
             reorder_level: Math.max(1, Math.floor(finalQuantity * 0.2)),
-            status: status
+            status: status,
+            receiver: 'Property Custodian'
         });
 
         // Submit
@@ -1517,9 +1612,148 @@ if (isset($_SESSION['error'])) {
         document.getElementById('ei_location').value = location || '';
         document.getElementById('ei_supplier_id').value = supplierId || '';
         document.getElementById('ei_unit_cost').value = unitCost || 0;
+        document.getElementById('ei_receiver').value = 'Property Custodian';
         const modal = new bootstrap.Modal(document.getElementById('editInventoryModal'));
         modal.show();
     }
+
+    function loadInventory(page = 1) {
+        // Update URL without page reload
+        const url = new URL(window.location);
+        url.searchParams.set('page', page);
+        window.history.pushState({}, '', url);
+
+        // Show loading overlay with animation
+        const tableContainer = document.querySelector('.table-container');
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.id = 'loadingOverlay';
+        loadingOverlay.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1050;
+            border-radius: 8px;
+        `;
+        
+        // Create loading spinner
+        const spinner = document.createElement('div');
+        spinner.className = 'spinner-border text-primary';
+        spinner.style.width = '3rem';
+        spinner.style.height = '3rem';
+        spinner.role = 'status';
+        
+        const spinnerText = document.createElement('span');
+        spinnerText.className = 'visually-hidden';
+        spinnerText.textContent = 'Loading...';
+        
+        spinner.appendChild(spinnerText);
+        loadingOverlay.appendChild(spinner);
+        
+        // Add loading text
+        const loadingText = document.createElement('div');
+        loadingText.className = 'ms-3';
+        loadingText.style.fontWeight = '600';
+        loadingText.style.color = '#0d6efd';
+        loadingText.textContent = 'Loading inventory data...';
+        loadingOverlay.appendChild(loadingText);
+        
+        // Add to container with relative positioning
+        tableContainer.style.position = 'relative';
+        tableContainer.appendChild(loadingOverlay);
+        
+        // Disable pagination buttons during load
+        const paginationLinks = document.querySelectorAll('.page-link');
+        paginationLinks.forEach(link => {
+            link.style.pointerEvents = 'none';
+            link.style.opacity = '0.6';
+        });
+
+        // Fetch the page content
+        fetch("property_inventory.php?ajax=1&page=" + page)
+            .then(response => response.text())
+            .then(data => {
+                // Remove loading overlay
+                if (loadingOverlay.parentNode) {
+                    loadingOverlay.parentNode.removeChild(loadingOverlay);
+                }
+                
+                // Re-enable pagination buttons
+                paginationLinks.forEach(link => {
+                    link.style.pointerEvents = '';
+                    link.style.opacity = '';
+                });
+                
+                // Extract just the table content from the response
+                const temp = document.createElement('div');
+                temp.innerHTML = data;
+                const newTable = temp.querySelector('#inventoryTable');
+                const newPagination = temp.querySelector('#paginationContainer');
+                
+                if (newTable) {
+                    document.getElementById("inventoryTable").innerHTML = newTable.innerHTML;
+                }
+                if (newPagination) {
+                    document.querySelector("#paginationContainer").innerHTML = newPagination.innerHTML;
+                }
+                
+                // Update active state
+                document.querySelectorAll('.page-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.querySelector('a')?.textContent == page) {
+                        item.classList.add('active');
+                    }
+                });
+                
+                // Smooth scroll to top of table
+                const table = document.querySelector('.table-responsive');
+                if (table) {
+                    table.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                // Remove loading overlay on error
+                if (loadingOverlay.parentNode) {
+                    loadingOverlay.parentNode.removeChild(loadingOverlay);
+                }
+                
+                // Show error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-danger mt-3';
+                errorDiv.innerHTML = `
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error loading content. Please try again.
+                    <button class="btn btn-sm btn-outline-danger ms-2" onclick="loadInventory(${page})">
+                        <i class="fas fa-sync-alt"></i> Retry
+                    </button>
+                `;
+                
+                const tableContainer = document.querySelector('.table-responsive');
+                if (tableContainer) {
+                    tableContainer.parentNode.insertBefore(errorDiv, tableContainer.nextSibling);
+                }
+            });
+    }
+
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const page = urlParams.get('page') || 1;
+        loadInventory(parseInt(page));
+    });
+
+    // Load initial page
+    document.addEventListener("DOMContentLoaded", function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const page = urlParams.get('page') || 1;
+        loadInventory(parseInt(page));
+    });
 </script>
 
 <?php include '../includes/footer.php'; ?>

@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sales_type = trim($_POST['sales_type'] ?? '');
         $category = trim($_POST['category'] ?? '');
         $total_amount = floatval($_POST['total_amount'] ?? 0);
+        $receiver = trim($_POST['receiver'] ?? '');
         
         // Validation
         if (empty($procurement_id)) {
@@ -61,6 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 total_amount = ?,
                 notes = ?,
                 last_updated_by = ?,
+                receiver = ?,
                 date_updated = CURRENT_TIMESTAMP()
             WHERE procurement_id = ?
         ");
@@ -69,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Prepare failed: " . $conn->error);
         }
 
-        $stmt->bind_param("sisssissdsii", $item_name, $supplier_id, $invoice_no, $sales_type, $category, $quantity, $unit, $unit_price, $total_amount, $notes, $user_id, $procurement_id);
+        $stmt->bind_param("sisssissdsisi", $item_name, $supplier_id, $invoice_no, $sales_type, $category, $quantity, $unit, $unit_price, $total_amount, $notes, $user_id, $receiver, $procurement_id);
 
         if (!$stmt->execute()) {
             throw new Exception("Execute failed: " . $stmt->error);

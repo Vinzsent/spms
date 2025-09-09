@@ -626,7 +626,6 @@ body {
 <div class="sidebar">
     <div class="sidebar-header">
         <div class="sidebar-brand">
-            <i class="fas fa-cubes me-2"></i>
             DARTS
         </div>
         <div class="sidebar-user">
@@ -639,18 +638,6 @@ body {
             <a href="../dashboard.php" class="nav-link">
                 <i class="fas fa-chart-line"></i>
                 Dashboard
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="suppliers.php" class="nav-link">
-                <i class="fas fa-users"></i>
-                Supplier List
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="supply_request.php" class="nav-link">
-                <i class="fas fa-clipboard-list"></i>
-                Supply Request List
             </a>
         </div>
         <div class="nav-item">

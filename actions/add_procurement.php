@@ -44,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $unit = trim($_POST['unit'] ?? '');
         $unit_price = trim($_POST['unit_price'] ?? '');
         $notes = trim($_POST['notes'] ?? '');
+        $receiver = trim($_POST['receiver'] ?? '');
         
         // New fields
         $date_purchase = trim($_POST['date_purchase'] ?? '');
@@ -127,8 +128,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare("
             INSERT INTO supplier_transaction (
                 item_name, invoice_no, sales_type, supplier_id, quantity, unit, unit_price, total_amount, 
-                notes, status, date_created, category, brand_model, color, type, created_by
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                notes, status, date_created, category, brand_model, color, type, created_by, receiver
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         if (!$stmt) {
@@ -138,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user_id = $_SESSION['user']['id'] ?? 1;
 
         $stmt->bind_param(
-            "sssidsssssssssss",
+            "sssidssssssssssss",
             $item_name,
             $invoice_no,
             $sales_type,
@@ -154,7 +155,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $brand_model,
             $color,
             $type,
-            $user_id
+            $user_id,
+            $receiver
         );
 
         // Execute the statement

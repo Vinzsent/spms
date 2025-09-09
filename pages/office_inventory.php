@@ -353,7 +353,7 @@ if (isset($_SESSION['error'])) {
     }
 
     .btn-add-row:hover {
-        background-color: #218838;
+        background-color: var(--primary-green);
         transform: translateY(-2px);
     }
 
@@ -363,7 +363,7 @@ if (isset($_SESSION['error'])) {
     }
 
     .btn-remove-row:hover {
-        background-color: #c82333;
+        background-color: var(--primary-green);
         transform: translateY(-2px);
     }
 

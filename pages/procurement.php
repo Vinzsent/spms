@@ -1016,6 +1016,15 @@ if (isset($_SESSION['error'])) {
             font-size: 1.4rem;
         }
     }
+
+    .save_purchase:hover {
+        background-color: var(--primary-green);
+        transform: translateY(-3px);
+    }
+    .cancel_purchase:hover {
+        background-color: var(--primary-green);
+        transform: translateY(-3px);
+    }
 </style>
 
 <!-- Sidebar -->
@@ -1131,7 +1140,7 @@ if (isset($_SESSION['error'])) {
     <!-- Purchase Items Table -->
     <div class="table-container">
         <div class="table-header">
-            <h3>Purchase Items</h3>
+            <h3>Purchase Items List</h3>
             <div class="d-flex align-items-end gap-2">
                 <form method="GET" class="d-flex align-items-end gap-2 mb-0">
                     <div>
@@ -1152,7 +1161,7 @@ if (isset($_SESSION['error'])) {
                     </div>
                 </form>
                 <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addProcurementModal">
-                    <i class="fas fa-plus"></i> Add Procurement Item
+                    <i class="fas fa-plus"></i> Procurement Items
                 </button>
             </div>
         </div>
@@ -1215,22 +1224,18 @@ if (isset($_SESSION['error'])) {
                                             data-unit-price="<?= $row['unit_price'] ?>"
                                             data-sales-type="<?= htmlspecialchars($row['sales_type']) ?>"
                                             data-category="<?= htmlspecialchars($row['category']) ?>"
-                                            data-supplier-id="<?= $row['supplier_id'] ?>">
+                                            data-brand-model="<?= htmlspecialchars($row['brand_model']) ?>"
+                                            data-color="<?= htmlspecialchars($row['color']) ?>"
+                                            data-type="<?= htmlspecialchars($row['type']) ?>"
+                                            data-receiver="<?= htmlspecialchars($row['receiver']) ?>"
+                                            data-supplier-id="<?= $row['supplier_id'] ?>"
+                                            data-notes="<?= htmlspecialchars($row['notes'] ?? '') ?>"
+                                            data-date-purchase="<?= date('Y-m-d', strtotime($row['date_created'])) ?>">
                                             <i class="fas fa-edit"></i>
                                         </button>
                                         <button class="btn btn-sm btn-danger delete-procurement-btn" title="Delete"
                                             data-procurement-id="<?= $row['procurement_id'] ?>">
                                             <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-success mark-received-btn" title="Mark as Received"
-                                            data-transaction-id="<?= $row['procurement_id'] ?>"
-                                            data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
-                                            data-quantity="<?= $row['quantity'] ?>"
-                                            data-unit="<?= htmlspecialchars($row['unit']) ?>"
-                                            data-supplier="<?= htmlspecialchars($row['supplier_name']) ?>"
-                                            data-unit-price="<?= $row['unit_price'] ?>"
-                                            data-notes="<?= htmlspecialchars($row['notes'] ?? '') ?>">
-                                            <i class="fas fa-check"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -1376,7 +1381,7 @@ if (isset($_SESSION['error'])) {
 <div class="modal fade" id="addProcurementModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header" style="background-color: var(--primary-green); color: white;">
                 <h5 class="modal-title">Add New Purchase Record</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -1385,22 +1390,36 @@ if (isset($_SESSION['error'])) {
                     <div class="row g-3">
                         <!-- Row 1: Item Name and Invoice No -->
 
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label">Date of Purchase <span class="text-danger">*</span></label>
-                            <input type="date" name="date_purchase" class="form-control" required>
+                            <input type="date" name="date_purchase" class="form-control" required value="<?= date('Y-m-d') ?>">
                         </div>
-
-                        <div class="col-md-6">
+                        
+                        <div class="col-md-4">
                             <label class="form-label">Item Name <span class="text-danger">*</span></label>
                             <input type="text" name="item_name" class="form-control" required>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <label class="form-label">Brand and Model <span class="text-danger">*</span></label>
+                            <input type="text" name="brand_model" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label"> Item Type (optional)</label>
+                            <input type="text" name="type" class="form-control">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Color (optional) <span class="text-danger">*</span></label>
+                            <input type="text" name="color" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
                             <label class="form-label">Invoice No <span class="text-danger">*</span></label>
                             <input type="text" name="invoice_no" class="form-control" required>
                         </div>
 
                         <!-- Row 2: Supplier and Category -->
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label">Supplier <span class="text-danger">*</span></label>
                             <select name="supplier_id" class="form-select" required>
                                 <option value="">Select Supplier</option>
@@ -1418,7 +1437,7 @@ if (isset($_SESSION['error'])) {
                                 ?>
                             </select>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label">Category <span class="text-danger">*</span></label>
                             <select name="category" class="form-select" required>
                                 <option value="">Select Category</option>
@@ -1442,79 +1461,76 @@ if (isset($_SESSION['error'])) {
 
                         <!-- Row 3: Quantity, Unit, Unit Price -->
                         <div class="col-md-4">
-                            <label class="form-label">Quantity <span class="text-danger">*</span></label>
-                            <input type="number" name="quantity" class="form-control" required id="quantity">
-                        </div>
-                        <div class="col-md-4">
                             <label class="form-label">Unit <span class="text-danger">*</span></label>
                             <select name="unit" class="form-select" required>
                                 <option value="">Select Unit</option>
-                                <option value="pc">Piece</option>
-                                <option value="box">Box</option>
-                                <option value="kg">Kilogram</option>
-                                <option value="liter">Liter</option>
-                                <option value="set">Set</option>
-                                <option value="pack">Pack</option>
-                                <option value="ream">Ream</option>
+                                <option value="pcs">Pieces</option>
+                                <option value="boxes">Boxes</option>
+                                <option value="kgs">Kilograms</option>
+                                <option value="liters">Liters</option>
+                                <option value="sets">Sets</option>
+                                <option value="packs">Packs</option>
+                                <option value="reams">Reams</option>
                             </select>
                         </div>
+
+                        <!-- Row 4: Sales Type and Total Amount -->
+                        <div class="col-md-4">
+                            <label class="form-label">Purchase Type <span class="text-danger">*</span></label>
+                            <select name="sales_type" class="form-select" required>
+                                <option value="">Select Purchase Type</option>
+                                <option value="Credit">Credit</option>
+                                <option value="Cash">Cash</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Quantity <span class="text-danger">*</span></label>
+                            <input type="number" name="quantity" class="form-control" required id="quantity">
+                        </div>
+
                         <div class="col-md-4">
                             <label class="form-label">Unit Price <span class="text-danger">*</span></label>
                             <input type="number" name="unit_price" step="0.01" class="form-control" required id="unit_price">
                         </div>
 
-                        <!-- Row 4: Sales Type and Total Amount -->
-                        <div class="col-md-6">
-                            <label class="form-label">Sales Type <span class="text-danger">*</span></label>
-                            <select name="sales_type" class="form-select" required>
-                                <option value="">Select Sales Type</option>
-                                <option value="Credit">Credit</option>
-                                <option value="Cash">Cash</option>
+                        <div class="col-md-4">
+                            <label class="form-label">Receiver <span class="text-danger">*</span></label>
+                            
+                            <select name="receiver" class="form-select" required>
+                                <option value="">Select Receiver</option>
+                                <option value="Supply In-charge">Supply In-charge</option>
+                                <option value="Property Custodian">Property Custodian</option>
                             </select>
                         </div>
-                        <div class="col-md-6">
+
+                        <div class="col-md-4">
                             <label class="form-label">Total Amount <span class="text-danger">*</span></label>
                             <input type="number" name="total_amount" step="0.01" class="form-control" readonly id="total_amount">
                         </div>
 
-                        <div class="col-md-3">
-                            <label class="form-label">Brand and Model <span class="text-danger">*</span></label>
-                            <input type="text" name="brand_model" class="form-control" required>
-
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label">Color <span class="text-danger">*</span></label>
-                            <input type="text" name="color" class="form-control" required>
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label">Type <span class="text-danger">*</span></label>
-                            <input type="text" name="type" class="form-control" required>
-                            <p>optional </p>
-                        </div>
 
                         <!-- Row 5: File Uploads 
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label">Invoice</label>
                             <input type="file" name="invoice" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label">Delivery Receipt</label>
                             <input type="file" name="delivery_receipt" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
                         </div>-->
 
                         <!-- Row 6: Notes -->
-                        <div class="col-12">
-                            <label class="form-label">Notes</label>
+                        <div class="col-6">
+                            <label class="form-label">Notes (optional)</label>
                             <textarea name="notes" class="form-control" rows="3"></textarea>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <p class="text-danger text-center" style="font-weight: bold; margin-right: 300px;">All <span class="text-danger">*</span> fields are required</p>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Purchase</button>
+                    <button type="button" class="btn btn-secondary cancel_purchase" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary save_purchase">Save Purchase</button>
                 </div>
             </form>
         </div>
@@ -1525,32 +1541,48 @@ if (isset($_SESSION['error'])) {
 <div class="modal fade" id="editProcurementModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header" style="background-color: var(--primary-green); color: white;">
                 <h5 class="modal-title">Edit Purchase Record</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="../actions/edit_procurement.php" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="procurement_id" value="<?= $procurement_id ?>">
                 <div class="modal-body">
-                    <input type="hidden" name="procurement_id" id="edit_procurement_id">
                     <div class="row g-3">
-                        <!-- Row 1: Date of Purchase and Item Name -->
-                        <div class="col-md-6">
-                            <label class="form-label">Date of Purchase</label>
-                            <input type="date" name="date_purchase" id="edit_date_purchase" value="<?= date('Y-m-d') ?>" class="form-control" required>
+                        <!-- Row 1: Item Name and Invoice No -->
+
+                        <div class="col-md-4">
+                            <label class="form-label">Date of Purchase <span class="text-danger">*</span></label>
+                            <input type="date" name="date_purchase" class="form-control" required value="<?= date('Y-m-d') ?>">
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Item Name</label>
-                            <input type="text" name="item_name" id="edit_item_name" class="form-control" required>
+                        
+                        <div class="col-md-4">
+                            <label class="form-label">Item Name <span class="text-danger">*</span></label>
+                            <input type="text" name="item_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Brand and Model <span class="text-danger">*</span></label>
+                            <input type="text" name="brand_model" class="form-control" required>
                         </div>
 
-                        <!-- Row 2: Invoice No and Supplier -->
-                        <div class="col-md-6">
-                            <label class="form-label">Invoice No</label>
-                            <input type="text" name="invoice_no" id="edit_invoice_no" class="form-control" required>
+                        <div class="col-md-4">
+                            <label class="form-label"> Item Type (optional)</label>
+                            <input type="text" name="type" class="form-control">
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Supplier</label>
-                            <select name="supplier_id" id="edit_supplier_id" class="form-select" required>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Color (optional) <span class="text-danger">*</span></label>
+                            <input type="text" name="color" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Invoice No <span class="text-danger">*</span></label>
+                            <input type="text" name="invoice_no" class="form-control" required>
+                        </div>
+
+                        <!-- Row 2: Supplier and Category -->
+                        <div class="col-md-4">
+                            <label class="form-label">Supplier <span class="text-danger">*</span></label>
+                            <select name="supplier_id" class="form-select" required>
                                 <option value="">Select Supplier</option>
                                 <?php
                                 if ($suppliers_result) {
@@ -1566,11 +1598,9 @@ if (isset($_SESSION['error'])) {
                                 ?>
                             </select>
                         </div>
-
-                        <!-- Row 3: Category and Sales Type -->
-                        <div class="col-md-6">
-                            <label class="form-label">Category</label>
-                            <select name="category" id="edit_category" class="form-select" required>
+                        <div class="col-md-4">
+                            <label class="form-label">Category <span class="text-danger">*</span></label>
+                            <select name="category" class="form-select" required>
                                 <option value="">Select Category</option>
                                 <?php
                                 if (isset($organized_categories) && !empty($organized_categories)) {
@@ -1589,114 +1619,78 @@ if (isset($_SESSION['error'])) {
                                 ?>
                             </select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Sales Type</label>
-                            <select name="sales_type" id="edit_sales_type" class="form-select" required>
-                                <option value="">Select Sales Type</option>
+
+                        <!-- Row 3: Quantity, Unit, Unit Price -->
+                        <div class="col-md-4">
+                            <label class="form-label">Unit <span class="text-danger">*</span></label>
+                            <select name="unit" class="form-select" required>
+                                <option value="">Select Unit</option>
+                                <option value="pcs">Pieces</option>
+                                <option value="boxes">Boxes</option>
+                                <option value="kgs">Kilograms</option>
+                                <option value="liters">Liters</option>
+                                <option value="sets">Sets</option>
+                                <option value="packs">Packs</option>
+                                <option value="reams">Reams</option>
+                            </select>
+                        </div>
+
+                        <!-- Row 4: Sales Type and Total Amount -->
+                        <div class="col-md-4">
+                            <label class="form-label">Purchase Type <span class="text-danger">*</span></label>
+                            <select name="sales_type" class="form-select" required>
+                                <option value="">Select Purchase Type</option>
                                 <option value="Credit">Credit</option>
                                 <option value="Cash">Cash</option>
                             </select>
                         </div>
 
-                        <!-- Row 4: Quantity, Unit, Unit Price -->
                         <div class="col-md-4">
-                            <label class="form-label">Quantity</label>
-                            <input type="number" name="quantity" id="edit_quantity" class="form-control" required>
+                            <label class="form-label">Quantity <span class="text-danger">*</span></label>
+                            <input type="number" name="quantity" class="form-control" required id="quantity">
                         </div>
+
                         <div class="col-md-4">
-                            <label class="form-label">Unit</label>
-                            <select name="unit" id="edit_unit" class="form-select" required>
-                                <option value="">Select Unit</option>
-                                <!-- Common Units for Supplies -->
-                                <option value="pc">Piece (pc)</option>
-                                <option value="box">Box</option>
-                                <option value="pack">Pack</option>
-                                <option value="pad">Pad</option>
-                                <option value="ream">Ream</option>
-                                <option value="dozen">Dozen</option>
+                            <label class="form-label">Unit Price <span class="text-danger">*</span></label>
+                            <input type="number" name="unit_price" step="0.01" class="form-control" required id="unit_price">
+                        </div>
 
-                                <!-- Liquid and Cleaning -->
-                                <option value="bottle">Bottle</option>
-                                <option value="gallon">Gallon</option>
-                                <option value="liter">Liter (L)</option>
-                                <option value="ml">Milliliter (ml)</option>
-                                <option value="roll">Roll</option>
-                                <option value="bar">Bar</option>
-
-                                <!-- Measurement -->
-                                <option value="meter">Meter</option>
-                                <option value="cm">Centimeter (cm)</option>
-                                <option value="ft">Foot (ft)</option>
-                                <option value="kg">Kilogram (kg)</option>
-                                <option value="g">Gram (g)</option>
-                                <option value="ton">Ton</option>
-                                <option value="tube">Tube</option>
-                                <option value="can">Can</option>
-
-                                <!-- Laboratory / Medical -->
-                                <option value="vial">Vial</option>
-                                <option value="sachet">Sachet</option>
-
-                                <!-- Equipment -->
-                                <option value="unit">Unit</option>
-                                <option value="set">Set</option>
-                                <option value="kit">Kit</option>
-                                <option value="pair">Pair</option>
-                                <option value="lot">Lot</option>
-                                <option value="package">Package</option>
-
-                                <!-- Services -->
-                                <option value="trip">Trip</option>
-                                <option value="hour">Hour</option>
-                                <option value="day">Day</option>
-                                <option value="service">Service</option>
+                        <div class="col-md-4">
+                            <label class="form-label">Receiver <span class="text-danger">*</span></label>
+                            <select name="receiver" class="form-select" required>
+                                <option value="">Select Receiver</option>
+                                <option value="Supply In-charge">Supply In-charge</option>
+                                <option value="Property Custodian">Property Custodian</option>
                             </select>
                         </div>
+
                         <div class="col-md-4">
-                            <label class="form-label">Unit Price</label>
-                            <input type="number" name="unit_price" id="edit_unit_price" step="0.01" class="form-control" required>
+                            <label class="form-label">Total Amount <span class="text-danger">*</span></label>
+                            <input type="number" name="total_amount" step="0.01" class="form-control" readonly id="total_amount">
                         </div>
 
-                        <!-- Row 5: Total Amount and Brand/Model -->
-                        <div class="col-md-6">
-                            <label class="form-label">Total Amount</label>
-                            <input type="number" name="total_amount" id="edit_total_amount" step="0.01" class="form-control" readonly>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Brand and Model</label>
-                            <input type="text" name="brand_model" id="edit_brand_model" class="form-control" required>
-                        </div>
 
-                        <!-- Row 6: Color and Type -->
-                        <div class="col-md-3">
-                            <label class="form-label">Color</label>
-                            <input type="text" name="color" id="edit_color" class="form-control" required>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Type</label>
-                            <input type="text" name="type" id="edit_type" class="form-control" required>
-                        </div>
-
-                        <!-- Row 7: File Uploads -->
-                        <div class="col-md-3">
-                            <label class="form-label">Invoice (Optional - leave empty to keep current)</label>
+                        <!-- Row 5: File Uploads 
+                        <div class="col-md-4">
+                            <label class="form-label">Invoice</label>
                             <input type="file" name="invoice" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Delivery Receipt (Optional - leave empty to keep current)</label>
+                        <div class="col-md-4">
+                            <label class="form-label">Delivery Receipt</label>
                             <input type="file" name="delivery_receipt" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                        </div>
+                        </div>-->
 
-                        <!-- Row 8: Notes -->
-                        <div class="col-12">
-                            <label class="form-label">Notes</label>
-                            <textarea name="notes" id="edit_notes" class="form-control" rows="3"></textarea>
+                        <!-- Row 6: Notes -->
+                        <div class="col-6">
+                            <label class="form-label">Notes (optional)</label>
+                            <textarea name="notes" class="form-control" rows="3"></textarea>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Update Purchase</button>
+                    <p class="text-danger text-center" style="font-weight: bold; margin-right: 300px;">All <span class="text-danger">*</span> fields are required</p>
+                    <button type="button" class="btn btn-secondary cancel_purchase" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary save_purchase">Save Purchase</button>
                 </div>
             </form>
         </div>
@@ -1844,22 +1838,38 @@ if (isset($_SESSION['error'])) {
         // Edit Modal functionality
         $('.edit-procurement-btn').on('click', function() {
             const button = $(this);
-            $('#edit_procurement_id').val(button.data('procurement-id'));
-            $('#edit_item_name').val(button.data('item-name'));
-            $('#edit_invoice_no').val(button.data('invoice-no'));
-            $('#edit_quantity').val(button.data('quantity'));
-            $('#edit_unit').val(button.data('unit'));
-            $('#edit_unit_price').val(button.data('unit-price'));
-            $('#edit_sales_type').val(button.data('sales-type'));
-            $('#edit_category').val(button.data('category'));
-            $('#edit_supplier_id').val(button.data('supplier-id'));
-
+            const modal = $('#editProcurementModal');
+            const form = modal.find('form');
+            
+            // Populate form fields with data attributes
+            form.find('input[name="date_purchase"]').val(button.data('date-purchase') || '');
+            form.find('input[name="item_name"]').val(button.data('item-name') || '');
+            form.find('input[name="invoice_no"]').val(button.data('invoice-no') || '');
+            form.find('input[name="quantity"]').val(button.data('quantity') || '');
+            form.find('select[name="unit"]').val(button.data('unit') || '');
+            form.find('input[name="unit_price"]').val(button.data('unit-price') || '');
+            form.find('select[name="sales_type"]').val(button.data('sales-type') || '');
+            form.find('select[name="category"]').val(button.data('category') || '');
+            form.find('input[name="brand_model"]').val(button.data('brand-model') || '');
+            form.find('input[name="color"]').val(button.data('color') || '');
+            form.find('input[name="type"]').val(button.data('type') || '');
+            form.find('select[name="receiver"]').val(button.data('receiver') || '');
+            form.find('textarea[name="notes"]').val(button.data('notes') || '');
+            
+            // Set the procurement ID in a hidden field if needed
+            form.find('input[name="procurement_id"]').val(button.data('procurement-id') || '');
+            
             // Calculate and set total amount
-            const total = button.data('quantity') * button.data('unit-price');
-            $('#edit_total_amount').val(total.toFixed(2));
+            const quantity = parseFloat(button.data('quantity')) || 0;
+            const unitPrice = parseFloat(button.data('unit-price')) || 0;
+            const totalAmount = (quantity * unitPrice).toFixed(2);
+            form.find('input[name="total_amount"]').val(totalAmount);
+            
+            // Set the supplier in the dropdown
+            form.find('select[name="supplier_id"]').val(button.data('supplier-id') || '');
 
             // Show the modal
-            const editModal = new bootstrap.Modal(document.getElementById('editProcurementModal'));
+            const editModal = new bootstrap.Modal(modal[0]);
             editModal.show();
 
             console.log('Edit modal populated with:', {
@@ -1869,7 +1879,13 @@ if (isset($_SESSION['error'])) {
                 quantity: button.data('quantity'),
                 unit: button.data('unit'),
                 unitPrice: button.data('unit-price'),
-                salesType: button.data('sales-type')
+                salesType: button.data('sales-type'),
+                category: button.data('category'),
+                brandModel: button.data('brand-model'),
+                color: button.data('color'),
+                type: button.data('type'),
+                receiver: button.data('receiver'),
+                supplierId: button.data('supplier-id')
             });
         });
 

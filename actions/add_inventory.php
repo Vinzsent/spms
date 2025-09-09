@@ -14,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $description = trim($_POST['description']);
     $location = trim($_POST['location'] ?? '');
     $status = trim($_POST['status'] ?? '');
+    $receiver = trim($_POST['receiver'] ?? '');
     $procurement_id = intval($_POST['procurement_id'] ?? 0);
     
     // Validation
@@ -62,12 +63,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     
     // Insert new inventory item AFTER status update
-    $sql = "INSERT INTO inventory (item_name, category, description, current_stock, unit, unit_cost, reorder_level, supplier_id, location, created_by) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO inventory (item_name, category, description, current_stock, unit, unit_cost, reorder_level, supplier_id, location, created_by, receiver) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     $stmt = $conn->prepare($sql);
     $user_id = $_SESSION['user']['id'] ?? 1;
-    $stmt->bind_param("sssisidssi", $item_name, $category, $description, $current_stock, $unit, $unit_cost, $reorder_level, $supplier_id, $location, $user_id);
+    $stmt->bind_param("sssisidssis", $item_name, $category, $description, $current_stock, $unit, $unit_cost, $reorder_level, $supplier_id, $location, $user_id, $receiver);
     
     if ($stmt->execute()) {
         $inventory_id = $conn->insert_id;
