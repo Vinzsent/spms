@@ -75,10 +75,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         // Log initial stock if greater than 0
         if ($current_stock > 0) {
-            $log_sql = "INSERT INTO stock_logs (inventory_id, movement_type, quantity, previous_stock, new_stock, notes, created_by) 
-                        VALUES (?, 'IN', ?, 0, ?, 'Initial stock entry', ?)";
+            $log_sql = "INSERT INTO stock_logs (inventory_id, movement_type, quantity, previous_stock, new_stock, notes, created_by, receiver) 
+                        VALUES (?, 'IN', ?, 0, ?, 'Initial stock entry', ?, ?)";
             $log_stmt = $conn->prepare($log_sql);
-            $log_stmt->bind_param("iiii", $inventory_id, $current_stock, $current_stock, $user_id);
+            $log_stmt->bind_param("iiiis", $inventory_id, $current_stock, $current_stock, $user_id, $receiver);
             $log_stmt->execute();
         }
         

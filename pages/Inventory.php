@@ -2,7 +2,15 @@
 $pageTitle = 'Inventory Management';
 include '../includes/auth.php';
 include '../includes/db.php';
-include '../includes/header.php';
+
+// Handle AJAX requests for pagination
+if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
+    // This is an AJAX request, return only the table content
+    $isAjax = true;
+} else {
+    include '../includes/header.php';
+    $isAjax = false;
+}
 
 $user_type = $_SESSION['user_type'] ?? '';
 $dashboard_link = ($user_type == 'Admin') ? '../dashboard.php' : '../dashboard.php';
@@ -30,29 +38,50 @@ $sy_inv_raw  = $_GET['sy_inv']  ?? '';
 $sy_recv_raw = $_GET['sy_recv'] ?? '';
 $sy_logs_raw = $_GET['sy_logs'] ?? '';
 
+// Search parameter
+$search_term = trim($_GET['search'] ?? '');
+
 list($sy_inv_start, $sy_inv_end)   = parse_school_year_range($sy_inv_raw);
 list($sy_recv_start, $sy_recv_end) = parse_school_year_range($sy_recv_raw);
 list($sy_logs_start, $sy_logs_end) = parse_school_year_range($sy_logs_raw);
 
 // Build optional WHERE conditions per query based on per-table School Year
-$inv_where = '';
-$recv_where = '';
-$logs_where = '';
+$inv_where_conditions = [];
+$recv_where_conditions = [];
+$logs_where_conditions = [];
+
+// Add receiver filter for Supply In-charge
+$inv_where_conditions[] = "i.receiver = 'Supply In-charge'";
+$recv_where_conditions[] = "st.receiver = 'Supply In-charge'";
+$logs_where_conditions[] = "sl.receiver = 'Supply In-charge'";
+
+// Add search filter if search term is provided
+if (!empty($search_term)) {
+    $search_escaped = $conn->real_escape_string($search_term);
+    $inv_where_conditions[] = "i.item_name LIKE '%$search_escaped%'";
+}
+
+// Add school year filters if provided
 if ($sy_inv_start && $sy_inv_end) {
     $start_esc = $conn->real_escape_string($sy_inv_start);
     $end_esc   = $conn->real_escape_string($sy_inv_end);
-    $inv_where = " WHERE i.date_created >= '$start_esc' AND i.date_created <= '$end_esc'";
+    $inv_where_conditions[] = "i.date_created >= '$start_esc' AND i.date_created <= '$end_esc'";
 }
 if ($sy_recv_start && $sy_recv_end) {
     $start_esc = $conn->real_escape_string($sy_recv_start);
     $end_esc   = $conn->real_escape_string($sy_recv_end);
-    $recv_where = " WHERE st.date_received >= '$start_esc' AND st.date_received <= '$end_esc'";
+    $recv_where_conditions[] = "st.date_received >= '$start_esc' AND st.date_received <= '$end_esc'";
 }
 if ($sy_logs_start && $sy_logs_end) {
     $start_esc = $conn->real_escape_string($sy_logs_start);
     $end_esc   = $conn->real_escape_string($sy_logs_end);
-    $logs_where = " WHERE sl.date_created >= '$start_esc' AND sl.date_created <= '$end_esc'";
+    $logs_where_conditions[] = "sl.date_created >= '$start_esc' AND sl.date_created <= '$end_esc'";
 }
+
+// Build final WHERE clauses
+$inv_where = !empty($inv_where_conditions) ? ' WHERE ' . implode(' AND ', $inv_where_conditions) : '';
+$recv_where = !empty($recv_where_conditions) ? ' WHERE ' . implode(' AND ', $recv_where_conditions) : '';
+$logs_where = !empty($logs_where_conditions) ? ' WHERE ' . implode(' AND ', $logs_where_conditions) : '';
 
 // Get purchased data
 $sql = "SELECT i.*, s.supplier_name 
@@ -72,8 +101,7 @@ $result = $conn->query($sql);
 $sql1 = "SELECT st.*, s.supplier_name
         FROM supplier_transaction st
         JOIN supplier s ON s.supplier_id = st.supplier_id
-        " . (empty($recv_where) ? " WHERE 1=1" : $recv_where) . "
-        AND st.receiver = 'Supply In-charge'
+        $recv_where
         AND st.status IN ('Pending')
         ORDER BY COALESCE(st.date_received, st.date_created) DESC";
 $result1 = $conn->query($sql1);
@@ -99,13 +127,14 @@ for ($y = $currYear; $y >= $minYear; $y--) {
     $sy_years[] = $y . '-' . ($y + 1);
 }
 
-// Calculate statistics
-$total_items = $result ? $result->num_rows : 0;
+// Calculate statistics - execute the query first to get proper counts
+$stats_result = $conn->query($sql);
+$total_items = $stats_result ? $stats_result->num_rows : 0;
 $low_stock_count = 0;
 $out_of_stock_count = 0;
 
-if ($result) {
-    while ($row = $result->fetch_assoc()) {
+if ($stats_result) {
+    while ($row = $stats_result->fetch_assoc()) {
         if ($row['current_stock'] <= $row['reorder_level']) {
             $low_stock_count++;
         }
@@ -113,7 +142,7 @@ if ($result) {
             $out_of_stock_count++;
         }
     }
-    $result->data_seek(0); // Reset pointer
+    $stats_result->data_seek(0); // Reset pointer
 }
 
 // Store session messages for modal display
@@ -129,6 +158,7 @@ if (isset($_SESSION['error'])) {
 }
 ?>
 
+<?php if (!$isAjax): ?>
 <style>
     :root {
         --primary-green: #073b1d;
@@ -522,6 +552,33 @@ if (isset($_SESSION['error'])) {
         background-color: rgba(255, 193, 7, 0.1);
     }
 
+    /* Search Input Styles */
+    .search-input {
+        min-width: 200px;
+    }
+    
+    .search-input input {
+        border-radius: 5px;
+        border: 1px solid #ddd;
+    }
+    
+    .search-input input:focus {
+        border-color: var(--accent-orange);
+        box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
+    }
+    
+    .btn-search {
+        background-color: var(--accent-blue);
+        border-color: var(--accent-blue);
+        color: white;
+    }
+    
+    .btn-search:hover {
+        background-color: #357abd;
+        border-color: #357abd;
+        color: white;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
         .sidebar {
@@ -662,9 +719,13 @@ if (isset($_SESSION['error'])) {
             <h3>Inventory Items</h3>
             <div class="d-flex align-items-end gap-2">
                 <form method="GET" class="d-flex align-items-end gap-2 mb-0">
+                    <div class="search-input">
+                        <label for="search" class="form-label mb-0 text-white">Search Item</label>
+                        <input type="text" id="search" name="search" class="form-control" placeholder="Search by item name..." value="<?= htmlspecialchars($search_term) ?>">
+                    </div>
                     <div>
                         <label for="sy_inv" class="form-label mb-0 text-white">School Year</label>
-                        <select id="sy_inv" name="sy_inv" class="form-select" onchange="this.form.submit()">
+                        <select id="sy_inv" name="sy_inv" class="form-select">
                             <option value="">All</option>
                             <?php foreach ($sy_years as $sy): ?>
                                 <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_inv_raw === $sy) ? 'selected' : '' ?>>
@@ -674,8 +735,13 @@ if (isset($_SESSION['error'])) {
                         </select>
                     </div>
                     <div class="pt-4">
-                        <?php if (!empty($sy_inv_raw)): ?>
-                            <a href="inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_inv' => true])) ?>" class="btn btn-outline-light">Reset</a>
+                        <button type="submit" class="btn btn-search">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                        <?php if (!empty($search_term) || !empty($sy_inv_raw)): ?>
+                            <a href="Inventory.php" class="btn btn-outline-light ms-2">
+                                <i class="fas fa-times"></i> Clear
+                            </a>
                         <?php endif; ?>
                     </div>
                 </form>
@@ -1006,7 +1072,8 @@ $result = $conn->query($sql);
                                             data-supplier-id="<?= $row['supplier_id'] ?>"
                                             data-unit-price="<?= $row['unit_price'] ?>"
                                             data-invoice="<?= htmlspecialchars($row['invoice_number'] ?? '') ?>"
-                                            data-status="<?= htmlspecialchars($row['status']) ?>">
+                                            data-status="<?= htmlspecialchars($row['status']) ?>"
+                                            data-receiver="<?= htmlspecialchars($row['receiver']) ?>">
                                             <i class="fas fa-check-circle"></i>
                                         </button>
 
@@ -1071,6 +1138,7 @@ $result = $conn->query($sql);
                         <th>Quantity</th>
                         <th>Previous Stock</th>
                         <th>New Stock</th>
+                        <th>Receiver</th>
                         <th>Notes</th>
                     </tr>
                 </thead>
@@ -1088,12 +1156,13 @@ $result = $conn->query($sql);
                                 <td><?= $log['quantity'] ?></td>
                                 <td><?= $log['previous_stock'] ?></td>
                                 <td><?= $log['new_stock'] ?></td>
+                                <td><?= htmlspecialchars($log['receiver'] ?? 'N/A') ?></td>
                                 <td><?= htmlspecialchars($log['notes']) ?></td>
                             </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="7" class="text-center py-4">
+                            <td colspan="8" class="text-center py-4">
                                 <i class="fas fa-history fa-3x text-muted mb-3"></i>
                                 <p class="text-muted">No stock movements recorded</p>
                             </td>
@@ -1114,6 +1183,7 @@ $result = $conn->query($sql);
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="../actions/add_inventory.php" method="POST">
+                <input type="hidden" name="receiver" value="Supply In-charge">
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -1255,7 +1325,8 @@ $result = $conn->query($sql);
     <input type="hidden" name="unit_cost" id="ai_unit_cost">
     <input type="hidden" name="location" id="ai_location" value="Warehouse">
     <input type="hidden" name="description" id="ai_description">
-    <input type="text" name="status" id="ai_status">
+    <input type="hidden" name="status" id="ai_status">
+    <input type="hidden" name="receiver" id="ai_receiver" value="Supply In-charge">
 </form>
 
 <!-- Edit Inventory Modal -->
@@ -1369,6 +1440,27 @@ $result = $conn->query($sql);
         if (sessionMessage || sessionError) {
             showSessionMessageModal();
         }
+        
+        // Enable Enter key search
+        $('#search').on('keypress', function(e) {
+            if (e.which === 13) { // Enter key
+                $(this).closest('form').submit();
+            }
+        });
+        
+        // Real-time search with debounce (optional enhancement)
+        let searchTimeout;
+        $('#search').on('input', function() {
+            clearTimeout(searchTimeout);
+            const searchValue = $(this).val();
+            
+            searchTimeout = setTimeout(function() {
+                if (searchValue.length === 0 || searchValue.length >= 2) {
+                    // Auto-submit for empty searches or searches with 2+ characters
+                    $('#search').closest('form').submit();
+                }
+            }, 500); // Wait 500ms after user stops typing
+        });
 
         // Mark as Received Modal functionality
         // Mark as Received Modal functionality
@@ -1381,6 +1473,7 @@ $result = $conn->query($sql);
             const supplier = button.data('supplier');
             const unitPrice = button.data('unit-price');
             const notes = button.data('notes');
+            const receiver = button.data('receiver');
 
             // Populate hidden fields
             $('#approve-id').val(transactionId);
@@ -1390,7 +1483,7 @@ $result = $conn->query($sql);
             $('#approve-supplier').val(supplier);
             $('#approve-price').val(unitPrice);
             $('#approve-notes').val(notes);
-
+            $('#approve-receiver').val(receiver);
             // Display item name in modal
             $('#display-item-name').text(itemName);
 
@@ -1401,7 +1494,8 @@ $result = $conn->query($sql);
                 unit: unit,
                 supplier: supplier,
                 unitPrice: unitPrice,
-                notes: notes
+                notes: notes,
+                receiver: receiver
             });
         });
     });
@@ -1541,7 +1635,7 @@ $result = $conn->query($sql);
         console.log('View all movements');
     }
 
-    // Add to Inventory from Received Items row
+    // Add to Inventory from Acquired Supplies Items row
     function addToInventoryFromRow(button) {
         const row = button.closest('tr');
         if (!row) {
@@ -1557,6 +1651,7 @@ $result = $conn->query($sql);
         const supplierId = row.getAttribute('data-supplier-id') || '';
         const unitPrice = row.getAttribute('data-unit-price') || '0';
         const status = row.getAttribute('data-status') || '';
+        const receiver = row.getAttribute('data-receiver') || '';
 
         // Debug: Log all retrieved values
         console.log('Retrieved data from row:', {
@@ -1567,7 +1662,8 @@ $result = $conn->query($sql);
             quantity: quantity,
             supplierId: supplierId,
             unitPrice: unitPrice,
-            status: status
+            status: status,
+            receiver: receiver
         });
 
         // More lenient validation - only check for truly essential fields
@@ -1592,7 +1688,7 @@ $result = $conn->query($sql);
         document.getElementById('ai_reorder_level').value = Math.max(1, Math.floor(finalQuantity * 0.2));
         document.getElementById('ai_description').value = `From invoice ${row.getAttribute('data-invoice') || ''}`;
         document.getElementById('ai_procurement_id').value = procurementId;
-
+        document.getElementById('ai_receiver').value = 'Supply In-charge';
         // Debug: Log the final values being submitted
         console.log('Final values being submitted:', {
             item_name: itemName,
@@ -1602,7 +1698,8 @@ $result = $conn->query($sql);
             supplier_id: supplierId,
             unit_cost: unitPrice,
             reorder_level: Math.max(1, Math.floor(finalQuantity * 0.2)),
-            status: status
+            status: status,
+            receiver: receiver
         });
 
         // Submit
@@ -1620,6 +1717,7 @@ $result = $conn->query($sql);
         document.getElementById('ei_location').value = location || '';
         document.getElementById('ei_supplier_id').value = supplierId || '';
         document.getElementById('ei_unit_cost').value = unitCost || 0;
+        document.getElementById('ei_receiver').value = receiver || '';
         const modal = new bootstrap.Modal(document.getElementById('editInventoryModal'));
         modal.show();
     }
@@ -1681,8 +1779,13 @@ $result = $conn->query($sql);
             link.style.opacity = '0.6';
         });
 
+        // Get current URL parameters to maintain search and filters
+        const currentParams = new URLSearchParams(window.location.search);
+        currentParams.set('ajax', '1');
+        currentParams.set('page', page);
+        
         // Fetch the page content
-        fetch("property_inventory.php?ajax=1&page=" + page)
+        fetch("Inventory.php?" + currentParams.toString())
             .then(response => response.text())
             .then(data => {
                 // Remove loading overlay
@@ -1762,5 +1865,106 @@ $result = $conn->query($sql);
         loadInventory(parseInt(page));
     });
 </script>
+<?php endif; ?>
 
-<?php include '../includes/footer.php'; ?>
+<?php
+if (!$isAjax) {
+    include '../includes/footer.php'; 
+} else {
+    // For AJAX requests, output only the table content
+    // Re-execute pagination logic for AJAX
+    $records_per_page = 10;
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $offset = ($page - 1) * $records_per_page;
+    
+    // Re-process search and filters for AJAX
+    $search_term_ajax = trim($_GET['search'] ?? '');
+    $sy_inv_raw_ajax = $_GET['sy_inv'] ?? '';
+    
+    // Rebuild WHERE conditions for AJAX
+    $inv_where_conditions_ajax = [];
+    $inv_where_conditions_ajax[] = "i.receiver = 'Supply In-charge'";
+    
+    if (!empty($search_term_ajax)) {
+        $search_escaped_ajax = $conn->real_escape_string($search_term_ajax);
+        $inv_where_conditions_ajax[] = "i.item_name LIKE '%$search_escaped_ajax%'";
+    }
+    
+    list($sy_inv_start_ajax, $sy_inv_end_ajax) = parse_school_year_range($sy_inv_raw_ajax);
+    if ($sy_inv_start_ajax && $sy_inv_end_ajax) {
+        $start_esc_ajax = $conn->real_escape_string($sy_inv_start_ajax);
+        $end_esc_ajax = $conn->real_escape_string($sy_inv_end_ajax);
+        $inv_where_conditions_ajax[] = "i.date_created >= '$start_esc_ajax' AND i.date_created <= '$end_esc_ajax'";
+    }
+    
+    $inv_where_ajax = !empty($inv_where_conditions_ajax) ? ' WHERE ' . implode(' AND ', $inv_where_conditions_ajax) : '';
+    
+    // Get total number of records
+    $count_sql = "SELECT COUNT(*) as total FROM inventory i $inv_where_ajax";
+    $count_result = $conn->query($count_sql);
+    $total_records = $count_result->fetch_assoc()['total'];
+    $total_pages = ceil($total_records / $records_per_page);
+    
+    // Get inventory data with pagination
+    $sql = "SELECT i.*, s.supplier_name 
+            FROM inventory i 
+            LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
+            $inv_where_ajax
+            ORDER BY i.date_created DESC
+            LIMIT $records_per_page OFFSET $offset";
+    $result = $conn->query($sql);
+    
+    // Output only the table and pagination
+    echo '<div id="inventoryTable">';
+    echo '<table class="table table-hover mb-0">';
+    echo '<thead class="table-dark">';
+    echo '<tr><th>Item Name</th><th>Current Stock</th><th>Unit</th><th>Supplier</th><th>Location</th><th>Last Updated</th><th>Status</th><th>Actions</th></tr>';
+    echo '</thead><tbody>';
+    
+    if ($result && $result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $stock_level = 'normal';
+            if ($row['current_stock'] == 0) {
+                $stock_level = 'out';
+            } elseif ($row['current_stock'] <= $row['reorder_level']) {
+                $stock_level = 'critical';
+            } elseif ($row['current_stock'] <= ($row['reorder_level'] * 1.5)) {
+                $stock_level = 'low';
+            }
+            
+            echo '<tr>';
+            echo '<td>' . htmlspecialchars($row['item_name']) . '</td>';
+            echo '<td class="text-center"><strong>' . $row['current_stock'] . '</strong></td>';
+            echo '<td>' . $row['unit'] . '</td>';
+            echo '<td>' . htmlspecialchars($row['supplier_name']) . '</td>';
+            echo '<td>' . htmlspecialchars($row['location'] ?? 'N/A') . '</td>';
+            echo '<td>' . date('M d, Y', strtotime($row['date_updated'])) . '</td>';
+            echo '<td><span class="badge bg-' . ($stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success')) . '">' . ucfirst($stock_level) . '</span></td>';
+            echo '<td>';
+            echo '<button class="btn btn-sm btn-success" title="Stock In" onclick="stockIn(' . $row['inventory_id'] . ')"><i class="fas fa-plus"></i></button>';
+            echo '<button class="btn btn-sm btn-warning" title="Stock Out" onclick="stockOut(' . $row['inventory_id'] . ')"><i class="fas fa-minus"></i></button>';
+            echo '<button class="btn btn-sm btn-info" title="Edit" onclick=\'openEditInventoryModal(' . (int)$row['inventory_id'] . ', ' . json_encode($row['item_name']) . ', ' . json_encode($row['category']) . ', ' . json_encode($row['unit']) . ', ' . (int)$row['current_stock'] . ', ' . (int)$row['reorder_level'] . ', ' . json_encode($row['location'] ?? '') . ', ' . json_encode((int)$row['supplier_id']) . ', ' . json_encode((float)$row['unit_cost']) . ')\'><i class="fas fa-edit"></i></button>';
+            echo '</td></tr>';
+        }
+    } else {
+        echo '<tr><td colspan="8" class="text-center py-4"><i class="fas fa-boxes fa-3x text-muted mb-3"></i><p class="text-muted">No inventory items found</p></td></tr>';
+    }
+    
+    echo '</tbody></table></div>';
+    
+    // Output pagination
+    if ($total_pages > 1) {
+        echo '<nav><ul class="pagination justify-content-center mt-3" id="paginationContainer">';
+        echo '<li class="page-item ' . (($page <= 1) ? 'disabled' : '') . '">';
+        echo '<a class="page-link" href="#" onclick="loadInventory(' . ($page - 1) . '); return false;">&laquo;</a></li>';
+        for ($i = 1; $i <= $total_pages; $i++) {
+            echo '<li class="page-item ' . (($i == $page) ? 'active' : '') . '">';
+            echo '<a class="page-link" href="#" onclick="loadInventory(' . $i . '); return false;">' . $i . '</a></li>';
+        }
+        echo '<li class="page-item ' . (($page >= $total_pages) ? 'disabled' : '') . '">';
+        echo '<a class="page-link" href="#" onclick="loadInventory(' . ($page + 1) . '); return false;">&raquo;</a></li>';
+        echo '</ul></nav>';
+    }
+    exit;
+}
+?>

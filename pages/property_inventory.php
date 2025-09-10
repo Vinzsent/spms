@@ -43,11 +43,17 @@ if ($sy_inv_start && $sy_inv_end) {
     $end_esc   = $conn->real_escape_string($sy_inv_end);
     $inv_where = " WHERE i.date_created >= '$start_esc' AND i.date_created <= '$end_esc'";
 }
+// Build recv_where conditions array
+$recv_where_conditions = [];
+$recv_where_conditions[] = "st.receiver = 'Property Custodian'";
+
 if ($sy_recv_start && $sy_recv_end) {
     $start_esc = $conn->real_escape_string($sy_recv_start);
     $end_esc   = $conn->real_escape_string($sy_recv_end);
-    $recv_where = " WHERE COALESCE(st.date_received, st.date_created) >= '$start_esc' AND COALESCE(st.date_received, st.date_created) <= '$end_esc'";
+    $recv_where_conditions[] = "COALESCE(st.date_received, st.date_created) >= '$start_esc' AND COALESCE(st.date_received, st.date_created) <= '$end_esc'";
 }
+
+$recv_where = !empty($recv_where_conditions) ? ' WHERE ' . implode(' AND ', $recv_where_conditions) : '';
 if ($sy_logs_start && $sy_logs_end) {
     $start_esc = $conn->real_escape_string($sy_logs_start);
     $end_esc   = $conn->real_escape_string($sy_logs_end);
@@ -65,15 +71,12 @@ $result = $conn->query($sql);
 $sessionRoleRaw = $_SESSION['user_type'] ?? ($_SESSION['role'] ?? '');
 $userRoleNormalized = strtolower(trim((string)$sessionRoleRaw));
 
-// Inventory query
-// Inventory query
+// Inventory query - always filter for Property Custodian
 $main_where_conditions = [];
+$main_where_conditions[] = "i.receiver = 'Property Custodian'";
+
 if (!empty($inv_where)) {
     $main_where_conditions[] = substr($inv_where, 7); // Remove ' WHERE ' from the start
-}
-
-if ($userRoleNormalized === 'property custodian') {
-    $main_where_conditions[] = "i.receiver = 'Property Custodian'";
 }
 
 $main_where_clause = '';
@@ -90,23 +93,13 @@ $sql = "SELECT i.*, s.supplier_name
 // We will execute this query later with pagination
 // $result = $conn->query($sql);
 
-// Supplier transaction query
-if ($userRoleNormalized === 'property custodian') {
-    $sql1 = "SELECT st.*, s.supplier_name
+// Supplier transaction query - always filter by Property Custodian receiver
+$sql1 = "SELECT st.*, s.supplier_name
         FROM supplier_transaction st
         INNER JOIN supplier s ON s.supplier_id = st.supplier_id
-        " . (empty($recv_where) ? " WHERE 1=1" : $recv_where) . "
-        AND LOWER(st.receiver) = 'property custodian'
+        $recv_where
         ORDER BY COALESCE(st.date_received, st.date_created) DESC
     ";
-} else {
-    $sql1 = "SELECT st.*, s.supplier_name
-        FROM supplier_transaction st
-        INNER JOIN supplier s ON s.supplier_id = st.supplier_id
-        " . (empty($recv_where) ? " WHERE 1=1" : $recv_where) . " AND st.status = 'Pending'
-        ORDER BY COALESCE(st.date_received, st.date_created) DESC
-    ";
-}
 $result1 = $conn->query($sql1);
 
 // Get stock movement logs
@@ -130,13 +123,14 @@ for ($y = $currYear; $y >= $minYear; $y--) {
     $sy_years[] = $y . '-' . ($y + 1);
 }
 
-// Calculate statistics
-$total_items = $result ? $result->num_rows : 0;
+// Calculate statistics - execute the query with proper filtering
+$stats_result = $conn->query($sql);
+$total_items = $stats_result ? $stats_result->num_rows : 0;
 $low_stock_count = 0;
 $out_of_stock_count = 0;
 
-if ($result) {
-    while ($row = $result->fetch_assoc()) {
+if ($stats_result) {
+    while ($row = $stats_result->fetch_assoc()) {
         if ($row['current_stock'] <= $row['reorder_level']) {
             $low_stock_count++;
         }
@@ -144,7 +138,7 @@ if ($result) {
             $out_of_stock_count++;
         }
     }
-    $result->data_seek(0); // Reset pointer
+    $stats_result->data_seek(0); // Reset pointer
 }
 
 // Store session messages for modal display
@@ -777,15 +771,12 @@ $records_per_page = 10;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $records_per_page;
 
-// Build the WHERE clause for pagination and counting
+// Build the WHERE clause for pagination and counting - always filter for Property Custodian
 $count_where_conditions = [];
+$count_where_conditions[] = "i.receiver = 'Property Custodian'";
+
 if (!empty($inv_where)) {
     $count_where_conditions[] = substr($inv_where, 7); // Remove ' WHERE ' from the start
-}
-
-$userRole = $userRoleNormalized; // use normalized role determined earlier
-if ($userRole === 'property custodian') {
-    $count_where_conditions[] = "i.receiver = 'Property Custodian'";
 }
 
 $count_where_clause = '';

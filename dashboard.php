@@ -737,6 +737,17 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <p class="card-description">Request items and track approvals. Managers can approve, reject, or monitor all requests in real-time.</p>
         <button onclick="showRequestTypeModal()" class="card-button">Access</button>
       </div>
+
+    <!-- Property Requisition Card -->
+      <div class="menu-card">
+        <div class="card-icon" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0);">
+          <i class="fas fa-boxes"></i>
+        </div>
+        <h3 class="card-title">Property Requisition</h3>
+        <p class="card-description">Request property items and track approvals. Choose between consumable and non-consumable items.</p>
+        <button onclick="showPropertyRequestTypeModal()" class="card-button">Access</button>
+      </div>
+
       <!-- Assignment Card -->
       <div class="menu-card card-primary">
         <div class="card-icon">
@@ -875,26 +886,27 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
     </div>
     
     <div class="request-type-options">
-      <div class="request-option" onclick="selectRequestType('property')">
+      <div class="request-option" onclick="selectSupplyRequestType('consumables')">
         <div class="option-icon">
           <i class="fas fa-building"></i>
         </div>
         <div class="option-content">
-          <h5>Property</h5>
-          <p>Request, transfer, and issue for equipment, furniture, and other durable assets</p>
+          
+        <h5>Consumables</h5>
+          <p>Request, transfer, and issue for supplies, materials, and other consumable items</p>
         </div>
         <div class="option-arrow">
           <i class="fas fa-chevron-right"></i>
         </div>
       </div>
       
-      <div class="request-option" onclick="selectRequestType('consumables')">
+      <div class="request-option" onclick="selectSupplyRequestType('nonconsumables')">
         <div class="option-icon">
           <i class="fas fa-box-open"></i>
         </div>
         <div class="option-content">
-          <h5>Consumables</h5>
-          <p>Request, transfer, and issue for supplies, materials, and other consumable items</p>
+        <h5>Non Consumables</h5>
+        <p>Request, transfer, and issue for equipment, furniture, and other durable assets</p>
         </div>
         <div class="option-arrow">
           <i class="fas fa-chevron-right"></i>
@@ -903,7 +915,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
     </div>
     
     <div class="modal-footer-custom">
-      <button type="button" class="btn btn-outline-secondary" onclick="hidePropertyRequestTypeModal()">
+      <button type="button" class="btn btn-outline-secondary" onclick="hideRequestTypeModal()">
         <i class="fas fa-times me-1"></i>Cancel
       </button>
     </div>
@@ -923,7 +935,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
     </div>
     
     <div class="request-type-options">
-      <div class="request-option" onclick="selectRequestType('property')">
+      <div class="request-option" onclick="selectRequestType('consumables')">
         <div class="option-icon">
           <i class="fas fa-building"></i>
         </div>
@@ -936,7 +948,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
       </div>
       
-      <div class="request-option" onclick="selectRequestType('consumables')">
+      <div class="request-option" onclick="selectRequestType('nonconsumables')">
         <div class="option-icon">
           <i class="fas fa-box-open"></i>
         </div>
@@ -1013,9 +1025,9 @@ function selectRequestType(type) {
   
   // Redirect to the appropriate page based on selection
   if (type === 'property') {
-    window.location.href = 'property_request.php?type=consumables';
+    window.location.href = 'supply_request.php?type=consumables';
   } else {
-    window.location.href = 'property_request.php?type=non-consumables';
+    window.location.href = 'supply_request.php?type=non-consumables';
   }
 }
 
@@ -1045,6 +1057,14 @@ document.addEventListener('keydown', function(event) {
   function hideRequestTypeModal() {
     document.getElementById('requestTypeModal').style.display = 'none';
     document.body.style.overflow = 'auto';
+  }
+  
+  // Supply: handle request type selection and redirect
+  function selectSupplyRequestType(type) {
+    // Persist selection
+    sessionStorage.setItem('selectedRequestType', type);
+    // Redirect to supply request page with selected type
+    window.location.href = 'pages/supply_request.php?type=' + encodeURIComponent(type);
   }
 
   function selectRequestType(type) {

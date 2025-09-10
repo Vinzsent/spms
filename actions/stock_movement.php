@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Get current inventory item
-    $item_sql = "SELECT item_name, current_stock FROM inventory WHERE inventory_id = ?";
+    $item_sql = "SELECT item_name, current_stock, receiver FROM inventory WHERE inventory_id = ?";
     $item_stmt = $conn->prepare($item_sql);
     $item_stmt->bind_param("i", $inventory_id);
     $item_stmt->execute();
@@ -78,10 +78,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         // Log the movement
-        $log_sql = "INSERT INTO stock_logs (inventory_id, movement_type, quantity, previous_stock, new_stock, notes, request_id, created_by) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $log_sql = "INSERT INTO stock_logs (inventory_id, movement_type, quantity, previous_stock, new_stock, notes, request_id, created_by, receiver) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $log_stmt = $conn->prepare($log_sql);
-        $log_stmt->bind_param("isiissii", $inventory_id, $movement_type, $quantity, $previous_stock, $new_stock, $notes, $request_id, $user_id);
+        $log_stmt->bind_param("isiissiis", $inventory_id, $movement_type, $quantity, $previous_stock, $new_stock, $notes, $request_id, $user_id, $item['receiver']);
 
         if (!$log_stmt->execute()) {
             throw new Exception("Error logging stock movement");

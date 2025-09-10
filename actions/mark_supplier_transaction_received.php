@@ -91,11 +91,11 @@ date_updated = CURRENT_TIMESTAMP
                 $insertStmt = $conn->prepare("
                     INSERT INTO inventory 
                     (item_name, category, description, current_stock, unit, unit_cost, 
-                     reorder_level, supplier_id, status, created_by, last_updated_by)
-                    VALUES (?, ?, ?, ?, ?, ?, 0, ?, 'Active', ?, ?)
+                     reorder_level, supplier_id, status, created_by, last_updated_by, receiver)
+                    VALUES (?, ?, ?, ?, ?, ?, 0, ?, 'Active', ?, ?, ?)
                 ");
                 $insertStmt->bind_param(
-                    "sssissiii",
+                    "sssisdiiis",
                     $transaction['item_name'],
                     $transaction['category'],
                     $transaction['item_name'],
@@ -104,7 +104,8 @@ date_updated = CURRENT_TIMESTAMP
                     $transaction['unit_price'],
                     $transaction['supplier_id'],
                     $user_id,
-                    $user_id
+                    $user_id,
+                    $transaction['receiver']
                 );
                 $insertStmt->execute();
                 $inventory_id = $conn->insert_id;
@@ -115,8 +116,8 @@ date_updated = CURRENT_TIMESTAMP
             // 4. Record the inventory movement
             $movementStmt = $conn->prepare("
                 INSERT INTO stock_logs 
-                (inventory_id, movement_type, quantity, previous_stock, new_stock, notes, created_by)
-                VALUES (?, 'IN', ?, ?, ?, ?, ?)
+                (inventory_id, movement_type, quantity, previous_stock, new_stock, notes, created_by, receiver)
+                VALUES (?, 'IN', ?, ?, ?, ?, ?, ?)
             ");
 
             if (!$movementStmt) {
@@ -129,13 +130,14 @@ date_updated = CURRENT_TIMESTAMP
             $notes = "Received from supplier transaction #" . $procurement_id . ". " . $received_notes;
 
             $movementStmt->bind_param(
-                "iiiisi", 
+                "iiiisis", 
                 $inventory_id, 
                 $transaction['quantity'],
                 $currentStock,
                 $newStock,
                 $notes, 
-                $user_id
+                $user_id,
+                $transaction['receiver']
             );
             
             if (!$movementStmt->execute()) {

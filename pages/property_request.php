@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'Supply Request';
+$pageTitle = 'Property Request';
 include '../includes/auth.php';
 include '../includes/db.php';
 include '../includes/header.php';
@@ -241,7 +241,7 @@ if (isset($_SESSION['error'])) {
             </div>
             <div class="col-md-4 text-end">
               <button class="btn btn-sm" style="background-color: #fd7e14; color: white; font-size: 12px; padding: 2px 6px;" data-bs-toggle="modal" data-bs-target="#addSupplyModal">
-                <i class="fas fa-plus me-2"></i>New Supply Request
+                <i class="fas fa-plus me-2"></i>New Property Request
               </button>
             </div>
           </div>
@@ -251,7 +251,7 @@ if (isset($_SESSION['error'])) {
   </div>
 
   <div class="d-flex justify-content-between align-items-center mb-2">
-    <h3 style="font-size: 16px;">Supply Request</h3>
+    <h3 style="font-size: 16px;">Property Request</h3>
     <div>
       <button class="btn btn-sm" style="background-color: #fd7e14; color: white; font-size: 12px; padding: 2px 6px;" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Previous</button>
     </div>
@@ -271,7 +271,7 @@ if (isset($_SESSION['error'])) {
     </div>
   <?php endif; ?>
 
-  <h5 class="text-center" style="font-size: 14px;">List of employee supply request</h5>
+  <h5 class="text-center" style="font-size: 14px;">List of employee property request</h5>
   <hr>
   
   <!-- Filter Row -->
@@ -442,9 +442,9 @@ if (isset($_SESSION['error'])) {
   </div>
 </div>
 
-<?php include '../modals/add_supply_request.php'; ?>
-<?php include '../modals/view_supply_request.php'; ?>
-<?php include '../modals/edit_supply_request.php'; ?>
+<?php include '../modals/add_property_request.php'; ?>
+<?php include '../modals/view_property_request.php'; ?>
+<?php include '../modals/edit_property_request.php'; ?>
 <?php include '../includes/footer.php'; ?>
 
 <!-- Add missing JavaScript dependencies -->
@@ -587,7 +587,7 @@ if (isset($_SESSION['error'])) {
         {
           extend: 'print',
           text: '<i class="fa-solid fa-print text-white"></i>',
-          title: 'Supply Request List',
+          title: 'Property Request List',
           className: 'btn btn-sm btn-outline-secondary',
           titleAttr: 'Print Report',
           footer: true, // <-- include the footer (TOTAL row)
