@@ -8,6 +8,13 @@ include '../includes/header.php';
 $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
 $user_id = $_SESSION['user_id'] ?? $_SESSION['id'] ?? $_SESSION['user']['id'] ?? '';
 
+// Safe escape helper for possibly-null values
+if (!function_exists('esc')) {
+  function esc($val) {
+    return htmlspecialchars((string)($val ?? ''), ENT_QUOTES, 'UTF-8');
+  }
+}
+
 // Get user name with fallbacks
 $user_name = '';
 if (isset($_SESSION['name'])) {
@@ -40,7 +47,7 @@ if (empty($request_type)) {
 error_log('Supply Request Page - Session variables: ' . print_r($_SESSION, true));
 error_log('Supply Request Page - User ID: ' . $user_id . ', User Name: ' . $user_name . ', User Type: ' . $user_type);
 
-$sql = "SELECT * FROM property_request WHERE status IS NULL";
+$sql = "SELECT * FROM property_request WHERE user_id = $user_id";
 $result = $conn->query($sql);
 
 // Fetch all category data for dropdown
@@ -358,35 +365,35 @@ if (isset($_SESSION['error'])) {
       <tbody>
         <?php while ($row = $result->fetch_assoc()): ?>
           <tr style="font-size: 11px;">
-            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['date_requested']) ?></td>
-            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['date_return']) ?></td>
-            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['quantity_requested']) ?></td>
-            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['item_name']) ?></td>
-            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['category']) ?></td>
-            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['brand']) ?></td>
-            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['color']) ?></td>
-            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['type']) ?></td>
-            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['request_type']) ?></td>
-            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['tagging']) ?></td>
+            <td style="padding: 4px 6px;"><?= esc($row['date_requested']) ?></td>
+            <td style="padding: 4px 6px;"><?= esc($row['date_return']) ?></td>
+            <td style="padding: 4px 6px;"><?= esc($row['quantity_requested']) ?></td>
+            <td style="padding: 4px 6px;"><?= esc($row['item_name']) ?></td>
+            <td style="padding: 4px 6px;"><?= esc($row['category']) ?></td>
+            <td style="padding: 4px 6px;"><?= esc($row['brand']) ?></td>
+            <td style="padding: 4px 6px;"><?= esc($row['color']) ?></td>
+            <td style="padding: 4px 6px;"><?= esc($row['type']) ?></td>
+            <td style="padding: 4px 6px;"><?= esc($row['request_type']) ?></td>
+            <td style="padding: 4px 6px;"><?= esc($row['tagging']) ?></td>
             <td style="padding: 4px 6px;">
               <button
                 class="btn btn-xs viewBtn" 
                 style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 2px 6px; border-radius: 3px;"
-                data-request-id="<?= (int)$row['request_id'] ?>"
-                data-date-requested="<?= htmlspecialchars($row['date_requested']) ?>"
-                data-date-return="<?= htmlspecialchars($row['date_return']) ?>"
-                data-temporary-transfer="<?= htmlspecialchars($row['temporary_transfer']) ?>"
-                data-permanent-transfer="<?= htmlspecialchars($row['permanent_transfer']) ?>"
-                data-reason-for-transfer="<?= htmlspecialchars($row['reason_for_transfer']) ?>"
-                data-category="<?= htmlspecialchars($row['category']) ?>"
-                data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
-                data-brand="<?= htmlspecialchars($row['brand']) ?>"
-                data-color="<?= htmlspecialchars($row['color']) ?>"
-                data-type="<?= htmlspecialchars($row['type']) ?>"
-                data-quantity-requested="<?= htmlspecialchars($row['quantity_requested']) ?>"
-                data-request-description="<?= htmlspecialchars($row['request_description']) ?>"
-                data-request-type="<?= htmlspecialchars($row['request_type']) ?>"
-                data-tagging="<?= htmlspecialchars($row['tagging']) ?>"
+                data-property-id="<?= (int)$row['property_id'] ?>"
+                data-date-requested="<?= esc($row['date_requested']) ?>"
+                data-date-return="<?= esc($row['date_return']) ?>"
+                data-temporary-transfer="<?= esc($row['temporary_transfer']) ?>"
+                data-permanent-transfer="<?= esc($row['permanent_transfer']) ?>"
+                data-reason-for-transfer="<?= esc($row['reason_for_transfer']) ?>"
+                data-category="<?= esc($row['category']) ?>"
+                data-item-name="<?= esc($row['item_name']) ?>"
+                data-brand="<?= esc($row['brand']) ?>"
+                data-color="<?= esc($row['color']) ?>"
+                data-type="<?= esc($row['type']) ?>"
+                data-quantity-requested="<?= esc($row['quantity_requested']) ?>"
+                data-request-description="<?= esc($row['request_description']) ?>"
+                data-request-type="<?= esc($row['request_type']) ?>"
+                data-tagging="<?= esc($row['tagging']) ?>"
                 data-bs-toggle="modal"
                 data-bs-target="#viewSupplyModal">
                 <i class="fas fa-eye" style="font-size: 12px;"></i> View
@@ -395,21 +402,21 @@ if (isset($_SESSION['error'])) {
               <button
                 class="btn btn-xs editBtn" 
                 style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 2px 6px; border-radius: 3px;"
-                data-request-id="<?= (int)$row['request_id'] ?>"
-                data-date-requested="<?= htmlspecialchars($row['date_requested']) ?>"
-                data-date-return="<?= htmlspecialchars($row['date_return']) ?>"
-                data-temporary-transfer="<?= htmlspecialchars($row['temporary_transfer']) ?>"
-                data-permanent-transfer="<?= htmlspecialchars($row['permanent_transfer']) ?>"
-                data-reason-for-transfer="<?= htmlspecialchars($row['reason_for_transfer']) ?>"
-                data-category="<?= htmlspecialchars($row['category']) ?>"
-                data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
-                data-brand="<?= htmlspecialchars($row['brand']) ?>"
-                data-color="<?= htmlspecialchars($row['color']) ?>"
-                data-type="<?= htmlspecialchars($row['type']) ?>"
-                data-quantity-requested="<?= htmlspecialchars($row['quantity_requested']) ?>"
-                data-request-description="<?= htmlspecialchars($row['request_description']) ?>"
-                data-request-type="<?= htmlspecialchars($row['request_type']) ?>"
-                data-tagging="<?= htmlspecialchars($row['tagging']) ?>"
+                data-property-id="<?= (int)$row['property_id'] ?>"
+                data-date-requested="<?= esc($row['date_requested']) ?>"
+                data-date-return="<?= esc($row['date_return']) ?>"
+                data-temporary-transfer="<?= esc($row['temporary_transfer']) ?>"
+                data-permanent-transfer="<?= esc($row['permanent_transfer']) ?>"
+                data-reason-for-transfer="<?= esc($row['reason_for_transfer']) ?>"
+                data-category="<?= esc($row['category']) ?>"
+                data-item-name="<?= esc($row['item_name']) ?>"
+                data-brand="<?= esc($row['brand']) ?>"
+                data-color="<?= esc($row['color']) ?>"
+                data-type="<?= esc($row['type']) ?>"
+                data-quantity-requested="<?= esc($row['quantity_requested']) ?>"
+                data-request-description="<?= esc($row['request_description']) ?>"
+                data-request-type="<?= esc($row['request_type']) ?>"
+                data-tagging="<?= esc($row['tagging']) ?>"
                 data-bs-toggle="modal"
                 data-bs-target="#editSupplyModal">
                 <i class="fas fa-edit" style="font-size: 12px;"></i> Edit

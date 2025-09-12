@@ -79,8 +79,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $request_id = $conn->insert_id;
 
-    // Optional notification
-    if (function_exists('notifySupplyRequestSubmitted')) {
+    // Optional notification (property-specific; uses tagging)
+    if (function_exists('notifyPropertyRequestSubmitted')) {
+        notifyPropertyRequestSubmitted($request_id, $department_unit, $request_description, $tagging, $conn);
+    } elseif (function_exists('notifySupplyRequestSubmitted')) {
+        // Fallback to existing supply helper if property-specific is unavailable
         notifySupplyRequestSubmitted($request_id, $department_unit, $request_description, $tagging, $conn);
     }
 

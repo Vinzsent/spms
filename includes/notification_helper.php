@@ -10,6 +10,74 @@ if (!isset($conn)) {
 }
 
 /**
+ * Create notification for property request submission
+ * Uses the tagging column to determine routing and labeling (consumables/nonconsumables)
+ * and sets related_type to 'property_request'.
+ *
+ * @param int $request_id The property_request ID
+ * @param string $department The requesting department/unit
+ * @param string $description The request description
+ * @param string $tagging Tagging value (e.g., 'consumables' or 'nonconsumables')
+ * @param mysqli $conn Database connection
+ * @return bool Success status
+ */
+function notifyPropertyRequestSubmitted($request_id, $department, $description, $tagging, $conn) {
+    // Normalize tagging
+    $raw_tag = strtolower(trim($tagging));
+    $is_consumables = ($raw_tag === 'consumables' || $raw_tag === 'consumambles');
+    $is_property = ($raw_tag === 'property');
+    $is_nonconsumables = ($raw_tag === 'nonconsumables' || $raw_tag === 'non-consumables');
+
+    // Construct label for clarity
+    $type_label = $is_consumables ? 'Consumables' : ($is_property ? 'Property' : ($is_nonconsumables ? 'Non-Consumables' : ucfirst($raw_tag ?: 'Property')));
+
+    $title = "New Property Request - {$type_label}";
+    $message = "A new {$type_label} property request has been submitted by $department: $description";
+
+    // Roles to notify
+    $roles = [
+        'Immediate Head',
+        'Purchasing Officer',
+        'VP for Finance \\u0026 Administration',
+        'VP for Academic Affairs',
+        'Admistrative Officer'
+    ];
+
+    // Conditional roles based on tagging
+    if ($is_consumables) {
+        $roles[] = 'Supply In-charge';
+    } elseif ($is_property || $is_nonconsumables) {
+        // Notify Property Custodian when tagging is explicitly 'property' or non-consumables
+        $roles[] = 'Property Custodian';
+    } else {
+        // Unknown tagging: default to Property Custodian
+        $roles[] = 'Property Custodian';
+    }
+
+    $success = true;
+    try {
+        $role_sql = "SELECT id FROM user WHERE user_type = ?";
+        $stmt = $conn->prepare($role_sql);
+        foreach ($roles as $role) {
+            $stmt->bind_param("s", $role);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            while ($row = $res->fetch_assoc()) {
+                if (!createNotification($row['id'], 'request', $title, $message, $request_id, 'property_request', $conn)) {
+                    $success = false;
+                }
+            }
+        }
+        $stmt->close();
+    } catch (Exception $e) {
+        error_log("Error notifying property request roles: " . $e->getMessage());
+        $success = false;
+    }
+
+    return $success;
+}
+
+/**
  * Create a notification for a user
  * 
  * @param int $user_id The user ID to notify
