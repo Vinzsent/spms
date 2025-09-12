@@ -893,7 +893,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <div class="option-content">
           
         <h5>Consumables</h5>
-          <p>Request, transfer, and issue for supplies, materials, and other consumable items</p>
+        <p>Request for supplies, materials, and other consumable items</p>
         </div>
         <div class="option-arrow">
           <i class="fas fa-chevron-right"></i>
@@ -906,7 +906,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <div class="option-content">
         <h5>Non Consumables</h5>
-        <p>Request, transfer, and issue for equipment, furniture, and other durable assets</p>
+        <p>Request for equipment, furniture, and other durable assets</p>
         </div>
         <div class="option-arrow">
           <i class="fas fa-chevron-right"></i>
@@ -941,7 +941,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <div class="option-content">
           <h5>Consumables</h5>
-          <p>Request for equipment, furniture, and other durable assets</p>
+          <p>Request, transfer, and issue for supplies, materials, and other consumable items</p>
         </div>
         <div class="option-arrow">
           <i class="fas fa-chevron-right"></i>
@@ -954,7 +954,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <div class="option-content">
           <h5>Non-Consumables</h5>
-          <p>Request for supplies, materials, and other consumable items</p>
+          <p>Request, transfer, and issue for equipment, furniture, and other durable assets</p>
         </div>
         <div class="option-arrow">
           <i class="fas fa-chevron-right"></i>
@@ -1020,15 +1020,10 @@ function hidePropertyRequestTypeModal() {
 }
 
 function selectRequestType(type) {
-  // Store the selected type in sessionStorage
+  // Persist selection for UI, but enforce tagging=consumables per requirement
   sessionStorage.setItem('selectedRequestType', type);
-  
-  // Redirect to the appropriate page based on selection
-  if (type === 'property') {
-    window.location.href = 'supply_request.php?type=consumables';
-  } else {
-    window.location.href = 'supply_request.php?type=non-consumables';
-  }
+  const tagging = 'consumables';
+  window.location.href = 'pages/property_request.php?request_type=property&tagging=' + encodeURIComponent(tagging);
 }
 
 // Close modal when clicking outside the modal content

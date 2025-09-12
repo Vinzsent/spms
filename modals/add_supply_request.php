@@ -46,8 +46,9 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
             <div class="row g-3">
               <div class="col-md-3">
                 <div class="form-floating">
-                  <input type="date" name="date_requested" class="form-control" id="dateRequested" required>
-                  <input type="hidden" id="selectedRequestType" name="request_type" value="<?= $request_type ?>">
+                  <input type="date" name="date_requested" class="form-control" id="dateRequested" value="<?= date('Y-m-d') ?>" required>
+                  <input type="hidden" id="taggingType" name="tagging" value="<?= $request_type ?>">
+                  <input type="hidden" name="request_type" id="selectedRequestType" value="supply">
                   <label for="dateRequested">
                     <i class="fas fa-calendar me-1"></i>Date Requested <span class="text-danger">*</span>
                   </label>

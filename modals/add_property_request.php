@@ -22,7 +22,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
-      <form action="../actions/add_property.php" method="POST">
+      <form action="../actions/add_property_request.php" method="POST">
         <div class="modal-body p-4">
           <!-- User Information Card -->
           <div class="user-info-card mb-4">
@@ -47,7 +47,9 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
               <div class="col-md-3">
                 <div class="form-floating">
                   <input type="date" name="date_requested" class="form-control" id="dateRequested" value="<?= date('Y-m-d') ?>" required>
-                  <input type="hidden" id="selectedRequestType" name="request_type" value="<?= $request_type ?>">
+                  <?php $__tagging = htmlspecialchars($_GET['tagging'] ?? 'property'); ?>
+                  <input type="hidden" name="tagging" value="<?= $__tagging ?>">
+                  <input type="hidden" name="request_type" value="property">
                   <label for="dateRequested">
                     <i class="fas fa-calendar me-1"></i>Date Requested <span class="text-danger">*</span>
                   </label>
@@ -56,7 +58,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
 
               <div class="col-md-3">
                 <div class="form-floating">
-                  <input type="date" name="date_returned" class="form-control" id="dateReturned" required>
+                  <input type="date" name="date_return" class="form-control" id="dateReturned" required>
                   <label for="dateReturned">
                     <i class="fas fa-clock me-1"></i>Date of Return <span class="text-danger">*</span>
                   </label>
@@ -71,13 +73,13 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
                     <i class="fas fa-hand-holding me-1"></i>Transfer Type <span class="text-danger">*</span>
                   </label>
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="Temporary Transfer" id="purposeTemporary">
+                    <input class="form-check-input" name="temporary_transfer" type="checkbox" value="Temporary Transfer" id="purposeTemporary">
                     <label class="form-check-label" for="purposeTemporary">
                       Temporary Transfer
                     </label>
                   </div>
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="Permanent Transfer" id="purposePermanent">
+                    <input class="form-check-input" name="permanent_transfer" type="checkbox" value="Permanent Transfer" id="purposePermanent">
                     <label class="form-check-label" for="purposePermanent">
                       Permanent Transfer
                     </label>

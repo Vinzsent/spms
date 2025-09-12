@@ -40,7 +40,7 @@ if (empty($request_type)) {
 error_log('Supply Request Page - Session variables: ' . print_r($_SESSION, true));
 error_log('Supply Request Page - User ID: ' . $user_id . ', User Name: ' . $user_name . ', User Type: ' . $user_type);
 
-$sql = "SELECT * FROM supply_request WHERE status IS NULL";
+$sql = "SELECT * FROM property_request WHERE status IS NULL";
 $result = $conn->query($sql);
 
 // Fetch all category data for dropdown
@@ -337,68 +337,56 @@ if (isset($_SESSION['error'])) {
   </div>
   <hr>
 
-  <!-- Supply Request Table -->
+  <!-- Property Request Table -->
   <div class="table-responsive">
     <table id="transactionsTable" class="table table-bordered table-striped table-sm">
       <thead>
         <tr>
           <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Date Requested</th>
-          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Date Needed</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Date Return</th>
           <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Quantity</th>
-          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Unit</th>
           <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Item Name</th>
-          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Description</th>
-          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Unit Cost</th>
-          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Total Cost</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Category</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Brand</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Color</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Type</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Request Type</th>
+          <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Tagging</th>
           <th class="text-center" style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 16px;">Action</th>
         </tr>
       </thead>
       <tbody>
-        <?php
-        $total_sum = 0;
-        while ($row = $result->fetch_assoc()):
-          $quantity = (float)($row['quantity_requested'] ?? 0);
-          $unit_cost = (float)($row['unit_cost'] ?? 0);
-          $computed_total_cost = $quantity * $unit_cost;
-          $total_sum += $computed_total_cost;
-        ?>
+        <?php while ($row = $result->fetch_assoc()): ?>
           <tr style="font-size: 11px;">
-            <td style="padding: 4px 6px;"><?= $row['date_requested'] ?></td>
-            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['date_needed']) ?></td>
+            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['date_requested']) ?></td>
+            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['date_return']) ?></td>
             <td style="padding: 4px 6px;"><?= htmlspecialchars($row['quantity_requested']) ?></td>
-            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['unit']) ?></td>
             <td style="padding: 4px 6px;"><?= htmlspecialchars($row['item_name']) ?></td>
-            <td style="padding: 4px 6px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><?= $row['request_description'] ?></td>
-            <td style="padding: 4px 6px;">
-              ₱<?= !empty($unit_cost)
-                  ? number_format($unit_cost, 2)
-                  : ' <span style="color: red; font-weight: bold; font-size: 12px;">No Cost</span>'; ?>
-            </td>
-            <td style="padding: 4px 6px;">
-              ₱<?= !empty($computed_total_cost)
-                  ? number_format($computed_total_cost, 2)
-                  : ' <span style="color: red; font-weight: bold; font-size: 12px;">No Cost</span>'; ?>
-            </td>
+            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['category']) ?></td>
+            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['brand']) ?></td>
+            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['color']) ?></td>
+            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['type']) ?></td>
+            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['request_type']) ?></td>
+            <td style="padding: 4px 6px;"><?= htmlspecialchars($row['tagging']) ?></td>
             <td style="padding: 4px 6px;">
               <button
                 class="btn btn-xs viewBtn" 
                 style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 2px 6px; border-radius: 3px;"
-                data-request-id="<?= $row['request_id'] ?>"
+                data-request-id="<?= (int)$row['request_id'] ?>"
                 data-date-requested="<?= htmlspecialchars($row['date_requested']) ?>"
-                data-date-needed="<?= htmlspecialchars($row['date_needed']) ?>"
-                data-department-unit="<?= trim($row['department_unit']) ?>"
-                data-purpose="<?= trim($row['purpose']) ?>"
-                data-sales-type="<?= htmlspecialchars($row['sales_type']) ?>"
+                data-date-return="<?= htmlspecialchars($row['date_return']) ?>"
+                data-temporary-transfer="<?= htmlspecialchars($row['temporary_transfer']) ?>"
+                data-permanent-transfer="<?= htmlspecialchars($row['permanent_transfer']) ?>"
+                data-reason-for-transfer="<?= htmlspecialchars($row['reason_for_transfer']) ?>"
                 data-category="<?= htmlspecialchars($row['category']) ?>"
                 data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
                 data-brand="<?= htmlspecialchars($row['brand']) ?>"
                 data-color="<?= htmlspecialchars($row['color']) ?>"
+                data-type="<?= htmlspecialchars($row['type']) ?>"
                 data-quantity-requested="<?= htmlspecialchars($row['quantity_requested']) ?>"
-                data-unit="<?= $row['unit'] ?>"
                 data-request-description="<?= htmlspecialchars($row['request_description']) ?>"
-                data-quality-issued="<?= htmlspecialchars($row['quality_issued']) ?>"
-                data-unit-cost="<?= $unit_cost ?>"
-                data-total-cost="<?= $computed_total_cost ?>"
+                data-request-type="<?= htmlspecialchars($row['request_type']) ?>"
+                data-tagging="<?= htmlspecialchars($row['tagging']) ?>"
                 data-bs-toggle="modal"
                 data-bs-target="#viewSupplyModal">
                 <i class="fas fa-eye" style="font-size: 12px;"></i> View
@@ -407,22 +395,21 @@ if (isset($_SESSION['error'])) {
               <button
                 class="btn btn-xs editBtn" 
                 style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 2px 6px; border-radius: 3px;"
-                data-request-id="<?= $row['request_id'] ?>"
+                data-request-id="<?= (int)$row['request_id'] ?>"
                 data-date-requested="<?= htmlspecialchars($row['date_requested']) ?>"
-                data-date-needed="<?= htmlspecialchars($row['date_needed']) ?>"
-                data-department-unit="<?= trim($row['department_unit']) ?>"
-                data-purpose="<?= trim($row['purpose']) ?>"
-                data-sales-type="<?= htmlspecialchars($row['sales_type']) ?>"
+                data-date-return="<?= htmlspecialchars($row['date_return']) ?>"
+                data-temporary-transfer="<?= htmlspecialchars($row['temporary_transfer']) ?>"
+                data-permanent-transfer="<?= htmlspecialchars($row['permanent_transfer']) ?>"
+                data-reason-for-transfer="<?= htmlspecialchars($row['reason_for_transfer']) ?>"
                 data-category="<?= htmlspecialchars($row['category']) ?>"
                 data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
                 data-brand="<?= htmlspecialchars($row['brand']) ?>"
                 data-color="<?= htmlspecialchars($row['color']) ?>"
+                data-type="<?= htmlspecialchars($row['type']) ?>"
                 data-quantity-requested="<?= htmlspecialchars($row['quantity_requested']) ?>"
-                data-unit="<?= $row['unit'] ?>"
                 data-request-description="<?= htmlspecialchars($row['request_description']) ?>"
-                data-quality-issued="<?= htmlspecialchars($row['quality_issued']) ?>"
-                data-unit-cost="<?= $unit_cost ?>"
-                data-total-cost="<?= $computed_total_cost ?>"
+                data-request-type="<?= htmlspecialchars($row['request_type']) ?>"
+                data-tagging="<?= htmlspecialchars($row['tagging']) ?>"
                 data-bs-toggle="modal"
                 data-bs-target="#editSupplyModal">
                 <i class="fas fa-edit" style="font-size: 12px;"></i> Edit
@@ -431,13 +418,6 @@ if (isset($_SESSION['error'])) {
           </tr>
         <?php endwhile; ?>
       </tbody>
-      <tfoot>
-        <tr style="font-size: 12px;">
-          <td colspan="7" class="text-end fw-bold" style="padding: 6px;">Total:</td>
-          <td class="fw-bold" id="grandTotalCell" style="padding: 6px;">₱<?= number_format($total_sum, 2) ?></td>
-          <td style="padding: 6px;"></td>
-        </tr>
-      </tfoot>
     </table>
   </div>
 </div>

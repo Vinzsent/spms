@@ -939,17 +939,17 @@ $result = $conn->query($sql);
                                 <i class="fas fa-minus"></i>
                             </button>
                             <button class="btn btn-sm btn-info" title="Edit"
-                                onclick='openEditInventoryModal(
-                                    <?= (int)$row['inventory_id'] ?>,
-                                    <?= json_encode($row['item_name']) ?>,
-                                    <?= json_encode($row['category']) ?>,
-                                    <?= json_encode($row['unit']) ?>,
-                                    <?= (int)$row['current_stock'] ?>,
-                                    <?= (int)$row['reorder_level'] ?>,
-                                    <?= json_encode($row['location'] ?? '') ?>,
-                                    <?= json_encode((int)$row['supplier_id']) ?>,
-                                    <?= json_encode((float)$row['unit_cost']) ?>
-                                )'>
+                            onclick="openEditInventoryModal(
+    <?= (int)$row['inventory_id'] ?>,
+    <?= json_encode($row['item_name']) ?>,
+    <?= json_encode($row['category']) ?>,
+    <?= json_encode($row['unit']) ?>,
+    <?= (int)$row['current_stock'] ?>,
+    <?= (int)$row['reorder_level'] ?>,
+    <?= json_encode($row['location'] ?? '') ?>,
+    <?= (int)$row['supplier_id'] ?>,
+    <?= (float)$row['unit_cost'] ?>
+)">
                                 <i class="fas fa-edit"></i>
                             </button>
                         </td>
@@ -1717,7 +1717,6 @@ $result = $conn->query($sql);
         document.getElementById('ei_location').value = location || '';
         document.getElementById('ei_supplier_id').value = supplierId || '';
         document.getElementById('ei_unit_cost').value = unitCost || 0;
-        document.getElementById('ei_receiver').value = receiver || '';
         const modal = new bootstrap.Modal(document.getElementById('editInventoryModal'));
         modal.show();
     }
