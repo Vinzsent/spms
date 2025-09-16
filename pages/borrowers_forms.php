@@ -83,36 +83,21 @@ $inv_where = !empty($inv_where_conditions) ? ' WHERE ' . implode(' AND ', $inv_w
 $recv_where = !empty($recv_where_conditions) ? ' WHERE ' . implode(' AND ', $recv_where_conditions) : '';
 $logs_where = !empty($logs_where_conditions) ? ' WHERE ' . implode(' AND ', $logs_where_conditions) : '';
 
-// Get purchased data
-$sql = "SELECT pi.*, s.supplier_name 
-        FROM property_inventory pi 
-        LEFT JOIN supplier s ON pi.supplier_id = s.supplier_id
-        ORDER BY pi.date_created DESC";
+// Get borrowers data
+$sql = "SELECT *FROM borrowers_forms";
 $result = $conn->query($sql);
 
 // Get inventory data
-$sql = "SELECT i.*, s.supplier_name 
-        FROM property_inventory i 
-        LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
-        $inv_where
-        ORDER BY i.date_created DESC";
+$sql = "SELECT * FROM borrowers_forms";
 $result = $conn->query($sql);
 
-$sql1 = "SELECT st.*, s.supplier_name
-        FROM supplier_transaction st
-        JOIN supplier s ON s.supplier_id = st.supplier_id
-        $recv_where
-        AND st.status IN ('Pending')
-        ORDER BY COALESCE(st.date_received, st.date_created) DESC";
+$sql1 = "SELECT *
+        FROM borrowers_forms";
 $result1 = $conn->query($sql1);
 
 // Get stock movement logs
-$stock_logs_sql = "SELECT sl.*, pi.item_name, s.supplier_name 
-                   FROM property_stock_logs sl 
-                   LEFT JOIN property_inventory pi ON sl.inventory_id = pi.inventory_id 
-                   LEFT JOIN supplier s ON pi.supplier_id = s.supplier_id 
-                   $logs_where
-                   ORDER BY sl.date_created DESC LIMIT 50";
+$stock_logs_sql = "SELECT * 
+                   FROM borrowers_forms";
 $stock_logs_result = $conn->query($stock_logs_sql);
 
 // Get suppliers for dropdown
@@ -643,11 +628,11 @@ if (isset($_SESSION['error'])) {
                         <i class="fas fa-building"></i> Office Inventory
                     </a></li>
 
-                <li><a href="property_inventory.php" class="nav-link active">
+                <li><a href="property_inventory.php" class="nav-link">
                         <i class="fas fa-boxes"></i> Property Inventory
                     </a></li>
 
-                <li><a href="borrowers_forms.php" class="nav-link">
+                <li><a href="borrowers_forms.php" class="nav-link active">
                         <i class="fas fa-hand-holding"></i> Borrower Forms
                     </a></li>
 
@@ -664,8 +649,8 @@ if (isset($_SESSION['error'])) {
     <!-- Main Content -->
     <div class="main-content">
         <div class="content-header">
-            <h1>Inventory Management</h1>
-            <p>Track supplies, monitor stock levels, and manage inventory movements</p>
+            <h1>Borrower's Management</h1>
+            <p>Manage borrower details, track borrowed items, and monitor return status.</p>
         </div>
 
         <!-- Low Stock Alerts -->
@@ -696,7 +681,7 @@ if (isset($_SESSION['error'])) {
                     <i class="fas fa-boxes"></i>
                 </div>
                 <div class="stat-number"><?= $total_items ?></div>
-                <div class="stat-label">Total Items</div>
+                <div class="stat-label">Total Borrowed Items</div>
             </div>
 
             <div class="stat-card">
@@ -704,7 +689,7 @@ if (isset($_SESSION['error'])) {
                     <i class="fas fa-exclamation-triangle"></i>
                 </div>
                 <div class="stat-number"><?= $low_stock_count ?></div>
-                <div class="stat-label">Low Stock Items</div>
+                <div class="stat-label">Low Stock Borrowed Items</div>
             </div>
 
             <div class="stat-card">
@@ -712,7 +697,7 @@ if (isset($_SESSION['error'])) {
                     <i class="fas fa-times-circle"></i>
                 </div>
                 <div class="stat-number"><?= $out_of_stock_count ?></div>
-                <div class="stat-label">Out of Stock</div>
+                <div class="stat-label">Out of Stock Borrowed Items</div>
             </div>
 
             <div class="stat-card">
@@ -720,14 +705,14 @@ if (isset($_SESSION['error'])) {
                     <i class="fas fa-exchange-alt"></i>
                 </div>
                 <div class="stat-number"><?= $stock_logs_result ? $stock_logs_result->num_rows : 0 ?></div>
-                <div class="stat-label">Recent Movements</div>
+                <div class="stat-label">Recent Borrowed Movements</div>
             </div>
         </div>
 
         <!-- Inventory Table -->
         <div class="table-container">
             <div class="table-header">
-                <h3>Inventory Items</h3>
+                <h3>Borrowed Items</h3>
                 <div class="d-flex align-items-end gap-2">
                     <form method="GET" class="d-flex align-items-end gap-2 mb-0">
                         <div class="search-input">
@@ -750,15 +735,12 @@ if (isset($_SESSION['error'])) {
                                 <i class="fas fa-search"></i> Search
                             </button>
                             <?php if (!empty($search_term) || !empty($sy_inv_raw)): ?>
-                                <a href="property_inventory.php" class="btn btn-outline-light ms-2">
+                                <a href="borrowers_forms.php" class="btn btn-outline-light ms-2">
                                     <i class="fas fa-times"></i> Clear
                                 </a>
                             <?php endif; ?>
                         </div>
                     </form>
-                    <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
-                        <i class="fas fa-plus"></i> Add Item
-                    </button>
                 </div>
             </div>
 
@@ -815,17 +797,14 @@ if (isset($_SESSION['error'])) {
             $offset = ($page - 1) * $records_per_page;
 
             // Get total number of records
-            $count_sql = "SELECT COUNT(*) as total FROM property_inventory i $inv_where";
+            $count_sql = "SELECT COUNT(*) as total FROM borrowers_forms";
             $count_result = $conn->query($count_sql);
             $total_records = $count_result->fetch_assoc()['total'];
             $total_pages = ceil($total_records / $records_per_page);
 
             // Get inventory data with pagination (respect filters and join supplier)
-            $sql = "SELECT i.*, s.supplier_name 
-        FROM property_inventory i 
-        LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
-        $inv_where
-        ORDER BY i.date_created DESC
+            $sql = "SELECT * 
+        FROM borrowers_forms
         LIMIT $records_per_page OFFSET $offset";
             $result = $conn->query($sql);
             ?>
@@ -1007,7 +986,7 @@ if (isset($_SESSION['error'])) {
 
                 <div class="table-container">
                     <div class="table-header">
-                        <h3>Acquired Supplies</h3>
+                        <h3>Borrowed Request List</h3>
                         <form method="GET" class="d-flex align-items-end gap-2">
                             <div>
                                 <label for="sy_recv" class="form-label mb-0 text-white">School Year</label>
@@ -1020,13 +999,18 @@ if (isset($_SESSION['error'])) {
                                     <?php endforeach; ?>
                                 </select>
                             </div>
+                            
                             <div class="pt-4">
                                 <?php if (!empty($sy_recv_raw)): ?>
-                                    <a href="property_inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv' => true])) ?>" class="btn btn-outline-light">Reset</a>
+                                    <a href="borrowers_forms.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv' => true])) ?>" class="btn btn-outline-light">Reset</a>
                                 <?php endif; ?>
                             </div>
                         </form>
+                        <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                        <i class="fas fa-plus"></i> Add Item
+                    </button>
                     </div>
+                    
 
                     <div class="table-responsive">
                         <table class="table table-hover mb-0 table-striped">
@@ -1118,7 +1102,7 @@ if (isset($_SESSION['error'])) {
                 <!-- Stock Movement Logs -->
                 <div class="table-container">
                     <div class="table-header">
-                        <h3>Recent Stock Movements</h3>
+                        <h3>Recent Borrowed Movements</h3>
                         <div class="d-flex align-items-end gap-2">
                             <form method="GET" class="d-flex align-items-end gap-2 mb-0">
                                 <div>
@@ -1134,7 +1118,7 @@ if (isset($_SESSION['error'])) {
                                 </div>
                                 <div class="pt-4">
                                     <?php if (!empty($sy_logs_raw)): ?>
-                                        <a href="property_inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_logs' => true])) ?>" class="btn btn-outline-light">Reset</a>
+                                        <a href="borrowers_forms.php?<?= http_build_query(array_diff_key($_GET, ['sy_logs' => true])) ?>" class="btn btn-outline-light">Reset</a>
                                     <?php endif; ?>
                                 </div>
                             </form>
@@ -1195,7 +1179,7 @@ if (isset($_SESSION['error'])) {
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Add New Inventory Item</h5>
+                            <h5 class="modal-title">Add New Borrower Request</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <form action="../actions/add_property.php" method="POST">
@@ -1800,7 +1784,7 @@ if (isset($_SESSION['error'])) {
                     currentParams.set('page', page);
 
                     // Fetch the page content
-                    fetch("property_inventory.php?" + currentParams.toString())
+                    fetch("borrowers_forms.php?" + currentParams.toString())
                         .then(response => response.text())
                         .then(data => {
                             // Remove loading overlay
@@ -1918,14 +1902,14 @@ if (isset($_SESSION['error'])) {
             $inv_where_ajax = !empty($inv_where_conditions_ajax) ? ' WHERE ' . implode(' AND ', $inv_where_conditions_ajax) : '';
 
             // Get total number of records
-            $count_sql = "SELECT COUNT(*) as total FROM property_inventory pi $inv_where_ajax";
+            $count_sql = "SELECT COUNT(*) as total FROM borrowers_forms pi $inv_where_ajax";
             $count_result = $conn->query($count_sql);
             $total_records = $count_result->fetch_assoc()['total'];
             $total_pages = ceil($total_records / $records_per_page);
 
             // Get inventory data with pagination
             $sql = "SELECT pi.*, s.supplier_name 
-            FROM property_inventory pi 
+            FROM borrowers_forms pi 
             LEFT JOIN supplier s ON pi.supplier_id = s.supplier_id 
             $inv_where_ajax
             ORDER BY pi.date_created DESC
