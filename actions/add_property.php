@@ -5,6 +5,9 @@ include '../includes/db.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validate and sanitize input
     $item_name = trim($_POST['item_name']);
+    $brand = trim($_POST['brand']);
+    $size = trim($_POST['size']);
+    $color = trim($_POST['color']);
     $category = trim($_POST['category']);
     $current_stock = intval($_POST['current_stock']);
     $unit = trim($_POST['unit']);
@@ -63,12 +66,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     
     // Insert new inventory item AFTER status update
-    $sql = "INSERT INTO property_inventory (item_name, category, description, current_stock, unit, unit_cost, reorder_level, supplier_id, location, created_by, receiver) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO property_inventory (item_name, brand, size, color, category, description, current_stock, unit, unit_cost, reorder_level, supplier_id, location, created_by, receiver) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     $stmt = $conn->prepare($sql);
     $user_id = $_SESSION['user']['id'] ?? 1;
-    $stmt->bind_param("sssisidssis", $item_name, $category, $description, $current_stock, $unit, $unit_cost, $reorder_level, $supplier_id, $location, $user_id, $receiver);
+    // Types for values: s,s,s,s,s,s,i,s,d,i,i,s,i,s (14 params)
+    $stmt->bind_param("ssssssisdiisis", $item_name, $brand, $size, $color, $category, $description, $current_stock, $unit, $unit_cost, $reorder_level, $supplier_id, $location, $user_id, $receiver);
     
     if ($stmt->execute()) {
         $inventory_id = $conn->insert_id;
@@ -82,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $log_stmt->execute();
         }
         
-        $_SESSION['message'] = "Inventory item '$item_name' has been added successfully and transaction status updated.";
+        $_SESSION['message'] = "Inventory item '$item_name' has been added successfully.";
     } else {
         // If inventory insertion fails after status update, we should rollback the status
         if ($procurement_id > 0) {

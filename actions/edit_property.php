@@ -18,6 +18,12 @@ $reorder_level = isset($_POST['reorder_level']) ? (int)$_POST['reorder_level'] :
 $supplier_id   = isset($_POST['supplier_id']) ? (int)$_POST['supplier_id'] : 0;
 $unit_cost     = isset($_POST['unit_cost']) ? (float)$_POST['unit_cost'] : 0.0;
 $location      = trim($_POST['location'] ?? '');
+// New optional fields
+$description   = trim($_POST['description'] ?? '');
+$quantity      = isset($_POST['quantity']) && $_POST['quantity'] !== '' ? (int)$_POST['quantity'] : null;
+$receiver      = trim($_POST['receiver'] ?? '');
+$status        = trim($_POST['status'] ?? 'Active');
+$received_notes= trim($_POST['received_notes'] ?? '');
 
 // Basic validation
 if ($inventory_id <= 0 || $item_name === '' || $category === '' || $unit === '' || $current_stock < 0 || $reorder_level < 0) {
@@ -47,9 +53,15 @@ if ($fetch_stmt = $conn->prepare($fetch_sql)) {
     exit();
 }
 
-// Update the inventory item
+// Normalize status to allowed values
+$allowed_status = ['Active','Inactive','Discontinued'];
+if (!in_array($status, $allowed_status, true)) {
+    $status = 'Active';
+}
+
+// Update the inventory item (including new fields)
 $update_sql = "UPDATE property_inventory 
-               SET item_name = ?, category = ?, current_stock = ?, unit = ?, reorder_level = ?, supplier_id = ?, unit_cost = ?, location = ?, date_updated = NOW()
+               SET item_name = ?, category = ?, description = ?, current_stock = ?, quantity = ?, unit = ?, unit_cost = ?, reorder_level = ?, supplier_id = ?, location = ?, receiver = ?, status = ?, received_notes = ?, date_updated = NOW()
                WHERE inventory_id = ?";
 
 $stmt = $conn->prepare($update_sql);
@@ -59,19 +71,71 @@ if (!$stmt) {
     exit();
 }
 
-// Types: s s i s i i d s i
-$stmt->bind_param(
-    'ssisisdsi',
-    $item_name,
-    $category,
-    $current_stock,
-    $unit,
-    $reorder_level,
-    $supplier_id,
-    $unit_cost,
-    $location,
-    $inventory_id
-);
+// Bind parameters
+// Types: s (item_name)
+//        s (category)
+//        s (description)
+//        i (current_stock)
+//        i (quantity nullable -> use i with null handling below)
+//        s (unit)
+//        d (unit_cost)
+//        i (reorder_level)
+//        i (supplier_id)
+//        s (location)
+//        s (receiver)
+//        s (status)
+//        s (received_notes)
+//        i (inventory_id)
+
+// Ensure quantity is null-safe for bind_param by converting to null and using proper type. Since mysqli doesn't support nullable ints directly in bind_param, we'll cast null to null and use i; this sets 0 if null. To truly set NULL, we'll use SET quantity = NULL when $quantity is null via dynamic SQL.
+
+if ($quantity === null) {
+    // Rebuild SQL with quantity = NULL
+    $update_sql = "UPDATE property_inventory 
+                   SET item_name = ?, category = ?, description = ?, current_stock = ?, quantity = NULL, unit = ?, unit_cost = ?, reorder_level = ?, supplier_id = ?, location = ?, receiver = ?, status = ?, received_notes = ?, date_updated = NOW()
+                   WHERE inventory_id = ?";
+    $stmt->close();
+    $stmt = $conn->prepare($update_sql);
+    if (!$stmt) {
+        $_SESSION['error'] = 'Database error (prepare update with NULL qty): ' . $conn->error;
+        header('Location: ../pages/property_inventory.php');
+        exit();
+    }
+    $stmt->bind_param(
+        'sssisdiissssi',
+        $item_name,
+        $category,
+        $description,
+        $current_stock,
+        $unit,
+        $unit_cost,
+        $reorder_level,
+        $supplier_id,
+        $location,
+        $receiver,
+        $status,
+        $received_notes,
+        $inventory_id
+    );
+} else {
+    $stmt->bind_param(
+        'sssiisdiissssi',
+        $item_name,
+        $category,
+        $description,
+        $current_stock,
+        $quantity,
+        $unit,
+        $unit_cost,
+        $reorder_level,
+        $supplier_id,
+        $location,
+        $receiver,
+        $status,
+        $received_notes,
+        $inventory_id
+    );
+}
 
 if (!$stmt->execute()) {
     $_SESSION['error'] = 'Error updating inventory item: ' . $stmt->error;

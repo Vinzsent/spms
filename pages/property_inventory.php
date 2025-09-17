@@ -156,6 +156,56 @@ if (isset($_SESSION['error'])) {
     $session_error = $_SESSION['error'];
     unset($_SESSION['error']);
 }
+
+// Fetch all category data for dropdown
+$categories_query = "
+    SELECT 
+        at.id as category_id,
+        at.name as main_category,
+        sc.name as subcategory,
+        ssc.name as sub_subcategory,
+        sssc.name as sub_sub_subcategory
+    FROM account_types at
+    LEFT JOIN account_subcategories sc ON at.id = sc.parent_id
+    LEFT JOIN account_sub_subcategories ssc ON sc.id = ssc.subcategory_id
+    LEFT JOIN account_sub_sub_subcategories sssc ON ssc.id = sssc.sub_subcategory_id
+    WHERE at.id BETWEEN 14 AND 29
+    ORDER BY at.id, sc.name, ssc.name, sssc.name
+";
+$categories_result = $conn->query($categories_query);
+
+// Organize categories hierarchically
+$organized_categories = [];
+if ($categories_result && $categories_result->num_rows > 0) {
+    while ($row = $categories_result->fetch_assoc()) {
+        $main = $row['main_category'];
+        if (!isset($organized_categories[$main])) {
+            $organized_categories[$main] = [];
+        }
+        
+        if (!empty($row['subcategory'])) {
+            $sub = $row['subcategory'];
+            if (!in_array($sub, $organized_categories[$main])) {
+                $organized_categories[$main][] = $sub;
+            }
+        }
+        
+        if (!empty($row['sub_subcategory'])) {
+            $subsub = $row['sub_subcategory'];
+            if (!in_array($subsub, $organized_categories[$main])) {
+                $organized_categories[$main][] = $subsub;
+            }
+        }
+        
+        if (!empty($row['sub_sub_subcategory'])) {
+            $subsubsub = $row['sub_sub_subcategory'];
+            if (!in_array($subsubsub, $organized_categories[$main])) {
+                $organized_categories[$main][] = $subsubsub;
+            }
+        }
+    }
+}
+
 ?>
 
 <?php if (!$isAjax): ?>
@@ -964,7 +1014,12 @@ if (isset($_SESSION['error'])) {
                                                 <?= (int)$row['reorder_level'] ?>,
                                                 <?= json_encode($row['location'] ?? '') ?>,
                                                 <?= (int)$row['supplier_id'] ?>,
-                                                <?= (float)$row['unit_cost'] ?>
+                                                <?= (float)$row['unit_cost'] ?>,
+                                                <?= json_encode($row['description'] ?? '') ?>,
+                                                <?= (int)($row['quantity'] ?? 0) ?>,
+                                                <?= json_encode($row['receiver'] ?? '') ?>,
+                                                <?= json_encode($row['status'] ?? 'Active') ?>,
+                                                <?= json_encode($row['received_notes'] ?? '') ?>
                                             )">
                                                 <i class="fas fa-edit"></i>
                                             </button>
@@ -1202,29 +1257,55 @@ if (isset($_SESSION['error'])) {
                             <input type="hidden" name="receiver" value="Property Custodian">
                             <div class="modal-body">
                                 <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Item Name</label>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Item Name <span class="text-danger">*</span></label>
                                         <input type="text" name="item_name" class="form-control" required>
                                     </div>
+                                     <div class="col-md-3">
+                                        <label class="form-label">Brand <span class="text-danger"></span></label>
+                                        <input type="text" name="brand" class="form-control">
+                                        <small>Leave blank if unknown</small>
+                                    </div> 
+                                    <div class="col-md-3">
+                                        <label class="form-label">Size <span class="text-danger"></span></label>
+                                        <input type="size" name="size" class="form-control">
+                                        <small>Leave blank if unknown</small>
+                                    </div> 
+                                    <div class="col-md-3">
+                                        <label class="form-label">Color <span class="text-danger"></span></label>
+                                        <input type="text" name="color" class="form-control">
+                                        <small>Leave blank if unknown</small>
+                                    </div> 
                                     <div class="col-md-6">
-                                        <label class="form-label">Category</label>
-                                        <select name="category" class="form-select" required>
-                                            <option value="">Select Category</option>
-                                            <option value="Office Supplies">Office Supplies</option>
-                                            <option value="Electronics">Electronics</option>
-                                            <option value="Furniture">Furniture</option>
-                                            <option value="Tools">Tools</option>
-                                            <option value="Medical">Medical</option>
-                                            <option value="Food">Food</option>
-                                            <option value="Other">Other</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Initial Stock</label>
+      <label for="accountSelect" style="font-size: 12px;">Category:</label>
+      <select id="accountSelect" name="category" class="form-select">
+        <option value="">Select Category</option>
+                    <?php
+                    // Use the same organized categories from the main page
+                    if (isset($organized_categories) && !empty($organized_categories)) {
+                        foreach ($organized_categories as $main_category => $subcategories) {
+                            echo '<optgroup label="' . htmlspecialchars($main_category) . '">';
+                            foreach ($subcategories as $subcategory) {
+                                echo '<option value="' . htmlspecialchars($subcategory) . '">' . htmlspecialchars($subcategory) . '</option>';
+                            }
+                            echo '</optgroup>';
+                        }
+                    } else {
+                        // Fallback options if no data available - display as bold headers only
+                        echo '<optgroup label="Property and Equipment"></optgroup>';
+                        echo '<optgroup label="Intangible Assets"></optgroup>';
+                        echo '<optgroup label="Office Supplies"></optgroup>';
+                        echo '<optgroup label="Medical Supplies"></optgroup>';
+                    }
+                    ?>
+      </select>
+    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Initial Stock <span class="text-danger">*</span></label>
                                         <input type="number" name="current_stock" class="form-control" required min="0">
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label">Unit</label>
+                                        <label class="form-label">Unit <span class="text-danger">*</span></label>
                                         <select name="unit" class="form-select" required>
                                             <option value="">Select Unit</option>
                                             <option value="pc">Piece</option>
@@ -1233,14 +1314,19 @@ if (isset($_SESSION['error'])) {
                                             <option value="liter">Liter</option>
                                             <option value="set">Set</option>
                                             <option value="pack">Pack</option>
+                                            <option value="ream">Ream</option>
                                         </select>
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label">Reorder Level</label>
-                                        <input type="number" name="reorder_level" class="form-control" required min="0">
+                                        <label class="form-label">Reorder Level <span class="text-danger">*</span></label>
+                                        <input type="number" name="reorder_level" class="form-control" required min="0" value="0">
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Supplier</label>
+                                     <div class="col-md-4">
+                                        <label class="form-label">Quantity <span class="text-danger">*</span></label>
+                                        <input type="number" name="quantity" class="form-control" required min="0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Supplier <span class="text-danger">*</span></label>
                                         <select name="supplier_id" class="form-select" required>
                                             <option value="">Select Supplier</option>
                                             <?php
@@ -1257,16 +1343,16 @@ if (isset($_SESSION['error'])) {
                                             ?>
                                         </select>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Unit Cost</label>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Unit Cost <span class="text-danger">*</span></label>
                                         <input type="number" name="unit_cost" step="0.01" class="form-control" required>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Location</label>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Location <span class="text-danger">*</span></label>
                                         <input type="text" name="location" class="form-control" placeholder="e.g., Storage Room A">
                                     </div>
                                     <div class="col-12">
-                                        <label class="form-label">Description</label>
+                                        <label class="form-label">Description <span class="text-danger">*</span></label>
                                         <textarea name="description" class="form-control" rows="3"></textarea>
                                     </div>
                                 </div>
@@ -1364,6 +1450,10 @@ if (isset($_SESSION['error'])) {
                                     <label class="form-label">Category</label>
                                     <input type="text" class="form-control" name="category" id="ei_category" required>
                                 </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-control" name="description" id="ei_description" rows="2" placeholder="Optional description..."></textarea>
+                                </div>
                                 <div class="row g-2">
                                     <div class="col-md-6">
                                         <label class="form-label">Current Stock</label>
@@ -1379,16 +1469,36 @@ if (isset($_SESSION['error'])) {
                                         <label class="form-label">Unit</label>
                                         <select name="unit" id="ei_unit" class="form-select" required>
                                             <option value="">--Select Unit--</option>
+                                            <!-- Common singular forms used when adding items -->
+                                            <option value="pc">Piece</option>
+                                            <option value="box">Box</option>
+                                            <option value="kg">Kilogram</option>
+                                            <option value="liter">Liter</option>
+                                            <option value="set">Set</option>
+                                            <option value="pack">Pack</option>
+                                            <option value="ream">Ream</option>
+                                            <!-- Legacy/plural variants kept for compatibility -->
                                             <option value="units">Units</option>
                                             <option value="packs">Packs</option>
                                             <option value="boxes">Boxes</option>
                                             <option value="sets">Sets</option>
                                             <option value="reams">Reams</option>
+                                            <option value="none">Others</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Unit Cost</label>
                                         <input type="number" step="0.01" class="form-control" name="unit_cost" id="ei_unit_cost" required>
+                                    </div>
+                                </div>
+                                <div class="row g-2 mt-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Quantity</label>
+                                        <input type="number" class="form-control" name="quantity" id="ei_quantity" min="0">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Receiver</label>
+                                        <input type="text" class="form-control" name="receiver" id="ei_receiver" placeholder="e.g., Property Custodian">
                                     </div>
                                 </div>
                                 <div class="row g-2 mt-2">
@@ -1409,6 +1519,20 @@ if (isset($_SESSION['error'])) {
                                     <div class="col-md-6">
                                         <label class="form-label">Location</label>
                                         <input type="text" class="form-control" name="location" id="ei_location">
+                                    </div>
+                                </div>
+                                <div class="row g-2 mt-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Status</label>
+                                        <select class="form-select" name="status" id="ei_status">
+                                            <option value="Active">Active</option>
+                                            <option value="Inactive">Inactive</option>
+                                            <option value="Discontinued">Discontinued</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Received Notes</label>
+                                        <input type="text" class="form-control" name="received_notes" id="ei_received_notes" placeholder="Optional notes">
                                     </div>
                                 </div>
                             </div>
@@ -1723,16 +1847,37 @@ if (isset($_SESSION['error'])) {
                 }
 
                 // Open Edit Inventory modal with data
-                function openEditInventoryModal(id, name, category, unit, stock, reorder, location, supplierId, unitCost) {
+                function openEditInventoryModal(id, name, category, unit, stock, reorder, location, supplierId, unitCost, description, quantity, receiver, status, receivedNotes) {
                     document.getElementById('ei_inventory_id').value = id;
                     document.getElementById('ei_item_name').value = name;
                     document.getElementById('ei_category').value = category;
-                    document.getElementById('ei_unit').value = unit;
+                    // Ensure Unit select reflects the value even if it's not preset
+                    (function(){
+                        const unitSelect = document.getElementById('ei_unit');
+                        if (unitSelect) {
+                            let found = false;
+                            for (let i = 0; i < unitSelect.options.length; i++) {
+                                if (String(unitSelect.options[i].value) === String(unit)) { found = true; break; }
+                            }
+                            if (!found && unit) {
+                                const opt = document.createElement('option');
+                                opt.value = unit;
+                                opt.textContent = unit;
+                                unitSelect.appendChild(opt);
+                            }
+                            unitSelect.value = unit || '';
+                        }
+                    })();
                     document.getElementById('ei_current_stock').value = stock;
                     document.getElementById('ei_reorder_level').value = reorder;
                     document.getElementById('ei_location').value = location || '';
                     document.getElementById('ei_supplier_id').value = supplierId || '';
                     document.getElementById('ei_unit_cost').value = unitCost || 0;
+                    document.getElementById('ei_description').value = description || '';
+                    document.getElementById('ei_quantity').value = quantity || 0;
+                    document.getElementById('ei_receiver').value = receiver || '';
+                    document.getElementById('ei_status').value = status || 'Active';
+                    document.getElementById('ei_received_notes').value = receivedNotes || '';
                     const modal = new bootstrap.Modal(document.getElementById('editInventoryModal'));
                     modal.show();
                 }
@@ -1961,7 +2106,22 @@ if (isset($_SESSION['error'])) {
                     echo '<td>';
                     echo '<button class="btn btn-sm btn-success" title="Stock In" onclick="stockIn(' . $row['inventory_id'] . ')"><i class="fas fa-plus"></i></button>';
                     echo '<button class="btn btn-sm btn-warning" title="Stock Out" onclick="stockOut(' . $row['inventory_id'] . ')"><i class="fas fa-minus"></i></button>';
-                    echo '<button class="btn btn-sm btn-info" title="Edit" onclick=\'openEditInventoryModal(' . (int)$row['inventory_id'] . ', ' . json_encode($row['item_name']) . ', ' . json_encode($row['category']) . ', ' . json_encode($row['unit']) . ', ' . (int)$row['current_stock'] . ', ' . (int)$row['reorder_level'] . ', ' . json_encode($row['location'] ?? '') . ', ' . json_encode((int)$row['supplier_id']) . ', ' . json_encode((float)$row['unit_cost']) . ')\'><i class="fas fa-edit"></i></button>';
+                    echo '<button class="btn btn-sm btn-info" title="Edit" onclick=\'openEditInventoryModal('
+                        . (int)$row['inventory_id'] . ', '
+                        . json_encode($row['item_name']) . ', '
+                        . json_encode($row['category']) . ', '
+                        . json_encode($row['unit']) . ', '
+                        . (int)$row['current_stock'] . ', '
+                        . (int)$row['reorder_level'] . ', '
+                        . json_encode($row['location'] ?? '') . ', '
+                        . json_encode((int)$row['supplier_id']) . ', '
+                        . json_encode((float)$row['unit_cost']) . ', '
+                        . json_encode($row['description'] ?? '') . ', '
+                        . json_encode((int)($row['quantity'] ?? 0)) . ', '
+                        . json_encode($row['receiver'] ?? '') . ', '
+                        . json_encode($row['status'] ?? 'Active') . ', '
+                        . json_encode($row['received_notes'] ?? '')
+                        . ')\'><i class="fas fa-edit"></i></button>';
                     echo '</td></tr>';
                 }
             } else {
