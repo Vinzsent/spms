@@ -58,7 +58,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
 
               <div class="col-md-3">
                 <div class="form-floating">
-                  <input type="date" name="date_return" class="form-control" id="dateReturned" required>
+                  <input type="date" name="date_return" class="form-control" id="dateReturned">
                   <label for="dateReturned">
                     <i class="fas fa-clock me-1"></i>Date of Return <span class="text-danger">*</span>
                   </label>
@@ -148,7 +148,16 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
                 </div>
               </div>
 
-              <div class="col-md-6">
+              <div class="col-md-4">
+                <div class="form-floating">
+                  <input type="text" name="item_name" class="form-control" id="itemName" style="height: 70px" required>
+                  <label for="itemName">
+                    <i class="fas fa-align-items me-1"></i>Item Name <span class="text-danger">*</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-md-4">
                 <div class="form-floating">
                   <input type="text" name="item_name" class="form-control" id="itemName" style="height: 70px" required>
                   <label for="itemName">

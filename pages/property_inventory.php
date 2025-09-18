@@ -685,10 +685,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <li><a href="<?= $dashboard_link ?>" class="nav-link">
                         <i class="fas fa-chart-line"></i> Dashboard
                     </a></li>
-                <li><a href="supply_request.php" class="nav-link">
-                        <i class="fas fa-clipboard-list"></i> Supply Request
-                    </a></li>
-
+                    
                 <li><a href="office_inventory.php" class="nav-link">
                         <i class="fas fa-building"></i> Office Inventory
                     </a></li>
@@ -1256,104 +1253,119 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         <form action="../actions/add_property.php" method="POST">
                             <input type="hidden" name="receiver" value="Property Custodian">
                             <div class="modal-body">
-                                <div class="row g-3">
-                                    <div class="col-md-3">
-                                        <label class="form-label">Item Name <span class="text-danger">*</span></label>
-                                        <input type="text" name="item_name" class="form-control" required>
+                                <!-- Basic Information -->
+                                <div class="mb-3 pb-2 border-bottom">
+                                    <h6 class="mb-3 text-uppercase text-muted">Basic Information</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Item Name <span class="text-danger">*</span></label>
+                                            <input type="text" name="item_name" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Category</label>
+                                            <select id="accountSelect" name="category" class="form-select">
+                                                <option value="">Select Category</option>
+                                                <?php
+                                                // Use the same organized categories from the main page
+                                                if (isset($organized_categories) && !empty($organized_categories)) {
+                                                    foreach ($organized_categories as $main_category => $subcategories) {
+                                                        echo '<optgroup label="' . htmlspecialchars($main_category) . '">';
+                                                        foreach ($subcategories as $subcategory) {
+                                                            echo '<option value="' . htmlspecialchars($subcategory) . '">' . htmlspecialchars($subcategory) . '</option>';
+                                                        }
+                                                        echo '</optgroup>';
+                                                    }
+                                                } else {
+                                                    // Fallback options if no data available - display as bold headers only
+                                                    echo '<optgroup label="Property and Equipment"></optgroup>';
+                                                    echo '<optgroup label="Intangible Assets"></optgroup>';
+                                                    echo '<optgroup label="Office Supplies"></optgroup>';
+                                                    echo '<optgroup label="Medical Supplies"></optgroup>';
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Brand</label>
+                                            <input type="text" name="brand" class="form-control" placeholder="Optional">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Size</label>
+                                            <input type="size" name="size" class="form-control" placeholder="Optional">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Color</label>
+                                            <input type="text" name="color" class="form-control" placeholder="Optional">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Description</label>
+                                            <textarea name="description" class="form-control" rows="2" placeholder="Optional description..."></textarea>
+                                        </div>
                                     </div>
-                                     <div class="col-md-3">
-                                        <label class="form-label">Brand <span class="text-danger"></span></label>
-                                        <input type="text" name="brand" class="form-control">
-                                        <small>Leave blank if unknown</small>
-                                    </div> 
-                                    <div class="col-md-3">
-                                        <label class="form-label">Size <span class="text-danger"></span></label>
-                                        <input type="size" name="size" class="form-control">
-                                        <small>Leave blank if unknown</small>
-                                    </div> 
-                                    <div class="col-md-3">
-                                        <label class="form-label">Color <span class="text-danger"></span></label>
-                                        <input type="text" name="color" class="form-control">
-                                        <small>Leave blank if unknown</small>
-                                    </div> 
-                                    <div class="col-md-6">
-      <label for="accountSelect" style="font-size: 12px;">Category:</label>
-      <select id="accountSelect" name="category" class="form-select">
-        <option value="">Select Category</option>
-                    <?php
-                    // Use the same organized categories from the main page
-                    if (isset($organized_categories) && !empty($organized_categories)) {
-                        foreach ($organized_categories as $main_category => $subcategories) {
-                            echo '<optgroup label="' . htmlspecialchars($main_category) . '">';
-                            foreach ($subcategories as $subcategory) {
-                                echo '<option value="' . htmlspecialchars($subcategory) . '">' . htmlspecialchars($subcategory) . '</option>';
-                            }
-                            echo '</optgroup>';
-                        }
-                    } else {
-                        // Fallback options if no data available - display as bold headers only
-                        echo '<optgroup label="Property and Equipment"></optgroup>';
-                        echo '<optgroup label="Intangible Assets"></optgroup>';
-                        echo '<optgroup label="Office Supplies"></optgroup>';
-                        echo '<optgroup label="Medical Supplies"></optgroup>';
-                    }
-                    ?>
-      </select>
-    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Initial Stock <span class="text-danger">*</span></label>
-                                        <input type="number" name="current_stock" class="form-control" required min="0">
+                                </div>
+
+                                <!-- Stock & Unit -->
+                                <div class="mb-3 pb-2 border-bottom">
+                                    <h6 class="mb-3 text-uppercase text-muted">Stock & Unit</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-3">
+                                            <label class="form-label">Initial Stock <span class="text-danger">*</span></label>
+                                            <input type="number" name="current_stock" class="form-control" required min="0">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Reorder Level <span class="text-danger">*</span></label>
+                                            <input type="number" name="reorder_level" class="form-control" required min="0" value="0">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Unit <span class="text-danger">*</span></label>
+                                            <select name="unit" class="form-select" required>
+                                                <option value="">Select Unit</option>
+                                                <option value="pc">Piece</option>
+                                                <option value="box">Box</option>
+                                                <option value="kg">Kilogram</option>
+                                                <option value="liter">Liter</option>
+                                                <option value="set">Set</option>
+                                                <option value="pack">Pack</option>
+                                                <option value="ream">Ream</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Quantity <span class="text-danger">*</span></label>
+                                            <input type="number" name="quantity" class="form-control" required min="0">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Unit Cost <span class="text-danger">*</span></label>
+                                            <input type="number" name="unit_cost" step="0.01" class="form-control" required>
+                                        </div>
                                     </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Unit <span class="text-danger">*</span></label>
-                                        <select name="unit" class="form-select" required>
-                                            <option value="">Select Unit</option>
-                                            <option value="pc">Piece</option>
-                                            <option value="box">Box</option>
-                                            <option value="kg">Kilogram</option>
-                                            <option value="liter">Liter</option>
-                                            <option value="set">Set</option>
-                                            <option value="pack">Pack</option>
-                                            <option value="ream">Ream</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Reorder Level <span class="text-danger">*</span></label>
-                                        <input type="number" name="reorder_level" class="form-control" required min="0" value="0">
-                                    </div>
-                                     <div class="col-md-4">
-                                        <label class="form-label">Quantity <span class="text-danger">*</span></label>
-                                        <input type="number" name="quantity" class="form-control" required min="0">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Supplier <span class="text-danger">*</span></label>
-                                        <select name="supplier_id" class="form-select" required>
-                                            <option value="">Select Supplier</option>
-                                            <?php
-                                            if ($suppliers_result) {
-                                                $suppliers_result->data_seek(0);
-                                                while ($supplier = $suppliers_result->fetch_assoc()):
-                                            ?>
-                                                    <option value="<?= $supplier['supplier_id'] ?>">
-                                                        <?= htmlspecialchars($supplier['supplier_name']) ?>
-                                                    </option>
-                                            <?php
-                                                endwhile;
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Unit Cost <span class="text-danger">*</span></label>
-                                        <input type="number" name="unit_cost" step="0.01" class="form-control" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Location <span class="text-danger">*</span></label>
-                                        <input type="text" name="location" class="form-control" placeholder="e.g., Storage Room A">
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Description <span class="text-danger">*</span></label>
-                                        <textarea name="description" class="form-control" rows="3"></textarea>
+                                </div>
+
+                                <!-- Supplier & Location -->
+                                <div class="mb-2">
+                                    <h6 class="mb-3 text-uppercase text-muted">Supplier & Location</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Supplier <span class="text-danger">*</span></label>
+                                            <select name="supplier_id" class="form-select" required>
+                                                <option value="">Select Supplier</option>
+                                                <?php
+                                                if ($suppliers_result) {
+                                                    $suppliers_result->data_seek(0);
+                                                    while ($supplier = $suppliers_result->fetch_assoc()):
+                                                ?>
+                                                        <option value="<?= $supplier['supplier_id'] ?>">
+                                                            <?= htmlspecialchars($supplier['supplier_name']) ?>
+                                                        </option>
+                                                <?php
+                                                    endwhile;
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Location <span class="text-danger">*</span></label>
+                                            <input type="text" name="location" class="form-control" placeholder="e.g., Storage Room A">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1433,7 +1445,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
             <!-- Edit Inventory Modal -->
             <div class="modal fade" id="editInventoryModal" tabindex="-1">
-                <div class="modal-dialog">
+                <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Edit Inventory Item</h5>
@@ -1442,97 +1454,115 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         <form id="editInventoryForm" action="../actions/edit_property.php" method="POST">
                             <div class="modal-body">
                                 <input type="hidden" name="inventory_id" id="ei_inventory_id">
-                                <div class="mb-3">
-                                    <label class="form-label">Item Name</label>
-                                    <input type="text" class="form-control" name="item_name" id="ei_item_name" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Category</label>
-                                    <input type="text" class="form-control" name="category" id="ei_category" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Description</label>
-                                    <textarea class="form-control" name="description" id="ei_description" rows="2" placeholder="Optional description..."></textarea>
-                                </div>
-                                <div class="row g-2">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Current Stock</label>
-                                        <input type="number" class="form-control" name="current_stock" id="ei_current_stock" min="0" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Reorder Level</label>
-                                        <input type="number" class="form-control" name="reorder_level" id="ei_reorder_level" min="0" required>
+
+                                <!-- Basic Information -->
+                                <div class="mb-3 pb-2 border-bottom">
+                                    <h6 class="mb-3 text-uppercase text-muted">Basic Information</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Item Name</label>
+                                            <input type="text" class="form-control" name="item_name" id="ei_item_name" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Category</label>
+                                            <input type="text" class="form-control" name="category" id="ei_category" required>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Description</label>
+                                            <textarea class="form-control" name="description" id="ei_description" rows="2" placeholder="Optional description..."></textarea>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="row g-2 mt-2">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Unit</label>
-                                        <select name="unit" id="ei_unit" class="form-select" required>
-                                            <option value="">--Select Unit--</option>
-                                            <!-- Common singular forms used when adding items -->
-                                            <option value="pc">Piece</option>
-                                            <option value="box">Box</option>
-                                            <option value="kg">Kilogram</option>
-                                            <option value="liter">Liter</option>
-                                            <option value="set">Set</option>
-                                            <option value="pack">Pack</option>
-                                            <option value="ream">Ream</option>
-                                            <!-- Legacy/plural variants kept for compatibility -->
-                                            <option value="units">Units</option>
-                                            <option value="packs">Packs</option>
-                                            <option value="boxes">Boxes</option>
-                                            <option value="sets">Sets</option>
-                                            <option value="reams">Reams</option>
-                                            <option value="none">Others</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Unit Cost</label>
-                                        <input type="number" step="0.01" class="form-control" name="unit_cost" id="ei_unit_cost" required>
-                                    </div>
-                                </div>
-                                <div class="row g-2 mt-2">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Quantity</label>
-                                        <input type="number" class="form-control" name="quantity" id="ei_quantity" min="0">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Receiver</label>
-                                        <input type="text" class="form-control" name="receiver" id="ei_receiver" placeholder="e.g., Property Custodian">
-                                    </div>
-                                </div>
-                                <div class="row g-2 mt-2">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Supplier</label>
-                                        <select class="form-select" name="supplier_id" id="ei_supplier_id" required>
-                                            <option value="">Select Supplier</option>
-                                            <?php
-                                            if ($suppliers_result) {
-                                                $suppliers_result->data_seek(0);
-                                                while ($supplier = $suppliers_result->fetch_assoc()):
-                                            ?>
-                                                    <option value="<?= $supplier['supplier_id'] ?>"><?= htmlspecialchars($supplier['supplier_name']) ?></option>
-                                            <?php endwhile;
-                                            } ?>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Location</label>
-                                        <input type="text" class="form-control" name="location" id="ei_location">
+
+                                <!-- Stock & Unit -->
+                                <div class="mb-3 pb-2 border-bottom">
+                                    <h6 class="mb-3 text-uppercase text-muted">Stock & Unit</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-3">
+                                            <label class="form-label">Current Stock</label>
+                                            <input type="number" class="form-control" name="current_stock" id="ei_current_stock" min="0" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Reorder Level</label>
+                                            <input type="number" class="form-control" name="reorder_level" id="ei_reorder_level" min="0" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Unit</label>
+                                            <select name="unit" id="ei_unit" class="form-select" required>
+                                                <option value="">--Select Unit--</option>
+                                                <!-- Common singular forms used when adding items -->
+                                                <option value="pc">Piece</option>
+                                                <option value="box">Box</option>
+                                                <option value="kg">Kilogram</option>
+                                                <option value="liter">Liter</option>
+                                                <option value="set">Set</option>
+                                                <option value="pack">Pack</option>
+                                                <option value="ream">Ream</option>
+                                                <!-- Legacy/plural variants kept for compatibility -->
+                                                <option value="units">Units</option>
+                                                <option value="packs">Packs</option>
+                                                <option value="boxes">Boxes</option>
+                                                <option value="sets">Sets</option>
+                                                <option value="reams">Reams</option>
+                                                <option value="none">Others</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Unit Cost</label>
+                                            <input type="number" step="0.01" class="form-control" name="unit_cost" id="ei_unit_cost" required>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="row g-2 mt-2">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Status</label>
-                                        <select class="form-select" name="status" id="ei_status">
-                                            <option value="Active">Active</option>
-                                            <option value="Inactive">Inactive</option>
-                                            <option value="Discontinued">Discontinued</option>
-                                        </select>
+
+                                <!-- Supplier & Location -->
+                                <div class="mb-3 pb-2 border-bottom">
+                                    <h6 class="mb-3 text-uppercase text-muted">Supplier & Location</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Supplier</label>
+                                            <select class="form-select" name="supplier_id" id="ei_supplier_id" required>
+                                                <option value="">Select Supplier</option>
+                                                <?php
+                                                if ($suppliers_result) {
+                                                    $suppliers_result->data_seek(0);
+                                                    while ($supplier = $suppliers_result->fetch_assoc()):
+                                                ?>
+                                                        <option value="<?= $supplier['supplier_id'] ?>"><?= htmlspecialchars($supplier['supplier_name']) ?></option>
+                                                <?php endwhile;
+                                                } ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Location</label>
+                                            <input type="text" class="form-control" name="location" id="ei_location">
+                                        </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Received Notes</label>
-                                        <input type="text" class="form-control" name="received_notes" id="ei_received_notes" placeholder="Optional notes">
+                                </div>
+
+                                <!-- Status & Meta -->
+                                <div class="mb-2">
+                                    <h6 class="mb-3 text-uppercase text-muted">Status & Meta</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Status</label>
+                                            <select class="form-select" name="status" id="ei_status">
+                                                <option value="Active">Active</option>
+                                                <option value="Inactive">Inactive</option>
+                                                <option value="Discontinued">Discontinued</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Quantity</label>
+                                            <input type="number" class="form-control" name="quantity" id="ei_quantity" min="0">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Receiver</label>
+                                            <input type="text" class="form-control" name="receiver" id="ei_receiver" placeholder="e.g., Property Custodian">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Received Notes</label>
+                                            <input type="text" class="form-control" name="received_notes" id="ei_received_notes" placeholder="Optional notes">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
