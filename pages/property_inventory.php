@@ -206,6 +206,55 @@ if ($categories_result && $categories_result->num_rows > 0) {
     }
 }
 
+// Fetch all category data for dropdown
+$categories_query = "
+    SELECT 
+        at.id as category_id,
+        at.name as main_category,
+        sc.name as subcategory,
+        ssc.name as sub_subcategory,
+        sssc.name as sub_sub_subcategory
+    FROM account_types at
+    LEFT JOIN account_subcategories sc ON at.id = sc.parent_id
+    LEFT JOIN account_sub_subcategories ssc ON sc.id = ssc.subcategory_id
+    LEFT JOIN account_sub_sub_subcategories sssc ON ssc.id = sssc.sub_subcategory_id
+    WHERE at.id BETWEEN 14 AND 29
+    ORDER BY at.id, sc.name, ssc.name, sssc.name
+";
+$categories_result = $conn->query($categories_query);
+
+// Organize categories hierarchically
+$organized_categories = [];
+if ($categories_result && $categories_result->num_rows > 0) {
+    while ($row = $categories_result->fetch_assoc()) {
+        $main = $row['main_category'];
+        if (!isset($organized_categories[$main])) {
+            $organized_categories[$main] = [];
+        }
+        
+        if (!empty($row['subcategory'])) {
+            $sub = $row['subcategory'];
+            if (!in_array($sub, $organized_categories[$main])) {
+                $organized_categories[$main][] = $sub;
+            }
+        }
+        
+        if (!empty($row['sub_subcategory'])) {
+            $subsub = $row['sub_subcategory'];
+            if (!in_array($subsub, $organized_categories[$main])) {
+                $organized_categories[$main][] = $subsub;
+            }
+        }
+        
+        if (!empty($row['sub_sub_subcategory'])) {
+            $subsubsub = $row['sub_sub_subcategory'];
+            if (!in_array($subsubsub, $organized_categories[$main])) {
+                $organized_categories[$main][] = $subsubsub;
+            }
+        }
+    }
+}
+
 ?>
 
 <?php if (!$isAjax): ?>
@@ -1463,10 +1512,35 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <label class="form-label">Item Name</label>
                                             <input type="text" class="form-control" name="item_name" id="ei_item_name" required>
                                         </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Category</label>
-                                            <input type="text" class="form-control" name="category" id="ei_category" required>
-                                        </div>
+                                        <div class="row g-3">
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <select name="category" class="form-select" id="categorySelect" required>
+                    <option value="">Select Category</option>
+                    <?php
+                    // Use the same organized categories from the main page
+                    if (isset($organized_categories) && !empty($organized_categories)) {
+                        foreach ($organized_categories as $main_category => $subcategories) {
+                            echo '<optgroup label="' . htmlspecialchars($main_category) . '">';
+                            foreach ($subcategories as $subcategory) {
+                                echo '<option value="' . htmlspecialchars($subcategory) . '">' . htmlspecialchars($subcategory) . '</option>';
+                            }
+                            echo '</optgroup>';
+                        }
+                    } else {
+                        // Fallback options if no data available - display as bold headers only
+                        echo '<optgroup label="Property and Equipment"></optgroup>';
+                        echo '<optgroup label="Intangible Assets"></optgroup>';
+                        echo '<optgroup label="Office Supplies"></optgroup>';
+                        echo '<optgroup label="Medical Supplies"></optgroup>';
+                    }
+                    ?>
+                  </select>
+                  <label for="categorySelect">
+                    <i class="fas fa-folder me-1"></i>Category <span class="text-danger">*</span>
+                  </label>
+                </div>
+              </div>
                                         <div class="col-12">
                                             <label class="form-label">Description</label>
                                             <textarea class="form-control" name="description" id="ei_description" rows="2" placeholder="Optional description..."></textarea>
@@ -1484,7 +1558,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label">Reorder Level</label>
-                                            <input type="number" class="form-control" name="reorder_level" id="ei_reorder_level" min="0" required>
+                                            <input type="number" class="form-control" name="reorder_level" id="ei_reorder_level" min="0">
+                                            <small style="color: gray; font-size: 12px;">Leave blank if not applicable</small>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label">Unit</label>
@@ -1553,7 +1628,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label">Quantity</label>
-                                            <input type="number" class="form-control" name="quantity" id="ei_quantity" min="0">
+                                            <input type="number" class="form-control" name="quantity" id="ei_quantity" min="0" disabled>
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label">Receiver</label>
@@ -1561,7 +1636,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         </div>
                                         <div class="col-12">
                                             <label class="form-label">Received Notes</label>
-                                            <input type="text" class="form-control" name="received_notes" id="ei_received_notes" placeholder="Optional notes">
+                                            <textarea type="text" class="form-control" name="received_notes" id="ei_received_notes" placeholder="Optional notes"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -1880,7 +1955,23 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 function openEditInventoryModal(id, name, category, unit, stock, reorder, location, supplierId, unitCost, description, quantity, receiver, status, receivedNotes) {
                     document.getElementById('ei_inventory_id').value = id;
                     document.getElementById('ei_item_name').value = name;
-                    document.getElementById('ei_category').value = category;
+                    // Ensure Category select reflects the value even if it's not preset
+                    (function(){
+                        const catSelect = document.getElementById('categorySelect');
+                        if (catSelect) {
+                            let found = false;
+                            for (let i = 0; i < catSelect.options.length; i++) {
+                                if (String(catSelect.options[i].value) === String(category)) { found = true; break; }
+                            }
+                            if (!found && category) {
+                                const opt = document.createElement('option');
+                                opt.value = category;
+                                opt.textContent = category;
+                                catSelect.appendChild(opt);
+                            }
+                            catSelect.value = category || '';
+                        }
+                    })();
                     // Ensure Unit select reflects the value even if it's not preset
                     (function(){
                         const unitSelect = document.getElementById('ei_unit');

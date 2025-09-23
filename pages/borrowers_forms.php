@@ -149,7 +149,7 @@ if (isset($_SESSION['error'])) {
             --primary-green: #073b1d;
             --dark-green: #073b1d;
             --light-green: #2d8aad;
-            --accent-orange: #ff6b35;
+            --accent-orange: #FFD700;
             --accent-blue: #4a90e2;
             --accent-red: #e74c3c;
             --accent-yellow: #f39c12;
@@ -1006,12 +1006,10 @@ if (isset($_SESSION['error'])) {
                                 <?php endif; ?>
                             </div>
                         </form>
-                        <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
-                        <i class="fas fa-plus"></i> Add Item
-                    </button>
+                        <button class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                        <i class="fas fa-plus"></i> Add Item</button>
                     </div>
                     
-
                     <div class="table-responsive">
                         <table class="table table-hover mb-0 table-striped">
                             <thead class="table-dark">
@@ -1122,7 +1120,7 @@ if (isset($_SESSION['error'])) {
                                     <?php endif; ?>
                                 </div>
                             </form>
-                            <button class="btn btn-add" onclick="viewAllMovements()">
+                            <button class="btn btn-add text-dark" onclick="viewAllMovements()">
                                 <i class="fas fa-list"></i> View All
                             </button>
                         </div>
