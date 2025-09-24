@@ -1389,6 +1389,7 @@ $result = $conn->query($sql);
                             <div class="col-md-3">
                                 <label class="form-label">Reorder Level</label>
                                 <input type="number" class="form-control" name="reorder_level" id="ei_reorder_level" min="0" required>
+                                <small style="color: gray; font-size: 12px;">Leave blank if not applicable</small>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Unit</label>
