@@ -1497,7 +1497,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Edit Inventory Item</h5>
+                            <h5 class="modal-title">Edit Property Item</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <form id="editInventoryForm" action="../actions/edit_property.php" method="POST">
@@ -1513,34 +1513,35 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <input type="text" class="form-control" name="item_name" id="ei_item_name" required>
                                         </div>
                                         <div class="row g-3">
-              <div class="col-md-6">
-                <div class="form-floating">
-                  <select name="category" class="form-select" id="categorySelect" required>
-                    <option value="">Select Category</option>
-                    <?php
-                    // Use the same organized categories from the main page
-                    if (isset($organized_categories) && !empty($organized_categories)) {
-                        foreach ($organized_categories as $main_category => $subcategories) {
-                            echo '<optgroup label="' . htmlspecialchars($main_category) . '">';
-                            foreach ($subcategories as $subcategory) {
-                                echo '<option value="' . htmlspecialchars($subcategory) . '">' . htmlspecialchars($subcategory) . '</option>';
-                            }
-                            echo '</optgroup>';
-                        }
-                    } else {
-                        // Fallback options if no data available - display as bold headers only
-                        echo '<optgroup label="Property and Equipment"></optgroup>';
-                        echo '<optgroup label="Intangible Assets"></optgroup>';
-                        echo '<optgroup label="Office Supplies"></optgroup>';
-                        echo '<optgroup label="Medical Supplies"></optgroup>';
-                    }
-                    ?>
-                  </select>
-                  <label for="categorySelect">
-                    <i class="fas fa-folder me-1"></i>Category <span class="text-danger">*</span>
-                  </label>
-                </div>
-              </div>
+                                            
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                        <select name="category" class="form-select" id="categorySelect" required>
+                                            <option value="">Select Category</option>
+                                            <?php
+                                            // Use the same organized categories from the main page
+                                            if (isset($organized_categories) && !empty($organized_categories)) {
+                                                foreach ($organized_categories as $main_category => $subcategories) {
+                                                    echo '<optgroup label="' . htmlspecialchars($main_category) . '">';
+                                                    foreach ($subcategories as $subcategory) {
+                                                        echo '<option value="' . htmlspecialchars($subcategory) . '">' . htmlspecialchars($subcategory) . '</option>';
+                                                    }
+                                                    echo '</optgroup>';
+                                                }
+                                            } else {
+                                                // Fallback options if no data available - display as bold headers only
+                                                echo '<optgroup label="Property and Equipment"></optgroup>';
+                                                echo '<optgroup label="Intangible Assets"></optgroup>';
+                                                echo '<optgroup label="Office Supplies"></optgroup>';
+                                                echo '<optgroup label="Medical Supplies"></optgroup>';
+                                            }
+                                            ?>
+                                        </select>
+                                        <label for="categorySelect">
+                                            <i class="fas fa-folder me-1"></i>Category <span class="text-danger">*</span>
+                                        </label>
+                                    </div>
+                                </div>
                                         <div class="col-12">
                                             <label class="form-label">Description</label>
                                             <textarea class="form-control" name="description" id="ei_description" rows="2" placeholder="Optional description..."></textarea>
