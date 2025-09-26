@@ -1651,28 +1651,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 </div>
             </div>
 
-            <!-- Session Message Modal -->
-            <div class="modal fade" id="sessionMessageModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header" id="sessionModalHeader">
-                            <h5 class="modal-title" id="sessionModalTitle">Message</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body text-center">
-                            <div id="sessionModalIcon" class="mb-3">
-                                <!-- Icon will be set by JavaScript -->
-                            </div>
-                            <p id="sessionModalMessage" class="mb-0">
-                                <!-- Message will be set by JavaScript -->
-                            </p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -1682,9 +1660,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 var sessionError = '<?= addslashes($session_error) ?>';
 
                 $(document).ready(function() {
-                    // Show session message modal if there are messages
+                    // Show session message alert if there are messages
                     if (sessionMessage || sessionError) {
-                        showSessionMessageModal();
+                        showSessionMessageAlert();
                     }
 
                     // Enable Enter key search
@@ -1746,29 +1724,15 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     });
                 });
 
-                // Function to show session message modal
-                function showSessionMessageModal() {
-                    var modal = new bootstrap.Modal(document.getElementById('sessionMessageModal'));
-                    var header = document.getElementById('sessionModalHeader');
-                    var title = document.getElementById('sessionModalTitle');
-                    var icon = document.getElementById('sessionModalIcon');
-                    var message = document.getElementById('sessionModalMessage');
-
+                // Function to show session message alert
+                function showSessionMessageAlert() {
                     if (sessionMessage) {
                         // Success message
-                        header.className = 'modal-header bg-success text-white';
-                        title.textContent = 'Success';
-                        icon.innerHTML = '<i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>';
-                        message.textContent = sessionMessage;
+                        alert('✅ Success!\n\n' + sessionMessage);
                     } else if (sessionError) {
                         // Error message
-                        header.className = 'modal-header bg-danger text-white';
-                        title.textContent = 'Error';
-                        icon.innerHTML = '<i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem;"></i>';
-                        message.textContent = sessionError;
+                        alert('❌ Error!\n\n' + sessionError);
                     }
-
-                    modal.show();
                 }
 
                 // Function to change status from Pending to Received

@@ -11,6 +11,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // Collect and sanitize inputs
 $inventory_id  = isset($_POST['inventory_id']) ? (int)$_POST['inventory_id'] : 0;
 $item_name     = trim($_POST['item_name'] ?? '');
+$brand         = trim($_POST['brand'] ?? '');
+$color         = trim($_POST['color'] ?? '');
+$size          = trim($_POST['size'] ?? '');
+$type          = trim($_POST['type'] ?? '');
+$description   = trim($_POST['description'] ?? '');
 $category      = trim($_POST['category'] ?? '');
 $current_stock = isset($_POST['current_stock']) ? (int)$_POST['current_stock'] : 0;
 $unit          = trim($_POST['unit'] ?? '');
@@ -49,7 +54,7 @@ if ($fetch_stmt = $conn->prepare($fetch_sql)) {
 
 // Update the inventory item
 $update_sql = "UPDATE inventory 
-               SET item_name = ?, category = ?, current_stock = ?, unit = ?, reorder_level = ?, supplier_id = ?, unit_cost = ?, location = ?, date_updated = NOW()
+               SET item_name = ?, category = ?, brand = ?, color = ?, size = ?, type = ?, description = ?, current_stock = ?, unit = ?, reorder_level = ?, supplier_id = ?, unit_cost = ?, location = ?, date_updated = NOW()
                WHERE inventory_id = ?";
 
 $stmt = $conn->prepare($update_sql);
@@ -59,18 +64,23 @@ if (!$stmt) {
     exit();
 }
 
-// Types: s s i s i i d s i
+// Types (14 params): s s s s s s s i s i i d s i
 $stmt->bind_param(
-    'ssisisdsi',
-    $item_name,
-    $category,
-    $current_stock,
-    $unit,
-    $reorder_level,
-    $supplier_id,
-    $unit_cost,
-    $location,
-    $inventory_id
+    'sssssssisiidsi',
+    $item_name,      // s
+    $category,       // s
+    $brand,          // s
+    $color,          // s
+    $size,           // s
+    $type,           // s
+    $description,    // s
+    $current_stock,  // i
+    $unit,           // s
+    $reorder_level,  // i
+    $supplier_id,    // i
+    $unit_cost,      // d
+    $location,       // s
+    $inventory_id    // i (WHERE)
 );
 
 if (!$stmt->execute()) {
