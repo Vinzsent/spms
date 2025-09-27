@@ -1301,6 +1301,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         </div>
                         <form action="../actions/add_property.php" method="POST">
                             <input type="hidden" name="receiver" value="Property Custodian">
+                            <input type="hidden" name="status" value="Active">
                             <div class="modal-body">
                                 <!-- Basic Information -->
                                 <div class="mb-3 pb-2 border-bottom">
@@ -1311,7 +1312,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <input type="text" name="item_name" class="form-control" required>
                                         </div>
                                         <div class="col-md-6">
-                                            <label class="form-label">Category</label>
+                                            <label class="form-label">Category <span class="text-danger">*</span></label>
                                             <select id="accountSelect" name="category" class="form-select">
                                                 <option value="">Select Category</option>
                                                 <?php
@@ -1334,17 +1335,24 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 ?>
                                             </select>
                                         </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label">Brand</label>
-                                            <input type="text" name="brand" class="form-control" placeholder="Optional">
+                                        <div class="col-md-3">
+                                            <label class="form-label">Brand <span class="text-danger">*</span></label>
+                                            <input type="text" name="brand" class="form-control" required>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label class="form-label">Size</label>
-                                            <input type="size" name="size" class="form-control" placeholder="Optional">
+                                            <input type="size" name="size" class="form-control">
+                                             <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label class="form-label">Color</label>
-                                            <input type="text" name="color" class="form-control" placeholder="Optional">
+                                            <input type="text" name="color" class="form-control">
+                                             <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Type</label>
+                                            <input type="text" name="type" class="form-control">
+                                             <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
                                         </div>
                                         <div class="col-12">
                                             <label class="form-label">Description</label>
@@ -1362,26 +1370,34 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <input type="number" name="current_stock" class="form-control" required min="0">
                                         </div>
                                         <div class="col-md-3">
-                                            <label class="form-label">Reorder Level <span class="text-danger">*</span></label>
+                                            <label class="form-label">Reorder Level</label>
                                             <input type="number" name="reorder_level" class="form-control" required min="0" value="0">
+                                            <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label">Unit <span class="text-danger">*</span></label>
                                             <select name="unit" class="form-select" required>
-                                                <option value="">Select Unit</option>
+                                            <option value="">--Select Unit--</option>
                                                 <option value="pc">Piece</option>
+                                                <option value="pcs">Pieces</option>
                                                 <option value="box">Box</option>
+                                                <option value="boxes">Boxes</option>
                                                 <option value="kg">Kilogram</option>
+                                                <option value="kgs">Kilograms</option>
                                                 <option value="liter">Liter</option>
+                                                <option value="liters">Liters</option>
                                                 <option value="set">Set</option>
+                                                <option value="sets">Sets</option>
                                                 <option value="pack">Pack</option>
+                                                <option value="packs">Packs</option>
                                                 <option value="ream">Ream</option>
+                                                <option value="reams">Reams</option>
+                                                <option value="gal">Gallon</option>
+                                                <option value="gals">Gallons</option>
+                                                <option value="none">Others</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Quantity <span class="text-danger">*</span></label>
-                                            <input type="number" name="quantity" class="form-control" required min="0">
-                                        </div>
+                                            <input type="hidden" name="quantity" class="form-control" required min="0">
                                         <div class="col-md-3">
                                             <label class="form-label">Unit Cost <span class="text-danger">*</span></label>
                                             <input type="number" name="unit_cost" step="0.01" class="form-control" required>
@@ -1458,8 +1474,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Quantity</label>
-                                    <input type="number" name="quantity" class="form-control" required min="1">
+                                    <input type="hidden" name="quantity" class="form-control" required min="1">
                                 </div>
 
                                 <div class="mb-3">
@@ -1512,39 +1527,59 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <label class="form-label">Item Name</label>
                                             <input type="text" class="form-control" name="item_name" id="ei_item_name" required>
                                         </div>
-                                        <div class="row g-3">
-                                            
-                                    <div class="col-md-6">
-                                        <div class="form-floating">
-                                        <select name="category" class="form-select" id="categorySelect" required>
-                                            <option value="">Select Category</option>
-                                            <?php
-                                            // Use the same organized categories from the main page
-                                            if (isset($organized_categories) && !empty($organized_categories)) {
-                                                foreach ($organized_categories as $main_category => $subcategories) {
-                                                    echo '<optgroup label="' . htmlspecialchars($main_category) . '">';
-                                                    foreach ($subcategories as $subcategory) {
-                                                        echo '<option value="' . htmlspecialchars($subcategory) . '">' . htmlspecialchars($subcategory) . '</option>';
+                                        
+                                        <div class="col-md-6">
+                                            <label class="form-label">Category</label>
+                                            <select id="accountSelect" name="category" class="form-select">
+                                                <option value="">Select Category</option>
+                                                <?php
+                                                // Use the same organized categories from the main page
+                                                if (isset($organized_categories) && !empty($organized_categories)) {
+                                                    foreach ($organized_categories as $main_category => $subcategories) {
+                                                        echo '<optgroup label="' . htmlspecialchars($main_category) . '">';
+                                                        foreach ($subcategories as $subcategory) {
+                                                            echo '<option value="' . htmlspecialchars($subcategory) . '">' . htmlspecialchars($subcategory) . '</option>';
+                                                        }
+                                                        echo '</optgroup>';
                                                     }
-                                                    echo '</optgroup>';
+                                                } else {
+                                                    // Fallback options if no data available - display as bold headers only
+                                                    echo '<optgroup label="Property and Equipment"></optgroup>';
+                                                    echo '<optgroup label="Intangible Assets"></optgroup>';
+                                                    echo '<optgroup label="Office Supplies"></optgroup>';
+                                                    echo '<optgroup label="Medical Supplies"></optgroup>';
                                                 }
-                                            } else {
-                                                // Fallback options if no data available - display as bold headers only
-                                                echo '<optgroup label="Property and Equipment"></optgroup>';
-                                                echo '<optgroup label="Intangible Assets"></optgroup>';
-                                                echo '<optgroup label="Office Supplies"></optgroup>';
-                                                echo '<optgroup label="Medical Supplies"></optgroup>';
-                                            }
-                                            ?>
-                                        </select>
-                                        <label for="categorySelect">
-                                            <i class="fas fa-folder me-1"></i>Category <span class="text-danger">*</span>
-                                        </label>
+                                                ?>
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
-                                        <div class="col-12">
-                                            <label class="form-label">Description</label>
-                                            <textarea class="form-control" name="description" id="ei_description" rows="2" placeholder="Optional description..."></textarea>
+                                    <div class="row g-3 mt-2">
+                                    <div class="col-3">
+                                        <label class="form-label">Brand</label>
+                                        <input class="form-control" name="brand" id="ei_brand">
+                                    </div>
+
+                                    <div class="col-3">
+                                        <label class="form-label">Color</label>
+                                        <input class="form-control" name="color" id="ei_color">
+                                        <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
+                                    </div>
+
+                                    <div class="col-3">
+                                        <label class="form-label">Size</label>
+                                        <input class="form-control" name="size" id="ei_size">
+                                        <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
+                                    </div>
+
+                                    <div class="col-3">
+                                        <label class="form-label">Type</label>
+                                        <input class="form-control" name="type" id="ei_type">
+                                        <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label">Description</label>
+                                        <textarea class="form-control" name="description" id="ei_description" rows="2" placeholder="Optional description..."></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -1566,20 +1601,22 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <label class="form-label">Unit</label>
                                             <select name="unit" id="ei_unit" class="form-select" required>
                                                 <option value="">--Select Unit--</option>
-                                                <!-- Common singular forms used when adding items -->
                                                 <option value="pc">Piece</option>
+                                                <option value="pcs">Pieces</option>
                                                 <option value="box">Box</option>
-                                                <option value="kg">Kilogram</option>
-                                                <option value="liter">Liter</option>
-                                                <option value="set">Set</option>
-                                                <option value="pack">Pack</option>
-                                                <option value="ream">Ream</option>
-                                                <!-- Legacy/plural variants kept for compatibility -->
-                                                <option value="units">Units</option>
-                                                <option value="packs">Packs</option>
                                                 <option value="boxes">Boxes</option>
+                                                <option value="kg">Kilogram</option>
+                                                <option value="kgs">Kilograms</option>
+                                                <option value="liter">Liter</option>
+                                                <option value="liters">Liters</option>
+                                                <option value="set">Set</option>
                                                 <option value="sets">Sets</option>
+                                                <option value="pack">Pack</option>
+                                                <option value="packs">Packs</option>
+                                                <option value="ream">Ream</option>
                                                 <option value="reams">Reams</option>
+                                                <option value="gal">Gallon</option>
+                                                <option value="gals">Gallons</option>
                                                 <option value="none">Others</option>
                                             </select>
                                         </div>
@@ -1627,10 +1664,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <option value="Discontinued">Discontinued</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label">Quantity</label>
-                                            <input type="number" class="form-control" name="quantity" id="ei_quantity" min="0" disabled>
-                                        </div>
+                                        <input type="hidden" class="form-control" name="quantity" id="ei_quantity" min="0">
                                         <div class="col-md-4">
                                             <label class="form-label">Receiver</label>
                                             <input type="text" class="form-control" name="receiver" id="ei_receiver" placeholder="e.g., Property Custodian">

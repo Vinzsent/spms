@@ -5,6 +5,7 @@ include '../includes/db.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validate and sanitize input
     $item_name = trim($_POST['item_name']);
+    $status = trim($_POST['status']);
     $brand = trim($_POST['brand']);
     $size = trim($_POST['size']);
     $color = trim($_POST['color']);
@@ -66,13 +67,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     
     // Insert new inventory item AFTER status update
-    $sql = "INSERT INTO property_inventory (item_name, brand, size, color, category, description, current_stock, unit, unit_cost, reorder_level, supplier_id, location, created_by, receiver) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO property_inventory (item_name, brand, size, color, category, description, current_stock, unit, unit_cost, reorder_level, supplier_id, location, created_by, receiver, status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     $stmt = $conn->prepare($sql);
     $user_id = $_SESSION['user']['id'] ?? 1;
     // Types for values: s,s,s,s,s,s,i,s,d,i,i,s,i,s (14 params)
-    $stmt->bind_param("ssssssisdiisis", $item_name, $brand, $size, $color, $category, $description, $current_stock, $unit, $unit_cost, $reorder_level, $supplier_id, $location, $user_id, $receiver);
+    $stmt->bind_param("ssssssisdiisiss", $item_name, $brand, $size, $color, $category, $description, $current_stock, $unit, $unit_cost, $reorder_level, $supplier_id, $location, $user_id, $receiver, $status);
     
     if ($stmt->execute()) {
         $inventory_id = $conn->insert_id;

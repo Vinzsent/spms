@@ -1243,6 +1243,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         </div>
                         <form action="../actions/add_inventory.php" method="POST">
                             <input type="hidden" name="receiver" value="Supply In-charge">
+                            <input type="hidden" name="inventory_status" value="Active"> 
                             <div class="modal-body">
                                 <!-- Basic Information -->
                                 <div class="mb-3 pb-2 border-bottom">
@@ -1294,8 +1295,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <small class="form-text text-muted" style="font-size: 12px;">leave blank if not applicable</small>
                                         </div>
                                         <div class="col-3">
-                                            <label class="form-label">Type <span class="text-danger">*</span></label>
+                                            <label class="form-label">Type</label>
                                             <input name="type" class="form-control"></input>
+                                            <small class="form-text text-muted" style="font-size: 12px;">leave blank if not applicable</small>
                                         </div>
                                         <div class="col-12">
                                             <label class="form-label">Description</label>
@@ -1320,13 +1322,24 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <div class="col-md-3">
                                             <label class="form-label">Unit <span class="text-danger">*</span></label>
                                             <select name="unit" class="form-select" required>
-                                                <option value="">Select Unit</option>
+                                            <option value="">--Select Unit--</option>
                                                 <option value="pc">Piece</option>
+                                                <option value="pcs">Pieces</option>
                                                 <option value="box">Box</option>
+                                                <option value="boxes">Boxes</option>
                                                 <option value="kg">Kilogram</option>
+                                                <option value="kgs">Kilograms</option>
                                                 <option value="liter">Liter</option>
+                                                <option value="liters">Liters</option>
                                                 <option value="set">Set</option>
+                                                <option value="sets">Sets</option>
                                                 <option value="pack">Pack</option>
+                                                <option value="packs">Packs</option>
+                                                <option value="ream">Ream</option>
+                                                <option value="reams">Reams</option>
+                                                <option value="gal">Gallon</option>
+                                                <option value="gals">Gallons</option>
+                                                <option value="none">Others</option>
                                             </select>
                                         </div>
                                         <div class="col-md-3">
@@ -1436,7 +1449,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <input type="hidden" name="unit_cost" id="ai_unit_cost">
                 <input type="hidden" name="location" id="ai_location" value="Warehouse">
                 <input type="hidden" name="description" id="ai_description">
-                <input type="hidden" name="status" id="ai_status">
+                <input type="hidden" name="status" id="ai_status" value="Active">
                 <input type="hidden" name="receiver" id="ai_receiver" value="Supply In-charge">
             </form>
 
@@ -1461,6 +1474,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <input type="text" class="form-control" name="item_name" id="ei_item_name" required>
                                         </div>
                                         <div class="col-md-6">
+                                            <label for="" class="form-label"> Category</label>
                                             <div class="form-floating">
                                                 <select name="category" class="form-select" id="categorySelect" required>
                                                     <option value="">Select Category</option>
@@ -1482,29 +1496,26 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                         echo '<optgroup label="Medical Supplies"></optgroup>';
                                                     }
                                                     ?>
-                                                </select>
-                                                <label for="categorySelect">
-                                                    <i class="fas fa-folder me-1"></i>Category <span class="text-danger">*</span>
-                                                </label>
-                                            </div>
+                                                </select>                                            </div>
                                         </div>
                                         <div class="col-3">
                                             <label class="form-label">Brand</label>
-                                            <input name="brand" class="form-control" id="ei_brand" placeholder="No Brand"></input>
+                                            <input name="brand" class="form-control" id="ei_brand"></input>
                                         </div>
                                         <div class="col-3">
                                             <label class="form-label">Color</label>
-                                            <input name="color" class="form-control" id="ei_color" placeholder="No Color"></input>
+                                            <input name="color" class="form-control" id="ei_color"></input>
                                             <small class="form-text text-muted" style="font-size: 12px;">leave blank if not applicable</small>
                                         </div>
                                         <div class="col-3">
                                             <label class="form-label">Size</label>
-                                            <input name="size" class="form-control" id="ei_size" placeholder="No Size"></input>
+                                            <input name="size" class="form-control" id="ei_size"></input>
                                             <small class="form-text text-muted" style="font-size: 12px;">leave blank if not applicable</small>
                                         </div>
                                         <div class="col-3">
                                             <label class="form-label">Type</label>
-                                            <input name="type" class="form-control" id="ei_type" placeholder="No Type"></input>
+                                            <input name="type" class="form-control" id="ei_type"></input>
+                                            <small class="form-text text-muted" style="font-size: 12px;">leave blank if not applicable</small>
                                         </div>
                                         <div class="col-12">
                                             <label class="form-label">Description</label>
@@ -1529,19 +1540,23 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <label class="form-label">Unit</label>
                                                 <select name="unit" id="ei_unit" class="form-select" required>
                                                     <option value="">--Select Unit--</option>
-                                                    <!-- Common singular forms used when adding items -->
                                                     <option value="pc">Piece</option>
+                                                    <option value="pcs">Pieces</option>
                                                     <option value="box">Box</option>
-                                                    <option value="kg">Kilogram</option>
-                                                    <option value="liter">Liter</option>
-                                                    <option value="set">Set</option>
-                                                    <option value="pack">Pack</option>
-                                                    <!-- Legacy/plural variants kept for compatibility -->
-                                                    <option value="units">Units</option>
-                                                    <option value="packs">Packs</option>
                                                     <option value="boxes">Boxes</option>
+                                                    <option value="kg">Kilogram</option>
+                                                    <option value="kgs">Kilograms</option>
+                                                    <option value="liter">Liter</option>
+                                                    <option value="liters">Liters</option>
+                                                    <option value="set">Set</option>
                                                     <option value="sets">Sets</option>
+                                                    <option value="pack">Pack</option>
+                                                    <option value="packs">Packs</option>
+                                                    <option value="ream">Ream</option>
                                                     <option value="reams">Reams</option>
+                                                    <option value="gal">Gallon</option>
+                                                    <option value="gals">Gallons</option>
+                                                    <option value="none">Others</option>
                                                 </select>
                                             </div>
                                             <div class="col-md-3">

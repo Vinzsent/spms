@@ -20,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $status = trim($_POST['status'] ?? '');
     $receiver = trim($_POST['receiver'] ?? '');
     $procurement_id = intval($_POST['procurement_id'] ?? 0);
+    $inventory_status = trim($_POST['inventory_status'] ?? 'Active');
     
     // Validation
     if (empty($item_name) || empty($category) || empty($unit) || $current_stock < 0 || $reorder_level < 0) {
@@ -67,14 +68,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     
     // Insert new inventory item AFTER status update
-    $sql = "INSERT INTO inventory (item_name, category, brand, color, size, type, description, current_stock, unit, unit_cost, reorder_level, supplier_id, location, created_by, receiver) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO inventory (item_name, category, brand, color, size, type, description, current_stock, unit, unit_cost, reorder_level, supplier_id, location, created_by, receiver, inventory_status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     $stmt = $conn->prepare($sql);
     $user_id = $_SESSION['user']['id'] ?? 1;
-    // Types per column (15 params):
-    // item_name(s), category(s), brand(s), color(s), size(s), type(s), description(s), current_stock(i), unit(s), unit_cost(d), reorder_level(i), supplier_id(i), location(s), created_by(i), receiver(s)
-    $stmt->bind_param("sssssssisdiisis", $item_name, $category, $brand, $color, $size, $type, $description, $current_stock, $unit, $unit_cost, $reorder_level, $supplier_id, $location, $user_id, $receiver);
+    // Types per column (16 params):
+    // item_name(s), category(s), brand(s), color(s), size(s), type(s), description(s), current_stock(i), unit(s), unit_cost(d), reorder_level(i), supplier_id(i), location(s), created_by(i), receiver(s), inventory_status(s)
+    $stmt->bind_param("sssssssisdiisiss", $item_name, $category, $brand, $color, $size, $type, $description, $current_stock, $unit, $unit_cost, $reorder_level, $supplier_id, $location, $user_id, $receiver, $inventory_status);
     
     if ($stmt->execute()) {
         $inventory_id = $conn->insert_id;
