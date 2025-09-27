@@ -1065,7 +1065,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             </div>
                             <div class="pt-4">
                                 <?php if (!empty($sy_recv_raw)): ?>
-                                    <a href="inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv' => true])) ?>" class="btn btn-outline-light">Reset</a>
+                                    <a href="Inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv' => true])) ?>" class="btn btn-outline-light">Reset</a>
                                 <?php endif; ?>
                             </div>
                         </form>
@@ -1177,7 +1177,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 </div>
                                 <div class="pt-4">
                                     <?php if (!empty($sy_logs_raw)): ?>
-                                        <a href="inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_logs' => true])) ?>" class="btn btn-outline-light">Reset</a>
+                                        <a href="Inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_logs' => true])) ?>" class="btn btn-outline-light">Reset</a>
                                     <?php endif; ?>
                                 </div>
                             </form>
