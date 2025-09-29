@@ -40,12 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // 2. Update transaction status to received
-            $stmt = $conn->prepare("
-                UPDATE supplier_transaction SET 
-                    status = 'Added',
-date_updated = CURRENT_TIMESTAMP
-                WHERE procurement_id = ?
-            ");
+            $stmt = $conn->prepare(
+                "UPDATE supplier_transaction SET status = 'Received', date_updated = CURRENT_TIMESTAMP WHERE procurement_id = ?"
+            );
 
             if (!$stmt) {
                 throw new Exception("Prepare failed: " . $conn->error);
@@ -64,7 +61,7 @@ date_updated = CURRENT_TIMESTAMP
             $check_stmt->close();
 
             // 3. Insert or update inventory
-            // Check if item already exists in inventory
+            // Check if item already exists in inventory (no status filter here)
             $checkStmt = $conn->prepare("SELECT inventory_id, current_stock FROM inventory WHERE item_name = ? AND supplier_id = ? LIMIT 1");
             $checkStmt->bind_param("si", $transaction['item_name'], $transaction['supplier_id']);
             $checkStmt->execute();
@@ -74,26 +71,18 @@ date_updated = CURRENT_TIMESTAMP
                 // Update existing inventory
                 $row = $result->fetch_assoc();
                 $new_stock = $row['current_stock'] + $transaction['quantity'];
-                $updateStmt = $conn->prepare("
-                    UPDATE inventory SET 
-                        current_stock = ?,
-                        unit_cost = ?,
-                        last_updated_by = ?,
-                        date_updated = CURRENT_TIMESTAMP
-                    WHERE inventory_id = ?
-                ");
+                $updateStmt = $conn->prepare(
+                    "UPDATE inventory SET current_stock = ?, unit_cost = ?, last_updated_by = ?, date_updated = CURRENT_TIMESTAMP WHERE inventory_id = ?"
+                );
                 $updateStmt->bind_param("ddii", $new_stock, $transaction['unit_price'], $user_id, $row['inventory_id']);
                 $updateStmt->execute();
                 $updateStmt->close();
                 $inventory_id = $row['inventory_id'];
             } else {
-                // Insert new inventory item
-                $insertStmt = $conn->prepare("
-                    INSERT INTO inventory 
-                    (item_name, category, description, current_stock, unit, unit_cost, 
-                     reorder_level, supplier_id, status, created_by, last_updated_by, receiver)
-                    VALUES (?, ?, ?, ?, ?, ?, 0, ?, 'Active', ?, ?, ?)
-                ");
+                // Insert new inventory item (align columns with values)
+                $insertStmt = $conn->prepare(
+                    "INSERT INTO inventory (item_name, category, description, current_stock, unit, unit_cost, reorder_level, supplier_id, status, created_by, last_updated_by, receiver) VALUES (?, ?, ?, ?, ?, ?, 0, ?, 'Active', ?, ?, ?)"
+                );
                 $insertStmt->bind_param(
                     "sssisdiiis",
                     $transaction['item_name'],
@@ -113,12 +102,10 @@ date_updated = CURRENT_TIMESTAMP
             }
             $checkStmt->close();
 
-            // 4. Record the inventory movement
-            $movementStmt = $conn->prepare("
-                INSERT INTO stock_logs 
-                (inventory_id, movement_type, quantity, previous_stock, new_stock, notes, created_by, receiver)
-                VALUES (?, 'IN', ?, ?, ?, ?, ?, ?)
-            ");
+            // 4. Record the inventory movement (remove non-existent status column)
+            $movementStmt = $conn->prepare(
+                "INSERT INTO stock_logs (inventory_id, movement_type, quantity, previous_stock, new_stock, notes, created_by, receiver) VALUES (?, 'IN', ?, ?, ?, ?, ?, ?)"
+            );
 
             if (!$movementStmt) {
                 throw new Exception("Prepare failed: " . $conn->error);

@@ -87,16 +87,18 @@ if ($sy_logs_start && $sy_logs_end) {
 
 // Fetch all category data for dropdown
 $categories_query = "
-    SELECT 
+     SELECT 
+        at.id as category_id,
         at.name as main_category,
         sc.name as subcategory,
         ssc.name as sub_subcategory,
         sssc.name as sub_sub_subcategory
-    FROM account_types at
-    LEFT JOIN account_subcategories sc ON at.id = sc.parent_id
-    LEFT JOIN account_sub_subcategories ssc ON sc.id = ssc.subcategory_id
-    LEFT JOIN account_sub_sub_subcategories sssc ON ssc.id = sssc.sub_subcategory_id
-    ORDER BY at.name, sc.name, ssc.name, sssc.name
+        FROM account_types at
+        LEFT JOIN account_subcategories sc ON at.id = sc.parent_id
+        LEFT JOIN account_sub_subcategories ssc ON sc.id = ssc.subcategory_id
+        LEFT JOIN account_sub_sub_subcategories sssc ON ssc.id = sssc.sub_subcategory_id
+        WHERE at.id BETWEEN 14 AND 29
+        ORDER BY at.id, sc.name, ssc.name, sssc.name
 ";
 $categories_result = $conn->query($categories_query);
 
@@ -422,7 +424,6 @@ if (isset($_SESSION['error'])) {
     .table tbody td {
         padding: 12px 8px;
         vertical-align: middle;
-        font-size: 0.85rem;
         line-height: 1.3;
         text-overflow: ellipsis;
         overflow: hidden;

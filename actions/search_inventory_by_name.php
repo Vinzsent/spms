@@ -25,7 +25,7 @@ try {
     error_log("Database connection: " . ($conn ? 'Connected' : 'Failed'));
 
     // First try exact match (case-insensitive)
-    $sql_exact = "SELECT inventory_id, item_name, type, brand, size, color, current_stock, unit, unit_cost, inventory_status, category, location FROM inventory WHERE LOWER(item_name) = LOWER(?) LIMIT 1";
+    $sql_exact = "SELECT inventory_id, item_name, type, brand, size, color, current_stock, unit, unit_cost, status, category, location FROM inventory WHERE LOWER(item_name) = LOWER(?) LIMIT 1";
     $stmt = $conn->prepare($sql_exact);
     if (!$stmt) {
         error_log("Prepare failed: " . $conn->error);
@@ -50,7 +50,7 @@ try {
 
     // Fallback to partial matches (top 5)
     $like = '%' . $term . '%';
-    $sql_like = "SELECT inventory_id, item_name, type, brand, size, color, current_stock, unit, unit_cost, inventory_status, category, location FROM inventory WHERE item_name LIKE ? ORDER BY item_name ASC LIMIT 5";
+    $sql_like = "SELECT inventory_id, item_name, type, brand, size, color, current_stock, unit, unit_cost, status, category, location FROM inventory WHERE item_name LIKE ? ORDER BY item_name ASC LIMIT 5";
     $stmt2 = $conn->prepare($sql_like);
     if (!$stmt2) {
         error_log("Prepare failed for partial search: " . $conn->error);

@@ -149,20 +149,15 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
               </div>
 
               <div class="col-md-4">
-                <div class="form-floating">
-                  <input type="text" name="item_name" class="form-control" id="itemName" style="height: 70px" required>
+                <div class="form-floating position-relative">
+                  <input type="text" name="item_name" class="form-control" id="itemName" style="height: 70px" required autocomplete="off">
                   <label for="itemName">
                     <i class="fas fa-align-items me-1"></i>Item Name <span class="text-danger">*</span>
                   </label>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="form-floating">
-                  <input type="text" name="item_name" class="form-control" id="itemName" style="height: 70px" required>
-                  <label for="itemName">
-                    <i class="fas fa-align-items me-1"></i>Item Name <span class="text-danger">*</span>
-                  </label>
+                  <!-- Autocomplete suggestions dropdown -->
+                  <div id="propItemSuggestions" class="autocomplete-suggestions" style="display: none;">
+                    <ul id="propSuggestionsList" class="list-group"></ul>
+                  </div>
                 </div>
               </div>
 
@@ -714,6 +709,51 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
   #categorySelect option.heading-option[disabled] {
     color: #1a5f3c;
   }
+  .form-floating.position-relative { overflow: visible; }
+  .autocomplete-suggestions { z-index: 2000; }
+  #categorySelect option.heading-option { font-weight: bold; color: #1a5f3c; text-align: center; }
+  #categorySelect option.heading-option[disabled] { color: #1a5f3c; }
+
+  /* Autocomplete Suggestions Styles (match supply request) */
+  .autocomplete-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-height: 240px;
+    overflow-y: auto;
+  }
+  .autocomplete-suggestions .list-group { margin: 0; border: none; }
+  .autocomplete-suggestions .list-group-item {
+    border: none;
+    border-bottom: 1px solid #f8f9fa;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .autocomplete-suggestions .list-group-item:last-child { border-bottom: none; }
+  .autocomplete-suggestions .list-group-item:hover { background-color: #f8f9fa; color: #2d7a4d; }
+  .suggestion-item { display: flex; align-items: center; gap: 12px; width: 100%; }
+  .suggestion-icon {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, #1a5f3c, #2d7a4d);
+    display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0;
+  }
+  .suggestion-content { flex: 1; min-width: 0; }
+  .suggestion-name { font-weight: 600; color: #495057; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .suggestion-details { font-size: 12px; color: #6c757d; display: flex; gap: 8px; flex-wrap: wrap; }
+  .suggestion-detail { background: #e9ecef; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+  .suggestion-stock { color: #28a745; font-weight: 500; }
+  .suggestion-stock.low { color: #ffc107; }
+  .suggestion-stock.out { color: #dc3545; }
 </style>
 
 <script>
@@ -1024,6 +1064,112 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
       });
     }
 
+    // Autocomplete for property inventory
+    const itemNameInput = document.getElementById('itemName');
+    const suggestionsContainer = document.getElementById('propItemSuggestions');
+    const suggestionsList = document.getElementById('propSuggestionsList');
+    let searchTimeout;
+    let currentSuggestions = [];
+    let selectedIndex = -1;
 
+    function hideSuggestions() {
+      if (suggestionsContainer) suggestionsContainer.style.display = 'none';
+      selectedIndex = -1;
+    }
+
+    function selectSuggestion(item) {
+      if (!itemNameInput) return;
+      itemNameInput.value = item.item_name || '';
+      const brandInput = document.getElementById('brandInput');
+      const colorInput = document.getElementById('colorInput');
+      const typeInput = document.getElementById('typeInput');
+      const categorySelect = document.getElementById('categorySelect');
+      if (brandInput && item.brand) brandInput.value = item.brand;
+      if (colorInput && item.color) colorInput.value = item.color;
+      if (typeInput && item.type) typeInput.value = item.type;
+      if (categorySelect && item.category) categorySelect.value = item.category;
+      hideSuggestions();
+      itemNameInput.focus();
+    }
+
+    function highlightSuggestion(index) {
+      const items = suggestionsList.querySelectorAll('.list-group-item');
+      items.forEach((el, i) => {
+        el.style.backgroundColor = (i === index) ? '#f8f9fa' : '';
+        el.style.color = (i === index) ? '#2d7a4d' : '';
+      });
+    }
+
+    function showSuggestions(items) {
+      currentSuggestions = items || [];
+      suggestionsList.innerHTML = '';
+      if (!currentSuggestions.length) { hideSuggestions(); return; }
+      currentSuggestions.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item';
+        li.setAttribute('data-index', index);
+        let stockClass = '';
+        let stockText = '';
+        const cs = Number(item.current_stock || 0);
+        const rl = Number(item.reorder_level || 0);
+        if (cs === 0) { stockClass = 'out'; stockText = 'Out of Stock'; }
+        else if (rl && cs <= rl) { stockClass = 'low'; stockText = 'Low Stock'; }
+        else { stockText = `${cs} ${item.unit || ''}`.trim(); }
+        li.innerHTML = `
+          <div class="suggestion-item">
+            <div class="suggestion-icon"><i class="fas fa-box"></i></div>
+            <div class="suggestion-content">
+              <div class="suggestion-name">${item.item_name || ''}</div>
+              <div class="suggestion-details">
+                <span class="suggestion-detail">${item.category || 'No Category'}</span>
+                <span class="suggestion-detail">${item.brand || 'No Brand'}</span>
+                <span class="suggestion-detail suggestion-stock ${stockClass}">${stockText}</span>
+              </div>
+            </div>
+          </div>`;
+        li.addEventListener('click', () => selectSuggestion(item));
+        suggestionsList.appendChild(li);
+      });
+      suggestionsContainer.style.display = 'block';
+    }
+
+    function searchPropertyInventory(query) {
+      if (query.length < 2) { hideSuggestions(); return; }
+      fetch(`../actions/search_property_inventory_by_name.php?q=${encodeURIComponent(query)}`)
+        .then(r => r.json())
+        .then(data => {
+          if (!data) { hideSuggestions(); return; }
+          if (data.success === true) {
+            if (data.item) { showSuggestions([data.item]); return; }
+            if (Array.isArray(data.items) && data.items.length) { showSuggestions(data.items); return; }
+          }
+          hideSuggestions();
+        })
+        .catch(() => hideSuggestions());
+    }
+
+    if (itemNameInput) {
+      itemNameInput.addEventListener('input', function() {
+        const q = this.value.trim();
+        clearTimeout(searchTimeout);
+        if (q.length >= 2) searchTimeout = setTimeout(() => searchPropertyInventory(q), 300);
+        else hideSuggestions();
+      });
+      itemNameInput.addEventListener('keydown', function(e) {
+        if (suggestionsContainer.style.display === 'none') return;
+        switch(e.key) {
+          case 'ArrowDown': e.preventDefault(); selectedIndex = Math.min(selectedIndex + 1, currentSuggestions.length - 1); highlightSuggestion(selectedIndex); break;
+          case 'ArrowUp': e.preventDefault(); selectedIndex = Math.max(selectedIndex - 1, -1); highlightSuggestion(selectedIndex); break;
+          case 'Enter': e.preventDefault(); if (selectedIndex >= 0 && currentSuggestions[selectedIndex]) selectSuggestion(currentSuggestions[selectedIndex]); break;
+          case 'Escape': hideSuggestions(); break;
+        }
+      });
+      document.addEventListener('click', function(e) {
+        if (!itemNameInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+          hideSuggestions();
+        }
+      });
+      itemNameInput.addEventListener('blur', function() { setTimeout(() => hideSuggestions(), 200); });
+    }
   });
 </script>

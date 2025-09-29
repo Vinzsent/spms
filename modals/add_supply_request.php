@@ -386,6 +386,10 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
     background: linear-gradient(135deg, #1a5f3c, #2d7a4d);
   }
 
+  /* Ensure autocomplete can overflow and stay on top */
+  .form-floating.position-relative { overflow: visible; }
+  .autocomplete-suggestions { z-index: 2000; } /* above modal content */
+
   /* Modal Enhancements */
   .modal-content {
     border-radius: 15px;
@@ -1046,17 +1050,28 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
       fetch(`../actions/search_inventory_by_name.php?q=${encodeURIComponent(query)}`)
         .then(response => response.json())
         .then(data => {
-          if (data.success) {
+          // Be tolerant to different response shapes
+          if (!data) { hideSuggestions(); return; }
+
+          if (data.success === true) {
+            if (data.item) {
+              showSuggestions([data.item]);
+              return;
+            }
+            if (Array.isArray(data.items) && data.items.length) {
+              showSuggestions(data.items);
+              return;
+            }
             if (data.match === 'exact' && data.item) {
               showSuggestions([data.item]);
-            } else if (data.match === 'partial' && data.items) {
-              showSuggestions(data.items);
-            } else {
-              hideSuggestions();
+              return;
             }
-          } else {
-            hideSuggestions();
+            if (data.match === 'partial' && Array.isArray(data.items)) {
+              showSuggestions(data.items);
+              return;
+            }
           }
+          hideSuggestions();
         })
         .catch(error => {
           console.error('Search error:', error);
@@ -1065,15 +1080,11 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
     }
 
     function showSuggestions(items) {
-      currentSuggestions = items;
+      currentSuggestions = items || [];
       suggestionsList.innerHTML = '';
-      
-      if (items.length === 0) {
-        hideSuggestions();
-        return;
-      }
+      if (!currentSuggestions.length) { hideSuggestions(); return; }
 
-      items.forEach((item, index) => {
+      currentSuggestions.forEach((item, index) => {
         const li = document.createElement('li');
         li.className = 'list-group-item';
         li.setAttribute('data-index', index);
@@ -1081,15 +1092,14 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
         // Determine stock status
         let stockClass = '';
         let stockText = '';
-        if (item.current_stock == 0) {
+        if ((item.current_stock || 0) == 0) {
           stockClass = 'out';
           stockText = 'Out of Stock';
-        } else if (item.current_stock <= (item.reorder_level || 0)) {
+        } else if ((item.reorder_level || 0) && item.current_stock <= item.reorder_level) {
           stockClass = 'low';
           stockText = 'Low Stock';
         } else {
-          stockClass = '';
-          stockText = `${item.current_stock} ${item.unit || ''}`;
+          stockText = `${item.current_stock ?? ''} ${item.unit || ''}`.trim();
         }
 
         li.innerHTML = `
@@ -1098,7 +1108,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
               <i class="fas fa-box"></i>
             </div>
             <div class="suggestion-content">
-              <div class="suggestion-name">${item.item_name}</div>
+              <div class="suggestion-name">${item.item_name || ''}</div>
               <div class="suggestion-details">
                 <span class="suggestion-detail">${item.category || 'No Category'}</span>
                 <span class="suggestion-detail">${item.brand || 'No Brand'}</span>
@@ -1121,19 +1131,13 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
     }
 
     function selectSuggestion(item) {
-      itemNameInput.value = item.item_name;
-      
-      // Auto-fill other fields if they exist
+      itemNameInput.value = item.item_name || '';
       const brandInput = document.getElementById('brandInput');
       const colorInput = document.getElementById('colorInput');
       const categorySelect = document.getElementById('categorySelect');
-      
       if (brandInput && item.brand) brandInput.value = item.brand;
       if (colorInput && item.color) colorInput.value = item.color;
-      if (categorySelect && item.category) {
-        categorySelect.value = item.category;
-      }
-      
+      if (categorySelect && item.category) categorySelect.value = item.category;
       hideSuggestions();
       itemNameInput.focus();
     }
@@ -1156,7 +1160,6 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
       itemNameInput.addEventListener('input', function() {
         const query = this.value.trim();
         clearTimeout(searchTimeout);
-        
         if (query.length >= 2) {
           searchTimeout = setTimeout(() => searchInventory(query), 300);
         } else {
@@ -1166,7 +1169,6 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
 
       itemNameInput.addEventListener('keydown', function(e) {
         if (suggestionsContainer.style.display === 'none') return;
-
         switch(e.key) {
           case 'ArrowDown':
             e.preventDefault();
@@ -1177,10 +1179,7 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
             e.preventDefault();
             selectedIndex = Math.max(selectedIndex - 1, -1);
             if (selectedIndex === -1) {
-              suggestionsList.querySelectorAll('.list-group-item').forEach(item => {
-                item.style.backgroundColor = '';
-                item.style.color = '';
-              });
+              suggestionsList.querySelectorAll('.list-group-item').forEach(item => { item.style.backgroundColor = ''; item.style.color = ''; });
             } else {
               highlightSuggestion(selectedIndex);
             }
@@ -1197,14 +1196,12 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
         }
       });
 
-      // Hide suggestions when clicking outside
       document.addEventListener('click', function(e) {
         if (!itemNameInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
           hideSuggestions();
         }
       });
 
-      // Hide suggestions when input loses focus
       itemNameInput.addEventListener('blur', function() {
         setTimeout(() => hideSuggestions(), 200);
       });
