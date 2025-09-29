@@ -118,11 +118,15 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
               </div>
 
               <div class="col-md-6">
-                <div class="form-floating">
-                  <input type="text" name="item_name" class="form-control" id="itemName" style="height: 70px" required>
+                <div class="form-floating position-relative">
+                  <input type="text" name="item_name" class="form-control" id="itemName" style="height: 70px" required autocomplete="off">
                   <label for="itemName">
                     <i class="fas fa-align-items me-1"></i>Item Name <span class="text-danger">*</span>
                   </label>
+                  <!-- Autocomplete suggestions dropdown -->
+                  <div id="itemSuggestions" class="autocomplete-suggestions" style="display: none;">
+                    <ul id="suggestionsList" class="list-group"></ul>
+                  </div>
                 </div>
               </div>
 
@@ -655,6 +659,109 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
     font-weight: normal;
     color: #333;
   }
+
+  /* Autocomplete Suggestions Styles */
+  .autocomplete-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .autocomplete-suggestions .list-group {
+    margin: 0;
+    border: none;
+  }
+
+  .autocomplete-suggestions .list-group-item {
+    border: none;
+    border-bottom: 1px solid #f8f9fa;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .autocomplete-suggestions .list-group-item:hover {
+    background-color: #f8f9fa;
+    color: #2d7a4d;
+  }
+
+  .autocomplete-suggestions .list-group-item:last-child {
+    border-bottom: none;
+  }
+
+  .suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .suggestion-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #1a5f3c, #2d7a4d);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .suggestion-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .suggestion-name {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .suggestion-details {
+    font-size: 12px;
+    color: #6c757d;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .suggestion-detail {
+    background: #e9ecef;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+  }
+
+  .suggestion-stock {
+    color: #28a745;
+    font-weight: 500;
+  }
+
+  .suggestion-stock.low {
+    color: #ffc107;
+  }
+
+  .suggestion-stock.out {
+    color: #dc3545;
+  }
 </style>
 
 <script>
@@ -667,6 +774,14 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
     const hiddenAmount = document.getElementById('hiddenAmount');
     const modal = document.getElementById('addSupplyModal');
     const form = modal.querySelector('form');
+    
+    // Autocomplete functionality
+    const itemNameInput = document.getElementById('itemName');
+    const suggestionsContainer = document.getElementById('itemSuggestions');
+    const suggestionsList = document.getElementById('suggestionsList');
+    let searchTimeout;
+    let currentSuggestions = [];
+    let selectedIndex = -1;
 
     // Summary elements
     const summaryQuantity = document.getElementById('summaryQuantity');
@@ -921,6 +1036,179 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
       });
     }
 
+    // Autocomplete functionality
+    function searchInventory(query) {
+      if (query.length < 2) {
+        hideSuggestions();
+        return;
+      }
+
+      fetch(`../actions/search_inventory_by_name.php?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            if (data.match === 'exact' && data.item) {
+              showSuggestions([data.item]);
+            } else if (data.match === 'partial' && data.items) {
+              showSuggestions(data.items);
+            } else {
+              hideSuggestions();
+            }
+          } else {
+            hideSuggestions();
+          }
+        })
+        .catch(error => {
+          console.error('Search error:', error);
+          hideSuggestions();
+        });
+    }
+
+    function showSuggestions(items) {
+      currentSuggestions = items;
+      suggestionsList.innerHTML = '';
+      
+      if (items.length === 0) {
+        hideSuggestions();
+        return;
+      }
+
+      items.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item';
+        li.setAttribute('data-index', index);
+        
+        // Determine stock status
+        let stockClass = '';
+        let stockText = '';
+        if (item.current_stock == 0) {
+          stockClass = 'out';
+          stockText = 'Out of Stock';
+        } else if (item.current_stock <= (item.reorder_level || 0)) {
+          stockClass = 'low';
+          stockText = 'Low Stock';
+        } else {
+          stockClass = '';
+          stockText = `${item.current_stock} ${item.unit || ''}`;
+        }
+
+        li.innerHTML = `
+          <div class="suggestion-item">
+            <div class="suggestion-icon">
+              <i class="fas fa-box"></i>
+            </div>
+            <div class="suggestion-content">
+              <div class="suggestion-name">${item.item_name}</div>
+              <div class="suggestion-details">
+                <span class="suggestion-detail">${item.category || 'No Category'}</span>
+                <span class="suggestion-detail">${item.brand || 'No Brand'}</span>
+                <span class="suggestion-detail suggestion-stock ${stockClass}">${stockText}</span>
+              </div>
+            </div>
+          </div>
+        `;
+
+        li.addEventListener('click', () => selectSuggestion(item));
+        suggestionsList.appendChild(li);
+      });
+
+      suggestionsContainer.style.display = 'block';
+    }
+
+    function hideSuggestions() {
+      suggestionsContainer.style.display = 'none';
+      selectedIndex = -1;
+    }
+
+    function selectSuggestion(item) {
+      itemNameInput.value = item.item_name;
+      
+      // Auto-fill other fields if they exist
+      const brandInput = document.getElementById('brandInput');
+      const colorInput = document.getElementById('colorInput');
+      const categorySelect = document.getElementById('categorySelect');
+      
+      if (brandInput && item.brand) brandInput.value = item.brand;
+      if (colorInput && item.color) colorInput.value = item.color;
+      if (categorySelect && item.category) {
+        categorySelect.value = item.category;
+      }
+      
+      hideSuggestions();
+      itemNameInput.focus();
+    }
+
+    function highlightSuggestion(index) {
+      const items = suggestionsList.querySelectorAll('.list-group-item');
+      items.forEach((item, i) => {
+        if (i === index) {
+          item.style.backgroundColor = '#f8f9fa';
+          item.style.color = '#2d7a4d';
+        } else {
+          item.style.backgroundColor = '';
+          item.style.color = '';
+        }
+      });
+    }
+
+    // Event listeners for autocomplete
+    if (itemNameInput) {
+      itemNameInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        clearTimeout(searchTimeout);
+        
+        if (query.length >= 2) {
+          searchTimeout = setTimeout(() => searchInventory(query), 300);
+        } else {
+          hideSuggestions();
+        }
+      });
+
+      itemNameInput.addEventListener('keydown', function(e) {
+        if (suggestionsContainer.style.display === 'none') return;
+
+        switch(e.key) {
+          case 'ArrowDown':
+            e.preventDefault();
+            selectedIndex = Math.min(selectedIndex + 1, currentSuggestions.length - 1);
+            highlightSuggestion(selectedIndex);
+            break;
+          case 'ArrowUp':
+            e.preventDefault();
+            selectedIndex = Math.max(selectedIndex - 1, -1);
+            if (selectedIndex === -1) {
+              suggestionsList.querySelectorAll('.list-group-item').forEach(item => {
+                item.style.backgroundColor = '';
+                item.style.color = '';
+              });
+            } else {
+              highlightSuggestion(selectedIndex);
+            }
+            break;
+          case 'Enter':
+            e.preventDefault();
+            if (selectedIndex >= 0 && currentSuggestions[selectedIndex]) {
+              selectSuggestion(currentSuggestions[selectedIndex]);
+            }
+            break;
+          case 'Escape':
+            hideSuggestions();
+            break;
+        }
+      });
+
+      // Hide suggestions when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!itemNameInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+          hideSuggestions();
+        }
+      });
+
+      // Hide suggestions when input loses focus
+      itemNameInput.addEventListener('blur', function() {
+        setTimeout(() => hideSuggestions(), 200);
+      });
+    }
 
   });
 </script>

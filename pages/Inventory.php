@@ -165,12 +165,12 @@ $categories_query = "
         sc.name as subcategory,
         ssc.name as sub_subcategory,
         sssc.name as sub_sub_subcategory
-    FROM account_types at
-    LEFT JOIN account_subcategories sc ON at.id = sc.parent_id
-    LEFT JOIN account_sub_subcategories ssc ON sc.id = ssc.subcategory_id
-    LEFT JOIN account_sub_sub_subcategories sssc ON ssc.id = sssc.sub_subcategory_id
-    WHERE at.id BETWEEN 14 AND 29
-    ORDER BY at.id, sc.name, ssc.name, sssc.name
+        FROM account_types at
+        LEFT JOIN account_subcategories sc ON at.id = sc.parent_id
+        LEFT JOIN account_sub_subcategories ssc ON sc.id = ssc.subcategory_id
+        LEFT JOIN account_sub_sub_subcategories sssc ON ssc.id = sssc.sub_subcategory_id
+        WHERE at.id BETWEEN 22 AND 29
+        ORDER BY at.id, sc.name, ssc.name, sssc.name
 ";
 $categories_result = $conn->query($categories_query);
 
@@ -616,6 +616,21 @@ if ($categories_result && $categories_result->num_rows > 0) {
             box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
         }
 
+        /* Loading indicator for search input */
+        .search-input input.loading {
+            background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px 16px;
+            animation: spin 1s linear infinite;
+            padding-right: 35px;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         .btn-search {
             background-color: var(--accent-blue);
             border-color: var(--accent-blue);
@@ -762,6 +777,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <div class="stat-label">Recent Movements</div>
             </div>
         </div>
+        
         <!-- Inventory Table -->
         <div class="table-container">
             <div class="table-header">
@@ -953,8 +969,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <th>Item Name</th>
                                 <th>Current Stock</th>
                                 <th>Unit</th>
-                                <th>Supplier</th>
-                                <th>Location</th>
+                                <th>Brand</th>
+                                <th>Color</th>
+                                <th>Size</th>
                                 <th>Last Updated</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -978,7 +995,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <td class="text-center"><strong><?= $row['current_stock'] ?></strong></td>
                                         <td><?= $row['unit'] ?></td>
                                         <td><?= htmlspecialchars($row['supplier_name']) ?></td>
-                                        <td><?= htmlspecialchars($row['location'] ?? 'N/A') ?></td>
                                         <td><?= date('M d, Y', strtotime($row['date_updated'])) ?></td>
                                         <td>
                                             <span class="badge bg-<?= $stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success') ?>">
@@ -1005,8 +1021,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <?= json_encode($row['unit']) ?>,
                                                 <?= (int)$row['current_stock'] ?>,
                                                 <?= (int)$row['reorder_level'] ?>,
-                                                <?= json_encode($row['location'] ?? '') ?>,
                                                 <?= (int)$row['supplier_id'] ?>,
+                                                <?= json_encode($row['location'] ?? '') ?>,
                                                 <?= (float)$row['unit_cost'] ?>
                                             )">
                                                 <i class="fas fa-edit"></i>
@@ -1316,7 +1332,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label">Reorder Level</label>
-                                            <input type="number" name="reorder_level" class="form-control" required min="0">
+                                            <input type="number" name="reorder_level" class="form-control" required min="0" value="0">
                                             <small class="form-text text-muted" style="font-size: 12px;">leave blank if not applicable</small>
                                         </div>
                                         <div class="col-md-3">
@@ -1339,6 +1355,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <option value="reams">Reams</option>
                                                 <option value="gal">Gallon</option>
                                                 <option value="gals">Gallons</option>
+                                                <option value="bag">Bag</option>
+                                                <option value="bags">Bags</option>
                                                 <option value="none">Others</option>
                                             </select>
                                         </div>
@@ -1621,7 +1639,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         }
                     });
 
-                    // Real-time search with debounce (optional enhancement)
+                    // Real-time search with debounce - NO PAGE REFRESH
                     let searchTimeout;
                     $('#search').on('input', function() {
                         clearTimeout(searchTimeout);
@@ -1629,8 +1647,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
                         searchTimeout = setTimeout(function() {
                             if (searchValue.length === 0 || searchValue.length >= 2) {
-                                // Auto-submit for empty searches or searches with 2+ characters
-                                $('#search').closest('form').submit();
+                                // Perform AJAX search instead of form submission
+                                performSearch(searchValue);
                             }
                         }, 500); // Wait 500ms after user stops typing
                     });
@@ -1695,6 +1713,81 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         // Error message
                         alert('❌ Error!\n\n' + sessionError);
                     }
+                }
+
+                // AJAX search function - no page refresh
+                function performSearch(searchTerm) {
+                    // Show loading indicator
+                    const searchInput = $('#search');
+                    const originalValue = searchInput.val();
+                    
+                    // Add loading class to search input
+                    searchInput.addClass('loading');
+                    
+                    // Get current URL parameters
+                    const currentParams = new URLSearchParams(window.location.search);
+                    currentParams.set('search', searchTerm);
+                    currentParams.set('ajax', '1');
+                    currentParams.delete('page'); // Reset to first page for new search
+                    
+                    // Fetch search results
+                    fetch("Inventory.php?" + currentParams.toString())
+                        .then(response => response.text())
+                        .then(data => {
+                            // Remove loading class
+                            searchInput.removeClass('loading');
+                            
+                            // Extract table content from response
+                            const temp = document.createElement('div');
+                            temp.innerHTML = data;
+                            const newTable = temp.querySelector('#inventoryTable');
+                            const newPagination = temp.querySelector('#paginationContainer');
+                            
+                            if (newTable) {
+                                document.getElementById("inventoryTable").innerHTML = newTable.innerHTML;
+                            }
+                            if (newPagination) {
+                                const paginationContainer = document.querySelector("#paginationContainer");
+                                if (paginationContainer) {
+                                    paginationContainer.innerHTML = newPagination.innerHTML;
+                                }
+                            }
+                            
+                            // Update URL without page reload
+                            const url = new URL(window.location);
+                            url.searchParams.set('search', searchTerm);
+                            url.searchParams.delete('page');
+                            window.history.pushState({}, '', url);
+                            
+                            // Smooth scroll to top of table
+                            const table = document.querySelector('.table-responsive');
+                            if (table) {
+                                table.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'start'
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Search error:", error);
+                            searchInput.removeClass('loading');
+                            
+                            // Show error message
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'alert alert-danger mt-3';
+                            errorDiv.innerHTML = `
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Error performing search. Please try again.
+                                <button class="btn btn-sm btn-outline-danger ms-2" onclick="performSearch('${searchTerm}')">
+                                    <i class="fas fa-sync-alt"></i> Retry
+                                </button>
+                            `;
+                            
+                            const tableContainer = document.querySelector('.table-responsive');
+                            if (tableContainer) {
+                                tableContainer.parentNode.insertBefore(errorDiv, tableContainer.nextSibling);
+                            }
+                        });
                 }
 
                 // Function to change status from Pending to Received
@@ -1879,7 +1972,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 }
 
                 // Open Edit Inventory modal with data
-                function openEditInventoryModal(id, name, category, brand, color, size, type, description, unit, stock, reorder, location, supplierId, unitCost) {
+                function openEditInventoryModal(id, name, category, brand, color, size, type, description, unit, stock, reorder, supplierId, location, unitCost) {
                     document.getElementById('ei_inventory_id').value = id;
                     document.getElementById('ei_item_name').value = name;
                     // Populate specifications
@@ -1969,8 +2062,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     })();
                     document.getElementById('ei_current_stock').value = stock;
                     document.getElementById('ei_reorder_level').value = reorder;
-                    document.getElementById('ei_location').value = location || '';
                     document.getElementById('ei_supplier_id').value = supplierId || '';
+                    document.getElementById('ei_location').value = location || '';
                     document.getElementById('ei_unit_cost').value = unitCost || 0;
                     const modal = new bootstrap.Modal(document.getElementById('editInventoryModal'));
                     modal.show();
@@ -2175,7 +2268,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '<div id="inventoryTable">';
             echo '<table class="table table-hover mb-0">';
             echo '<thead class="table-dark">';
-            echo '<tr><th>Item Name</th><th>Current Stock</th><th>Unit</th><th>Supplier</th><th>Location</th><th>Last Updated</th><th>Status</th><th>Actions</th></tr>';
+            echo '<tr><th>Item Name</th><th>Current Stock</th><th>Unit</th><th>Brand</th><th>Color</th><th>Size</th><th>Last Updated</th><th>Status</th><th>Actions</th></tr>';
             echo '</thead><tbody>';
 
             if ($result && $result->num_rows > 0) {
@@ -2193,8 +2286,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '<td>' . htmlspecialchars($row['item_name']) . '</td>';
                     echo '<td class="text-center"><strong>' . $row['current_stock'] . '</strong></td>';
                     echo '<td>' . $row['unit'] . '</td>';
-                    echo '<td>' . htmlspecialchars($row['supplier_name']) . '</td>';
-                    echo '<td>' . htmlspecialchars($row['location'] ?? 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['brand']) . '</td>';
+                    echo '<td>' . htmlspecialchars($row['color']) . '</td>';
+                    echo '<td>' . htmlspecialchars($row['size']) . '</td>';
                     echo '<td>' . date('M d, Y', strtotime($row['date_updated'])) . '</td>';
                     echo '<td><span class="badge bg-' . ($stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success')) . '">' . ucfirst($stock_level) . '</span></td>';
                     echo '<td>';
@@ -2214,8 +2308,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         . json_encode($row['unit']) . ', '
                         . (int)($row['current_stock']) . ', '
                         . (int)$row['reorder_level'] . ', '
-                        . json_encode($row['location']) . ', '
                         . json_encode($row['supplier_id']) . ', '
+                        . json_encode($row['location'] ?? '') . ', '
                         . json_encode($row['unit_cost']) .
                     ')\'><i class="fas fa-edit"></i></button>';
 

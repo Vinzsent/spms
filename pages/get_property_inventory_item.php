@@ -7,10 +7,10 @@ header('Content-Type: application/json');
 if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['inventory_id'])) {
     $inventory_id = intval($_GET['inventory_id']);
     
-    $sql = "SELECT i.*, s.supplier_name 
-            FROM inventory i 
-            LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
-            WHERE i.inventory_id = ?";
+    $sql = "SELECT pi.*, s.supplier_name 
+    FROM property_inventory pi 
+    LEFT JOIN supplier s ON pi.supplier_id = s.supplier_id 
+    WHERE pi.inventory_id = ?";
     
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $inventory_id);

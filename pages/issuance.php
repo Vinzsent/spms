@@ -838,7 +838,13 @@ body {
                                                     data-requester-name="<?= htmlspecialchars($row['requester_name'] ?: 'Unknown') ?>"
                                                     data-requester-position="<?= htmlspecialchars($row['requester_position'] ?: 'N/A') ?>"
                                                     data-date="<?= htmlspecialchars($row['date_requested']) ?>"
-                                                    data-description="<?= htmlspecialchars($row['item_name']) ?>"
+                                                    data-description="<?= htmlspecialchars($row['request_description']) ?>"
+                                                    data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
+                                                    data-type="<?= htmlspecialchars($row['type'] ?? '') ?>"
+                                                    data-brand="<?= htmlspecialchars($row['brand']) ?>"
+                                                    data-size="<?= htmlspecialchars($row['size']) ?>"
+                                                    data-color="<?= htmlspecialchars($row['color']) ?>"
+                                                    data-type="<?= htmlspecialchars($row['type'] ?? '') ?>"
                                                     data-quantity="<?= $row['quantity_requested'] ?>"
                                                     data-unit="<?= htmlspecialchars($row['unit']) ?>"
                                                     data-cost="<?= $row['total_cost'] ?>"
@@ -928,6 +934,26 @@ body {
                         <div class="info-card mb-3">
                             <h6 class="info-title"><i class="fas fa-box me-2"></i>Item Details</h6>
                             <div class="info-content">
+                                <div class="info-item">
+                                    <span class="info-label">Item Name:</span>
+                                    <span class="info-value" id="viewItemName"></span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Type:</span>
+                                    <span class="info-value" id="viewType"></span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Brand:</span>
+                                    <span class="info-value" id="viewBrand"></span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Size:</span>
+                                    <span class="info-value" id="viewSize"></span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Color:</span>
+                                    <span class="info-value" id="viewColor"></span>
+                                </div>
                                 <div class="info-item">
                                     <span class="info-label">Description:</span>
                                     <span class="info-value" id="viewDescription"></span>
@@ -1243,6 +1269,12 @@ $(document).ready(function() {
         $('#viewRequester').text(requesterName);
         $('#viewPurpose').text(data.purpose);
         $('#viewCategory').text(data.category);
+        $('#viewItemName').text(data.itemName);
+        $('#viewType').text(data.type || 'N/A');
+        $('#viewBrand').text(data.brand || 'N/A');
+        $('#viewSize').text(data.size || 'N/A');
+        $('#viewColor').text(data.color || 'N/A');
+        $('#viewType').text(data.type || 'N/A');
         $('#viewDescription').text(data.description);
         $('#viewQuantity').text(data.quantity + ' ' + data.unit);
         $('#viewCost').text('₱' + parseFloat(data.cost).toLocaleString(undefined, {
@@ -1367,9 +1399,13 @@ $(document).ready(function() {
         if ($(this).prop('disabled')) return; // Role guard
 
         const rowData = $(this).data();
+        console.log('Issued button clicked - rowData:', rowData);
+        
         // Prefer data-* from button, fallback to modal fields
-        let itemName = rowData.description;
-        if (!itemName) itemName = ($('#viewDescription').text() || '').trim();
+        let itemName = rowData.itemName || rowData['item-name'] || rowData.item_name;
+        if (!itemName) itemName = ($('#viewItemName').text() || '').trim();
+        
+        console.log('Item name being searched:', itemName);
         let requestedQty = parseInt(rowData.quantity, 10);
         if (!requestedQty || Number.isNaN(requestedQty)) {
             const qtyText = ($('#viewQuantity').text() || '').trim();
@@ -1396,6 +1432,7 @@ $(document).ready(function() {
         // Search by exact item name first
         $.get('../actions/search_inventory_by_name.php', { q: itemName })
           .done(function(resp) {
+            console.log('Search response:', resp);
             if (!resp || resp.success !== true) {
                 alert(resp && resp.message ? resp.message : 'Item not found in inventory');
                 return;
@@ -1410,9 +1447,14 @@ $(document).ready(function() {
                 alert('No matching inventory items found');
             }
           })
-          .fail(function(xhr){
-            console.log('Search error:', xhr.responseText);
-            alert('Error searching inventory');
+          .fail(function(xhr, status, error){
+            console.log('Search error details:', {
+              status: status,
+              error: error,
+              responseText: xhr.responseText,
+              statusCode: xhr.status
+            });
+            alert('Error searching inventory: ' + (xhr.responseText || error));
           })
           .always(function() {
             const elapsed = Date.now() - startTs;

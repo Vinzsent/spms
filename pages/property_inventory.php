@@ -169,7 +169,7 @@ $categories_query = "
     LEFT JOIN account_subcategories sc ON at.id = sc.parent_id
     LEFT JOIN account_sub_subcategories ssc ON sc.id = ssc.subcategory_id
     LEFT JOIN account_sub_sub_subcategories sssc ON ssc.id = sssc.sub_subcategory_id
-    WHERE at.id BETWEEN 14 AND 29
+    WHERE at.id BETWEEN 14 AND 21
     ORDER BY at.id, sc.name, ssc.name, sssc.name
 ";
 $categories_result = $conn->query($categories_query);
@@ -218,7 +218,7 @@ $categories_query = "
     LEFT JOIN account_subcategories sc ON at.id = sc.parent_id
     LEFT JOIN account_sub_subcategories ssc ON sc.id = ssc.subcategory_id
     LEFT JOIN account_sub_sub_subcategories sssc ON ssc.id = sssc.sub_subcategory_id
-    WHERE at.id BETWEEN 14 AND 29
+    WHERE at.id BETWEEN 14 AND 21
     ORDER BY at.id, sc.name, ssc.name, sssc.name
 ";
 $categories_result = $conn->query($categories_query);
@@ -666,6 +666,21 @@ if ($categories_result && $categories_result->num_rows > 0) {
             box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
         }
 
+        /* Loading indicator for search input */
+        .search-input input.loading {
+            background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px 16px;
+            animation: spin 1s linear infinite;
+            padding-right: 35px;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         .btn-search {
             background-color: var(--accent-blue);
             border-color: var(--accent-blue);
@@ -760,7 +775,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
     <!-- Main Content -->
     <div class="main-content">
         <div class="content-header">
-            <h1>Inventory Management</h1>
+            <h1>Property Inventory Management</h1>
             <p>Track supplies, monitor stock levels, and manage inventory movements</p>
         </div>
 
@@ -1011,8 +1026,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <th>Item Name</th>
                                 <th>Current Stock</th>
                                 <th>Unit</th>
-                                <th>Supplier</th>
-                                <th>Location</th>
+                                <th>Brand</th>
+                                <th>Color</th>
+                                <th>Size</th>
                                 <th>Last Updated</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -1035,8 +1051,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <td><?= htmlspecialchars($row['item_name']) ?></td>
                                         <td class="text-center"><strong><?= $row['current_stock'] ?></strong></td>
                                         <td><?= $row['unit'] ?></td>
-                                        <td><?= htmlspecialchars($row['supplier_name']) ?></td>
-                                        <td><?= htmlspecialchars($row['location'] ?? 'N/A') ?></td>
+                                        <td><?= htmlspecialchars($row['brand']) ?></td>
+                                        <td><?= htmlspecialchars($row['color']) ?></td>
+                                        <td><?= htmlspecialchars($row['size']) ?></td>
                                         <td><?= date('M d, Y', strtotime($row['date_updated'])) ?></td>
                                         <td>
                                             <span class="badge bg-<?= $stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success') ?>">
@@ -1058,7 +1075,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <?= json_encode($row['unit']) ?>,
                                                 <?= (int)$row['current_stock'] ?>,
                                                 <?= (int)$row['reorder_level'] ?>,
-                                                <?= json_encode($row['location'] ?? '') ?>,
                                                 <?= (int)$row['supplier_id'] ?>,
                                                 <?= (float)$row['unit_cost'] ?>,
                                                 <?= json_encode($row['description'] ?? '') ?>,
@@ -1066,6 +1082,10 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <?= json_encode($row['receiver'] ?? '') ?>,
                                                 <?= json_encode($row['status'] ?? 'Active') ?>,
                                                 <?= json_encode($row['received_notes'] ?? '') ?>
+                                                <?= json_encode($row['type'] ?? '') ?>
+                                                <?= json_encode($row['brand'] ?? '') ?>
+                                                <?= json_encode($row['size'] ?? '') ?>
+                                                <?= json_encode($row['color'] ?? '') ?>
                                             )">
                                                 <i class="fas fa-edit"></i>
                                             </button>
@@ -1074,7 +1094,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="11" class="text-center py-4">
+                                    <td colspan="9" class="text-center py-4">
                                         <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
                                         <p class="text-muted">No inventory items found</p>
                                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
@@ -1394,6 +1414,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <option value="reams">Reams</option>
                                                 <option value="gal">Gallon</option>
                                                 <option value="gals">Gallons</option>
+                                                <option value="bag">Bag</option>
+                                                <option value="bags">Bags</option>
                                                 <option value="none">Others</option>
                                             </select>
                                         </div>
@@ -1617,6 +1639,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <option value="reams">Reams</option>
                                                 <option value="gal">Gallon</option>
                                                 <option value="gals">Gallons</option>
+                                                <option value="bag">Bag</option>
+                                                <option value="bags">Bags</option>
                                                 <option value="none">Others</option>
                                             </select>
                                         </div>
@@ -1706,7 +1730,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         }
                     });
 
-                    // Real-time search with debounce (optional enhancement)
+                    // Real-time search with debounce - NO PAGE REFRESH
                     let searchTimeout;
                     $('#search').on('input', function() {
                         clearTimeout(searchTimeout);
@@ -1714,11 +1738,12 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
                         searchTimeout = setTimeout(function() {
                             if (searchValue.length === 0 || searchValue.length >= 2) {
-                                // Auto-submit for empty searches or searches with 2+ characters
-                                $('#search').closest('form').submit();
+                                // Perform AJAX search instead of form submission
+                                performSearch(searchValue);
                             }
                         }, 500); // Wait 500ms after user stops typing
                     });
+
 
                     // Mark as Received Modal functionality
                     // Mark as Received Modal functionality
@@ -1767,6 +1792,81 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         // Error message
                         alert('❌ Error!\n\n' + sessionError);
                     }
+                }
+
+                // AJAX search function - no page refresh
+                function performSearch(searchTerm) {
+                    // Show loading indicator
+                    const searchInput = $('#search');
+                    const originalValue = searchInput.val();
+                    
+                    // Add loading class to search input
+                    searchInput.addClass('loading');
+                    
+                    // Get current URL parameters
+                    const currentParams = new URLSearchParams(window.location.search);
+                    currentParams.set('search', searchTerm);
+                    currentParams.set('ajax', '1');
+                    currentParams.delete('page'); // Reset to first page for new search
+                    
+                    // Fetch search results
+                    fetch("property_inventory.php?" + currentParams.toString())
+                        .then(response => response.text())
+                        .then(data => {
+                            // Remove loading class
+                            searchInput.removeClass('loading');
+                            
+                            // Extract table content from response
+                            const temp = document.createElement('div');
+                            temp.innerHTML = data;
+                            const newTable = temp.querySelector('#inventoryTable');
+                            const newPagination = temp.querySelector('#paginationContainer');
+                            
+                            if (newTable) {
+                                document.getElementById("inventoryTable").innerHTML = newTable.innerHTML;
+                            }
+                            if (newPagination) {
+                                const paginationContainer = document.querySelector("#paginationContainer");
+                                if (paginationContainer) {
+                                    paginationContainer.innerHTML = newPagination.innerHTML;
+                                }
+                            }
+                            
+                            // Update URL without page reload
+                            const url = new URL(window.location);
+                            url.searchParams.set('search', searchTerm);
+                            url.searchParams.delete('page');
+                            window.history.pushState({}, '', url);
+                            
+                            // Smooth scroll to top of table
+                            const table = document.querySelector('.table-responsive');
+                            if (table) {
+                                table.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'start'
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Search error:", error);
+                            searchInput.removeClass('loading');
+                            
+                            // Show error message
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'alert alert-danger mt-3';
+                            errorDiv.innerHTML = `
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Error performing search. Please try again.
+                                <button class="btn btn-sm btn-outline-danger ms-2" onclick="performSearch('${searchTerm}')">
+                                    <i class="fas fa-sync-alt"></i> Retry
+                                </button>
+                            `;
+                            
+                            const tableContainer = document.querySelector('.table-responsive');
+                            if (tableContainer) {
+                                tableContainer.parentNode.insertBefore(errorDiv, tableContainer.nextSibling);
+                            }
+                        });
                 }
 
                 // Function to change status from Pending to Received
@@ -1833,7 +1933,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
                 function fetchItemDetails(inventoryId) {
                     $.ajax({
-                        url: '../actions/get_inventory_item.php',
+                        url: '../pages/get_property_inventory_item.php',
                         type: 'GET',
                         data: {
                             inventory_id: inventoryId
@@ -1951,12 +2051,12 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 }
 
                 // Open Edit Inventory modal with data
-                function openEditInventoryModal(id, name, category, unit, stock, reorder, location, supplierId, unitCost, description, quantity, receiver, status, receivedNotes) {
+                function openEditInventoryModal(id, name, category, unit, stock, reorder, location, supplierId, unitCost, description, quantity, receiver, status, receivedNotes, type, brand, size, color) {
                     document.getElementById('ei_inventory_id').value = id;
                     document.getElementById('ei_item_name').value = name;
                     // Ensure Category select reflects the value even if it's not preset
                     (function(){
-                        const catSelect = document.getElementById('categorySelect');
+                        const catSelect = document.getElementById('accountSelect');
                         if (catSelect) {
                             let found = false;
                             for (let i = 0; i < catSelect.options.length; i++) {
@@ -1994,6 +2094,10 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     document.getElementById('ei_supplier_id').value = supplierId || '';
                     document.getElementById('ei_unit_cost').value = unitCost || 0;
                     document.getElementById('ei_description').value = description || '';
+                    document.getElementById('ei_brand').value = brand || '';
+                    document.getElementById('ei_color').value = color || '';
+                    document.getElementById('ei_size').value = size || '';
+                    document.getElementById('ei_type').value = type || '';
                     document.getElementById('ei_quantity').value = quantity || 0;
                     document.getElementById('ei_receiver').value = receiver || '';
                     document.getElementById('ei_status').value = status || 'Active';
@@ -2201,7 +2305,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '<div id="inventoryTable">';
             echo '<table class="table table-hover mb-0">';
             echo '<thead class="table-dark">';
-            echo '<tr><th>Item Name</th><th>Current Stock</th><th>Unit</th><th>Supplier</th><th>Location</th><th>Last Updated</th><th>Status</th><th>Actions</th></tr>';
+            echo '<tr><th>Item Name</th><th>Current Stock</th><th>Unit</th><th>Brand</th><th>Color</th><th>Size</th><th>Last Updated</th><th>Status</th><th>Actions</th></tr>';
             echo '</thead><tbody>';
 
             if ($result && $result->num_rows > 0) {
@@ -2219,8 +2323,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '<td>' . htmlspecialchars($row['item_name']) . '</td>';
                     echo '<td class="text-center"><strong>' . $row['current_stock'] . '</strong></td>';
                     echo '<td>' . $row['unit'] . '</td>';
-                    echo '<td>' . htmlspecialchars($row['supplier_name']) . '</td>';
-                    echo '<td>' . htmlspecialchars($row['location'] ?? 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['brand']) . '</td>';
+                    echo '<td>' . htmlspecialchars($row['color']) . '</td>';
+                    echo '<td>' . htmlspecialchars($row['size']) . '</td>';
                     echo '<td>' . date('M d, Y', strtotime($row['date_updated'])) . '</td>';
                     echo '<td><span class="badge bg-' . ($stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success')) . '">' . ucfirst($stock_level) . '</span></td>';
                     echo '<td>';
@@ -2240,12 +2345,16 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         . json_encode((int)($row['quantity'] ?? 0)) . ', '
                         . json_encode($row['receiver'] ?? '') . ', '
                         . json_encode($row['status'] ?? 'Active') . ', '
-                        . json_encode($row['received_notes'] ?? '')
+                        . json_encode($row['received_notes'] ?? '') . ', '
+                        . json_encode($row['type'] ?? '') . ', '
+                        . json_encode($row['brand'] ?? '') . ', '
+                        . json_encode($row['size'] ?? '') . ', '
+                        . json_encode($row['color'] ?? '')
                         . ')\'><i class="fas fa-edit"></i></button>';
                     echo '</td></tr>';
                 }
             } else {
-                echo '<tr><td colspan="8" class="text-center py-4"><i class="fas fa-boxes fa-3x text-muted mb-3"></i><p class="text-muted">No inventory items found</p></td></tr>';
+                echo '<tr><td colspan="9" class="text-center py-4"><i class="fas fa-boxes fa-3x text-muted mb-3"></i><p class="text-muted">No inventory items found</p></td></tr>';
             }
 
             echo '</tbody></table></div>';

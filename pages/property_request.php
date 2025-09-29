@@ -62,7 +62,7 @@ $categories_query = "
     LEFT JOIN account_subcategories sc ON at.id = sc.parent_id
     LEFT JOIN account_sub_subcategories ssc ON sc.id = ssc.subcategory_id
     LEFT JOIN account_sub_sub_subcategories sssc ON ssc.id = sssc.sub_subcategory_id
-    WHERE at.id BETWEEN 14 AND 29
+    WHERE at.id BETWEEN 15 AND 21
     ORDER BY at.id, sc.name, ssc.name, sssc.name
 ";
 $categories_result = $conn->query($categories_query);

@@ -24,9 +24,13 @@ $quantity      = isset($_POST['quantity']) && $_POST['quantity'] !== '' ? (int)$
 $receiver      = trim($_POST['receiver'] ?? '');
 $status        = trim($_POST['status'] ?? 'Active');
 $received_notes= trim($_POST['received_notes'] ?? '');
+$brand         = trim($_POST['brand'] ?? '');
+$size          = trim($_POST['size'] ?? '');
+$color         = trim($_POST['color'] ?? '');
+$type          = trim($_POST['type'] ?? '');
 
 // Basic validation
-if ($inventory_id <= 0 || $item_name === '' || $category === '' || $unit === '' || $current_stock < 0 || $reorder_level < 0) {
+if ($inventory_id <= 0 || $item_name === '' || $unit === '' || $current_stock < 0 || $reorder_level < 0) {
     $_SESSION['error'] = 'Please fill in all required fields with valid values.';
     header('Location: ../pages/property_inventory.php');
     exit();
@@ -61,7 +65,7 @@ if (!in_array($status, $allowed_status, true)) {
 
 // Update the inventory item (including new fields)
 $update_sql = "UPDATE property_inventory 
-               SET item_name = ?, category = ?, description = ?, current_stock = ?, quantity = ?, unit = ?, unit_cost = ?, reorder_level = ?, supplier_id = ?, location = ?, receiver = ?, status = ?, received_notes = ?, date_updated = NOW()
+               SET item_name = ?, category = ?, description = ?, current_stock = ?, quantity = ?, unit = ?, unit_cost = ?, reorder_level = ?, supplier_id = ?, location = ?, receiver = ?, status = ?, received_notes = ?, date_updated = NOW(), brand = ?, size = ?, color = ?, type = ?
                WHERE inventory_id = ?";
 
 $stmt = $conn->prepare($update_sql);
@@ -92,7 +96,7 @@ if (!$stmt) {
 if ($quantity === null) {
     // Rebuild SQL with quantity = NULL
     $update_sql = "UPDATE property_inventory 
-                   SET item_name = ?, category = ?, description = ?, current_stock = ?, quantity = NULL, unit = ?, unit_cost = ?, reorder_level = ?, supplier_id = ?, location = ?, receiver = ?, status = ?, received_notes = ?, date_updated = NOW()
+                   SET item_name = ?, category = ?, description = ?, current_stock = ?, quantity = NULL, unit = ?, unit_cost = ?, reorder_level = ?, supplier_id = ?, location = ?, receiver = ?, status = ?, received_notes = ?, date_updated = NOW(), brand = ?, size = ?, color = ?, type = ?
                    WHERE inventory_id = ?";
     $stmt->close();
     $stmt = $conn->prepare($update_sql);
@@ -102,7 +106,7 @@ if ($quantity === null) {
         exit();
     }
     $stmt->bind_param(
-        'sssisdiissssi',
+        'sssisdiissssssssi',
         $item_name,
         $category,
         $description,
@@ -115,11 +119,15 @@ if ($quantity === null) {
         $receiver,
         $status,
         $received_notes,
+        $brand,
+        $size,
+        $color,
+        $type,
         $inventory_id
     );
 } else {
     $stmt->bind_param(
-        'sssiisdiissssi',
+        'sssiisdiissssssssi',
         $item_name,
         $category,
         $description,
@@ -133,6 +141,10 @@ if ($quantity === null) {
         $receiver,
         $status,
         $received_notes,
+        $brand,
+        $size,
+        $color,
+        $type,
         $inventory_id
     );
 }
