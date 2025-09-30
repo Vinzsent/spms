@@ -691,7 +691,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Assignment & Issuance</h3>
         <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
-        <a href="pages/issuance.php" class="card-button">Access</a>
+        <a href="pages/property_issuance.php" class="card-button">Access</a>
       </div>
 
       <!-- Inventory Card -->
