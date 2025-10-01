@@ -1026,6 +1026,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 }
             </style>
 
+            <!-- Inventory Table -->
             <div class="table-responsive">
                 <div id="inventoryTable">
                     <table class="table table-hover mb-0">
