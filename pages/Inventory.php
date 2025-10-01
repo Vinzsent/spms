@@ -106,13 +106,28 @@ $sql1 = "SELECT st.*, s.supplier_name
         ORDER BY COALESCE(st.date_received, st.date_created) DESC";
 $result1 = $conn->query($sql1);
 
-// Get stock movement logs
+// Get stock movement logs with pagination
+$logs_per_page = 10;
+$logs_page = isset($_GET['logs_page']) && $_GET['logs_page'] > 0 ? (int)$_GET['logs_page'] : 1;
+$logs_offset = ($logs_page - 1) * $logs_per_page;
+
+// Get total count for pagination
+$logs_count_sql = "SELECT COUNT(*) as total 
+                   FROM stock_logs sl 
+                   LEFT JOIN inventory i ON sl.inventory_id = i.inventory_id 
+                   LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
+                   $logs_where";
+$logs_count_result = $conn->query($logs_count_sql);
+$total_logs = $logs_count_result->fetch_assoc()['total'];
+$total_logs_pages = ceil($total_logs / $logs_per_page);
+
 $stock_logs_sql = "SELECT sl.*, i.item_name, s.supplier_name 
                    FROM stock_logs sl 
                    LEFT JOIN inventory i ON sl.inventory_id = i.inventory_id 
                    LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
                    $logs_where
-                   ORDER BY sl.date_created DESC LIMIT 50";
+                   ORDER BY sl.date_created DESC 
+                   LIMIT $logs_per_page OFFSET $logs_offset";
 $stock_logs_result = $conn->query($stock_logs_sql);
 
 // Get suppliers for dropdown
@@ -132,14 +147,17 @@ $stats_result = $conn->query($sql);
 $total_items = $stats_result ? $stats_result->num_rows : 0;
 $low_stock_count = 0;
 $out_of_stock_count = 0;
+$low_stock_items = [];
+$out_of_stock_items = [];
 
 if ($stats_result) {
     while ($row = $stats_result->fetch_assoc()) {
-        if ($row['current_stock'] <= $row['reorder_level']) {
-            $low_stock_count++;
-        }
         if ($row['current_stock'] == 0) {
             $out_of_stock_count++;
+            $out_of_stock_items[] = $row;
+        } elseif ($row['current_stock'] <= $row['reorder_level']) {
+            $low_stock_count++;
+            $low_stock_items[] = $row;
         }
     }
     $stats_result->data_seek(0); // Reset pointer
@@ -345,6 +363,12 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
         .stat-card:hover {
             transform: translateY(-5px);
+        }
+
+        .stat-card.clickable:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
         }
 
         .stat-icon {
@@ -685,6 +709,29 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 margin-right: 30px;
             }
         }
+
+        .half-split {
+  display: inline-flex;
+  overflow: hidden;
+  padding: 0;
+  border-radius: .25rem;
+  border: 1px solid rgba(0,0,0,.125);
+  margin-right: 0.25rem;
+}
+.half-split .half {
+  width: 2rem; /* adjust width as you like */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  padding: 0.25rem 0;
+}
+.half-split .plus  { background: #28a745; color: #fff; }
+.half-split .minus { background: #ffc107; color: #212529; }
+.half-split .half + .half { border-left: 1px solid rgba(0,0,0,.125); }
+.half-split .half:hover { filter: brightness(0.95); }
     </style>
 
     <!-- Sidebar -->
@@ -743,6 +790,19 @@ if ($categories_result && $categories_result->num_rows > 0) {
             </div>
         <?php endif; ?>
 
+        <!-- School Year Info Box -->
+        <div class="alert alert-info d-flex align-items-center mb-3" role="alert" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); border: none; color: white;">
+            <i class="fas fa-info-circle fa-2x me-3"></i>
+            <div>
+                <strong>School Year Filter Guide</strong>
+                <p class="mb-0 small">
+                    School years run from <strong>July 1st to June 30th</strong>. 
+                    For example, "SY 2024-2025" includes records from July 1, 2024 to June 30, 2025.
+                </p>
+            </div>
+            <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
         <!-- Statistics Cards -->
         <div class="stats-container">
             <div class="stat-card">
@@ -753,20 +813,22 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <div class="stat-label">Total Items</div>
             </div>
 
-            <div class="stat-card">
+            <div class="stat-card clickable" data-bs-toggle="modal" data-bs-target="#lowStockModal" style="cursor: pointer;" title="Click to view low stock items">
                 <div class="stat-icon low-stock">
                     <i class="fas fa-exclamation-triangle"></i>
                 </div>
                 <div class="stat-number"><?= $low_stock_count ?></div>
                 <div class="stat-label">Low Stock Items</div>
+                <small class="text-muted mt-1"><i class="fas fa-eye"></i> Click to view details</small>
             </div>
 
-            <div class="stat-card">
+            <div class="stat-card clickable" data-bs-toggle="modal" data-bs-target="#outOfStockModal" style="cursor: pointer;" title="Click to view out of stock items">
                 <div class="stat-icon out-of-stock">
                     <i class="fas fa-times-circle"></i>
                 </div>
                 <div class="stat-number"><?= $out_of_stock_count ?></div>
                 <div class="stat-label">Out of Stock</div>
+                <small class="text-muted mt-1"><i class="fas fa-eye"></i> Click to view details</small>
             </div>
 
             <div class="stat-card">
@@ -789,12 +851,15 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             <input type="text" id="search" name="search" class="form-control" placeholder="Search by item name..." value="<?= htmlspecialchars($search_term) ?>">
                         </div>
                         <div>
-                            <label for="sy_inv" class="form-label mb-0 text-white">School Year</label>
-                            <select id="sy_inv" name="sy_inv" class="form-select">
-                                <option value="">All</option>
+                            <label for="sy_inv" class="form-label mb-0 text-white">
+                                <i class="fas fa-calendar-alt me-1"></i> School Year
+                                <small class="d-block" style="font-size: 0.75rem; opacity: 0.85;">July - June period</small>
+                            </label>
+                            <select id="sy_inv" name="sy_inv" class="form-select" title="Filter by school year (July to June)">
+                                <option value="">All School Years</option>
                                 <?php foreach ($sy_years as $sy): ?>
                                     <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_inv_raw === $sy) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($sy) ?>
+                                        SY <?= htmlspecialchars($sy) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -994,20 +1059,24 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <td><?= htmlspecialchars($row['item_name']) ?></td>
                                         <td class="text-center"><strong><?= $row['current_stock'] ?></strong></td>
                                         <td><?= $row['unit'] ?></td>
-                                        <td><?= htmlspecialchars($row['supplier_name']) ?></td>
+                                        <td><?= htmlspecialchars($row['brand'] ?? '') ?></td>
+                                        <td><?= htmlspecialchars($row['color'] ?? '') ?></td>
+                                        <td><?= htmlspecialchars($row['size'] ?? '') ?></td>
                                         <td><?= date('M d, Y', strtotime($row['date_updated'])) ?></td>
                                         <td>
                                             <span class="badge bg-<?= $stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success') ?>">
                                                 <?= ucfirst($stock_level) ?>
                                             </span>
                                         </td>
-                                        <td class="text-space-between">
-                                            <button class="btn btn-sm btn-success" title="Stock In" onclick="stockIn(<?= $row['inventory_id'] ?>)">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-warning" title="Stock Out" onclick="stockOut(<?= $row['inventory_id'] ?>)">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
+                                        <td>
+                                            <div class="half-split btn btn-sm" title="Stock In / Out">
+                                                <span class="half plus" onclick="stockIn(<?= (int)$row['inventory_id'] ?>); event.stopPropagation();">
+                                                    <i class="fas fa-plus"></i>
+                                                </span>
+                                                <span class="half minus" onclick="stockOut(<?= (int)$row['inventory_id'] ?>); event.stopPropagation();">
+                                                    <i class="fas fa-minus"></i>
+                                                </span>
+                                            </div>
                                             <button class="btn btn-sm btn-info" title="Edit"
                                                 onclick="openEditInventoryModal(
                                                 <?= (int)$row['inventory_id'] ?>,
@@ -1032,7 +1101,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="11" class="text-center py-4">
+                                    <td colspan="9" class="text-center py-4">
                                         <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
                                         <p class="text-muted">No inventory items found</p>
                                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
@@ -1062,26 +1131,186 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         </ul>
                     </nav>
                 <?php endif; ?>
+                
+                <!-- Stock Movement Logs -->
+                <div class="table-container" id="stock-movements">
+                    <div class="table-header">
+                        <h3>Recent Stock Movements</h3>
+                        <div class="d-flex align-items-end gap-2">
+                            <form method="GET" class="d-flex align-items-end gap-2 mb-0" action="Inventory.php#stock-movements">
+                                <!-- Preserve other GET parameters -->
+                                <?php foreach ($_GET as $key => $value): ?>
+                                    <?php if ($key !== 'sy_logs' && $key !== 'logs_page'): ?>
+                                        <input type="hidden" name="<?= htmlspecialchars($key) ?>" value="<?= htmlspecialchars($value) ?>">
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                                
+                                <div>
+                                    <label for="sy_logs" class="form-label mb-0 text-white">
+                                        <i class="fas fa-calendar-alt me-1"></i> Filter by School Year
+                                        <small class="d-block" style="font-size: 0.75rem; opacity: 0.85;">July to June</small>
+                                    </label>
+                                    <select id="sy_logs" name="sy_logs" class="form-select" title="Select a school year period (July to June)">
+                                        <option value="">All School Years</option>
+                                        <?php foreach ($sy_years as $sy): ?>
+                                            <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_logs_raw === $sy) ? 'selected' : '' ?>>
+                                                SY <?= htmlspecialchars($sy) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="pt-4">
+                                    <button type="submit" class="btn btn-light" title="Apply filter">
+                                        <i class="fas fa-filter"></i> Filter
+                                    </button>
+                                    <?php if (!empty($sy_logs_raw)): ?>
+                                        <a href="Inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_logs' => true, 'logs_page' => true])) ?>#stock-movements" class="btn btn-outline-light" title="Clear filter">
+                                            <i class="fas fa-times"></i> Clear
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            </form>
+                            <button class="btn btn-add" onclick="viewAllMovements()">
+                                <i class="fas fa-list"></i> View All
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Item</th>
+                                    <th>Type</th>
+                                    <th>Quantity</th>
+                                    <th>Previous Stock</th>
+                                    <th>New Stock</th>
+                                    <th>Receiver</th>
+                                    <th>Notes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if ($stock_logs_result && $stock_logs_result->num_rows > 0): ?>
+                                    <?php while ($log = $stock_logs_result->fetch_assoc()): ?>
+                                        <tr>
+                                            <td><?= date('M d, Y H:i', strtotime($log['date_created'])) ?></td>
+                                            <td><?= htmlspecialchars($log['item_name']) ?></td>
+                                            <td>
+                                                <span class="badge bg-<?= $log['movement_type'] == 'IN' ? 'success' : 'warning' ?>">
+                                                    <?= $log['movement_type'] ?>
+                                                </span>
+                                            </td>
+                                            <td><?= $log['quantity'] ?></td>
+                                            <td><?= $log['previous_stock'] ?></td>
+                                            <td><?= $log['new_stock'] ?></td>
+                                            <td><?= htmlspecialchars($log['receiver'] ?? 'N/A') ?></td>
+                                            <td><?= htmlspecialchars($log['notes']) ?></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-info" onclick="editMovement(<?= $log['log_id'] ?>)">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="deleteMovement(<?= $log['log_id'] ?>)">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+
+                                        </tr>
+                                    <?php endwhile; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4">
+                                            <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                                            <p class="text-muted">No stock movements recorded</p>
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination for Stock Movements -->
+                    <?php if ($total_logs_pages > 1): ?>
+                        <!-- DEBUG: Current logs_page = <?= $logs_page ?> -->
+                        <nav class="mt-3" id="logs-pagination">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item <?= ($logs_page <= 1) ? 'disabled' : '' ?>">
+                                    <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['logs_page' => max(1, $logs_page - 1)])) ?>#stock-movements" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                
+                                <?php
+                                // Smart pagination - show max 7 page numbers
+                                $start_page = max(1, $logs_page - 3);
+                                $end_page = min($total_logs_pages, $logs_page + 3);
+                                
+                                if ($start_page > 1) {
+                                    echo '<li class="page-item"><a class="page-link" href="?' . http_build_query(array_merge($_GET, ['logs_page' => 1])) . '#stock-movements">1</a></li>';
+                                    if ($start_page > 2) {
+                                        echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                                    }
+                                }
+                                
+                                for ($i = $start_page; $i <= $end_page; $i++):
+                                    $is_active = ($i === $logs_page);
+                                ?>
+                                    <li class="page-item <?= $is_active ? 'active' : '' ?>">
+                                        <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['logs_page' => $i])) ?>#stock-movements"><?= $i ?></a>
+                                    </li>
+                                <?php
+                                endfor;
+                                
+                                if ($end_page < $total_logs_pages) {
+                                    if ($end_page < $total_logs_pages - 1) {
+                                        echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                                    }
+                                    echo '<li class="page-item"><a class="page-link" href="?' . http_build_query(array_merge($_GET, ['logs_page' => $total_logs_pages])) . '#stock-movements">' . $total_logs_pages . '</a></li>';
+                                }
+                                ?>
+                                
+                                <li class="page-item <?= ($logs_page >= $total_logs_pages) ? 'disabled' : '' ?>">
+                                    <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['logs_page' => min($total_logs_pages, $logs_page + 1)])) ?>#stock-movements" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="text-center text-muted small">
+                                Showing page <strong><?= $logs_page ?></strong> of <strong><?= $total_logs_pages ?></strong> (<?= $total_logs ?> total movements)
+                            </div>
+                        </nav>
+                    <?php endif; ?>
+                </div>
 
 
+                <!-- Acquired Supplies -->
                 <div class="table-container">
                     <div class="table-header">
                         <h3>Acquired Supplies</h3>
                         <form method="GET" class="d-flex align-items-end gap-2">
                             <div>
-                                <label for="sy_recv" class="form-label mb-0 text-white">School Year</label>
-                                <select id="sy_recv" name="sy_recv" class="form-select" onchange="this.form.submit()">
-                                    <option value="">All</option>
+                                <label for="sy_recv" class="form-label mb-0 text-white">
+                                    <i class="fas fa-calendar-alt me-1"></i> Filter by School Year
+                                    <small class="d-block" style="font-size: 0.75rem; opacity: 0.85;">July to June</small>
+                                </label>
+                                <select id="sy_recv" name="sy_recv" class="form-select" title="Select a school year period (July to June)">
+                                    <option value="">All School Years</option>
                                     <?php foreach ($sy_years as $sy): ?>
                                         <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_recv_raw === $sy) ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($sy) ?>
+                                            SY <?= htmlspecialchars($sy) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="pt-4">
+                                <button type="submit" class="btn btn-light" title="Apply filter">
+                                    <i class="fas fa-filter"></i> Filter
+                                </button>
                                 <?php if (!empty($sy_recv_raw)): ?>
-                                    <a href="Inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv' => true])) ?>" class="btn btn-outline-light">Reset</a>
+                                    <a href="Inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv' => true])) ?>" class="btn btn-outline-light" title="Clear filter">
+                                        <i class="fas fa-times"></i> Clear
+                                    </a>
                                 <?php endif; ?>
                             </div>
                         </form>
@@ -1174,77 +1403,178 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 </div>
 
 
-                <!-- Stock Movement Logs -->
-                <div class="table-container">
-                    <div class="table-header">
-                        <h3>Recent Stock Movements</h3>
-                        <div class="d-flex align-items-end gap-2">
-                            <form method="GET" class="d-flex align-items-end gap-2 mb-0">
-                                <div>
-                                    <label for="sy_logs" class="form-label mb-0 text-white">School Year</label>
-                                    <select id="sy_logs" name="sy_logs" class="form-select" onchange="this.form.submit()">
-                                        <option value="">All</option>
-                                        <?php foreach ($sy_years as $sy): ?>
-                                            <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_logs_raw === $sy) ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars($sy) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
+            </div>
+
+            <!-- Low Stock Items Modal -->
+            <div class="modal fade" id="lowStockModal" tabindex="-1" aria-labelledby="lowStockModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white;">
+                            <h5 class="modal-title" id="lowStockModalLabel">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Low Stock Items
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <?php if (!empty($low_stock_items)): ?>
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong><?= count($low_stock_items) ?></strong> item(s) are running low on stock. Consider reordering soon.
                                 </div>
-                                <div class="pt-4">
-                                    <?php if (!empty($sy_logs_raw)): ?>
-                                        <a href="Inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_logs' => true])) ?>" class="btn btn-outline-light">Reset</a>
-                                    <?php endif; ?>
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped">
+                                        <thead class="table-warning">
+                                            <tr>
+                                                <th>Item Name</th>
+                                                <th>Category</th>
+                                                <th>Current Stock</th>
+                                                <th>Reorder Level</th>
+                                                <th>Unit</th>
+                                                <th>Supplier</th>
+                                                <th>Last Updated</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($low_stock_items as $item): ?>
+                                                <tr>
+                                                    <td><strong><?= htmlspecialchars($item['item_name']) ?></strong></td>
+                                                    <td><?= htmlspecialchars($item['category']) ?></td>
+                                                    <td>
+                                                        <span class="badge bg-warning text-dark">
+                                                            <?= $item['current_stock'] ?>
+                                                        </span>
+                                                    </td>
+                                                    <td><?= $item['reorder_level'] ?></td>
+                                                    <td><?= htmlspecialchars($item['unit']) ?></td>
+                                                    <td><?= htmlspecialchars($item['supplier_name'] ?? 'N/A') ?></td>
+                                                    <td><?= date('M d, Y', strtotime($item['date_updated'])) ?></td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-success" onclick="stockIn(<?= $item['inventory_id'] ?>); $('#lowStockModal').modal('hide');" title="Add Stock">
+                                                            <i class="fas fa-plus"></i>
+                                                        </button>
+                                                        <button class="btn btn-sm btn-info" onclick="openEditInventoryModal(
+                                                            <?= (int)$item['inventory_id'] ?>,
+                                                            <?= json_encode($item['item_name']) ?>,
+                                                            <?= json_encode($item['category']) ?>,
+                                                            <?= json_encode($item['brand'] ?? '') ?>,
+                                                            <?= json_encode($item['color'] ?? '') ?>,
+                                                            <?= json_encode($item['size'] ?? '') ?>,
+                                                            <?= json_encode($item['type'] ?? '') ?>,
+                                                            <?= json_encode($item['description'] ?? '') ?>,
+                                                            <?= json_encode($item['unit']) ?>,
+                                                            <?= (int)$item['current_stock'] ?>,
+                                                            <?= (int)$item['reorder_level'] ?>,
+                                                            <?= (int)$item['supplier_id'] ?>,
+                                                            <?= json_encode($item['location'] ?? '') ?>,
+                                                            <?= (float)$item['unit_cost'] ?>
+                                                        ); $('#lowStockModal').modal('hide');" title="Edit">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
                                 </div>
-                            </form>
-                            <button class="btn btn-add" onclick="viewAllMovements()">
-                                <i class="fas fa-list"></i> View All
-                            </button>
+                            <?php else: ?>
+                                <div class="text-center py-5">
+                                    <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                                    <h4>All Good!</h4>
+                                    <p class="text-muted">No items are running low on stock.</p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Item</th>
-                                    <th>Type</th>
-                                    <th>Quantity</th>
-                                    <th>Previous Stock</th>
-                                    <th>New Stock</th>
-                                    <th>Receiver</th>
-                                    <th>Notes</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if ($stock_logs_result && $stock_logs_result->num_rows > 0): ?>
-                                    <?php while ($log = $stock_logs_result->fetch_assoc()): ?>
-                                        <tr>
-                                            <td><?= date('M d, Y H:i', strtotime($log['date_created'])) ?></td>
-                                            <td><?= htmlspecialchars($log['item_name']) ?></td>
-                                            <td>
-                                                <span class="badge bg-<?= $log['movement_type'] == 'IN' ? 'success' : 'warning' ?>">
-                                                    <?= $log['movement_type'] ?>
-                                                </span>
-                                            </td>
-                                            <td><?= $log['quantity'] ?></td>
-                                            <td><?= $log['previous_stock'] ?></td>
-                                            <td><?= $log['new_stock'] ?></td>
-                                            <td><?= htmlspecialchars($log['receiver'] ?? 'N/A') ?></td>
-                                            <td><?= htmlspecialchars($log['notes']) ?></td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                <?php else: ?>
-                                    <tr>
-                                        <td colspan="8" class="text-center py-4">
-                                            <i class="fas fa-history fa-3x text-muted mb-3"></i>
-                                            <p class="text-muted">No stock movements recorded</p>
-                                        </td>
-                                    </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
+            <!-- Out of Stock Items Modal -->
+            <div class="modal fade" id="outOfStockModal" tabindex="-1" aria-labelledby="outOfStockModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white;">
+                            <h5 class="modal-title" id="outOfStockModalLabel">
+                                <i class="fas fa-times-circle me-2"></i>Out of Stock Items
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <?php if (!empty($out_of_stock_items)): ?>
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <strong><?= count($out_of_stock_items) ?></strong> item(s) are completely out of stock. Immediate action required!
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped">
+                                        <thead class="table-danger">
+                                            <tr>
+                                                <th>Item Name</th>
+                                                <th>Category</th>
+                                                <th>Current Stock</th>
+                                                <th>Reorder Level</th>
+                                                <th>Unit</th>
+                                                <th>Supplier</th>
+                                                <th>Last Updated</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($out_of_stock_items as $item): ?>
+                                                <tr>
+                                                    <td><strong><?= htmlspecialchars($item['item_name']) ?></strong></td>
+                                                    <td><?= htmlspecialchars($item['category']) ?></td>
+                                                    <td>
+                                                        <span class="badge bg-danger">
+                                                            <?= $item['current_stock'] ?>
+                                                        </span>
+                                                    </td>
+                                                    <td><?= $item['reorder_level'] ?></td>
+                                                    <td><?= htmlspecialchars($item['unit']) ?></td>
+                                                    <td><?= htmlspecialchars($item['supplier_name'] ?? 'N/A') ?></td>
+                                                    <td><?= date('M d, Y', strtotime($item['date_updated'])) ?></td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-success" onclick="stockIn(<?= $item['inventory_id'] ?>); $('#outOfStockModal').modal('hide');" title="Add Stock">
+                                                            <i class="fas fa-plus"></i> Restock
+                                                        </button>
+                                                        <button class="btn btn-sm btn-info" onclick="openEditInventoryModal(
+                                                            <?= (int)$item['inventory_id'] ?>,
+                                                            <?= json_encode($item['item_name']) ?>,
+                                                            <?= json_encode($item['category']) ?>,
+                                                            <?= json_encode($item['brand'] ?? '') ?>,
+                                                            <?= json_encode($item['color'] ?? '') ?>,
+                                                            <?= json_encode($item['size'] ?? '') ?>,
+                                                            <?= json_encode($item['type'] ?? '') ?>,
+                                                            <?= json_encode($item['description'] ?? '') ?>,
+                                                            <?= json_encode($item['unit']) ?>,
+                                                            <?= (int)$item['current_stock'] ?>,
+                                                            <?= (int)$item['reorder_level'] ?>,
+                                                            <?= (int)$item['supplier_id'] ?>,
+                                                            <?= json_encode($item['location'] ?? '') ?>,
+                                                            <?= (float)$item['unit_cost'] ?>
+                                                        ); $('#outOfStockModal').modal('hide');" title="Edit">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <?php else: ?>
+                                <div class="text-center py-5">
+                                    <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                                    <h4>Excellent!</h4>
+                                    <p class="text-muted">No items are out of stock.</p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2070,9 +2400,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 }
 
                 function loadInventory(page = 1) {
-                    // Update URL without page reload
+                    // Update URL without page reload - preserve all existing parameters
                     const url = new URL(window.location);
                     url.searchParams.set('page', page);
+                    // Ensure we keep logs_page if it exists
+                    if (url.searchParams.has('logs_page')) {
+                        // Keep the logs_page parameter intact
+                    }
                     window.history.pushState({}, '', url);
 
                     // Show loading overlay with animation
@@ -2212,7 +2546,12 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 document.addEventListener("DOMContentLoaded", function() {
                     const urlParams = new URLSearchParams(window.location.search);
                     const page = urlParams.get('page') || 1;
-                    loadInventory(parseInt(page));
+                    
+                    // Only load inventory if we're not on a logs page
+                    const logsPage = urlParams.get('logs_page');
+                    if (!logsPage) {
+                        loadInventory(parseInt(page));
+                    }
                 });
             </script>
         <?php endif; ?>
@@ -2292,9 +2631,16 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '<td>' . date('M d, Y', strtotime($row['date_updated'])) . '</td>';
                     echo '<td><span class="badge bg-' . ($stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success')) . '">' . ucfirst($stock_level) . '</span></td>';
                     echo '<td>';
-                    echo '<button class="btn btn-sm btn-success" title="Stock In" onclick="stockIn(' . $row['inventory_id'] . ')"><i class="fas fa-plus"></i></button>';
-                    echo '<button class="btn btn-sm btn-warning" title="Stock Out" onclick="stockOut(' . $row['inventory_id'] . ')"><i class="fas fa-minus"></i></button>';
-                    echo '<button class="btn btn-sm btn-info" 
+                    echo '<div class="half-split btn btn-sm" title="Stock In / Out">
+  <span class="half plus"  onclick="stockIn(' . (int)$row['inventory_id'] . '); event.stopPropagation();">
+    <i class="fas fa-plus"></i>
+  </span>
+  <span class="half minus" onclick="stockOut(' . (int)$row['inventory_id'] . '); event.stopPropagation();">
+    <i class="fas fa-minus"></i>
+  </span>
+</div>';
+                    
+                    echo ' <button class="btn btn-sm btn-info" 
                     title="Edit" 
                     onclick=\'openEditInventoryModal('
                         . (int)$row['inventory_id'] . ', '
@@ -2316,7 +2662,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '</td></tr>';
                 }
             } else {
-                echo '<tr><td colspan="8" class="text-center py-4"><i class="fas fa-boxes fa-3x text-muted mb-3"></i><p class="text-muted">No inventory items found</p></td></tr>';
+                echo '<tr><td colspan="9" class="text-center py-4"><i class="fas fa-boxes fa-3x text-muted mb-3"></i><p class="text-muted">No inventory items found</p></td></tr>';
             }
 
             echo '</tbody></table></div>';
