@@ -600,9 +600,6 @@ if (isset($_SESSION['error'])) {
             <li><a href="<?= $dashboard_link ?>" class="nav-link">
                     <i class="fas fa-chart-line"></i> Dashboard
                 </a></li>
-            <li><a href="supply_request.php" class="nav-link">
-                    <i class="fas fa-clipboard-list"></i> Supply Request
-                </a></li>
             <li><a href="office_inventory.php" class="nav-link">
                     <i class="fas fa-building"></i> Office Inventory
                 </a></li>
@@ -614,6 +611,9 @@ if (isset($_SESSION['error'])) {
                 </a></li>
                 <li><a href="equipment_transfer_request.php" class="nav-link">
                     <i class="fas fa-hand-holding"></i> Request form for Transfer
+                </a></li>
+                <li><a href="borrowers_forms.php" class="nav-link">
+                    <i class="fas fa-hand-holding"></i> Borrower Forms
                 </a></li>
             <li><a href="../logout.php" class="nav-link logout">
                     <i class="fas fa-sign-out-alt"></i> Logout
