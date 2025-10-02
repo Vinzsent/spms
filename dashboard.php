@@ -723,7 +723,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Supply Inventory Management</h3>
         <p class="card-description">Track real-time stock levels with detailed logs. Get alerts for low inventory and manage supplies.</p>
-        <a href="pages/inventory.php" class="card-button">Access</a>
+        <a href="pages/Inventory.php" class="card-button">Access</a>
       </div>
 
     <?php else: ?>

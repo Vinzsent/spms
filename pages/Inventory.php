@@ -845,17 +845,18 @@ if ($categories_result && $categories_result->num_rows > 0) {
             <div class="table-header">
                 <h3>Inventory Items</h3>
                 <div class="d-flex align-items-end gap-2">
-                    <form method="GET" class="d-flex align-items-end gap-2 mb-0">
+                    <!-- ANCHOR: AJAX-based inventory search and filter form -->
+                    <div class="d-flex align-items-end gap-2 mb-0">
                         <div class="search-input">
                             <label for="search" class="form-label mb-0 text-white">Search Item</label>
-                            <input type="text" id="search" name="search" class="form-control" placeholder="Search by item name..." value="<?= htmlspecialchars($search_term) ?>">
+                            <input type="text" id="search" name="search" class="form-control" placeholder="Search by item name..." value="<?= htmlspecialchars($search_term) ?>" onkeyup="handleInventorySearch()">
                         </div>
                         <div>
                             <label for="sy_inv" class="form-label mb-0 text-white">
                                 <i class="fas fa-calendar-alt me-1"></i> School Year
                                 <small class="d-block" style="font-size: 0.75rem; opacity: 0.85;">July - June period</small>
                             </label>
-                            <select id="sy_inv" name="sy_inv" class="form-select" title="Filter by school year (July to June)">
+                            <select id="sy_inv" name="sy_inv" class="form-select" title="Filter by school year (July to June)" onchange="filterInventoryItems()">
                                 <option value="">All School Years</option>
                                 <?php foreach ($sy_years as $sy): ?>
                                     <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_inv_raw === $sy) ? 'selected' : '' ?>>
@@ -865,16 +866,14 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             </select>
                         </div>
                         <div class="pt-4">
-                            <button type="submit" class="btn btn-search">
+                            <button type="button" class="btn btn-search" onclick="filterInventoryItems()" title="Apply filters">
                                 <i class="fas fa-search"></i> Search
                             </button>
-                            <?php if (!empty($search_term) || !empty($sy_inv_raw)): ?>
-                                <a href="Inventory.php" class="btn btn-outline-light ms-2">
-                                    <i class="fas fa-times"></i> Clear
-                                </a>
-                            <?php endif; ?>
+                            <button type="button" class="btn btn-outline-light ms-2" onclick="clearInventoryFilters()" title="Clear filters">
+                                <i class="fas fa-times"></i> Clear
+                            </button>
                         </div>
-                    </form>
+                    </div>
                     <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
                         <i class="fas fa-plus"></i> Add Item
                     </button>
@@ -1043,7 +1042,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <!-- ANCHOR: Inventory table body for AJAX updates -->
+                        <tbody id="inventory-tbody">
                             <?php if ($result && $result->num_rows > 0): ?>
                                 <?php while ($row = $result->fetch_assoc()): ?>
                                     <?php
@@ -1115,43 +1115,40 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     </table>
                 </div>
 
-                <?php if ($total_pages > 1): ?>
-                    <nav>
-                        <ul class="pagination justify-content-center mt-3" id="paginationContainer">
-                            <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="#" onclick="loadInventory(<?= $page - 1 ?>); return false;">&laquo;</a>
-                            </li>
-                            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
-                                    <a class="page-link" href="#" onclick="loadInventory(<?= $i ?>); return false;"><?= $i ?></a>
+                <!-- ANCHOR: AJAX-based pagination for Inventory Items -->
+                <div id="inventory-pagination" class="mt-3">
+                    <?php if ($total_pages > 1): ?>
+                        <nav>
+                            <ul class="pagination justify-content-center" id="paginationContainer">
+                                <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                                    <a class="page-link" href="#" onclick="loadInventoryItems(<?= $page - 1 ?>, document.getElementById('search').value, document.getElementById('sy_inv').value); return false;">&laquo;</a>
                                 </li>
-                            <?php endfor; ?>
-                            <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="#" onclick="loadInventory(<?= $page + 1 ?>); return false;">&raquo;</a>
-                            </li>
-                        </ul>
-                    </nav>
-                <?php endif; ?>
+                                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                                    <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                        <a class="page-link" href="#" onclick="loadInventoryItems(<?= $i ?>, document.getElementById('search').value, document.getElementById('sy_inv').value); return false;"><?= $i ?></a>
+                                    </li>
+                                <?php endfor; ?>
+                                <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                                    <a class="page-link" href="#" onclick="loadInventoryItems(<?= $page + 1 ?>, document.getElementById('search').value, document.getElementById('sy_inv').value); return false;">&raquo;</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    <?php endif; ?>
+                </div>
                 
                 <!-- Stock Movement Logs -->
                 <div class="table-container" id="stock-movements">
                     <div class="table-header">
                         <h3>Recent Stock Movements</h3>
                         <div class="d-flex align-items-end gap-2">
-                            <form method="GET" class="d-flex align-items-end gap-2 mb-0" action="Inventory.php#stock-movements">
-                                <!-- Preserve other GET parameters -->
-                                <?php foreach ($_GET as $key => $value): ?>
-                                    <?php if ($key !== 'sy_logs' && $key !== 'logs_page'): ?>
-                                        <input type="hidden" name="<?= htmlspecialchars($key) ?>" value="<?= htmlspecialchars($value) ?>">
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                                
+                            <!-- ANCHOR: AJAX-based school year filter form -->
+                            <div class="d-flex align-items-end gap-2 mb-0">
                                 <div>
                                     <label for="sy_logs" class="form-label mb-0 text-white">
                                         <i class="fas fa-calendar-alt me-1"></i> Filter by School Year
                                         <small class="d-block" style="font-size: 0.75rem; opacity: 0.85;">July to June</small>
                                     </label>
-                                    <select id="sy_logs" name="sy_logs" class="form-select" title="Select a school year period (July to June)">
+                                    <select id="sy_logs" name="sy_logs" class="form-select" title="Select a school year period (July to June)" onchange="filterStockMovements()">
                                         <option value="">All School Years</option>
                                         <?php foreach ($sy_years as $sy): ?>
                                             <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_logs_raw === $sy) ? 'selected' : '' ?>>
@@ -1161,16 +1158,14 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     </select>
                                 </div>
                                 <div class="pt-4">
-                                    <button type="submit" class="btn btn-light" title="Apply filter">
+                                    <button type="button" class="btn btn-light" onclick="filterStockMovements()" title="Apply filter">
                                         <i class="fas fa-filter"></i> Filter
                                     </button>
-                                    <?php if (!empty($sy_logs_raw)): ?>
-                                        <a href="Inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_logs' => true, 'logs_page' => true])) ?>#stock-movements" class="btn btn-outline-light" title="Clear filter">
-                                            <i class="fas fa-times"></i> Clear
-                                        </a>
-                                    <?php endif; ?>
+                                    <button type="button" class="btn btn-outline-light" onclick="clearStockMovementFilter()" title="Clear filter">
+                                        <i class="fas fa-times"></i> Clear
+                                    </button>
                                 </div>
-                            </form>
+                            </div>
                             <button class="btn btn-add" onclick="viewAllMovements()">
                                 <i class="fas fa-list"></i> View All
                             </button>
@@ -1186,13 +1181,14 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <th>Type</th>
                                     <th>Quantity</th>
                                     <th>Previous Stock</th>
-                                    <th>New Stock</th>
+                                    <th>Remaining Stock</th>
                                     <th>Receiver</th>
                                     <th>Notes</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <!-- ANCHOR: Stock movements table body for AJAX updates -->
+                            <tbody id="stock-movements-tbody">
                                 <?php if ($stock_logs_result && $stock_logs_result->num_rows > 0): ?>
                                     <?php while ($log = $stock_logs_result->fetch_assoc()): ?>
                                         <tr>
@@ -1221,7 +1217,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <?php endwhile; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="8" class="text-center py-4">
+                                        <td colspan="9" class="text-center py-4">
                                             <i class="fas fa-history fa-3x text-muted mb-3"></i>
                                             <p class="text-muted">No stock movements recorded</p>
                                         </td>
@@ -1231,57 +1227,58 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         </table>
                     </div>
                     
-                    <!-- Pagination for Stock Movements -->
-                    <?php if ($total_logs_pages > 1): ?>
-                        <!-- DEBUG: Current logs_page = <?= $logs_page ?> -->
-                        <nav class="mt-3" id="logs-pagination">
-                            <ul class="pagination justify-content-center">
-                                <li class="page-item <?= ($logs_page <= 1) ? 'disabled' : '' ?>">
-                                    <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['logs_page' => max(1, $logs_page - 1)])) ?>#stock-movements" aria-label="Previous">
-                                        <span aria-hidden="true">&laquo;</span>
-                                    </a>
-                                </li>
-                                
-                                <?php
-                                // Smart pagination - show max 7 page numbers
-                                $start_page = max(1, $logs_page - 3);
-                                $end_page = min($total_logs_pages, $logs_page + 3);
-                                
-                                if ($start_page > 1) {
-                                    echo '<li class="page-item"><a class="page-link" href="?' . http_build_query(array_merge($_GET, ['logs_page' => 1])) . '#stock-movements">1</a></li>';
-                                    if ($start_page > 2) {
-                                        echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
-                                    }
-                                }
-                                
-                                for ($i = $start_page; $i <= $end_page; $i++):
-                                    $is_active = ($i === $logs_page);
-                                ?>
-                                    <li class="page-item <?= $is_active ? 'active' : '' ?>">
-                                        <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['logs_page' => $i])) ?>#stock-movements"><?= $i ?></a>
+                    <!-- ANCHOR: AJAX-based pagination for Stock Movements -->
+                    <div id="stock-movements-pagination" class="mt-3">
+                        <?php if ($total_logs_pages > 1): ?>
+                            <nav>
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item <?= ($logs_page <= 1) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="#" onclick="loadStockMovements(<?= max(1, $logs_page - 1) ?>, document.getElementById('sy_logs').value); return false;" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
                                     </li>
-                                <?php
-                                endfor;
-                                
-                                if ($end_page < $total_logs_pages) {
-                                    if ($end_page < $total_logs_pages - 1) {
-                                        echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                                    
+                                    <?php
+                                    // Smart pagination - show max 7 page numbers
+                                    $start_page = max(1, $logs_page - 3);
+                                    $end_page = min($total_logs_pages, $logs_page + 3);
+                                    
+                                    if ($start_page > 1) {
+                                        echo '<li class="page-item"><a class="page-link" href="#" onclick="loadStockMovements(1, document.getElementById(\'sy_logs\').value); return false;">1</a></li>';
+                                        if ($start_page > 2) {
+                                            echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                                        }
                                     }
-                                    echo '<li class="page-item"><a class="page-link" href="?' . http_build_query(array_merge($_GET, ['logs_page' => $total_logs_pages])) . '#stock-movements">' . $total_logs_pages . '</a></li>';
-                                }
-                                ?>
-                                
-                                <li class="page-item <?= ($logs_page >= $total_logs_pages) ? 'disabled' : '' ?>">
-                                    <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['logs_page' => min($total_logs_pages, $logs_page + 1)])) ?>#stock-movements" aria-label="Next">
-                                        <span aria-hidden="true">&raquo;</span>
-                                    </a>
-                                </li>
-                            </ul>
-                            <div class="text-center text-muted small">
-                                Showing page <strong><?= $logs_page ?></strong> of <strong><?= $total_logs_pages ?></strong> (<?= $total_logs ?> total movements)
-                            </div>
-                        </nav>
-                    <?php endif; ?>
+                                    
+                                    for ($i = $start_page; $i <= $end_page; $i++):
+                                        $is_active = ($i === $logs_page);
+                                    ?>
+                                        <li class="page-item <?= $is_active ? 'active' : '' ?>">
+                                            <a class="page-link" href="#" onclick="loadStockMovements(<?= $i ?>, document.getElementById('sy_logs').value); return false;"><?= $i ?></a>
+                                        </li>
+                                    <?php
+                                    endfor;
+                                    
+                                    if ($end_page < $total_logs_pages) {
+                                        if ($end_page < $total_logs_pages - 1) {
+                                            echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                                        }
+                                        echo '<li class="page-item"><a class="page-link" href="#" onclick="loadStockMovements(' . $total_logs_pages . ', document.getElementById(\'sy_logs\').value); return false;">' . $total_logs_pages . '</a></li>';
+                                    }
+                                    ?>
+                                    
+                                    <li class="page-item <?= ($logs_page >= $total_logs_pages) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="#" onclick="loadStockMovements(<?= min($total_logs_pages, $logs_page + 1) ?>, document.getElementById('sy_logs').value); return false;" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <div class="text-center text-muted small">
+                                    Showing page <strong><?= $logs_page ?></strong> of <strong><?= $total_logs_pages ?></strong> (<?= $total_logs ?> total movements)
+                                </div>
+                            </nav>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
 
@@ -1956,6 +1953,10 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 // Session message variables
                 var sessionMessage = '<?= addslashes($session_message) ?>';
                 var sessionError = '<?= addslashes($session_error) ?>';
+                
+                // ANCHOR: API configuration for stock movements
+                var API_BASE_URL = '<?= $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) ?>';
+                console.log('Server-generated API base URL:', API_BASE_URL);
 
                 $(document).ready(function() {
                     // Show session message alert if there are messages
@@ -1963,25 +1964,11 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         showSessionMessageAlert();
                     }
 
-                    // Enable Enter key search
+                    // Enable Enter key search for inventory items
                     $('#search').on('keypress', function(e) {
                         if (e.which === 13) { // Enter key
-                            $(this).closest('form').submit();
+                            filterInventoryItems();
                         }
-                    });
-
-                    // Real-time search with debounce - NO PAGE REFRESH
-                    let searchTimeout;
-                    $('#search').on('input', function() {
-                        clearTimeout(searchTimeout);
-                        const searchValue = $(this).val();
-
-                        searchTimeout = setTimeout(function() {
-                            if (searchValue.length === 0 || searchValue.length >= 2) {
-                                // Perform AJAX search instead of form submission
-                                performSearch(searchValue);
-                            }
-                        }, 500); // Wait 500ms after user stops typing
                     });
 
                     // Mark as Received Modal functionality
@@ -2046,80 +2033,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     }
                 }
 
-                // AJAX search function - no page refresh
-                function performSearch(searchTerm) {
-                    // Show loading indicator
-                    const searchInput = $('#search');
-                    const originalValue = searchInput.val();
-                    
-                    // Add loading class to search input
-                    searchInput.addClass('loading');
-                    
-                    // Get current URL parameters
-                    const currentParams = new URLSearchParams(window.location.search);
-                    currentParams.set('search', searchTerm);
-                    currentParams.set('ajax', '1');
-                    currentParams.delete('page'); // Reset to first page for new search
-                    
-                    // Fetch search results
-                    fetch("Inventory.php?" + currentParams.toString())
-                        .then(response => response.text())
-                        .then(data => {
-                            // Remove loading class
-                            searchInput.removeClass('loading');
-                            
-                            // Extract table content from response
-                            const temp = document.createElement('div');
-                            temp.innerHTML = data;
-                            const newTable = temp.querySelector('#inventoryTable');
-                            const newPagination = temp.querySelector('#paginationContainer');
-                            
-                            if (newTable) {
-                                document.getElementById("inventoryTable").innerHTML = newTable.innerHTML;
-                            }
-                            if (newPagination) {
-                                const paginationContainer = document.querySelector("#paginationContainer");
-                                if (paginationContainer) {
-                                    paginationContainer.innerHTML = newPagination.innerHTML;
-                                }
-                            }
-                            
-                            // Update URL without page reload
-                            const url = new URL(window.location);
-                            url.searchParams.set('search', searchTerm);
-                            url.searchParams.delete('page');
-                            window.history.pushState({}, '', url);
-                            
-                            // Smooth scroll to top of table
-                            const table = document.querySelector('.table-responsive');
-                            if (table) {
-                                table.scrollIntoView({
-                                    behavior: 'smooth',
-                                    block: 'start'
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Search error:", error);
-                            searchInput.removeClass('loading');
-                            
-                            // Show error message
-                            const errorDiv = document.createElement('div');
-                            errorDiv.className = 'alert alert-danger mt-3';
-                            errorDiv.innerHTML = `
-                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                Error performing search. Please try again.
-                                <button class="btn btn-sm btn-outline-danger ms-2" onclick="performSearch('${searchTerm}')">
-                                    <i class="fas fa-sync-alt"></i> Retry
-                                </button>
-                            `;
-                            
-                            const tableContainer = document.querySelector('.table-responsive');
-                            if (tableContainer) {
-                                tableContainer.parentNode.insertBefore(errorDiv, tableContainer.nextSibling);
-                            }
-                        });
-                }
 
                 // Function to change status from Pending to Received
                 window.changeStatusToReceived = function() {
@@ -2229,6 +2142,229 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 function viewAllMovements() {
                     // Implement view all movements functionality
                     console.log('View all movements');
+                }
+
+                // ANCHOR: AJAX functions for stock movement filtering
+                function filterStockMovements() {
+                    const syValue = document.getElementById('sy_logs').value;
+                    loadStockMovements(1, syValue);
+                }
+
+                function clearStockMovementFilter() {
+                    document.getElementById('sy_logs').value = '';
+                    loadStockMovements(1, '');
+                }
+
+                // ANCHOR: AJAX functions for inventory items filtering
+                function filterInventoryItems() {
+                    const searchValue = document.getElementById('search').value;
+                    const syValue = document.getElementById('sy_inv').value;
+                    loadInventoryItems(1, searchValue, syValue);
+                }
+
+                function clearInventoryFilters() {
+                    document.getElementById('search').value = '';
+                    document.getElementById('sy_inv').value = '';
+                    loadInventoryItems(1, '', '');
+                }
+
+                // Debounced search function
+                let searchTimeout;
+                function handleInventorySearch() {
+                    clearTimeout(searchTimeout);
+                    const searchValue = document.getElementById('search').value;
+                    const syValue = document.getElementById('sy_inv').value;
+                    
+                    searchTimeout = setTimeout(function() {
+                        if (searchValue.length === 0 || searchValue.length >= 2) {
+                            loadInventoryItems(1, searchValue, syValue);
+                        }
+                    }, 500); // Wait 500ms after user stops typing
+                }
+
+                function loadStockMovements(page = 1, syLogs = '') {
+                    // Show loading indicator
+                    const tableBody = document.getElementById('stock-movements-tbody');
+                    const paginationContainer = document.getElementById('stock-movements-pagination');
+                    
+                    // Create loading row
+                    tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><div class="mt-2">Loading stock movements...</div></td></tr>';
+                    
+                    // Build API URL - use server-generated base URL for reliability
+                    let apiUrl;
+                    
+                    try {
+                        // Try using server-generated base URL first
+                        apiUrl = new URL('api/get_stock_movements.php', API_BASE_URL);
+                    } catch (e) {
+                        // Fallback to dynamic path resolution
+                        console.warn('Server base URL failed, using fallback:', e);
+                        const currentPath = window.location.pathname;
+                        let basePath;
+                        
+                        if (currentPath.includes('/pages/')) {
+                            basePath = currentPath.replace('/pages/', '/');
+                        } else if (currentPath.endsWith('/')) {
+                            basePath = currentPath;
+                        } else {
+                            basePath = currentPath + '/';
+                        }
+                        
+                        apiUrl = new URL('api/get_stock_movements.php', window.location.origin + basePath);
+                    }
+                    
+                    apiUrl.searchParams.set('logs_page', page);
+                    if (syLogs) {
+                        apiUrl.searchParams.set('sy_logs', syLogs);
+                    }
+                    
+                    // Debug: Log the API URL being used
+                    console.log('Fetching stock movements from:', apiUrl.toString());
+                    
+                    // Make AJAX request
+                    fetch(apiUrl.toString())
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            console.log('Response URL:', response.url);
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status} - URL: ${response.url}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('API Response:', data);
+                            if (data.success) {
+                                // Update table body
+                                tableBody.innerHTML = data.table_rows;
+                                
+                                // Update pagination
+                                paginationContainer.innerHTML = data.pagination;
+                                
+                                // Update URL without page reload (optional, for bookmarking)
+                                const url = new URL(window.location);
+                                if (syLogs) {
+                                    url.searchParams.set('sy_logs', syLogs);
+                                } else {
+                                    url.searchParams.delete('sy_logs');
+                                }
+                                url.searchParams.set('logs_page', page);
+                                window.history.pushState({}, '', url);
+                                
+                                // Scroll to stock movements section smoothly
+                                document.getElementById('stock-movements').scrollIntoView({ 
+                                    behavior: 'smooth',
+                                    block: 'start'
+                                });
+                            } else {
+                                // Handle error
+                                console.error('API returned error:', data.message);
+                                tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-2"></i><div>Error loading stock movements: ' + data.message + '</div></td></tr>';
+                                paginationContainer.innerHTML = '';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Fetch error:', error);
+                            const errorMessage = error.message || 'Unknown error occurred';
+                            tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-2"></i><div>Error loading stock movements: ' + errorMessage + '</div><small class="text-muted">Check console for more details</small></td></tr>';
+                            paginationContainer.innerHTML = '';
+                        });
+                }
+
+                function loadInventoryItems(page = 1, searchTerm = '', syInv = '') {
+                    // Show loading indicator
+                    const tableBody = document.getElementById('inventory-tbody');
+                    const paginationContainer = document.getElementById('inventory-pagination');
+                    
+                    // Create loading row
+                    tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><div class="mt-2">Loading inventory items...</div></td></tr>';
+                    
+                    // Build API URL - use server-generated base URL for reliability
+                    let apiUrl;
+                    
+                    try {
+                        // Try using server-generated base URL first
+                        apiUrl = new URL('api/get_inventory_items.php', API_BASE_URL);
+                    } catch (e) {
+                        // Fallback to dynamic path resolution
+                        console.warn('Server base URL failed, using fallback:', e);
+                        const currentPath = window.location.pathname;
+                        let basePath;
+                        
+                        if (currentPath.includes('/pages/')) {
+                            basePath = currentPath.replace('/pages/', '/');
+                        } else if (currentPath.endsWith('/')) {
+                            basePath = currentPath;
+                        } else {
+                            basePath = currentPath + '/';
+                        }
+                        
+                        apiUrl = new URL('api/get_inventory_items.php', window.location.origin + basePath);
+                    }
+                    
+                    apiUrl.searchParams.set('page', page);
+                    if (searchTerm) {
+                        apiUrl.searchParams.set('search', searchTerm);
+                    }
+                    if (syInv) {
+                        apiUrl.searchParams.set('sy_inv', syInv);
+                    }
+                    
+                    // Debug: Log the API URL being used
+                    console.log('Fetching inventory items from:', apiUrl.toString());
+                    
+                    // Make AJAX request
+                    fetch(apiUrl.toString())
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            console.log('Response URL:', response.url);
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status} - URL: ${response.url}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('API Response:', data);
+                            if (data.success) {
+                                // Update table body
+                                tableBody.innerHTML = data.table_rows;
+                                
+                                // Update pagination
+                                paginationContainer.innerHTML = data.pagination;
+                                
+                                // Update URL without page reload (optional, for bookmarking)
+                                const url = new URL(window.location);
+                                if (searchTerm) {
+                                    url.searchParams.set('search', searchTerm);
+                                } else {
+                                    url.searchParams.delete('search');
+                                }
+                                if (syInv) {
+                                    url.searchParams.set('sy_inv', syInv);
+                                } else {
+                                    url.searchParams.delete('sy_inv');
+                                }
+                                url.searchParams.set('page', page);
+                                url.searchParams.delete('logs_page'); // Remove logs page param
+                                window.history.pushState({}, '', url);
+                                
+                                // Scroll to inventory table smoothly
+                                document.querySelector('.table-container').scrollIntoView({ 
+                                    behavior: 'smooth',
+                                    block: 'start'
+                                });
+                            } else {
+                                // Handle error
+                                console.error('API returned error:', data.message);
+                                tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-2"></i><div>Error loading inventory items: ' + data.message + '</div></td></tr>';
+                                paginationContainer.innerHTML = '';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Fetch error:', error);
+                            const errorMessage = error.message || 'Unknown error occurred';
+                            tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-2"></i><div>Error loading inventory items: ' + errorMessage + '</div><small class="text-muted">Check console for more details</small></td></tr>';
+                            paginationContainer.innerHTML = '';
+                        });
                 }
 
                 // Add to Inventory from Acquired Supplies Items row
@@ -2400,158 +2536,18 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     modal.show();
                 }
 
-                function loadInventory(page = 1) {
-                    // Update URL without page reload - preserve all existing parameters
-                    const url = new URL(window.location);
-                    url.searchParams.set('page', page);
-                    // Ensure we keep logs_page if it exists
-                    if (url.searchParams.has('logs_page')) {
-                        // Keep the logs_page parameter intact
-                    }
-                    window.history.pushState({}, '', url);
-
-                    // Show loading overlay with animation
-                    const tableContainer = document.querySelector('.table-container');
-                    const loadingOverlay = document.createElement('div');
-                    loadingOverlay.id = 'loadingOverlay';
-                    loadingOverlay.style.cssText = `
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1050;
-            border-radius: 8px;
-        `;
-
-                    // Create loading spinner
-                    const spinner = document.createElement('div');
-                    spinner.className = 'spinner-border text-primary';
-                    spinner.style.width = '3rem';
-                    spinner.style.height = '3rem';
-                    spinner.role = 'status';
-
-                    const spinnerText = document.createElement('span');
-                    spinnerText.className = 'visually-hidden';
-                    spinnerText.textContent = 'Loading...';
-
-                    spinner.appendChild(spinnerText);
-                    loadingOverlay.appendChild(spinner);
-
-                    // Add loading text
-                    const loadingText = document.createElement('div');
-                    loadingText.className = 'ms-3';
-                    loadingText.style.fontWeight = '600';
-                    loadingText.style.color = '#0d6efd';
-                    loadingText.textContent = 'Loading inventory data...';
-                    loadingOverlay.appendChild(loadingText);
-
-                    // Add to container with relative positioning
-                    tableContainer.style.position = 'relative';
-                    tableContainer.appendChild(loadingOverlay);
-
-                    // Disable pagination buttons during load
-                    const paginationLinks = document.querySelectorAll('.page-link');
-                    paginationLinks.forEach(link => {
-                        link.style.pointerEvents = 'none';
-                        link.style.opacity = '0.6';
-                    });
-
-                    // Get current URL parameters to maintain search and filters
-                    const currentParams = new URLSearchParams(window.location.search);
-                    currentParams.set('ajax', '1');
-                    currentParams.set('page', page);
-
-                    // Fetch the page content
-                    fetch("Inventory.php?" + currentParams.toString())
-                        .then(response => response.text())
-                        .then(data => {
-                            // Remove loading overlay
-                            if (loadingOverlay.parentNode) {
-                                loadingOverlay.parentNode.removeChild(loadingOverlay);
-                            }
-
-                            // Re-enable pagination buttons
-                            paginationLinks.forEach(link => {
-                                link.style.pointerEvents = '';
-                                link.style.opacity = '';
-                            });
-
-                            // Extract just the table content from the response
-                            const temp = document.createElement('div');
-                            temp.innerHTML = data;
-                            const newTable = temp.querySelector('#inventoryTable');
-                            const newPagination = temp.querySelector('#paginationContainer');
-
-                            if (newTable) {
-                                document.getElementById("inventoryTable").innerHTML = newTable.innerHTML;
-                            }
-                            if (newPagination) {
-                                document.querySelector("#paginationContainer").innerHTML = newPagination.innerHTML;
-                            }
-
-                            // Update active state
-                            document.querySelectorAll('.page-item').forEach(item => {
-                                item.classList.remove('active');
-                                if (item.querySelector('a')?.textContent == page) {
-                                    item.classList.add('active');
-                                }
-                            });
-
-                            // Smooth scroll to top of table
-                            const table = document.querySelector('.table-responsive');
-                            if (table) {
-                                table.scrollIntoView({
-                                    behavior: 'smooth',
-                                    block: 'start'
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Error:", error);
-                            // Remove loading overlay on error
-                            if (loadingOverlay.parentNode) {
-                                loadingOverlay.parentNode.removeChild(loadingOverlay);
-                            }
-
-                            // Show error message
-                            const errorDiv = document.createElement('div');
-                            errorDiv.className = 'alert alert-danger mt-3';
-                            errorDiv.innerHTML = `
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    Error loading content. Please try again.
-                    <button class="btn btn-sm btn-outline-danger ms-2" onclick="loadInventory(${page})">
-                        <i class="fas fa-sync-alt"></i> Retry
-                    </button>
-                `;
-
-                            const tableContainer = document.querySelector('.table-responsive');
-                            if (tableContainer) {
-                                tableContainer.parentNode.insertBefore(errorDiv, tableContainer.nextSibling);
-                            }
-                        });
-                }
 
                 // Handle browser back/forward buttons
                 window.addEventListener('popstate', function() {
                     const urlParams = new URLSearchParams(window.location.search);
                     const page = urlParams.get('page') || 1;
-                    loadInventory(parseInt(page));
-                });
-
-                // Load initial page
-                document.addEventListener("DOMContentLoaded", function() {
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const page = urlParams.get('page') || 1;
+                    const search = urlParams.get('search') || '';
+                    const syInv = urlParams.get('sy_inv') || '';
                     
                     // Only load inventory if we're not on a logs page
                     const logsPage = urlParams.get('logs_page');
                     if (!logsPage) {
-                        loadInventory(parseInt(page));
+                        loadInventoryItems(parseInt(page), search, syInv);
                     }
                 });
             </script>
@@ -2633,13 +2629,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '<td><span class="badge bg-' . ($stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success')) . '">' . ucfirst($stock_level) . '</span></td>';
                     echo '<td>';
                     echo '<div class="half-split btn btn-sm" title="Stock In / Out">
-  <span class="half plus"  onclick="stockIn(' . (int)$row['inventory_id'] . '); event.stopPropagation();">
-    <i class="fas fa-plus"></i>
-  </span>
-  <span class="half minus" onclick="stockOut(' . (int)$row['inventory_id'] . '); event.stopPropagation();">
-    <i class="fas fa-minus"></i>
-  </span>
-</div>';
+                            <span class="half plus"  onclick="stockIn(' . (int)$row['inventory_id'] . '); event.stopPropagation();">
+                                <i class="fas fa-plus"></i>
+                            </span>
+                            <span class="half minus" onclick="stockOut(' . (int)$row['inventory_id'] . '); event.stopPropagation();">
+                                <i class="fas fa-minus"></i>
+                            </span>
+                        </div>';
                     
                     echo ' <button class="btn btn-sm btn-info" 
                     title="Edit" 
