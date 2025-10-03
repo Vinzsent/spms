@@ -53,7 +53,7 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         --primary-green: #073b1d;
         --dark-green: #073b1d;
         --light-green: #2d8aad;
-        --accent-orange: #fd7e14;
+        --accent-orange: #EACA26;
         --accent-blue: #4a90e2;
         --accent-green-approved: #28a745;
         --accent-red: #e74c3c;
@@ -458,7 +458,7 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
                 </div>
             </div>
         </div>
-        <a href="canvass_form_list.php" class="btn mb-3 view-button" style="background-color: var(--accent-orange); color: white; text-decoration: none;"><i class="fas fa-eye"></i> View Canvass List</a>
+        <a href="canvass_form_list.php" class="btn mb-3 view-button" style="background-color: var(--accent-orange); color: dark; text-decoration: none;"><i class="fas fa-eye"></i> View Canvass List</a>
         <!-- Canvass Table -->
         <table class="canvass-table" id="canvassTable">
             <thead>

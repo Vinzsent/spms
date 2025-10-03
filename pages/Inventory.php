@@ -1079,22 +1079,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 </span>
                                             </div>
                                             <button class="btn btn-sm btn-info" title="Edit"
-                                                onclick="openEditInventoryModal(
-                                                <?= (int)$row['inventory_id'] ?>,
-                                                <?= json_encode($row['item_name']) ?>,
-                                                <?= json_encode($row['category']) ?>,
-                                                <?= json_encode($row['brand'] ?? '') ?>,
-                                                <?= json_encode($row['color'] ?? '') ?>,
-                                                <?= json_encode($row['size'] ?? '') ?>,
-                                                <?= json_encode($row['type'] ?? '') ?>,
-                                                <?= json_encode($row['description'] ?? '') ?>,
-                                                <?= json_encode($row['unit']) ?>,
-                                                <?= (int)$row['current_stock'] ?>,
-                                                <?= (int)$row['reorder_level'] ?>,
-                                                <?= (int)$row['supplier_id'] ?>,
-                                                <?= json_encode($row['location'] ?? '') ?>,
-                                                <?= (float)$row['unit_cost'] ?>
-                                            )">
+                                                onclick="editInventoryItem(<?= (int)$row['inventory_id'] ?>, null)">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                         </td>
@@ -1451,22 +1436,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                         <button class="btn btn-sm btn-success" onclick="stockIn(<?= $item['inventory_id'] ?>); $('#lowStockModal').modal('hide');" title="Add Stock">
                                                             <i class="fas fa-plus"></i>
                                                         </button>
-                                                        <button class="btn btn-sm btn-info" onclick="openEditInventoryModal(
-                                                            <?= (int)$item['inventory_id'] ?>,
-                                                            <?= json_encode($item['item_name']) ?>,
-                                                            <?= json_encode($item['category']) ?>,
-                                                            <?= json_encode($item['brand'] ?? '') ?>,
-                                                            <?= json_encode($item['color'] ?? '') ?>,
-                                                            <?= json_encode($item['size'] ?? '') ?>,
-                                                            <?= json_encode($item['type'] ?? '') ?>,
-                                                            <?= json_encode($item['description'] ?? '') ?>,
-                                                            <?= json_encode($item['unit']) ?>,
-                                                            <?= (int)$item['current_stock'] ?>,
-                                                            <?= (int)$item['reorder_level'] ?>,
-                                                            <?= (int)$item['supplier_id'] ?>,
-                                                            <?= json_encode($item['location'] ?? '') ?>,
-                                                            <?= (float)$item['unit_cost'] ?>
-                                                        ); $('#lowStockModal').modal('hide');" title="Edit">
+                                                        <button class="btn btn-sm btn-info" onclick="editInventoryItem(<?= (int)$item['inventory_id'] ?>, 'lowStockModal');" title="Edit">
                                                             <i class="fas fa-edit"></i>
                                                         </button>
                                                     </td>
@@ -1538,22 +1508,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                         <button class="btn btn-sm btn-success" onclick="stockIn(<?= $item['inventory_id'] ?>); $('#outOfStockModal').modal('hide');" title="Add Stock">
                                                             <i class="fas fa-plus"></i> Restock
                                                         </button>
-                                                        <button class="btn btn-sm btn-info" onclick="openEditInventoryModal(
-                                                            <?= (int)$item['inventory_id'] ?>,
-                                                            <?= json_encode($item['item_name']) ?>,
-                                                            <?= json_encode($item['category']) ?>,
-                                                            <?= json_encode($item['brand'] ?? '') ?>,
-                                                            <?= json_encode($item['color'] ?? '') ?>,
-                                                            <?= json_encode($item['size'] ?? '') ?>,
-                                                            <?= json_encode($item['type'] ?? '') ?>,
-                                                            <?= json_encode($item['description'] ?? '') ?>,
-                                                            <?= json_encode($item['unit']) ?>,
-                                                            <?= (int)$item['current_stock'] ?>,
-                                                            <?= (int)$item['reorder_level'] ?>,
-                                                            <?= (int)$item['supplier_id'] ?>,
-                                                            <?= json_encode($item['location'] ?? '') ?>,
-                                                            <?= (float)$item['unit_cost'] ?>
-                                                        ); $('#outOfStockModal').modal('hide');" title="Edit">
+                                                        <button class="btn btn-sm btn-info" onclick="editInventoryItem(<?= (int)$item['inventory_id'] ?>, 'outOfStockModal');" title="Edit">
                                                             <i class="fas fa-edit"></i>
                                                         </button>
                                                     </td>
@@ -2438,6 +2393,50 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     document.getElementById('addInventoryHiddenForm').submit();
                 }
 
+                // ANCHOR: Edit inventory item with modal management
+                function editInventoryItem(inventoryId, currentModalId) {
+                    // Hide the current modal first if specified
+                    if (currentModalId) {
+                        $('#' + currentModalId).modal('hide');
+                    }
+                    
+                    // Wait for modal to close, then fetch data and open edit modal
+                    setTimeout(function() {
+                        // Fetch inventory item data via AJAX
+                        $.ajax({
+                            url: '../actions/get_inventory_item.php',
+                            method: 'GET',
+                            data: { inventory_id: inventoryId },
+                            dataType: 'json',
+                            success: function(data) {
+                                if (data.success) {
+                                    openEditInventoryModal(
+                                        data.item.inventory_id,
+                                        data.item.item_name,
+                                        data.item.category,
+                                        data.item.brand || '',
+                                        data.item.color || '',
+                                        data.item.size || '',
+                                        data.item.type || '',
+                                        data.item.description || '',
+                                        data.item.unit,
+                                        data.item.current_stock,
+                                        data.item.reorder_level,
+                                        data.item.supplier_id,
+                                        data.item.location || '',
+                                        data.item.unit_cost
+                                    );
+                                } else {
+                                    alert('Error loading inventory item: ' + (data.message || 'Unknown error'));
+                                }
+                            },
+                            error: function() {
+                                alert('Error: Could not load inventory item data');
+                            }
+                        });
+                    }, currentModalId ? 300 : 0);
+                }
+
                 // Open Edit Inventory modal with data
                 function openEditInventoryModal(id, name, category, brand, color, size, type, description, unit, stock, reorder, supplierId, location, unitCost) {
                     document.getElementById('ei_inventory_id').value = id;
@@ -2639,22 +2638,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     
                     echo ' <button class="btn btn-sm btn-info" 
                     title="Edit" 
-                    onclick=\'openEditInventoryModal('
-                        . (int)$row['inventory_id'] . ', '
-                        . json_encode($row['item_name']) . ', '
-                        . json_encode($row['category']) . ', '
-                        . json_encode($row['brand']) . ', '
-                        . json_encode($row['color']) . ', '
-                        . json_encode($row['size']) . ', '
-                        . json_encode($row['type']) . ', '
-                        . json_encode($row['description']) . ', '
-                        . json_encode($row['unit']) . ', '
-                        . (int)($row['current_stock']) . ', '
-                        . (int)$row['reorder_level'] . ', '
-                        . json_encode($row['supplier_id']) . ', '
-                        . json_encode($row['location'] ?? '') . ', '
-                        . json_encode($row['unit_cost']) .
-                    ')\'><i class="fas fa-edit"></i></button>';
+                    onclick="editInventoryItem(' . (int)$row['inventory_id'] . ', null)"><i class="fas fa-edit"></i></button>';
 
                     echo '</td></tr>';
                 }
