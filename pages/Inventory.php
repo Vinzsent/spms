@@ -874,7 +874,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             </button>
                         </div>
                     </div>
-                    <button class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                    <button title="Add Item" class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
                         <i class="fas fa-plus"></i> Add Item
                     </button>
                 </div>
@@ -1151,7 +1151,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     </button>
                                 </div>
                             </div>
-                            <button class="btn btn-add text-dark" onclick="viewAllMovements()">
+                            <button title="View All" class="btn btn-add text-dark" onclick="viewAllMovements()">
                                 <i class="fas fa-list"></i> View All
                             </button>
                         </div>
@@ -1190,11 +1190,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <td><?= htmlspecialchars($log['receiver'] ?? 'N/A') ?></td>
                                             <td><?= htmlspecialchars($log['notes']) ?></td>
                                             <td>
-                                                <button class="btn btn-sm btn-info" onclick="editMovement(<?= $log['log_id'] ?>)">
+                                                <button title="Edit" class="btn btn-sm btn-info" onclick="editMovement(<?= $log['log_id'] ?>)">
                                                     <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" onclick="deleteMovement(<?= $log['log_id'] ?>)">
-                                                    <i class="fas fa-trash"></i>
                                                 </button>
                                             </td>
 
@@ -1350,7 +1347,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 </span>
                                             </td>
                                             <td>
-                                                <button type="button" class="btn btn-sm btn-success mark-received-btn" data-bs-toggle="modal" data-bs-target="#receivedModal" title="Mark as Received"
+                                                <button type="button" title="Mark as Received" class="btn btn-sm btn-success mark-received-btn" data-bs-toggle="modal" data-bs-target="#receivedModal" title="Mark as Received"
                                                     data-transaction-id="<?= $row['procurement_id'] ?>"
                                                     data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
                                                     data-category="<?= htmlspecialchars($row['category']) ?>"
@@ -1433,10 +1430,10 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                     <td><?= htmlspecialchars($item['supplier_name'] ?? 'N/A') ?></td>
                                                     <td><?= date('M d, Y', strtotime($item['date_updated'])) ?></td>
                                                     <td>
-                                                        <button class="btn btn-sm btn-success" onclick="stockIn(<?= $item['inventory_id'] ?>); $('#lowStockModal').modal('hide');" title="Add Stock">
+                                                        <button title="Add Stock" class="btn btn-sm btn-success" onclick="stockIn(<?= $item['inventory_id'] ?>); $('#lowStockModal').modal('hide');" title="Add Stock">
                                                             <i class="fas fa-plus"></i>
                                                         </button>
-                                                        <button class="btn btn-sm btn-info" onclick="editInventoryItem(<?= (int)$item['inventory_id'] ?>, 'lowStockModal');" title="Edit">
+                                                        <button title="Edit" class="btn btn-sm btn-info" onclick="editInventoryItem(<?= (int)$item['inventory_id'] ?>, 'lowStockModal');" title="Edit">
                                                             <i class="fas fa-edit"></i>
                                                         </button>
                                                     </td>
@@ -1738,6 +1735,70 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 </div>
             </div>
 
+            <!-- Edit Stock Movement Modal -->
+            <div class="modal fade" id="editStockMovementModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Edit Stock Movement</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form id="editStockMovementForm" action="../actions/edit_stock_movement.php" method="POST">
+                            <div class="modal-body">
+                                <input type="hidden" name="log_id" id="edit_log_id">
+
+                                <div class="mb-3">
+                                    <label class="form-label">Item</label>
+                                    <input type="text" id="edit_item_name" class="form-control" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Movement Type</label>
+                                    <select name="movement_type" id="edit_movement_type" class="form-select" required>
+                                        <option value="IN">Stock In</option>
+                                        <option value="OUT">Stock Out</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Quantity</label>
+                                    <input type="number" name="quantity" id="edit_quantity" class="form-control" required min="1">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Previous Stock</label>
+                                    <input type="number" id="edit_previous_stock" class="form-control" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">New Stock</label>
+                                    <input type="number" id="edit_new_stock" class="form-control" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Receiver</label>
+                                    <input type="text" name="receiver" id="edit_receiver" class="form-control">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Notes</label>
+                                    <textarea name="notes" id="edit_notes" class="form-control" rows="3"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Date Created</label>
+                                    <input type="datetime-local" name="date_created" id="edit_date_created" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <!-- Hidden form for Add to Inventory from Received row -->
             <form id="addInventoryHiddenForm" action="../actions/add_inventory.php" method="POST" style="display:none;">
                 <input type="hidden" name="procurement_id" id="ai_procurement_id">
@@ -1975,6 +2036,48 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
                         }, 150);
                     });
+
+                    // ANCHOR: Handle edit stock movement form submission
+                    $('#editStockMovementForm').on('submit', function(e) {
+                        e.preventDefault();
+                        
+                        const formData = $(this).serialize();
+                        console.log('Submitting edit stock movement form:', formData);
+                        
+                        // Show loading state
+                        const submitBtn = $(this).find('button[type="submit"]');
+                        const originalText = submitBtn.html();
+                        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
+                        
+                        $.ajax({
+                            url: '../actions/edit_stock_movement.php',
+                            method: 'POST',
+                            data: formData,
+                            dataType: 'json',
+                            success: function(data) {
+                                console.log('Edit stock movement response:', data);
+                                if (data.success) {
+                                    alert('Stock movement updated successfully!');
+                                    // Close modal
+                                    const modal = bootstrap.Modal.getInstance(document.getElementById('editStockMovementModal'));
+                                    modal.hide();
+                                    // Reload the stock movements table
+                                    const syValue = document.getElementById('sy_logs').value;
+                                    loadStockMovements(1, syValue);
+                                } else {
+                                    alert('Error updating stock movement: ' + (data.message || 'Unknown error'));
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('AJAX Error:', status, error);
+                                alert('Error: Could not update stock movement. Please check the console for details.');
+                            },
+                            complete: function() {
+                                // Restore button state
+                                submitBtn.prop('disabled', false).html(originalText);
+                            }
+                        });
+                    });
                 });
 
                 // Function to show session message alert
@@ -2097,6 +2200,82 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 function viewAllMovements() {
                     // Implement view all movements functionality
                     console.log('View all movements');
+                }
+
+                // ANCHOR: Edit stock movement functionality
+                function editMovement(logId) {
+                    console.log('Edit movement called with ID:', logId);
+                    
+                    // Fetch stock movement data via AJAX
+                    $.ajax({
+                        url: '../actions/get_stock_movement.php',
+                        method: 'GET',
+                        data: { log_id: logId },
+                        dataType: 'json',
+                        success: function(data) {
+                            console.log('Stock movement data:', data);
+                            if (data.success) {
+                                openEditStockMovementModal(data.movement);
+                            } else {
+                                alert('Error loading stock movement: ' + (data.message || 'Unknown error'));
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('AJAX Error:', status, error);
+                            alert('Error: Could not load stock movement data. Please check the console for details.');
+                        }
+                    });
+                }
+
+                // ANCHOR: Open edit stock movement modal with data
+                function openEditStockMovementModal(movement) {
+                    console.log('Opening edit stock movement modal with:', movement);
+                    
+                    // Populate form fields
+                    document.getElementById('edit_log_id').value = movement.log_id;
+                    document.getElementById('edit_item_name').value = movement.item_name;
+                    document.getElementById('edit_movement_type').value = movement.movement_type;
+                    document.getElementById('edit_quantity').value = movement.quantity;
+                    document.getElementById('edit_previous_stock').value = movement.previous_stock;
+                    document.getElementById('edit_new_stock').value = movement.new_stock;
+                    document.getElementById('edit_receiver').value = movement.receiver || '';
+                    document.getElementById('edit_notes').value = movement.notes || '';
+                    document.getElementById('edit_date_created').value = movement.formatted_date;
+                    
+                    // Open modal
+                    const modal = new bootstrap.Modal(document.getElementById('editStockMovementModal'));
+                    modal.show();
+                    console.log('Edit stock movement modal should now be visible');
+                }
+
+                // ANCHOR: Delete stock movement functionality
+                function deleteMovement(logId) {
+                    if (confirm('Are you sure you want to delete this stock movement? This action cannot be undone.')) {
+                        console.log('Delete movement called with ID:', logId);
+                        
+                        // Send delete request via AJAX
+                        $.ajax({
+                            url: '../actions/delete_stock_movement.php',
+                            method: 'POST',
+                            data: { log_id: logId },
+                            dataType: 'json',
+                            success: function(data) {
+                                console.log('Delete response:', data);
+                                if (data.success) {
+                                    alert('Stock movement deleted successfully!');
+                                    // Reload the stock movements table
+                                    const syValue = document.getElementById('sy_logs').value;
+                                    loadStockMovements(1, syValue);
+                                } else {
+                                    alert('Error deleting stock movement: ' + (data.message || 'Unknown error'));
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('AJAX Error:', status, error);
+                                alert('Error: Could not delete stock movement. Please check the console for details.');
+                            }
+                        });
+                    }
                 }
 
                 // ANCHOR: AJAX functions for stock movement filtering
@@ -2395,6 +2574,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
                 // ANCHOR: Edit inventory item with modal management
                 function editInventoryItem(inventoryId, currentModalId) {
+                    console.log('editInventoryItem called with ID:', inventoryId, 'Modal:', currentModalId);
+                    
                     // Hide the current modal first if specified
                     if (currentModalId) {
                         $('#' + currentModalId).modal('hide');
@@ -2409,6 +2590,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             data: { inventory_id: inventoryId },
                             dataType: 'json',
                             success: function(data) {
+                                console.log('AJAX response:', data);
                                 if (data.success) {
                                     openEditInventoryModal(
                                         data.item.inventory_id,
@@ -2430,8 +2612,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     alert('Error loading inventory item: ' + (data.message || 'Unknown error'));
                                 }
                             },
-                            error: function() {
-                                alert('Error: Could not load inventory item data');
+                            error: function(xhr, status, error) {
+                                console.error('AJAX Error:', status, error);
+                                alert('Error: Could not load inventory item data. Please check the console for details.');
                             }
                         });
                     }, currentModalId ? 300 : 0);
@@ -2439,6 +2622,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
                 // Open Edit Inventory modal with data
                 function openEditInventoryModal(id, name, category, brand, color, size, type, description, unit, stock, reorder, supplierId, location, unitCost) {
+                    console.log('openEditInventoryModal called with:', {id, name, category, unit, stock});
+                    
                     document.getElementById('ei_inventory_id').value = id;
                     document.getElementById('ei_item_name').value = name;
                     // Populate specifications
@@ -2531,8 +2716,11 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     document.getElementById('ei_supplier_id').value = supplierId || '';
                     document.getElementById('ei_location').value = location || '';
                     document.getElementById('ei_unit_cost').value = unitCost || 0;
+                    
+                    console.log('Opening edit inventory modal...');
                     const modal = new bootstrap.Modal(document.getElementById('editInventoryModal'));
                     modal.show();
+                    console.log('Edit inventory modal should now be visible');
                 }
 
 

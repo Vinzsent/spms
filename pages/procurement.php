@@ -180,7 +180,7 @@ if (isset($_SESSION['error'])) {
         --primary-green: #073b1d;
         --dark-green: #073b1d;
         --light-green: #2d8aad;
-        --accent-orange: #fd7e14;
+        --accent-orange: #EACA26;
         ;
         --accent-blue: #4a90e2;
         --accent-green-approved: #28a745;

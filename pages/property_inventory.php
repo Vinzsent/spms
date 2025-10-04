@@ -269,7 +269,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             --primary-green: #073b1d;
             --dark-green: #073b1d;
             --light-green: #2d8aad;
-            --accent-orange: #ff6b35;
+            --accent-orange: #EACA26;
             --accent-blue: #4a90e2;
             --accent-red: #e74c3c;
             --accent-yellow: #f39c12;
@@ -901,7 +901,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             <?php endif; ?>
                         </div>
                     </form>
-                    <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                    <button class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
                         <i class="fas fa-plus"></i> Add Item
                     </button>
                 </div>
@@ -1434,7 +1434,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <?php endif; ?>
                                 </div>
                             </form>
-                            <button class="btn btn-add" onclick="viewAllMovements()">
+                            <button class="btn btn-add text-dark" onclick="viewAllMovements()">
                                 <i class="fas fa-list"></i> View All
                             </button>
                         </div>
@@ -2280,6 +2280,58 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     document.getElementById('ei_received_notes').value = receivedNotes || '';
                     const modal = new bootstrap.Modal(document.getElementById('editInventoryModal'));
                     modal.show();
+                }
+
+                // ANCHOR: Edit inventory item with modal management
+                function editInventoryItem(inventoryId, currentModalId) {
+                    console.log('editInventoryItem called with ID:', inventoryId, 'Modal:', currentModalId);
+                    
+                    // Hide the current modal first if specified
+                    if (currentModalId) {
+                        $('#' + currentModalId).modal('hide');
+                    }
+                    
+                    // Wait for modal to close, then fetch data and open edit modal
+                    setTimeout(function() {
+                        // Fetch inventory item data via AJAX
+                        $.ajax({
+                            url: '../actions/get_property_inventory_item.php',
+                            method: 'GET',
+                            data: { inventory_id: inventoryId },
+                            dataType: 'json',
+                            success: function(data) {
+                                console.log('AJAX response:', data);
+                                if (data.success) {
+                                    openEditInventoryModal(
+                                        data.item.inventory_id,
+                                        data.item.item_name,
+                                        data.item.category,
+                                        data.item.unit,
+                                        data.item.current_stock,
+                                        data.item.reorder_level,
+                                        data.item.location || '',
+                                        data.item.supplier_id,
+                                        data.item.unit_cost,
+                                        data.item.description || '',
+                                        data.item.quantity || 0,
+                                        data.item.receiver || '',
+                                        data.item.status || 'Active',
+                                        data.item.received_notes || '',
+                                        data.item.type || '',
+                                        data.item.brand || '',
+                                        data.item.size || '',
+                                        data.item.color || ''
+                                    );
+                                } else {
+                                    alert('Error loading inventory item: ' + (data.message || 'Unknown error'));
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('AJAX Error:', status, error);
+                                alert('Error: Could not load inventory item data. Please check the console for details.');
+                            }
+                        });
+                    }, currentModalId ? 300 : 0);
                 }
 
                 function loadInventory(page = 1) {
