@@ -231,7 +231,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             --primary-green: #073b1d;
             --dark-green: #073b1d;
             --light-green: #2d8aad;
-            --accent-orange: #ff6b35;
+            --accent-orange: #EACA26;
             --accent-blue: #4a90e2;
             --accent-red: #e74c3c;
             --accent-yellow: #f39c12;
@@ -874,7 +874,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             </button>
                         </div>
                     </div>
-                    <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                    <button class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
                         <i class="fas fa-plus"></i> Add Item
                     </button>
                 </div>
@@ -1151,7 +1151,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     </button>
                                 </div>
                             </div>
-                            <button class="btn btn-add" onclick="viewAllMovements()">
+                            <button class="btn btn-add text-dark" onclick="viewAllMovements()">
                                 <i class="fas fa-list"></i> View All
                             </button>
                         </div>
