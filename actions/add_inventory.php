@@ -17,10 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $type = trim($_POST['type'] ?? '');
     $description = trim($_POST['description'] ?? '');
     $location = trim($_POST['location'] ?? '');
-    $status = trim($_POST['status'] ?? '');
     $receiver = trim($_POST['receiver'] ?? '');
     $procurement_id = intval($_POST['procurement_id'] ?? 0);
-    $inventory_status = trim($_POST['inventory_status'] ?? 'Active');
+    $inventory_status = trim($_POST['status'] ?? 'Active');
     
     // Validation
     if (empty($item_name) || empty($category) || empty($unit) || $current_stock < 0 || $reorder_level < 0) {
@@ -68,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     
     // Insert new inventory item AFTER status update
-    $sql = "INSERT INTO inventory (item_name, category, brand, color, size, type, description, current_stock, unit, unit_cost, reorder_level, supplier_id, location, created_by, receiver, inventory_status) 
+    $sql = "INSERT INTO inventory (item_name, category, brand, color, size, type, description, current_stock, unit, unit_cost, reorder_level, supplier_id, location, created_by, receiver, status) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     $stmt = $conn->prepare($sql);
