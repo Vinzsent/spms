@@ -673,6 +673,14 @@ if (isset($_SESSION['error'])) {
                     </div>
                 </div>
 
+                <!-- Date of Return Field - Hidden by default -->
+                <div class="form-row" id="returnDateRow" style="display: none;">
+                    <div class="form-group">
+                        <label for="returnDate">Date of Return:</label>
+                        <input type="date" id="returnDate" name="return_date" class="form-control underline-input">
+                    </div>
+                </div>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label for="reasonTransfer">Reason of Transfer:</label>
@@ -805,6 +813,15 @@ if (isset($_SESSION['error'])) {
             }
         });
         
+        // Additional validation for temporary transfer return date
+        const temporaryTransfer = document.getElementById('temporary');
+        const returnDateInput = document.getElementById('returnDate');
+        
+        if (temporaryTransfer.checked && !returnDateInput.value) {
+            isValid = false;
+            returnDateInput.style.borderColor = 'red';
+        }
+        
         if (!isValid) {
             alert('Please fill in all required fields before printing.');
             return;
@@ -829,17 +846,53 @@ if (isset($_SESSION['error'])) {
             alert('Please select only one transfer type.');
             return;
         }
+        
+        // Validate return date for temporary transfers
+        const temporaryTransfer = document.getElementById('temporary');
+        const returnDateInput = document.getElementById('returnDate');
+        
+        if (temporaryTransfer.checked && !returnDateInput.value) {
+            e.preventDefault();
+            alert('Please specify the Date of Return for temporary transfer.');
+            returnDateInput.focus();
+            return;
+        }
     });
 
-    // Prevent selecting both transfer types
+    // Prevent selecting both transfer types and handle Date of Return field
     document.querySelectorAll('input[name="transfer_type[]"]').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             if (this.checked) {
+                // Uncheck other transfer types
                 document.querySelectorAll('input[name="transfer_type[]"]').forEach(other => {
                     if (other !== this) {
                         other.checked = false;
                     }
                 });
+                
+                // Show/hide Date of Return field based on temporary transfer selection
+                const returnDateRow = document.getElementById('returnDateRow');
+                const returnDateInput = document.getElementById('returnDate');
+                
+                if (this.value === 'temporary') {
+                    // Show Date of Return field for temporary transfer
+                    returnDateRow.style.display = 'block';
+                    returnDateInput.required = true;
+                } else {
+                    // Hide Date of Return field for permanent transfer
+                    returnDateRow.style.display = 'none';
+                    returnDateInput.required = false;
+                    returnDateInput.value = ''; // Clear the value when hidden
+                }
+            } else {
+                // If temporary transfer is unchecked, hide Date of Return field
+                if (this.value === 'temporary') {
+                    const returnDateRow = document.getElementById('returnDateRow');
+                    const returnDateInput = document.getElementById('returnDate');
+                    returnDateRow.style.display = 'none';
+                    returnDateInput.required = false;
+                    returnDateInput.value = '';
+                }
             }
         });
     });
