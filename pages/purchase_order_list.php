@@ -35,7 +35,7 @@ $po_result = $conn->query($po_query);
         --primary-green: #073b1d;
         --dark-green: #073b1d;
         --light-green: #2d8aad;
-        --accent-orange: #fd7e14;
+        --accent-orange: #EACA26;
         --accent-blue: #4a90e2;
         --accent-green-approved: #28a745;
         --accent-red: #e74c3c;
@@ -421,7 +421,7 @@ $po_result = $conn->query($po_query);
         <div class="list-header">
             <h2 class="list-title">All Purchase Order Records</h2>
             <div class="action-buttons">
-                <a href="purchase_order.php" class="btn btn-primary">
+                <a href="purchase_order.php" class="btn btn-primary text-dark">
                     <i class="fas fa-plus"></i> New Purchase Order
                 </a>
             </div>
@@ -498,7 +498,7 @@ $po_result = $conn->query($po_query);
                 <i class="fas fa-file-invoice"></i>
                 <h3>No Purchase Order Records Found</h3>
                 <p>Start by creating your first purchase order.</p>
-                <a href="purchase_order.php" class="btn btn-primary">
+                <a href="purchase_order.php" class="btn btn-primary text-dark">
                     <i class="fas fa-plus"></i> Create New Purchase Order
                 </a>
             </div>

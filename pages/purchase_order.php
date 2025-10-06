@@ -216,7 +216,7 @@ $existing_pos_result = $conn->query($existing_pos_sql);
         --primary-green: #073b1d;
         --dark-green: #073b1d;
         --light-green: #2d8aad;
-        --accent-orange: #fd7e14;
+        --accent-orange: #EACA26;
         --accent-blue: #4a90e2;
         --accent-green-approved: #28a745;
         --accent-red: #e74c3c;
@@ -679,7 +679,7 @@ $existing_pos_result = $conn->query($existing_pos_sql);
                 </div>
             </div>
         </div>
-        <a href="purchase_order_list.php" class="btn view-button mb-3" style="background-color: var(--accent-orange); color: white; text-decoration: none; padding: 8px 16px; border-radius: 5px; display: inline-block; font-size: 14px;"><i class="fas fa-eye"></i> View Purchase Order List</a>
+        <a href="purchase_order_list.php" class="btn view-button mb-3 text-dark" style="background-color: var(--accent-orange); color: white; text-decoration: none; padding: 8px 16px; border-radius: 5px; display: inline-block; font-size: 14px;"><i class="fas fa-eye"></i> View Purchase Order List</a>
 
         <div class="po-details">
             <div class="po-details-row">

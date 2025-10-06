@@ -797,6 +797,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <li><a href="property_issuance.php" class="nav-link">
                         <i class="fas fa-hand-holding"></i> Property Issuance
                     </a></li>
+                    <li><a href="equipment_transfer_request.php" class="nav-link">
+                        <i class="fas fa-exchange-alt"></i> Transfer Request
+                    </a></li>
                 <li><a href="../logout.php" class="nav-link logout">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a></li>
