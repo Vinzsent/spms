@@ -778,30 +778,27 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
         <nav class="sidebar-nav">
             <ul class="nav-item">
-                <li><a href="<?= $dashboard_link ?>" class="nav-link">
-                        <i class="fas fa-chart-line"></i> Dashboard
-                    </a></li>
-                    
-                <li><a href="office_inventory.php" class="nav-link">
-                        <i class="fas fa-building"></i> Office Inventory
-                    </a></li>
-
-                <li><a href="property_inventory.php" class="nav-link active">
-                        <i class="fas fa-boxes"></i> Property Inventory
-                    </a></li>
-
+            <li><a href="<?= $dashboard_link ?>" class="nav-link">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a></li>
+            <li><a href="office_inventory.php" class="nav-link">
+                    <i class="fas fa-building"></i> Office Inventory
+                </a></li>
+            <li><a href="property_inventory.php" class="nav-link active">
+                    <i class="fas fa-boxes"></i> Property Inventory
+                </a></li>
+            <li><a href="property_issuance.php" class="nav-link">
+                    <i class="fas fa-hand-holding"></i> Property Issuance
+                </a></li>
+                <li><a href="equipment_transfer_request.php" class="nav-link">
+                    <i class="fas fa-exchange-alt"></i> Transfer Request
+                </a></li>
                 <li><a href="borrowers_forms.php" class="nav-link">
-                        <i class="fas fa-hand-holding"></i> Borrower Forms
-                    </a></li>
-
-                <li><a href="property_issuance.php" class="nav-link">
-                        <i class="fas fa-hand-holding"></i> Property Issuance
-                    </a></li>
-                    <li><a href="equipment_transfer_request.php" class="nav-link">
-                        <i class="fas fa-exchange-alt"></i> Transfer Request
-                    </a></li>
-                <li><a href="../logout.php" class="nav-link logout">
-                        <i class="fas fa-sign-out-alt"></i> Logout
+                    <i class="fas fa-hand-holding"></i> Borrower Forms
+                </a></li>
+            <li><a href="../logout.php" class="nav-link logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a></li>
                     </a></li>
             </ul>
         </nav>
@@ -1304,116 +1301,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <?php endif; ?>
 
 
-                <div class="table-container">
-                    <div class="table-header">
-                        <h3>Acquired Supplies</h3>
-                        <form method="GET" class="d-flex align-items-end gap-2">
-                            <div>
-                                <label for="sy_recv" class="form-label mb-0 text-white">School Year</label>
-                                <select id="sy_recv" name="sy_recv" class="form-select" onchange="this.form.submit()">
-                                    <option value="">All</option>
-                                    <?php foreach ($sy_years as $sy): ?>
-                                        <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_recv_raw === $sy) ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($sy) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="pt-4">
-                                <?php if (!empty($sy_recv_raw)): ?>
-                                    <a href="property_inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv' => true])) ?>" class="btn btn-outline-light">Reset</a>
-                                <?php endif; ?>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0 table-striped">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Date Received</th>
-                                    <th>Invoice Number</th>
-                                    <th>Supplier</th>
-                                    <th>Sales Type</th>
-                                    <th>Category</th>
-                                    <th>Item Description</th>
-                                    <th>Quantity</th>
-                                    <th>Unit</th>
-                                    <th>Unit Price</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if ($result1 && $result1->num_rows > 0): ?>
-                                    <?php while ($row = $result1->fetch_assoc()): ?>
-                                        <?php
-                                        if ($row['sales_type'] == 0) {
-                                        } elseif ($row['sales_type']) {
-                                        } elseif ($row['sales_type']) {
-                                        }
-                                        ?>
-                                        <tr
-                                            data-supplier-id="<?= (int)($row['supplier_id'] ?? 0) ?>"
-                                            data-category="<?= htmlspecialchars($row['category'] ?? '') ?>"
-                                            data-description="<?= htmlspecialchars($row['item_name'] ?? '') ?>"
-                                            data-quantity="<?= (int)($row['quantity'] ?? 0) ?>"
-                                            data-unit="<?= htmlspecialchars($row['unit'] ?? '') ?>"
-                                            data-unit-price="<?= htmlspecialchars($row['unit_price'] ?? '0.00') ?>"
-                                            data-invoice="<?= htmlspecialchars($row['invoice_no'] ?? '') ?>">
-                                            <td><?= date('M d, Y', strtotime($row['date_created'])) ?></td>
-                                            <td><?= htmlspecialchars($row['invoice_no']) ?></td>
-                                            <td><?= htmlspecialchars($row['supplier_name']) ?></td>
-                                            <td><?= htmlspecialchars($row['sales_type']) ?></td>
-                                            <td><?= htmlspecialchars($row['category']) ?></td>
-                                            <td><?= htmlspecialchars($row['item_name']) ?></td>
-                                            <td><?= htmlspecialchars($row['quantity']) ?></td>
-                                            <td><?= htmlspecialchars($row['unit']) ?></td>
-                                            <td>₱ <?= htmlspecialchars($row['unit_price']) ?></td>
-                                            <td>₱ <?= htmlspecialchars($row['total_amount']) ?></td>
-                                            <td>
-                                                <span class="badge bg-success">
-                                                    <?= htmlspecialchars($row['status']) ?>
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <button type="button" class="btn btn-sm btn-success mark-received-btn" data-bs-toggle="modal" data-bs-target="#receivedModal" title="Mark as Received"
-                                                    data-transaction-id="<?= $row['procurement_id'] ?>"
-                                                    data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
-                                                    data-category="<?= htmlspecialchars($row['category']) ?>"
-                                                    data-quantity="<?= $row['quantity'] ?>"
-                                                    data-unit="<?= htmlspecialchars($row['unit']) ?>"
-                                                    data-supplier-id="<?= $row['supplier_id'] ?>"
-                                                    data-unit-price="<?= $row['unit_price'] ?>"
-                                                    data-invoice="<?= htmlspecialchars($row['invoice_number'] ?? '') ?>"
-                                                    data-status="<?= htmlspecialchars($row['status']) ?>"
-                                                    data-receiver="<?= htmlspecialchars($row['receiver']) ?>">
-                                                    <i class="fas fa-check-circle"></i>
-                                                </button>
-
-
-                                                <!-- Add to Inventory button (submits mapped data to existing add endpoint)
-                                <button type="button" class="btn btn-sm btn-primary" onclick="addToInventoryFromRow(this)" title="Add to Inventory">
-                                    <i class="fas fa-plus-circle"></i>
-                                </button> -->
-                                            </td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                <?php else: ?>
-                                    <tr>
-                                        <td colspan="12" class="text-center py-4">
-                                            <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
-                                            <p class="text-muted">No recieved items found</p>
-                                        </td>
-                                    </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-
+                
+                
                 <!-- Stock Movement Logs -->
                 <div class="table-container">
                     <div class="table-header">
@@ -1474,18 +1363,128 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <td><?= htmlspecialchars($log['receiver'] ?? 'N/A') ?></td>
                                             <td><?= htmlspecialchars($log['notes']) ?></td>
                                         </tr>
-                                    <?php endwhile; ?>
-                                <?php else: ?>
-                                    <tr>
+                                        <?php endwhile; ?>
+                                        <?php else: ?>
+                                            <tr>
                                         <td colspan="8" class="text-center py-4">
                                             <i class="fas fa-history fa-3x text-muted mb-3"></i>
                                             <p class="text-muted">No stock movements recorded</p>
                                         </td>
                                     </tr>
-                                <?php endif; ?>
-                            </tbody>
+                                    <?php endif; ?>
+                                </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+
+            <!-- Accquired Supplies Table -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>Acquired Supplies</h3>
+                    <form method="GET" class="d-flex align-items-end gap-2">
+                        <div>
+                            <label for="sy_recv" class="form-label mb-0 text-white">School Year</label>
+                            <select id="sy_recv" name="sy_recv" class="form-select" onchange="this.form.submit()">
+                                <option value="">All</option>
+                                <?php foreach ($sy_years as $sy): ?>
+                                    <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_recv_raw === $sy) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($sy) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="pt-4">
+                            <?php if (!empty($sy_recv_raw)): ?>
+                                <a href="property_inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv' => true])) ?>" class="btn btn-outline-light">Reset</a>
+                            <?php endif; ?>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Date Received</th>
+                                <th>Invoice Number</th>
+                                <th>Supplier</th>
+                                <th>Sales Type</th>
+                                <th>Category</th>
+                                <th>Item Description</th>
+                                <th>Quantity</th>
+                                <th>Unit</th>
+                                <th>Unit Price</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ($result1 && $result1->num_rows > 0): ?>
+                                <?php while ($row = $result1->fetch_assoc()): ?>
+                                    <?php
+                                    if ($row['sales_type'] == 0) {
+                                    } elseif ($row['sales_type']) {
+                                    } elseif ($row['sales_type']) {
+                                    }
+                                    ?>
+                                    <tr
+                                        data-supplier-id="<?= (int)($row['supplier_id'] ?? 0) ?>"
+                                        data-category="<?= htmlspecialchars($row['category'] ?? '') ?>"
+                                        data-description="<?= htmlspecialchars($row['item_name'] ?? '') ?>"
+                                        data-quantity="<?= (int)($row['quantity'] ?? 0) ?>"
+                                        data-unit="<?= htmlspecialchars($row['unit'] ?? '') ?>"
+                                        data-unit-price="<?= htmlspecialchars($row['unit_price'] ?? '0.00') ?>"
+                                        data-invoice="<?= htmlspecialchars($row['invoice_no'] ?? '') ?>">
+                                        <td><?= date('M d, Y', strtotime($row['date_created'])) ?></td>
+                                        <td><?= htmlspecialchars($row['invoice_no']) ?></td>
+                                        <td><?= htmlspecialchars($row['supplier_name']) ?></td>
+                                        <td><?= htmlspecialchars($row['sales_type']) ?></td>
+                                        <td><?= htmlspecialchars($row['category']) ?></td>
+                                        <td><?= htmlspecialchars($row['item_name']) ?></td>
+                                        <td><?= htmlspecialchars($row['quantity']) ?></td>
+                                        <td><?= htmlspecialchars($row['unit']) ?></td>
+                                        <td>₱ <?= htmlspecialchars($row['unit_price']) ?></td>
+                                        <td>₱ <?= htmlspecialchars($row['total_amount']) ?></td>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <?= htmlspecialchars($row['status']) ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-success mark-received-btn" data-bs-toggle="modal" data-bs-target="#receivedModal" title="Mark as Received"
+                                                data-transaction-id="<?= $row['procurement_id'] ?>"
+                                                data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
+                                                data-category="<?= htmlspecialchars($row['category']) ?>"
+                                                data-quantity="<?= $row['quantity'] ?>"
+                                                data-unit="<?= htmlspecialchars($row['unit']) ?>"
+                                                data-supplier-id="<?= $row['supplier_id'] ?>"
+                                                data-unit-price="<?= $row['unit_price'] ?>"
+                                                data-invoice="<?= htmlspecialchars($row['invoice_number'] ?? '') ?>"
+                                                data-status="<?= htmlspecialchars($row['status']) ?>"
+                                                data-receiver="<?= htmlspecialchars($row['receiver']) ?>">
+                                                <i class="fas fa-check-circle"></i>
+                                            </button>
+
+
+                                            <!-- Add to Inventory button (submits mapped data to existing add endpoint)
+                            <button type="button" class="btn btn-sm btn-primary" onclick="addToInventoryFromRow(this)" title="Add to Inventory">
+                                <i class="fas fa-plus-circle"></i>
+                            </button> -->
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="12" class="text-center py-4">
+                                        <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No recieved items found</p>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 

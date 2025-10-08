@@ -573,11 +573,8 @@ if (isset($_SESSION['error'])) {
 
     <nav class="sidebar-nav">
         <ul class="nav-item">
-            <li><a href="<?= $dashboard_link ?>" class="nav-link">
+        <li><a href="<?= $dashboard_link ?>" class="nav-link">
                     <i class="fas fa-chart-line"></i> Dashboard
-                </a></li>
-            <li><a href="supply_request.php" class="nav-link">
-                    <i class="fas fa-clipboard-list"></i> Supply Request
                 </a></li>
             <li><a href="office_inventory.php" class="nav-link active">
                     <i class="fas fa-building"></i> Office Inventory
@@ -587,6 +584,12 @@ if (isset($_SESSION['error'])) {
                 </a></li>
             <li><a href="property_issuance.php" class="nav-link">
                     <i class="fas fa-hand-holding"></i> Property Issuance
+                </a></li>
+                <li><a href="equipment_transfer_request.php" class="nav-link">
+                    <i class="fas fa-exchange-alt"></i> Transfer Request
+                </a></li>
+                <li><a href="borrowers_forms.php" class="nav-link">
+                    <i class="fas fa-hand-holding"></i> Borrower Forms
                 </a></li>
             <li><a href="../logout.php" class="nav-link logout">
                     <i class="fas fa-sign-out-alt"></i> Logout
@@ -639,15 +642,15 @@ if (isset($_SESSION['error'])) {
                 <div class="semester-info">
                     <div style="display: flex; gap: 30px; justify-content: center; align-items: center; margin-bottom: 15px;">
                         <label style="display: flex; align-items: center; gap: 8px; font-weight: 600;">
-                            <input type="checkbox" name="semester_1" value="1st Semester" style="transform: scale(1.2);">
+                            <input type="checkbox" name="1st" value="1st Semester" style="transform: scale(1.2);">
                             1st Semester
                         </label>
                         <label style="display: flex; align-items: center; gap: 8px; font-weight: 600;">
-                            <input type="checkbox" name="semester_2" value="2nd Semester" style="transform: scale(1.2);">
+                            <input type="checkbox" name="2nd" value="2nd Semester" style="transform: scale(1.2);">
                             2nd Semester
                         </label>
                         <label style="display: flex; align-items: center; gap: 8px; font-weight: 600;">
-                            <input type="checkbox" name="summer" value="Summer" style="transform: scale(1.2);">
+                            <input type="checkbox" name="Summer" value="Summer" style="transform: scale(1.2);">
                             Summer
                         </label>
                     </div>

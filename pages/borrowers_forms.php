@@ -617,27 +617,27 @@ if (isset($_SESSION['error'])) {
 
         <nav class="sidebar-nav">
             <ul class="nav-item">
-                <li><a href="<?= $dashboard_link ?>" class="nav-link">
-                        <i class="fas fa-chart-line"></i> Dashboard
-                    </a></li>
-                <li><a href="office_inventory.php" class="nav-link">
-                        <i class="fas fa-building"></i> Office Inventory
-                    </a></li>
-
-                <li><a href="property_inventory.php" class="nav-link">
-                        <i class="fas fa-boxes"></i> Property Inventory
-                    </a></li>
-
+            <li><a href="<?= $dashboard_link ?>" class="nav-link">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a></li>
+            <li><a href="office_inventory.php" class="nav-link">
+                    <i class="fas fa-building"></i> Office Inventory
+                </a></li>
+            <li><a href="property_inventory.php" class="nav-link">
+                    <i class="fas fa-boxes"></i> Property Inventory
+                </a></li>
+            <li><a href="property_issuance.php" class="nav-link">
+                    <i class="fas fa-hand-holding"></i> Property Issuance
+                </a></li>
+                <li><a href="equipment_transfer_request.php" class="nav-link">
+                    <i class="fas fa-exchange-alt"></i> Transfer Request
+                </a></li>
                 <li><a href="borrowers_forms.php" class="nav-link active">
-                        <i class="fas fa-hand-holding"></i> Borrower Forms
-                    </a></li>
-
-                <li><a href="property_issuance.php" class="nav-link">
-                        <i class="fas fa-hand-holding"></i> Property Issuance
-                    </a></li>
-                <li><a href="../logout.php" class="nav-link logout">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a></li>
+                    <i class="fas fa-hand-holding"></i> Borrower Forms
+                </a></li>
+            <li><a href="../logout.php" class="nav-link logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a></li>
             </ul>
         </nav>
     </div>
