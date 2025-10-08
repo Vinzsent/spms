@@ -610,7 +610,7 @@ if (isset($_SESSION['error'])) {
                     <i class="fas fa-hand-holding"></i> Property Issuance
                 </a></li>
                 <li><a href="equipment_transfer_request.php" class="nav-link">
-                    <i class="fas fa-hand-holding"></i> Request form for Transfer
+                    <i class="fas fa-exchange-alt"></i> Transfer Request
                 </a></li>
                 <li><a href="borrowers_forms.php" class="nav-link">
                     <i class="fas fa-hand-holding"></i> Borrower Forms

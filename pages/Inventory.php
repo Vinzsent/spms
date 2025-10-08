@@ -2248,35 +2248,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     console.log('Edit stock movement modal should now be visible');
                 }
 
-                // ANCHOR: Delete stock movement functionality
-                function deleteMovement(logId) {
-                    if (confirm('Are you sure you want to delete this stock movement? This action cannot be undone.')) {
-                        console.log('Delete movement called with ID:', logId);
-                        
-                        // Send delete request via AJAX
-                        $.ajax({
-                            url: '../actions/delete_stock_movement.php',
-                            method: 'POST',
-                            data: { log_id: logId },
-                            dataType: 'json',
-                            success: function(data) {
-                                console.log('Delete response:', data);
-                                if (data.success) {
-                                    alert('Stock movement deleted successfully!');
-                                    // Reload the stock movements table
-                                    const syValue = document.getElementById('sy_logs').value;
-                                    loadStockMovements(1, syValue);
-                                } else {
-                                    alert('Error deleting stock movement: ' + (data.message || 'Unknown error'));
-                                }
-                            },
-                            error: function(xhr, status, error) {
-                                console.error('AJAX Error:', status, error);
-                                alert('Error: Could not delete stock movement. Please check the console for details.');
-                            }
-                        });
-                    }
-                }
+                // ANCHOR: Delete stock movement functionality - REMOVED
+                // NOTE: Delete functionality has been removed from the interface
+                // The deleteMovement function is no longer needed since trash icons were removed
 
                 // ANCHOR: AJAX functions for stock movement filtering
                 function filterStockMovements() {

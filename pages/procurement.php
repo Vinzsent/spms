@@ -1161,7 +1161,7 @@ if (isset($_SESSION['error'])) {
                         <?php endif; ?>
                     </div>
                 </form>
-                <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addProcurementModal">
+                <button class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addProcurementModal">
                     <i class="fas fa-plus"></i> Procurement Items
                 </button>
             </div>

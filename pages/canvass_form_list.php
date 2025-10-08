@@ -32,7 +32,7 @@ $canvass_result = $conn->query($canvass_query);
         --primary-green: #073b1d;
         --dark-green: #073b1d;
         --light-green: #2d8aad;
-        --accent-orange: #fd7e14;
+        --accent-orange: #EACA26;
         --accent-blue: #4a90e2;
         --accent-green-approved: #28a745;
         --accent-red: #e74c3c;
@@ -408,7 +408,7 @@ $canvass_result = $conn->query($canvass_query);
         <div class="list-header">
             <h2 class="list-title">All Canvass Records</h2>
             <div class="action-buttons">
-                <a href="canvas_form.php" class="btn btn-primary">
+                <a href="canvas_form.php" class="btn btn-primary text-dark">
                     <i class="fas fa-plus"></i> New Canvass
                 </a>
             </div>
@@ -476,7 +476,7 @@ $canvass_result = $conn->query($canvass_query);
                 <i class="fas fa-clipboard-list"></i>
                 <h3>No Canvass Records Found</h3>
                 <p>Start by creating your first canvass form.</p>
-                <a href="canvas_form.php" class="btn btn-primary">
+                <a href="canvas_form.php" class="btn btn-primary text-dark">
                     <i class="fas fa-plus"></i> Create New Canvass
                 </a>
             </div>

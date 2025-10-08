@@ -620,10 +620,6 @@ if (isset($_SESSION['error'])) {
                 <li><a href="<?= $dashboard_link ?>" class="nav-link">
                         <i class="fas fa-chart-line"></i> Dashboard
                     </a></li>
-                <li><a href="supply_request.php" class="nav-link">
-                        <i class="fas fa-clipboard-list"></i> Supply Request
-                    </a></li>
-
                 <li><a href="office_inventory.php" class="nav-link">
                         <i class="fas fa-building"></i> Office Inventory
                     </a></li>

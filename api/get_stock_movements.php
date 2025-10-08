@@ -78,9 +78,6 @@ try {
             $table_rows .= '<button class="btn btn-sm btn-info" onclick="editMovement(' . $log['log_id'] . ')">';
             $table_rows .= '<i class="fas fa-edit"></i>';
             $table_rows .= '</button>';
-            $table_rows .= '<button class="btn btn-sm btn-danger" onclick="deleteMovement(' . $log['log_id'] . ')">';
-            $table_rows .= '<i class="fas fa-trash"></i>';
-            $table_rows .= '</button>';
             $table_rows .= '</td>';
             $table_rows .= '</tr>';
         }
