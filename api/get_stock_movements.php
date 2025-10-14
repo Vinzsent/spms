@@ -54,7 +54,7 @@ try {
     $total_logs_pages = ceil($total_logs / $logs_per_page);
     
     // Get stock movements data
-    $stock_logs_sql = "SELECT sl.*, i.item_name, s.supplier_name 
+    $stock_logs_sql = "SELECT sl.log_id, sl.inventory_id, sl.movement_type, sl.quantity, sl.previous_stock, sl.new_stock, sl.notes, sl.date_created, sl.receiver, i.item_name, s.supplier_name 
                        FROM stock_logs sl 
                        LEFT JOIN inventory i ON sl.inventory_id = i.inventory_id 
                        LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
@@ -86,6 +86,14 @@ try {
             $table_rows .= '</td>';
             $table_rows .= '</tr>';
         }
+    } else {
+        // No data row with proper colspan
+        $table_rows .= '<tr>';
+        $table_rows .= '<td colspan="8" class="text-center py-4">';
+        $table_rows .= '<i class="fas fa-history fa-3x text-muted mb-3"></i>';
+        $table_rows .= '<p class="text-muted">No stock movements found</p>';
+        $table_rows .= '</td>';
+        $table_rows .= '</tr>';
     }
     
     // Build pagination HTML

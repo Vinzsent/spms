@@ -121,7 +121,7 @@ $logs_count_result = $conn->query($logs_count_sql);
 $total_logs = $logs_count_result->fetch_assoc()['total'];
 $total_logs_pages = ceil($total_logs / $logs_per_page);
 
-$stock_logs_sql = "SELECT sl.*, i.item_name, s.supplier_name 
+$stock_logs_sql = "SELECT sl.log_id, sl.inventory_id, sl.movement_type, sl.quantity, sl.previous_stock, sl.new_stock, sl.notes, sl.date_created, sl.receiver, i.item_name, s.supplier_name 
                    FROM stock_logs sl 
                    LEFT JOIN inventory i ON sl.inventory_id = i.inventory_id 
                    LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
@@ -2408,14 +2408,14 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             } else {
                                 // Handle error
                                 console.error('API returned error:', data.message);
-                                tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-2"></i><div>Error loading stock movements: ' + data.message + '</div></td></tr>';
+                                tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-2"></i><div>Error loading stock movements: ' + data.message + '</div></td></tr>';
                                 paginationContainer.innerHTML = '';
                             }
                         })
                         .catch(error => {
                             console.error('Fetch error:', error);
                             const errorMessage = error.message || 'Unknown error occurred';
-                            tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-2"></i><div>Error loading stock movements: ' + errorMessage + '</div><small class="text-muted">Check console for more details</small></td></tr>';
+                            tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-2"></i><div>Error loading stock movements: ' + errorMessage + '</div><small class="text-muted">Check console for more details</small></td></tr>';
                             paginationContainer.innerHTML = '';
                         });
                 }

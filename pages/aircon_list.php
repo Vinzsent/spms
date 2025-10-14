@@ -784,7 +784,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             <li><a href="office_inventory.php" class="nav-link">
                     <i class="fas fa-building"></i> Office Inventory
                 </a></li>
-            <li><a href="property_inventory.php" class="nav-link active">
+            <li><a href="property_inventory.php" class="nav-link">
                     <i class="fas fa-boxes"></i> Property Inventory
                 </a></li>
             <li><a href="property_issuance.php" class="nav-link">
@@ -796,8 +796,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <li><a href="borrowers_forms.php" class="nav-link">
                     <i class="fas fa-hand-holding"></i> Borrower Forms
                 </a></li>
-                <li><a href="aircon_list.php" class="nav-link">
-                    <i class="fas fa-hand-holding"></i> Aircons
+                <li><a href="aircon_list.php" class="nav-link active">
+                    <i class="fas fa-snowflake"></i> Aircons
                 </a></li>
             <li><a href="../logout.php" class="nav-link logout">
                     <i class="fas fa-sign-out-alt"></i> Logout
@@ -810,16 +810,16 @@ if ($categories_result && $categories_result->num_rows > 0) {
     <!-- Main Content -->
     <div class="main-content">
         <div class="content-header">
-            <h1>Property Inventory Management</h1>
-            <p>Track supplies, monitor stock levels, and manage inventory movements</p>
+            <h1>Aircon Condition Management</h1>
+            <p>Track aircon location, monitor aircon condition, and manage aircon details</p>
         </div>
 
         <!-- Low Stock Alerts -->
         <?php if ($low_stock_count > 0 || $out_of_stock_count > 0): ?>
-            <div class="alert-card <?= $out_of_stock_count > 0 ? '' : 'warning' ?>">
-                <div class="d-flex align-items-center">
+            <!--<div class="alert-card <?= $out_of_stock_count > 0 ? '' : 'warning' ?>">
+                <div><div class="d-flex align-items-center">
                     <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
-                    <div>
+                    
                         <h5 class="mb-1">Stock Alert</h5>
                         <p class="mb-0">
                             <?php if ($out_of_stock_count > 0): ?>
@@ -830,9 +830,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <strong><?= $low_stock_count ?></strong> items are running low
                             <?php endif; ?>
                         </p>
-                    </div>
+                    </div> 
                 </div>
-            </div>
+            </div>-->
         <?php endif; ?>
 
         <!-- Statistics Cards -->
@@ -842,7 +842,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     <i class="fas fa-boxes"></i>
                 </div>
                 <div class="stat-number"><?= $total_items ?></div>
-                <div class="stat-label">Total Items</div>
+                <div class="stat-label">Total Aircon Both BED and Main Campus</div>
             </div>
 
             <div class="stat-card clickable" data-bs-toggle="modal" data-bs-target="#lowStockModal" style="cursor: pointer;" title="Click to view low stock items">
@@ -850,7 +850,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     <i class="fas fa-exclamation-triangle"></i>
                 </div>
                 <div class="stat-number"><?= $low_stock_count ?></div>
-                <div class="stat-label">Low Stock Items</div>
+                <div class="stat-label">Aircon Need To Repair</div>
                 <small class="text-muted mt-1"><i class="fas fa-eye"></i> Click to view details</small>
             </div>
 
@@ -859,7 +859,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     <i class="fas fa-times-circle"></i>
                 </div>
                 <div class="stat-number"><?= $out_of_stock_count ?></div>
-                <div class="stat-label">Out of Stock</div>
+                <div class="stat-label">Aircon Status</div>
                 <small class="text-muted mt-1"><i class="fas fa-eye"></i> Click to view details</small>
             </div>
 
@@ -875,12 +875,12 @@ if ($categories_result && $categories_result->num_rows > 0) {
         <!-- Inventory Table --> 
         <div class="table-container">
             <div class="table-header">
-                <h3> Property Items</h3>
+                <h3> Aircons List</h3>
                 <div class="d-flex align-items-end gap-2">
                     <form method="GET" class="d-flex align-items-end gap-2 mb-0">
                         <div class="search-input">
-                            <label for="search" class="form-label mb-0 text-white">Search Item</label>
-                            <input type="text" id="search" name="search" class="form-control" placeholder="Search by item name..." value="<?= htmlspecialchars($search_term) ?>">
+                            <label for="search" class="form-label mb-0 text-white">Search Aircon Name</label>
+                            <input type="text" id="search" name="search" class="form-control" placeholder="Search by aircon name..." value="<?= htmlspecialchars($search_term) ?>">
                         </div>
                         <div>
                             <label for="sy_inv" class="form-label mb-0 text-white">School Year</label>
@@ -905,7 +905,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         </div>
                     </form>
                     <button class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
-                        <i class="fas fa-plus"></i> Add Item
+                        <i class="fas fa-plus"></i> Add Aircon
                     </button>
                 </div>
             </div>
@@ -1496,7 +1496,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Add New Inventory Item</h5>
+                            <h5 class="modal-title">Add New Aircon</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <form action="../actions/add_property.php" method="POST">
@@ -1508,7 +1508,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <h6 class="mb-3 text-uppercase text-muted">Basic Information</h6>
                                     <div class="row g-3">
                                         <div class="col-md-6">
-                                            <label class="form-label">Item Name <span class="text-danger">*</span></label>
+                                            <label class="form-label">Item Number <span class="text-danger">*</span></label>
                                             <input type="text" name="item_name" class="form-control" required>
                                         </div>
                                         <div class="col-md-6">
@@ -1540,98 +1540,74 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <input type="text" name="brand" class="form-control" required>
                                         </div>
                                         <div class="col-md-3">
-                                            <label class="form-label">Size</label>
-                                            <input type="size" name="size" class="form-control">
-                                             <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Color</label>
-                                            <input type="text" name="color" class="form-control">
-                                             <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
+                                            <label class="form-label">Model <span class="text-danger">*</span></label>
+                                            <input type="text" name="model" class="form-control" required>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label">Type</label>
-                                            <input type="text" name="type" class="form-control">
+                                            <input type="size" name="type" class="form-control">
                                              <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
                                         </div>
-                                        <div class="col-12">
-                                            <label class="form-label">Description</label>
-                                            <textarea name="description" class="form-control" rows="2" placeholder="Optional description..."></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Stock & Unit -->
-                                <div class="mb-3 pb-2 border-bottom">
-                                    <h6 class="mb-3 text-uppercase text-muted">Stock & Unit</h6>
-                                    <div class="row g-3">
                                         <div class="col-md-3">
-                                            <label class="form-label">Initial Stock <span class="text-danger">*</span></label>
-                                            <input type="number" name="current_stock" class="form-control" required min="0">
+                                            <label class="form-label">Capacity</label>
+                                            <input type="text" name="capacity" class="form-control">
+                                             
                                         </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Reorder Level</label>
-                                            <input type="number" name="reorder_level" class="form-control" required min="0" value="0">
-                                            <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
+                                        <div class="col-3">
+                                            <label class="form-label">Serial Number</label>
+                                            <input name="serial_number" class="form-control"></input>
                                         </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Unit <span class="text-danger">*</span></label>
-                                            <select name="unit" class="form-select" required>
-                                            <option value="">--Select Unit--</option>
-                                                <option value="pc">Piece</option>
-                                                <option value="pcs">Pieces</option>
-                                                <option value="box">Box</option>
-                                                <option value="boxes">Boxes</option>
-                                                <option value="kg">Kilogram</option>
-                                                <option value="kgs">Kilograms</option>
-                                                <option value="liter">Liter</option>
-                                                <option value="liters">Liters</option>
-                                                <option value="set">Set</option>
-                                                <option value="sets">Sets</option>
-                                                <option value="pack">Pack</option>
-                                                <option value="packs">Packs</option>
-                                                <option value="ream">Ream</option>
-                                                <option value="reams">Reams</option>
-                                                <option value="gal">Gallon</option>
-                                                <option value="gals">Gallons</option>
-                                                <option value="bag">Bag</option>
-                                                <option value="bags">Bags</option>
-                                                <option value="none">Others</option>
-                                            </select>
+                                        <div class="col-3">
+                                            <label class="form-label">Location</label>
+                                            <input name="location" class="form-control"></input>
                                         </div>
-                                            <input type="hidden" name="quantity" class="form-control" required min="0">
-                                        <div class="col-md-3">
-                                            <label class="form-label">Unit Cost <span class="text-danger">*</span></label>
-                                            <input type="number" name="unit_cost" step="0.01" class="form-control" required>
+                                        <div class="col-3">
+                                            <label class="form-label">Status</label>
+                                            <input name="status" class="form-control"></input>
                                         </div>
-                                    </div>
-                                </div>
-
-                                <!-- Supplier & Location -->
-                                <div class="mb-2">
-                                    <h6 class="mb-3 text-uppercase text-muted">Supplier & Location</h6>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label">Supplier <span class="text-danger">*</span></label>
-                                            <select name="supplier_id" class="form-select" required>
-                                                <option value="">Select Supplier</option>
-                                                <?php
-                                                if ($suppliers_result) {
-                                                    $suppliers_result->data_seek(0);
-                                                    while ($supplier = $suppliers_result->fetch_assoc()):
-                                                ?>
-                                                        <option value="<?= $supplier['supplier_id'] ?>">
-                                                            <?= htmlspecialchars($supplier['supplier_name']) ?>
-                                                        </option>
-                                                <?php
-                                                    endwhile;
-                                                }
-                                                ?>
-                                            </select>
+                                        <div class="col-3">
+                                            <label class="form-label">Purchase Date</label>
+                                            <input name="purchase_date" class="form-control"></input>
                                         </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Location <span class="text-danger">*</span></label>
-                                            <input type="text" name="location" class="form-control" placeholder="e.g., Storage Room A">
+                                        <div class="col-3">
+                                            <label class="form-label">Warranty Expiry</label>
+                                            <input name="warranty_expiry" class="form-control"></input>
+                                        </div>
+                                        <div class="col-3">
+                                            <label class="form-label">Last Service</label>
+                                            <input name="last_service" class="form-control"></input>
+                                        </div>
+                                        <div class="col-3">
+                                            <label class="form-label">Maintenance Schedule</label>
+                                            <input name="maintenance_schedule" class="form-control"></input>
+                                        </div>
+                                        <div class="col-3">
+                                            <label class="form-label">Supplier_info</label>
+                                            <input name="supplier_info" class="form-control"></input>
+                                        </div>
+                                        <div class="col-3">
+                                            <label class="form-label">Installation Date</label>
+                                            <input name="installation_date" class="form-control"></input>
+                                        </div>
+                                        <div class="col-3">
+                                            <label class="form-label">Enery Efficient</label>
+                                            <input name="energy_efficient" class="form-control"></input>
+                                        </div>
+                                        <div class="col-3">
+                                            <label class="form-label">Power Consumption</label>
+                                            <input name="power_consumption" class="form-control"></input>
+                                        </div>
+                                        <div class="col-3">
+                                            <label class="form-label">Notes</label>
+                                            <input name="notes" class="form-control"></input>
+                                        </div>
+                                        <div class="col-3">
+                                            <label class="form-label">Purchase Price</label>
+                                            <input name="purchase_price" class="form-control"></input>
+                                        </div>
+                                        <div class="col-3">
+                                            <label class="form-label">Depreciated Value</label>
+                                            <input name="depreciated_value" class="form-control"></input>
                                         </div>
                                     </div>
                                 </div>
