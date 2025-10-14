@@ -1126,6 +1126,25 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     <div class="table-header">
                         <h3>Recent Stock Movements</h3>
                         <div class="d-flex align-items-end gap-2">
+                            <!-- ANCHOR: Item search bar -->
+                            <div class="d-flex align-items-end gap-2 mb-0">
+                                <div>
+                                    <label for="item_search" class="form-label mb-0 text-white">
+                                        <i class="fas fa-search me-1"></i> Search Item
+                                        <small class="d-block" style="font-size: 0.75rem; opacity: 0.85;">Search by item name</small>
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="text" id="item_search" name="item_search" class="form-control" 
+                                               placeholder="Type item name to search..." 
+                                               title="Search stock movements by item name"
+                                               onkeyup="searchStockMovements()" 
+                                               oninput="searchStockMovements()">
+                                        <button type="button" class="btn btn-outline-light" onclick="clearItemSearch()" title="Clear search">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                             <!-- ANCHOR: AJAX-based school year filter form -->
                             <div class="d-flex align-items-end gap-2 mb-0">
                                 <div>
@@ -1167,7 +1186,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <th>Quantity</th>
                                     <th>Previous Stock</th>
                                     <th>Remaining Stock</th>
-                                    <th>Receiver</th>
                                     <th>Notes</th>
                                     <th>Actions</th>
                                 </tr>
@@ -1187,7 +1205,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <td><?= $log['quantity'] ?></td>
                                             <td><?= $log['previous_stock'] ?></td>
                                             <td><?= $log['new_stock'] ?></td>
-                                            <td><?= htmlspecialchars($log['receiver'] ?? 'N/A') ?></td>
                                             <td><?= htmlspecialchars($log['notes']) ?></td>
                                             <td>
                                                 <button title="Edit" class="btn btn-sm btn-info" onclick="editMovement(<?= $log['log_id'] ?>)">
@@ -1199,7 +1216,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <?php endwhile; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="9" class="text-center py-4">
+                                        <td colspan="8" class="text-center py-4">
                                             <i class="fas fa-history fa-3x text-muted mb-3"></i>
                                             <p class="text-muted">No stock movements recorded</p>
                                         </td>
@@ -1215,7 +1232,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             <nav>
                                 <ul class="pagination justify-content-center">
                                     <li class="page-item <?= ($logs_page <= 1) ? 'disabled' : '' ?>">
-                                        <a class="page-link" href="#" onclick="loadStockMovements(<?= max(1, $logs_page - 1) ?>, document.getElementById('sy_logs').value); return false;" aria-label="Previous">
+                                        <a class="page-link" href="#" onclick="loadStockMovements(<?= max(1, $logs_page - 1) ?>, document.getElementById('sy_logs').value, document.getElementById('item_search').value); return false;" aria-label="Previous">
                                             <span aria-hidden="true">&laquo;</span>
                                         </a>
                                     </li>
@@ -1226,7 +1243,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     $end_page = min($total_logs_pages, $logs_page + 3);
                                     
                                     if ($start_page > 1) {
-                                        echo '<li class="page-item"><a class="page-link" href="#" onclick="loadStockMovements(1, document.getElementById(\'sy_logs\').value); return false;">1</a></li>';
+                                            echo '<li class="page-item"><a class="page-link" href="#" onclick="loadStockMovements(1, document.getElementById(\'sy_logs\').value, document.getElementById(\'item_search\').value); return false;">1</a></li>';
                                         if ($start_page > 2) {
                                             echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
                                         }
@@ -1236,7 +1253,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         $is_active = ($i === $logs_page);
                                     ?>
                                         <li class="page-item <?= $is_active ? 'active' : '' ?>">
-                                            <a class="page-link" href="#" onclick="loadStockMovements(<?= $i ?>, document.getElementById('sy_logs').value); return false;"><?= $i ?></a>
+                                            <a class="page-link" href="#" onclick="loadStockMovements(<?= $i ?>, document.getElementById('sy_logs').value, document.getElementById('item_search').value); return false;"><?= $i ?></a>
                                         </li>
                                     <?php
                                     endfor;
@@ -1245,12 +1262,12 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         if ($end_page < $total_logs_pages - 1) {
                                             echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
                                         }
-                                        echo '<li class="page-item"><a class="page-link" href="#" onclick="loadStockMovements(' . $total_logs_pages . ', document.getElementById(\'sy_logs\').value); return false;">' . $total_logs_pages . '</a></li>';
+                                        echo '<li class="page-item"><a class="page-link" href="#" onclick="loadStockMovements(' . $total_logs_pages . ', document.getElementById(\'sy_logs\').value, document.getElementById(\'item_search\').value); return false;">' . $total_logs_pages . '</a></li>';
                                     }
                                     ?>
                                     
                                     <li class="page-item <?= ($logs_page >= $total_logs_pages) ? 'disabled' : '' ?>">
-                                        <a class="page-link" href="#" onclick="loadStockMovements(<?= min($total_logs_pages, $logs_page + 1) ?>, document.getElementById('sy_logs').value); return false;" aria-label="Next">
+                                        <a class="page-link" href="#" onclick="loadStockMovements(<?= min($total_logs_pages, $logs_page + 1) ?>, document.getElementById('sy_logs').value, document.getElementById('item_search').value); return false;" aria-label="Next">
                                             <span aria-hidden="true">&raquo;</span>
                                         </a>
                                     </li>
@@ -2255,12 +2272,34 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 // ANCHOR: AJAX functions for stock movement filtering
                 function filterStockMovements() {
                     const syValue = document.getElementById('sy_logs').value;
-                    loadStockMovements(1, syValue);
+                    const searchValue = document.getElementById('item_search').value;
+                    loadStockMovements(1, syValue, searchValue);
                 }
 
                 function clearStockMovementFilter() {
                     document.getElementById('sy_logs').value = '';
-                    loadStockMovements(1, '');
+                    const searchValue = document.getElementById('item_search').value;
+                    loadStockMovements(1, '', searchValue);
+                }
+
+                // ANCHOR: Item search functions for stock movements
+                let stockSearchTimeout;
+                function searchStockMovements() {
+                    clearTimeout(stockSearchTimeout);
+                    const searchValue = document.getElementById('item_search').value;
+                    const syValue = document.getElementById('sy_logs').value;
+                    
+                    stockSearchTimeout = setTimeout(function() {
+                        if (searchValue.length === 0 || searchValue.length >= 2) {
+                            loadStockMovements(1, syValue, searchValue);
+                        }
+                    }, 500); // Wait 500ms after user stops typing
+                }
+
+                function clearItemSearch() {
+                    document.getElementById('item_search').value = '';
+                    const syValue = document.getElementById('sy_logs').value;
+                    loadStockMovements(1, syValue, '');
                 }
 
                 // ANCHOR: AJAX functions for inventory items filtering
@@ -2290,13 +2329,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     }, 500); // Wait 500ms after user stops typing
                 }
 
-                function loadStockMovements(page = 1, syLogs = '') {
+                function loadStockMovements(page = 1, syLogs = '', searchValue = '') {
                     // Show loading indicator
                     const tableBody = document.getElementById('stock-movements-tbody');
                     const paginationContainer = document.getElementById('stock-movements-pagination');
                     
                     // Create loading row
-                    tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><div class="mt-2">Loading stock movements...</div></td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><div class="mt-2">Loading stock movements...</div></td></tr>';
                     
                     // Build API URL - use server-generated base URL for reliability
                     let apiUrl;
@@ -2324,6 +2363,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     apiUrl.searchParams.set('logs_page', page);
                     if (syLogs) {
                         apiUrl.searchParams.set('sy_logs', syLogs);
+                    }
+                    if (searchValue) {
+                        apiUrl.searchParams.set('search', searchValue);
                     }
                     
                     // Debug: Log the API URL being used

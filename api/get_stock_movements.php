@@ -14,6 +14,7 @@ if (!isset($_SESSION['user_id']) && !isset($_SESSION['user']['id'])) {
 try {
     // Get parameters
     $sy_logs_raw = $_GET['sy_logs'] ?? '';
+    $search_value = $_GET['search'] ?? '';
     $logs_page = isset($_GET['logs_page']) && $_GET['logs_page'] > 0 ? (int)$_GET['logs_page'] : 1;
     $logs_per_page = 10;
     $logs_offset = ($logs_page - 1) * $logs_per_page;
@@ -24,14 +25,19 @@ try {
     // Build WHERE conditions
     $logs_where_conditions = [];
     
-    // Add receiver filter for Supply In-charge
-    $logs_where_conditions[] = "sl.receiver = 'Supply In-charge'";
+    // NOTE: Receiver filter removed since only Supply In-charge can access this table
     
     // Add school year filter if provided
     if ($sy_logs_start && $sy_logs_end) {
         $start_esc = $conn->real_escape_string($sy_logs_start);
         $end_esc = $conn->real_escape_string($sy_logs_end);
         $logs_where_conditions[] = "sl.date_created >= '$start_esc' AND sl.date_created <= '$end_esc'";
+    }
+    
+    // Add item name search filter if provided
+    if (!empty($search_value)) {
+        $search_esc = $conn->real_escape_string($search_value);
+        $logs_where_conditions[] = "i.item_name LIKE '%$search_esc%'";
     }
     
     // Build final WHERE clause
@@ -72,7 +78,6 @@ try {
             $table_rows .= '<td>' . $log['quantity'] . '</td>';
             $table_rows .= '<td>' . $log['previous_stock'] . '</td>';
             $table_rows .= '<td>' . $log['new_stock'] . '</td>';
-            $table_rows .= '<td>' . htmlspecialchars($log['receiver'] ?? 'N/A') . '</td>';
             $table_rows .= '<td>' . htmlspecialchars($log['notes']) . '</td>';
             $table_rows .= '<td>';
             $table_rows .= '<button class="btn btn-sm btn-info" onclick="editMovement(' . $log['log_id'] . ')">';
@@ -93,7 +98,7 @@ try {
         if ($logs_page > 1) {
             $prev_page = $logs_page - 1;
             $pagination_html .= '<li class="page-item">';
-            $pagination_html .= '<a class="page-link" href="#" onclick="loadStockMovements(' . $prev_page . ', \'' . htmlspecialchars($sy_logs_raw) . '\'); return false;">Previous</a>';
+            $pagination_html .= '<a class="page-link" href="#" onclick="loadStockMovements(' . $prev_page . ', \'' . htmlspecialchars($sy_logs_raw) . '\', \'' . htmlspecialchars($search_value) . '\'); return false;">Previous</a>';
             $pagination_html .= '</li>';
         }
         
@@ -101,7 +106,7 @@ try {
         for ($i = max(1, $logs_page - 2); $i <= min($total_logs_pages, $logs_page + 2); $i++) {
             $active_class = $i == $logs_page ? ' active' : '';
             $pagination_html .= '<li class="page-item' . $active_class . '">';
-            $pagination_html .= '<a class="page-link" href="#" onclick="loadStockMovements(' . $i . ', \'' . htmlspecialchars($sy_logs_raw) . '\'); return false;">' . $i . '</a>';
+            $pagination_html .= '<a class="page-link" href="#" onclick="loadStockMovements(' . $i . ', \'' . htmlspecialchars($sy_logs_raw) . '\', \'' . htmlspecialchars($search_value) . '\'); return false;">' . $i . '</a>';
             $pagination_html .= '</li>';
         }
         
@@ -109,7 +114,7 @@ try {
         if ($logs_page < $total_logs_pages) {
             $next_page = $logs_page + 1;
             $pagination_html .= '<li class="page-item">';
-            $pagination_html .= '<a class="page-link" href="#" onclick="loadStockMovements(' . $next_page . ', \'' . htmlspecialchars($sy_logs_raw) . '\'); return false;">Next</a>';
+            $pagination_html .= '<a class="page-link" href="#" onclick="loadStockMovements(' . $next_page . ', \'' . htmlspecialchars($sy_logs_raw) . '\', \'' . htmlspecialchars($search_value) . '\'); return false;">Next</a>';
             $pagination_html .= '</li>';
         }
         

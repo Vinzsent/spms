@@ -78,7 +78,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #073b1d 0%, #0a4d2a 100%);
+      background: linear-gradient(135deg, rgba(7, 59, 29, 0.85) 0%, rgba(10, 77, 42, 0.85) 100%), url('dcccover.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -105,12 +109,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     .login-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(15px);
       border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.3);
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
     .login-header {
@@ -301,6 +305,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     @media (max-width: 576px) {
+      body {
+        background-attachment: scroll; /* Fix background on mobile */
+      }
+
       .login-container {
         max-width: 100%;
       }
@@ -330,7 +338,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     .shape {
       position: absolute;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
       border-radius: 50%;
       animation: float 6s ease-in-out infinite;
     }
