@@ -85,15 +85,15 @@ $logs_where = !empty($logs_where_conditions) ? ' WHERE ' . implode(' AND ', $log
 
 // Get purchased data
 $sql = "SELECT pi.*, s.supplier_name 
-        FROM property_inventory pi 
-        LEFT JOIN supplier s ON pi.supplier_id = s.supplier_id
+        FROM aircons pi 
+        LEFT JOIN supplier s ON pi.aircon_id = s.supplier_id
         ORDER BY pi.date_created DESC";
 $result = $conn->query($sql);
 
 // Get inventory data
 $sql = "SELECT i.*, s.supplier_name 
-        FROM property_inventory i 
-        LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
+        FROM aircons i 
+        LEFT JOIN supplier s ON i.aircon_id = s.supplier_id 
         $inv_where
         ORDER BY i.date_created DESC";
 $result = $conn->query($sql);
@@ -106,14 +106,6 @@ $sql1 = "SELECT st.*, s.supplier_name
         ORDER BY COALESCE(st.date_received, st.date_created) DESC";
 $result1 = $conn->query($sql1);
 
-// Get stock movement logs
-$stock_logs_sql = "SELECT sl.*, pi.item_name, s.supplier_name 
-                   FROM property_stock_logs sl 
-                   LEFT JOIN property_inventory pi ON sl.inventory_id = pi.inventory_id 
-                   LEFT JOIN supplier s ON pi.supplier_id = s.supplier_id 
-                   $logs_where
-                   ORDER BY sl.date_created DESC LIMIT 50";
-$stock_logs_result = $conn->query($stock_logs_sql);
 
 // Get suppliers for dropdown
 $suppliers_sql = "SELECT supplier_id, supplier_name FROM supplier WHERE status = 'Active' ORDER BY supplier_name";
@@ -797,7 +789,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     <i class="fas fa-hand-holding"></i> Borrower Forms
                 </a></li>
                 <li><a href="aircon_list.php" class="nav-link">
-                    <i class="fas fa-hand-holding"></i> Aircons
+                    <i class="fas fa-snowflake"></i> Aircons
                 </a></li>
             <li><a href="../logout.php" class="nav-link logout">
                     <i class="fas fa-sign-out-alt"></i> Logout
@@ -868,7 +860,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     <i class="fas fa-exchange-alt"></i>
                 </div>
                 <div class="stat-number"><?= $stock_logs_result ? $stock_logs_result->num_rows : 0 ?></div>
-                <div class="stat-label">Recent Movements</div>
+                <div class="stat-label">Aircons</div>
             </div>
         </div>
 
@@ -898,7 +890,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <i class="fas fa-search"></i> Search
                             </button>
                             <?php if (!empty($search_term) || !empty($sy_inv_raw)): ?>
-                                <a href="property_inventory.php" class="btn btn-outline-light ms-2">
+                                <a href="aircons.php" class="btn btn-outline-light ms-2">
                                     <i class="fas fa-times"></i> Clear
                                 </a>
                             <?php endif; ?>
@@ -963,15 +955,15 @@ if ($categories_result && $categories_result->num_rows > 0) {
             $offset = ($page - 1) * $records_per_page;
 
             // Get total number of records
-            $count_sql = "SELECT COUNT(*) as total FROM property_inventory i $inv_where";
+            $count_sql = "SELECT COUNT(*) as total FROM aircons i $inv_where";
             $count_result = $conn->query($count_sql);
             $total_records = $count_result->fetch_assoc()['total'];
             $total_pages = ceil($total_records / $records_per_page);
 
             // Get inventory data with pagination (respect filters and join supplier)
             $sql = "SELECT i.*, s.supplier_name 
-        FROM property_inventory i 
-        LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
+        FROM aircons i 
+        LEFT JOIN supplier s ON i.aircon_id = s.supplier_id 
         $inv_where
         ORDER BY i.date_created DESC
         LIMIT $records_per_page OFFSET $offset";
@@ -1325,7 +1317,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 </div>
                                 <div class="pt-4">
                                     <?php if (!empty($sy_logs_raw)): ?>
-                                        <a href="property_inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_logs' => true])) ?>" class="btn btn-outline-light">Reset</a>
+                                        <a href="aircon_list.php?<?= http_build_query(array_diff_key($_GET, ['sy_logs' => true])) ?>" class="btn btn-outline-light">Reset</a>
                                     <?php endif; ?>
                                 </div>
                             </form>
@@ -1399,7 +1391,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         </div>
                         <div class="pt-4">
                             <?php if (!empty($sy_recv_raw)): ?>
-                                <a href="property_inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv' => true])) ?>" class="btn btn-outline-light">Reset</a>
+                                <a href="aircon_list.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv' => true])) ?>" class="btn btn-outline-light">Reset</a>
                             <?php endif; ?>
                         </div>
                     </form>
@@ -1991,7 +1983,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     currentParams.delete('page'); // Reset to first page for new search
                     
                     // Fetch search results
-                    fetch("property_inventory.php?" + currentParams.toString())
+                    fetch("aircon_list.php?" + currentParams.toString())
                         .then(response => response.text())
                         .then(data => {
                             // Remove loading class
@@ -2114,7 +2106,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
                 function fetchItemDetails(inventoryId) {
                     $.ajax({
-                        url: '../pages/get_property_inventory_item.php',
+                        url: '../pages/aircon_list.php',
                         type: 'GET',
                         data: {
                             inventory_id: inventoryId
@@ -2520,7 +2512,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             $inv_where_ajax = !empty($inv_where_conditions_ajax) ? ' WHERE ' . implode(' AND ', $inv_where_conditions_ajax) : '';
 
             // Get total number of records
-            $count_sql = "SELECT COUNT(*) as total FROM property_inventory pi $inv_where_ajax";
+            $count_sql = "SELECT COUNT(*) as total FROM aircons pi $inv_where_ajax";
             $count_result = $conn->query($count_sql);
             $total_records = $count_result->fetch_assoc()['total'];
             $total_pages = ceil($total_records / $records_per_page);
@@ -2538,7 +2530,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '<div id="inventoryTable">';
             echo '<table class="table table-hover mb-0">';
             echo '<thead class="table-dark">';
-            echo '<tr><th>Item Name</th><th>Current Stock</th><th>Unit</th><th>Brand</th><th>Color</th><th>Size</th><th>Last Updated</th><th>Status</th><th>Actions</th></tr>';
+            echo '<tr><th>Item No</th><th>Brand</th><th>Model</th><th>Type</th><th>Capacity (BTU/hr)</th><th>Serial No</th><th>Location</th><th>Status</th><th>Purchase Date</th><th>Warranty Expiry</th><th>Last Service Date</th><th>Maintenance Schedule</th><th>Supplier Info</th><th>Installation Date</th><th>Energy Efficient Rating</th><th>Power Consumption (kW)</th><th>Notes</th><th>Purchase Price</th><th>Depreciated Value</th><th>Actions</th></tr>';
             echo '</thead><tbody>';
 
             if ($result && $result->num_rows > 0) {
@@ -2553,14 +2545,25 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     }
 
                     echo '<tr>';
-                    echo '<td>' . htmlspecialchars($row['item_name']) . '</td>';
-                    echo '<td class="text-center"><strong>' . $row['current_stock'] . '</strong></td>';
-                    echo '<td>' . $row['unit'] . '</td>';
-                    echo '<td>' . htmlspecialchars($row['brand']) . '</td>';
-                    echo '<td>' . htmlspecialchars($row['color']) . '</td>';
-                    echo '<td>' . htmlspecialchars($row['size']) . '</td>';
-                    echo '<td>' . date('M d, Y', strtotime($row['date_updated'])) . '</td>';
-                    echo '<td><span class="badge bg-' . ($stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success')) . '">' . ucfirst($stock_level) . '</span></td>';
+                    echo '<td>' . htmlspecialchars($row['item_number']) . '</td>';
+                    echo '<td>' . htmlspecialchars($row['brand'] ?? 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['model'] ?? 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['type'] ?? 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['capacity'] ?? 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['serial_number'] ?? 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['location'] ?? 'N/A') . '</td>';
+                    echo '<td><span class="badge bg-' . ($stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success')) . '">' . htmlspecialchars($row['status'] ?? 'Active') . '</span></td>';
+                    echo '<td>' . (!empty($row['purchase_date']) ? date('M d, Y', strtotime($row['purchase_date'])) : 'N/A') . '</td>';
+                    echo '<td>' . (!empty($row['warranty_expiry']) ? date('M d, Y', strtotime($row['warranty_expiry'])) : 'N/A') . '</td>';
+                    echo '<td>' . (!empty($row['last_service']) ? date('M d, Y', strtotime($row['last_service'])) : 'N/A') . '</td>';
+                    echo '<td>' . (!empty($row['maintenance_schedule']) ? date('M d, Y', strtotime($row['maintenance_schedule'])) : 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['supplier_name'] ?? 'N/A') . '</td>';
+                    echo '<td>' . (!empty($row['installation_date']) ? date('M d, Y', strtotime($row['installation_date'])) : 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['energy_efficient'] ?? 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['power_consumption'] ?? 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['notes'] ?? 'N/A') . '</td>';
+                    echo '<td>' . (!empty($row['purchase_price']) ? '₱' . number_format($row['purchase_price'], 2) : 'N/A') . '</td>';
+                    echo '<td>' . (!empty($row['depreciated_value']) ? '₱' . number_format($row['depreciated_value'], 2) : 'N/A') . '</td>';
                     echo '<td>';
                     echo '<button class="btn btn-sm stock-icons-btn" title="Stock In/Out" onclick="stockIn(' . $row['inventory_id'] . ')">';
                     echo '<i class="fas fa-plus"></i><i class="fas fa-minus"></i>';
@@ -2588,7 +2591,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '</td></tr>';
                 }
             } else {
-                echo '<tr><td colspan="9" class="text-center py-4"><i class="fas fa-boxes fa-3x text-muted mb-3"></i><p class="text-muted">No inventory items found</p></td></tr>';
+                echo '<tr><td colspan="20" class="text-center py-4"><i class="fas fa-snowflake fa-3x text-muted mb-3"></i><p class="text-muted">No aircon items found</p></td></tr>';
             }
 
             echo '</tbody></table></div>';

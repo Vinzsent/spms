@@ -868,7 +868,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     <i class="fas fa-exchange-alt"></i>
                 </div>
                 <div class="stat-number"><?= $stock_logs_result ? $stock_logs_result->num_rows : 0 ?></div>
-                <div class="stat-label">Recent Movements</div>
+                <div class="stat-label">Aircon Disposal</div>
             </div>
         </div>
 
@@ -1204,14 +1204,25 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     <table class="table table-hover mb-0">
                         <thead class="table-dark">
                             <tr>
-                                <th>Item Name</th>
-                                <th>Current Stock</th>
-                                <th>Unit</th>
+                                <th>Item No</th>
                                 <th>Brand</th>
-                                <th>Color</th>
-                                <th>Size</th>
-                                <th>Last Updated</th>
+                                <th>Model</th>
+                                <th>Type</th>
+                                <th>Capacity (BTU/hr)</th>
+                                <th>Serial No</th>
+                                <th>Location</th>
                                 <th>Status</th>
+                                <th>Purchase Date</th>
+                                <th>Warranty Expiry</th>
+                                <th>Last Service Date</th>
+                                <th>Maintenance Schedule</th>
+                                <th>Supplier Info</th>
+                                <th>Installation Date</th>
+                                <th>Energy Efficient Rating</th>
+                                <th>Power Consumption (kW)</th>
+                                <th>Notes</th>
+                                <th>Purchase Price</th>
+                                <th>Depreciated Value</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -1230,17 +1241,28 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     ?>
                                     <tr>
                                         <td><?= htmlspecialchars($row['item_name']) ?></td>
-                                        <td class="text-center"><strong><?= $row['current_stock'] ?></strong></td>
-                                        <td><?= $row['unit'] ?></td>
-                                        <td><?= htmlspecialchars($row['brand']) ?></td>
-                                        <td><?= htmlspecialchars($row['color']) ?></td>
-                                        <td><?= htmlspecialchars($row['size']) ?></td>
-                                        <td><?= date('M d, Y', strtotime($row['date_updated'])) ?></td>
+                                        <td><?= htmlspecialchars($row['brand'] ?? 'N/A') ?></td>
+                                        <td><?= htmlspecialchars($row['model'] ?? 'N/A') ?></td>
+                                        <td><?= htmlspecialchars($row['type'] ?? 'N/A') ?></td>
+                                        <td><?= htmlspecialchars($row['capacity'] ?? 'N/A') ?></td>
+                                        <td><?= htmlspecialchars($row['serial_number'] ?? 'N/A') ?></td>
+                                        <td><?= htmlspecialchars($row['location'] ?? 'N/A') ?></td>
                                         <td>
                                             <span class="badge bg-<?= $stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success') ?>">
-                                                <?= ucfirst($stock_level) ?>
+                                                <?= htmlspecialchars($row['status'] ?? 'Active') ?>
                                             </span>
                                         </td>
+                                        <td><?= !empty($row['purchase_date']) ? date('M d, Y', strtotime($row['purchase_date'])) : 'N/A' ?></td>
+                                        <td><?= !empty($row['warranty_expiry']) ? date('M d, Y', strtotime($row['warranty_expiry'])) : 'N/A' ?></td>
+                                        <td><?= !empty($row['last_service']) ? date('M d, Y', strtotime($row['last_service'])) : 'N/A' ?></td>
+                                        <td><?= !empty($row['maintenance_schedule']) ? date('M d, Y', strtotime($row['maintenance_schedule'])) : 'N/A' ?></td>
+                                        <td><?= htmlspecialchars($row['supplier_name'] ?? 'N/A') ?></td>
+                                        <td><?= !empty($row['installation_date']) ? date('M d, Y', strtotime($row['installation_date'])) : 'N/A' ?></td>
+                                        <td><?= htmlspecialchars($row['energy_efficient'] ?? 'N/A') ?></td>
+                                        <td><?= htmlspecialchars($row['power_consumption'] ?? 'N/A') ?></td>
+                                        <td><?= htmlspecialchars($row['notes'] ?? 'N/A') ?></td>
+                                        <td><?= !empty($row['purchase_price']) ? '₱' . number_format($row['purchase_price'], 2) : 'N/A' ?></td>
+                                        <td><?= !empty($row['depreciated_value']) ? '₱' . number_format($row['depreciated_value'], 2) : 'N/A' ?></td>
                                         <td>
                                             <button class="btn btn-sm stock-icons-btn" title="Stock In/Out" onclick="stockIn(<?= $row['inventory_id'] ?>)">
                                                 <i class="fas fa-plus"></i><i class="fas fa-minus"></i>
@@ -1272,11 +1294,11 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="9" class="text-center py-4">
-                                        <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
-                                        <p class="text-muted">No inventory items found</p>
+                                    <td colspan="20" class="text-center py-4">
+                                        <i class="fas fa-snowflake fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No aircon items found</p>
                                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
-                                            Add First Item
+                                            Add First Aircon
                                         </button>
                                     </td>
                                 </tr>
@@ -1509,7 +1531,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <div class="row g-3">
                                         <div class="col-md-6">
                                             <label class="form-label">Item Number <span class="text-danger">*</span></label>
-                                            <input type="text" name="item_name" class="form-control" required>
+                                            <input type="text" name="item_name" class="form-control" required placeholder="e.g., AC-001">
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Category <span class="text-danger">*</span></label>
@@ -1537,77 +1559,87 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label">Brand <span class="text-danger">*</span></label>
-                                            <input type="text" name="brand" class="form-control" required>
+                                            <input type="text" name="brand" class="form-control" required placeholder="e.g., Carrier, Daikin">
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label">Model <span class="text-danger">*</span></label>
-                                            <input type="text" name="model" class="form-control" required>
+                                            <input type="text" name="model" class="form-control" required placeholder="e.g., 42QHC018">
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label">Type</label>
-                                            <input type="size" name="type" class="form-control">
-                                             <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
+                                            <select name="type" class="form-select">
+                                                <option value="">Select Type</option>
+                                                <option value="Split">Split</option>
+                                                <option value="Window">Window</option>
+                                                <option value="Portable">Portable</option>
+                                                <option value="Cassette">Cassette</option>
+                                                <option value="Central">Central</option>
+                                            </select>
                                         </div>
                                         <div class="col-md-3">
-                                            <label class="form-label">Capacity</label>
-                                            <input type="text" name="capacity" class="form-control">
-                                             
+                                            <label class="form-label">Capacity (BTU/hr)</label>
+                                            <input type="text" name="capacity" class="form-control" placeholder="e.g., 18,000">
                                         </div>
-                                        <div class="col-3">
+                                        <div class="col-md-3">
                                             <label class="form-label">Serial Number</label>
-                                            <input name="serial_number" class="form-control"></input>
+                                            <input type="text" name="serial_number" class="form-control" placeholder="Manufacturer serial number">
                                         </div>
-                                        <div class="col-3">
+                                        <div class="col-md-3">
                                             <label class="form-label">Location</label>
-                                            <input name="location" class="form-control"></input>
+                                            <input type="text" name="location" class="form-control" placeholder="e.g., Room 101, Office">
                                         </div>
-                                        <div class="col-3">
+                                        <div class="col-md-3">
                                             <label class="form-label">Status</label>
-                                            <input name="status" class="form-control"></input>
+                                            <select name="status" class="form-select">
+                                                <option value="Working">Working</option>
+                                                <option value="Needs Repair">Needs Repair</option>
+                                                <option value="Under Maintenance">Under Maintenance</option>
+                                                <option value="Decommissioned">Decommissioned</option>
+                                            </select>
                                         </div>
-                                        <div class="col-3">
+                                        <div class="col-md-3">
                                             <label class="form-label">Purchase Date</label>
-                                            <input name="purchase_date" class="form-control"></input>
+                                            <input type="date" name="purchase_date" class="form-control">
                                         </div>
-                                        <div class="col-3">
+                                        <div class="col-md-3">
                                             <label class="form-label">Warranty Expiry</label>
-                                            <input name="warranty_expiry" class="form-control"></input>
+                                            <input type="date" name="warranty_expiry" class="form-control">
                                         </div>
-                                        <div class="col-3">
-                                            <label class="form-label">Last Service</label>
-                                            <input name="last_service" class="form-control"></input>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Last Service Date</label>
+                                            <input type="date" name="last_service" class="form-control">
                                         </div>
-                                        <div class="col-3">
+                                        <div class="col-md-3">
                                             <label class="form-label">Maintenance Schedule</label>
-                                            <input name="maintenance_schedule" class="form-control"></input>
+                                            <input type="date" name="maintenance_schedule" class="form-control">
                                         </div>
-                                        <div class="col-3">
-                                            <label class="form-label">Supplier_info</label>
-                                            <input name="supplier_info" class="form-control"></input>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Supplier Info</label>
+                                            <input type="text" name="supplier_info" class="form-control" placeholder="Supplier/Vendor information">
                                         </div>
-                                        <div class="col-3">
+                                        <div class="col-md-3">
                                             <label class="form-label">Installation Date</label>
-                                            <input name="installation_date" class="form-control"></input>
+                                            <input type="date" name="installation_date" class="form-control">
                                         </div>
-                                        <div class="col-3">
-                                            <label class="form-label">Enery Efficient</label>
-                                            <input name="energy_efficient" class="form-control"></input>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Energy Efficiency Rating</label>
+                                            <input type="text" name="energy_efficient" class="form-control" placeholder="e.g., 5-star, A++">
                                         </div>
-                                        <div class="col-3">
-                                            <label class="form-label">Power Consumption</label>
-                                            <input name="power_consumption" class="form-control"></input>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Power Consumption (kW)</label>
+                                            <input type="number" step="0.1" name="power_consumption" class="form-control" placeholder="e.g., 1.5">
                                         </div>
-                                        <div class="col-3">
+                                        <div class="col-md-6">
                                             <label class="form-label">Notes</label>
-                                            <input name="notes" class="form-control"></input>
+                                            <textarea name="notes" class="form-control" rows="2" placeholder="Any additional information..."></textarea>
                                         </div>
-                                        <div class="col-3">
-                                            <label class="form-label">Purchase Price</label>
-                                            <input name="purchase_price" class="form-control"></input>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Purchase Price (₱)</label>
+                                            <input type="number" step="0.01" name="purchase_price" class="form-control" placeholder="0.00">
                                         </div>
-                                        <div class="col-3">
-                                            <label class="form-label">Depreciated Value</label>
-                                            <input name="depreciated_value" class="form-control"></input>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Depreciated Value (₱)</label>
+                                            <input type="number" step="0.01" name="depreciated_value" class="form-control" placeholder="0.00">
                                         </div>
                                     </div>
                                 </div>
@@ -2514,7 +2546,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '<div id="inventoryTable">';
             echo '<table class="table table-hover mb-0">';
             echo '<thead class="table-dark">';
-            echo '<tr><th>Item Name</th><th>Current Stock</th><th>Unit</th><th>Brand</th><th>Color</th><th>Size</th><th>Last Updated</th><th>Status</th><th>Actions</th></tr>';
+            echo '<tr><th>Item No</th><th>Brand</th><th>Model</th><th>Type</th><th>Capacity (BTU/hr)</th><th>Serial No</th><th>Location</th><th>Status</th><th>Purchase Date</th><th>Warranty Expiry</th><th>Last Service Date</th><th>Maintenance Schedule</th><th>Supplier Info</th><th>Installation Date</th><th>Energy Efficient Rating</th><th>Power Consumption (kW)</th><th>Notes</th><th>Purchase Price</th><th>Depreciated Value</th><th>Actions</th></tr>';
             echo '</thead><tbody>';
 
             if ($result && $result->num_rows > 0) {
@@ -2530,13 +2562,24 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
                     echo '<tr>';
                     echo '<td>' . htmlspecialchars($row['item_name']) . '</td>';
-                    echo '<td class="text-center"><strong>' . $row['current_stock'] . '</strong></td>';
-                    echo '<td>' . $row['unit'] . '</td>';
-                    echo '<td>' . htmlspecialchars($row['brand']) . '</td>';
-                    echo '<td>' . htmlspecialchars($row['color']) . '</td>';
-                    echo '<td>' . htmlspecialchars($row['size']) . '</td>';
-                    echo '<td>' . date('M d, Y', strtotime($row['date_updated'])) . '</td>';
-                    echo '<td><span class="badge bg-' . ($stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success')) . '">' . ucfirst($stock_level) . '</span></td>';
+                    echo '<td>' . htmlspecialchars($row['brand'] ?? 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['model'] ?? 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['type'] ?? 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['capacity'] ?? 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['serial_number'] ?? 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['location'] ?? 'N/A') . '</td>';
+                    echo '<td><span class="badge bg-' . ($stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success')) . '">' . htmlspecialchars($row['status'] ?? 'Active') . '</span></td>';
+                    echo '<td>' . (!empty($row['purchase_date']) ? date('M d, Y', strtotime($row['purchase_date'])) : 'N/A') . '</td>';
+                    echo '<td>' . (!empty($row['warranty_expiry']) ? date('M d, Y', strtotime($row['warranty_expiry'])) : 'N/A') . '</td>';
+                    echo '<td>' . (!empty($row['last_service']) ? date('M d, Y', strtotime($row['last_service'])) : 'N/A') . '</td>';
+                    echo '<td>' . (!empty($row['maintenance_schedule']) ? date('M d, Y', strtotime($row['maintenance_schedule'])) : 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['supplier_name'] ?? 'N/A') . '</td>';
+                    echo '<td>' . (!empty($row['installation_date']) ? date('M d, Y', strtotime($row['installation_date'])) : 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['energy_efficient'] ?? 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['power_consumption'] ?? 'N/A') . '</td>';
+                    echo '<td>' . htmlspecialchars($row['notes'] ?? 'N/A') . '</td>';
+                    echo '<td>' . (!empty($row['purchase_price']) ? '₱' . number_format($row['purchase_price'], 2) : 'N/A') . '</td>';
+                    echo '<td>' . (!empty($row['depreciated_value']) ? '₱' . number_format($row['depreciated_value'], 2) : 'N/A') . '</td>';
                     echo '<td>';
                     echo '<button class="btn btn-sm stock-icons-btn" title="Stock In/Out" onclick="stockIn(' . $row['inventory_id'] . ')">';
                     echo '<i class="fas fa-plus"></i><i class="fas fa-minus"></i>';
@@ -2564,7 +2607,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '</td></tr>';
                 }
             } else {
-                echo '<tr><td colspan="9" class="text-center py-4"><i class="fas fa-boxes fa-3x text-muted mb-3"></i><p class="text-muted">No inventory items found</p></td></tr>';
+                echo '<tr><td colspan="20" class="text-center py-4"><i class="fas fa-snowflake fa-3x text-muted mb-3"></i><p class="text-muted">No aircon items found</p></td></tr>';
             }
 
             echo '</tbody></table></div>';
