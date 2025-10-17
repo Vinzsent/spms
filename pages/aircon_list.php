@@ -85,15 +85,15 @@ $logs_where = !empty($logs_where_conditions) ? ' WHERE ' . implode(' AND ', $log
 
 // Get purchased data
 $sql = "SELECT pi.*, s.supplier_name 
-        FROM property_inventory pi 
-        LEFT JOIN supplier s ON pi.supplier_id = s.supplier_id
+        FROM aircons pi 
+        LEFT JOIN supplier s ON pi.aircon_id = s.supplier_id
         ORDER BY pi.date_created DESC";
 $result = $conn->query($sql);
 
 // Get inventory data
 $sql = "SELECT i.*, s.supplier_name 
-        FROM property_inventory i 
-        LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
+        FROM aircons i 
+        LEFT JOIN supplier s ON i.aircon_id = s.supplier_id 
         $inv_where
         ORDER BY i.date_created DESC";
 $result = $conn->query($sql);
@@ -105,15 +105,6 @@ $sql1 = "SELECT st.*, s.supplier_name
         AND st.status IN ('Pending')
         ORDER BY COALESCE(st.date_received, st.date_created) DESC";
 $result1 = $conn->query($sql1);
-
-// Get stock movement logs
-$stock_logs_sql = "SELECT sl.*, pi.item_name, s.supplier_name 
-                   FROM property_stock_logs sl 
-                   LEFT JOIN property_inventory pi ON sl.inventory_id = pi.inventory_id 
-                   LEFT JOIN supplier s ON pi.supplier_id = s.supplier_id 
-                   $logs_where
-                   ORDER BY sl.date_created DESC LIMIT 50";
-$stock_logs_result = $conn->query($stock_logs_sql);
 
 // Get suppliers for dropdown
 $suppliers_sql = "SELECT supplier_id, supplier_name FROM supplier WHERE status = 'Active' ORDER BY supplier_name";
@@ -898,7 +889,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <i class="fas fa-search"></i> Search
                             </button>
                             <?php if (!empty($search_term) || !empty($sy_inv_raw)): ?>
-                                <a href="property_inventory.php" class="btn btn-outline-light ms-2">
+                                <a href="aircon_list.php" class="btn btn-outline-light ms-2">
                                     <i class="fas fa-times"></i> Clear
                                 </a>
                             <?php endif; ?>
@@ -963,14 +954,14 @@ if ($categories_result && $categories_result->num_rows > 0) {
             $offset = ($page - 1) * $records_per_page;
 
             // Get total number of records
-            $count_sql = "SELECT COUNT(*) as total FROM property_inventory i $inv_where";
+            $count_sql = "SELECT COUNT(*) as total FROM aircons i $inv_where";
             $count_result = $conn->query($count_sql);
             $total_records = $count_result->fetch_assoc()['total'];
             $total_pages = ceil($total_records / $records_per_page);
 
             // Get inventory data with pagination (respect filters and join supplier)
             $sql = "SELECT i.*, s.supplier_name 
-        FROM property_inventory i 
+        FROM aircons i 
         LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
         $inv_where
         ORDER BY i.date_created DESC
@@ -1204,12 +1195,12 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     <table class="table table-hover mb-0">
                         <thead class="table-dark">
                             <tr>
-                                <th>Item No</th>
+                                <th>Item No.</th>
                                 <th>Brand</th>
                                 <th>Model</th>
                                 <th>Type</th>
                                 <th>Capacity (BTU/hr)</th>
-                                <th>Serial No</th>
+                                <th>Serial No.</th>
                                 <th>Location</th>
                                 <th>Status</th>
                                 <th>Purchase Date</th>
@@ -1218,7 +1209,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <th>Maintenance Schedule</th>
                                 <th>Supplier Info</th>
                                 <th>Installation Date</th>
-                                <th>Energy Efficient Rating</th>
+                                <th>Energy Efficiency Rating</th>
                                 <th>Power Consumption (kW)</th>
                                 <th>Notes</th>
                                 <th>Purchase Price</th>
@@ -1228,45 +1219,39 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         </thead>
                         <tbody>
                             <?php if ($result && $result->num_rows > 0): ?>
-                                <?php while ($row = $result->fetch_assoc()): ?>
-                                    <?php
-                                    $stock_level = 'normal';
-                                    if ($row['current_stock'] == 0) {
-                                        $stock_level = 'out';
-                                    } elseif ($row['current_stock'] <= $row['reorder_level']) {
-                                        $stock_level = 'critical';
-                                    } elseif ($row['current_stock'] <= ($row['reorder_level'] * 1.5)) {
-                                        $stock_level = 'low';
-                                    }
-                                    ?>
+                                <?php 
+                                $item_counter = 1;
+                                while ($row = $result->fetch_assoc()): 
+                                ?>
                                     <tr>
-                                        <td><?= htmlspecialchars($row['item_name']) ?></td>
-                                        <td><?= htmlspecialchars($row['brand'] ?? 'N/A') ?></td>
-                                        <td><?= htmlspecialchars($row['model'] ?? 'N/A') ?></td>
-                                        <td><?= htmlspecialchars($row['type'] ?? 'N/A') ?></td>
-                                        <td><?= htmlspecialchars($row['capacity'] ?? 'N/A') ?></td>
-                                        <td><?= htmlspecialchars($row['serial_number'] ?? 'N/A') ?></td>
-                                        <td><?= htmlspecialchars($row['location'] ?? 'N/A') ?></td>
-                                        <td>
-                                            <span class="badge bg-<?= $stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success') ?>">
-                                                <?= htmlspecialchars($row['status'] ?? 'Active') ?>
+                                        <td data-label="Item No."><?= $item_counter++ ?></td>
+                                        <td data-label="Brand"><?= htmlspecialchars($row['brand'] ?? 'N/A') ?></td>
+                                        <td data-label="Model"><?= htmlspecialchars($row['model'] ?? 'N/A') ?></td>
+                                        <td data-label="Type"><?= htmlspecialchars($row['type'] ?? 'N/A') ?></td>
+                                        <td data-label="Capacity (BTU/hr)"><?= htmlspecialchars($row['capacity'] ?? 'N/A') ?></td>
+                                        <td data-label="Serial No."><?= htmlspecialchars($row['serial_number'] ?? 'N/A') ?></td>
+                                        <td data-label="Location"><?= htmlspecialchars($row['location'] ?? 'N/A') ?></td>
+                                        <td data-label="Status">
+                                            <span class="badge bg-<?= 
+                                                ($row['status'] == 'Working') ? 'success' : 
+                                                (($row['status'] == 'Needs Repair') ? 'warning' : 
+                                                (($row['status'] == 'Under Maintenance') ? 'info' : 'danger')) 
+                                            ?>">
+                                                <?= htmlspecialchars($row['status'] ?? 'N/A') ?>
                                             </span>
                                         </td>
-                                        <td><?= !empty($row['purchase_date']) ? date('M d, Y', strtotime($row['purchase_date'])) : 'N/A' ?></td>
-                                        <td><?= !empty($row['warranty_expiry']) ? date('M d, Y', strtotime($row['warranty_expiry'])) : 'N/A' ?></td>
-                                        <td><?= !empty($row['last_service']) ? date('M d, Y', strtotime($row['last_service'])) : 'N/A' ?></td>
-                                        <td><?= !empty($row['maintenance_schedule']) ? date('M d, Y', strtotime($row['maintenance_schedule'])) : 'N/A' ?></td>
-                                        <td><?= htmlspecialchars($row['supplier_name'] ?? 'N/A') ?></td>
-                                        <td><?= !empty($row['installation_date']) ? date('M d, Y', strtotime($row['installation_date'])) : 'N/A' ?></td>
-                                        <td><?= htmlspecialchars($row['energy_efficient'] ?? 'N/A') ?></td>
-                                        <td><?= htmlspecialchars($row['power_consumption'] ?? 'N/A') ?></td>
-                                        <td><?= htmlspecialchars($row['notes'] ?? 'N/A') ?></td>
-                                        <td><?= !empty($row['purchase_price']) ? '₱' . number_format($row['purchase_price'], 2) : 'N/A' ?></td>
-                                        <td><?= !empty($row['depreciated_value']) ? '₱' . number_format($row['depreciated_value'], 2) : 'N/A' ?></td>
-                                        <td>
-                                            <button class="btn btn-sm stock-icons-btn" title="Stock In/Out" onclick="stockIn(<?= $row['inventory_id'] ?>)">
-                                                <i class="fas fa-plus"></i><i class="fas fa-minus"></i>
-                                            </button>
+                                        <td data-label="Purchase Date"><?= !empty($row['purchase_date']) ? date('M d, Y', strtotime($row['purchase_date'])) : 'N/A' ?></td>
+                                        <td data-label="Warranty Expiry"><?= !empty($row['warranty_expiry']) ? date('M d, Y', strtotime($row['warranty_expiry'])) : 'N/A' ?></td>
+                                        <td data-label="Last Service Date"><?= !empty($row['last_service_date']) ? date('M d, Y', strtotime($row['last_service_date'])) : 'N/A' ?></td>
+                                        <td data-label="Maintenance Schedule"><?= htmlspecialchars($row['maintenance_schedule'] ?? 'N/A') ?></td>
+                                        <td data-label="Supplier Info"><?= htmlspecialchars($row['supplier_name'] ?? 'N/A') ?></td>
+                                        <td data-label="Installation Date"><?= !empty($row['installation_date']) ? date('M d, Y', strtotime($row['installation_date'])) : 'N/A' ?></td>
+                                        <td data-label="Energy Efficiency Rating"><?= htmlspecialchars($row['energy_efficiency_rating'] ?? 'N/A') ?></td>
+                                        <td data-label="Power Consumption (kW)"><?= htmlspecialchars($row['power_consumption'] ?? 'N/A') ?></td>
+                                        <td data-label="Notes"><?= htmlspecialchars($row['notes'] ?? 'N/A') ?></td>
+                                        <td data-label="Purchase Price">₱<?= number_format($row['unit_cost'] ?? 0, 2) ?></td>
+                                        <td data-label="Depreciated Value">₱<?= number_format($row['depreciated_value'] ?? 0, 2) ?></td>
+                                        <td data-label="Actions" class="actions">
                                             <button class="btn btn-sm btn-info" title="Edit"
                                                 onclick="openEditInventoryModal(
                                                 <?= (int)$row['inventory_id'] ?>,
@@ -1289,6 +1274,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             )">
                                                 <i class="fas fa-edit"></i>
                                             </button>
+                                            <button class="btn btn-sm btn-danger" title="Delete" onclick="deleteAircon(<?= $row['inventory_id'] ?>)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 <?php endwhile; ?>
@@ -1296,7 +1284,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <tr>
                                     <td colspan="20" class="text-center py-4">
                                         <i class="fas fa-snowflake fa-3x text-muted mb-3"></i>
-                                        <p class="text-muted">No aircon items found</p>
+                                        <p class="text-muted">No aircon units found</p>
                                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
                                             Add First Aircon
                                         </button>
@@ -1326,81 +1314,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <?php endif; ?>
 
 
-                
-                
-                <!-- Stock Movement Logs -->
-                <div class="table-container">
-                    <div class="table-header">
-                        <h3>Recent Stock Movements</h3>
-                        <div class="d-flex align-items-end gap-2">
-                            <form method="GET" class="d-flex align-items-end gap-2 mb-0">
-                                <div>
-                                    <label for="sy_logs" class="form-label mb-0 text-white">School Year</label>
-                                    <select id="sy_logs" name="sy_logs" class="form-select" onchange="this.form.submit()">
-                                        <option value="">All</option>
-                                        <?php foreach ($sy_years as $sy): ?>
-                                            <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_logs_raw === $sy) ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars($sy) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div class="pt-4">
-                                    <?php if (!empty($sy_logs_raw)): ?>
-                                        <a href="property_inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_logs' => true])) ?>" class="btn btn-outline-light">Reset</a>
-                                    <?php endif; ?>
-                                </div>
-                            </form>
-                            <button class="btn btn-add text-dark" onclick="viewAllMovements()">
-                                <i class="fas fa-list"></i> View All
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Item</th>
-                                    <th>Type</th>
-                                    <th>Quantity</th>
-                                    <th>Previous Stock</th>
-                                    <th>New Stock</th>
-                                    <th>Receiver</th>
-                                    <th>Notes</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if ($stock_logs_result && $stock_logs_result->num_rows > 0): ?>
-                                    <?php while ($log = $stock_logs_result->fetch_assoc()): ?>
-                                        <tr>
-                                            <td><?= date('M d, Y H:i', strtotime($log['date_created'])) ?></td>
-                                            <td><?= htmlspecialchars($log['item_name']) ?></td>
-                                            <td>
-                                                <span class="badge bg-<?= $log['movement_type'] == 'IN' ? 'success' : 'warning' ?>">
-                                                    <?= $log['movement_type'] ?>
-                                                </span>
-                                            </td>
-                                            <td><?= $log['quantity'] ?></td>
-                                            <td><?= $log['previous_stock'] ?></td>
-                                            <td><?= $log['new_stock'] ?></td>
-                                            <td><?= htmlspecialchars($log['receiver'] ?? 'N/A') ?></td>
-                                            <td><?= htmlspecialchars($log['notes']) ?></td>
-                                        </tr>
-                                        <?php endwhile; ?>
-                                        <?php else: ?>
-                                            <tr>
-                                        <td colspan="8" class="text-center py-4">
-                                            <i class="fas fa-history fa-3x text-muted mb-3"></i>
-                                            <p class="text-muted">No stock movements recorded</p>
-                                        </td>
-                                    </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                        </table>
-                    </div>
-                </div>
             </div>
 
             <!-- Accquired Supplies Table -->
@@ -1421,7 +1334,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         </div>
                         <div class="pt-4">
                             <?php if (!empty($sy_recv_raw)): ?>
-                                <a href="property_inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv' => true])) ?>" class="btn btn-outline-light">Reset</a>
+                                <a href="aircon_list.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv' => true])) ?>" class="btn btn-outline-light">Reset</a>
                             <?php endif; ?>
                         </div>
                     </form>
@@ -1999,7 +1912,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     currentParams.delete('page'); // Reset to first page for new search
                     
                     // Fetch search results
-                    fetch("property_inventory.php?" + currentParams.toString())
+                    fetch("aircon_list.php?" + currentParams.toString())
                         .then(response => response.text())
                         .then(data => {
                             // Remove loading class
@@ -2122,7 +2035,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
                 function fetchItemDetails(inventoryId) {
                     $.ajax({
-                        url: '../pages/get_property_inventory_item.php',
+                        url: '../pages/get_aircon_list.php',
                         type: 'GET',
                         data: {
                             inventory_id: inventoryId
@@ -2308,7 +2221,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     setTimeout(function() {
                         // Fetch inventory item data via AJAX
                         $.ajax({
-                            url: '../actions/get_property_inventory_item.php',
+                            url: '../actions/get_aircon_list.php',
                             method: 'GET',
                             data: { inventory_id: inventoryId },
                             dataType: 'json',
@@ -2410,7 +2323,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     currentParams.set('page', page);
 
                     // Fetch the page content
-                    fetch("property_inventory.php?" + currentParams.toString())
+                    fetch("aircon_list.php?" + currentParams.toString())
                         .then(response => response.text())
                         .then(data => {
                             // Remove loading overlay
@@ -2528,14 +2441,14 @@ if ($categories_result && $categories_result->num_rows > 0) {
             $inv_where_ajax = !empty($inv_where_conditions_ajax) ? ' WHERE ' . implode(' AND ', $inv_where_conditions_ajax) : '';
 
             // Get total number of records
-            $count_sql = "SELECT COUNT(*) as total FROM property_inventory pi $inv_where_ajax";
+            $count_sql = "SELECT COUNT(*) as total FROM aircons pi $inv_where_ajax";
             $count_result = $conn->query($count_sql);
             $total_records = $count_result->fetch_assoc()['total'];
             $total_pages = ceil($total_records / $records_per_page);
 
             // Get inventory data with pagination
             $sql = "SELECT pi.*, s.supplier_name 
-            FROM property_inventory pi 
+            FROM aircons pi 
             LEFT JOIN supplier s ON pi.supplier_id = s.supplier_id 
             $inv_where_ajax
             ORDER BY pi.date_created DESC
@@ -2546,44 +2459,63 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '<div id="inventoryTable">';
             echo '<table class="table table-hover mb-0">';
             echo '<thead class="table-dark">';
-            echo '<tr><th>Item No</th><th>Brand</th><th>Model</th><th>Type</th><th>Capacity (BTU/hr)</th><th>Serial No</th><th>Location</th><th>Status</th><th>Purchase Date</th><th>Warranty Expiry</th><th>Last Service Date</th><th>Maintenance Schedule</th><th>Supplier Info</th><th>Installation Date</th><th>Energy Efficient Rating</th><th>Power Consumption (kW)</th><th>Notes</th><th>Purchase Price</th><th>Depreciated Value</th><th>Actions</th></tr>';
+            echo '<tr>';
+            echo '<th>Item No.</th>';
+            echo '<th>Brand</th>';
+            echo '<th>Model</th>';
+            echo '<th>Type</th>';
+            echo '<th>Capacity (BTU/hr)</th>';
+            echo '<th>Serial No.</th>';
+            echo '<th>Location</th>';
+            echo '<th>Status</th>';
+            echo '<th>Purchase Date</th>';
+            echo '<th>Warranty Expiry</th>';
+            echo '<th>Last Service Date</th>';
+            echo '<th>Maintenance Schedule</th>';
+            echo '<th>Supplier Info</th>';
+            echo '<th>Installation Date</th>';
+            echo '<th>Energy Efficiency Rating</th>';
+            echo '<th>Power Consumption (kW)</th>';
+            echo '<th>Notes</th>';
+            echo '<th>Purchase Price</th>';
+            echo '<th>Depreciated Value</th>';
+            echo '<th>Actions</th>';
+            echo '</tr>';
             echo '</thead><tbody>';
 
             if ($result && $result->num_rows > 0) {
+                $item_counter = ($page - 1) * $records_per_page + 1;
                 while ($row = $result->fetch_assoc()) {
-                    $stock_level = 'normal';
-                    if ($row['current_stock'] == 0) {
-                        $stock_level = 'out';
-                    } elseif ($row['current_stock'] <= $row['reorder_level']) {
-                        $stock_level = 'critical';
-                    } elseif ($row['current_stock'] <= ($row['reorder_level'] * 1.5)) {
-                        $stock_level = 'low';
+                    $status_class = 'success';
+                    if ($row['status'] == 'Needs Repair') {
+                        $status_class = 'warning';
+                    } elseif ($row['status'] == 'Under Maintenance') {
+                        $status_class = 'info';
+                    } elseif ($row['status'] == 'Decommissioned') {
+                        $status_class = 'danger';
                     }
 
                     echo '<tr>';
-                    echo '<td>' . htmlspecialchars($row['item_name']) . '</td>';
-                    echo '<td>' . htmlspecialchars($row['brand'] ?? 'N/A') . '</td>';
-                    echo '<td>' . htmlspecialchars($row['model'] ?? 'N/A') . '</td>';
-                    echo '<td>' . htmlspecialchars($row['type'] ?? 'N/A') . '</td>';
-                    echo '<td>' . htmlspecialchars($row['capacity'] ?? 'N/A') . '</td>';
-                    echo '<td>' . htmlspecialchars($row['serial_number'] ?? 'N/A') . '</td>';
-                    echo '<td>' . htmlspecialchars($row['location'] ?? 'N/A') . '</td>';
-                    echo '<td><span class="badge bg-' . ($stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success')) . '">' . htmlspecialchars($row['status'] ?? 'Active') . '</span></td>';
-                    echo '<td>' . (!empty($row['purchase_date']) ? date('M d, Y', strtotime($row['purchase_date'])) : 'N/A') . '</td>';
-                    echo '<td>' . (!empty($row['warranty_expiry']) ? date('M d, Y', strtotime($row['warranty_expiry'])) : 'N/A') . '</td>';
-                    echo '<td>' . (!empty($row['last_service']) ? date('M d, Y', strtotime($row['last_service'])) : 'N/A') . '</td>';
-                    echo '<td>' . (!empty($row['maintenance_schedule']) ? date('M d, Y', strtotime($row['maintenance_schedule'])) : 'N/A') . '</td>';
-                    echo '<td>' . htmlspecialchars($row['supplier_name'] ?? 'N/A') . '</td>';
-                    echo '<td>' . (!empty($row['installation_date']) ? date('M d, Y', strtotime($row['installation_date'])) : 'N/A') . '</td>';
-                    echo '<td>' . htmlspecialchars($row['energy_efficient'] ?? 'N/A') . '</td>';
-                    echo '<td>' . htmlspecialchars($row['power_consumption'] ?? 'N/A') . '</td>';
-                    echo '<td>' . htmlspecialchars($row['notes'] ?? 'N/A') . '</td>';
-                    echo '<td>' . (!empty($row['purchase_price']) ? '₱' . number_format($row['purchase_price'], 2) : 'N/A') . '</td>';
-                    echo '<td>' . (!empty($row['depreciated_value']) ? '₱' . number_format($row['depreciated_value'], 2) : 'N/A') . '</td>';
-                    echo '<td>';
-                    echo '<button class="btn btn-sm stock-icons-btn" title="Stock In/Out" onclick="stockIn(' . $row['inventory_id'] . ')">';
-                    echo '<i class="fas fa-plus"></i><i class="fas fa-minus"></i>';
-                    echo '</button> ';
+                    echo '<td data-label="Item No.">' . $item_counter++ . '</td>';
+                    echo '<td data-label="Brand">' . htmlspecialchars($row['brand'] ?? 'N/A') . '</td>';
+                    echo '<td data-label="Model">' . htmlspecialchars($row['model'] ?? 'N/A') . '</td>';
+                    echo '<td data-label="Type">' . htmlspecialchars($row['type'] ?? 'N/A') . '</td>';
+                    echo '<td data-label="Capacity (BTU/hr)">' . htmlspecialchars($row['capacity'] ?? 'N/A') . '</td>';
+                    echo '<td data-label="Serial No.">' . htmlspecialchars($row['serial_number'] ?? 'N/A') . '</td>';
+                    echo '<td data-label="Location">' . htmlspecialchars($row['location'] ?? 'N/A') . '</td>';
+                    echo '<td data-label="Status"><span class="badge bg-' . $status_class . '">' . htmlspecialchars($row['status'] ?? 'N/A') . '</span></td>';
+                    echo '<td data-label="Purchase Date">' . (!empty($row['purchase_date']) ? date('M d, Y', strtotime($row['purchase_date'])) : 'N/A') . '</td>';
+                    echo '<td data-label="Warranty Expiry">' . (!empty($row['warranty_expiry']) ? date('M d, Y', strtotime($row['warranty_expiry'])) : 'N/A') . '</td>';
+                    echo '<td data-label="Last Service Date">' . (!empty($row['last_service_date']) ? date('M d, Y', strtotime($row['last_service_date'])) : 'N/A') . '</td>';
+                    echo '<td data-label="Maintenance Schedule">' . htmlspecialchars($row['maintenance_schedule'] ?? 'N/A') . '</td>';
+                    echo '<td data-label="Supplier Info">' . htmlspecialchars($row['supplier_name'] ?? 'N/A') . '</td>';
+                    echo '<td data-label="Installation Date">' . (!empty($row['installation_date']) ? date('M d, Y', strtotime($row['installation_date'])) : 'N/A') . '</td>';
+                    echo '<td data-label="Energy Efficiency Rating">' . htmlspecialchars($row['energy_efficiency_rating'] ?? 'N/A') . '</td>';
+                    echo '<td data-label="Power Consumption (kW)">' . htmlspecialchars($row['power_consumption'] ?? 'N/A') . '</td>';
+                    echo '<td data-label="Notes">' . htmlspecialchars($row['notes'] ?? 'N/A') . '</td>';
+                    echo '<td data-label="Purchase Price">₱' . number_format($row['unit_cost'] ?? 0, 2) . '</td>';
+                    echo '<td data-label="Depreciated Value">₱' . number_format($row['depreciated_value'] ?? 0, 2) . '</td>';
+                    echo '<td data-label="Actions" class="actions">';
                     echo '<button class="btn btn-sm btn-info" title="Edit" onclick=\'openEditInventoryModal('
                         . (int)$row['inventory_id'] . ', '
                         . json_encode($row['item_name']) . ', '
@@ -2591,7 +2523,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         . json_encode($row['unit']) . ', '
                         . (int)$row['current_stock'] . ', '
                         . (int)$row['reorder_level'] . ', '
-                        . json_encode($row['location'] ?? '') . ', '
                         . json_encode((int)$row['supplier_id']) . ', '
                         . json_encode((float)$row['unit_cost']) . ', '
                         . json_encode($row['description'] ?? '') . ', '
@@ -2603,11 +2534,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         . json_encode($row['brand'] ?? '') . ', '
                         . json_encode($row['size'] ?? '') . ', '
                         . json_encode($row['color'] ?? '')
-                        . ')\'><i class="fas fa-edit"></i></button>';
+                        . ')\'><i class="fas fa-edit"></i></button> ';
+                    echo '<button class="btn btn-sm btn-danger" title="Delete" onclick="deleteAircon(' . $row['inventory_id'] . ')">';
+                    echo '<i class="fas fa-trash"></i></button>';
                     echo '</td></tr>';
                 }
             } else {
-                echo '<tr><td colspan="20" class="text-center py-4"><i class="fas fa-snowflake fa-3x text-muted mb-3"></i><p class="text-muted">No aircon items found</p></td></tr>';
+                echo '<tr><td colspan="20" class="text-center py-4"><i class="fas fa-snowflake fa-3x text-muted mb-3"></i><p class="text-muted">No aircon units found</p></td></tr>';
             }
 
             echo '</tbody></table></div>';
