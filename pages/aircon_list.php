@@ -121,26 +121,6 @@ for ($y = $currYear; $y >= $minYear; $y--) {
 // Calculate statistics - execute the query first to get proper counts
 $stats_result = $conn->query($sql);
 $total_items = $stats_result ? $stats_result->num_rows : 0;
-$low_stock_count = 0;
-$out_of_stock_count = 0;
-$low_stock_items = [];
-$out_of_stock_items = [];
-
-if ($stats_result) {
-    while ($row = $stats_result->fetch_assoc()) {
-        // ANCHOR: Check for low stock items (current stock <= reorder level but > 0)
-        if ($row['current_stock'] <= $row['reorder_level'] && $row['current_stock'] > 0) {
-            $low_stock_count++;
-            $low_stock_items[] = $row;
-        }
-        // ANCHOR: Check for out of stock items (current stock = 0)
-        if ($row['current_stock'] == 0) {
-            $out_of_stock_count++;
-            $out_of_stock_items[] = $row;
-        }
-    }
-    $stats_result->data_seek(0); // Reset pointer
-}
 
 // Store session messages for modal display
 $session_message = '';
@@ -805,27 +785,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
             <p>Track aircon location, monitor aircon condition, and manage aircon details</p>
         </div>
 
-        <!-- Low Stock Alerts -->
-        <?php if ($low_stock_count > 0 || $out_of_stock_count > 0): ?>
-            <!--<div class="alert-card <?= $out_of_stock_count > 0 ? '' : 'warning' ?>">
-                <div><div class="d-flex align-items-center">
-                    <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
-                    
-                        <h5 class="mb-1">Stock Alert</h5>
-                        <p class="mb-0">
-                            <?php if ($out_of_stock_count > 0): ?>
-                                <strong><?= $out_of_stock_count ?></strong> items are out of stock
-                            <?php endif; ?>
-                            <?php if ($low_stock_count > 0): ?>
-                                <?= $out_of_stock_count > 0 ? ' and ' : '' ?>
-                                <strong><?= $low_stock_count ?></strong> items are running low
-                            <?php endif; ?>
-                        </p>
-                    </div> 
-                </div>
-            </div>-->
-        <?php endif; ?>
-
         <!-- Statistics Cards -->
         <div class="stats-container">
             <div class="stat-card">
@@ -840,7 +799,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <div class="stat-icon low-stock">
                     <i class="fas fa-exclamation-triangle"></i>
                 </div>
-                <div class="stat-number"><?= $low_stock_count ?></div>
+                <div class="stat-number">1</div>
                 <div class="stat-label">Aircon Need To Repair</div>
                 <small class="text-muted mt-1"><i class="fas fa-eye"></i> Click to view details</small>
             </div>
@@ -849,7 +808,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <div class="stat-icon out-of-stock">
                     <i class="fas fa-times-circle"></i>
                 </div>
-                <div class="stat-number"><?= $out_of_stock_count ?></div>
+                <div class="stat-number">1</div>
                 <div class="stat-label">Aircon Status</div>
                 <small class="text-muted mt-1"><i class="fas fa-eye"></i> Click to view details</small>
             </div>
@@ -858,7 +817,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <div class="stat-icon movements">
                     <i class="fas fa-exchange-alt"></i>
                 </div>
-                <div class="stat-number"><?= $stock_logs_result ? $stock_logs_result->num_rows : 0 ?></div>
+                <div class="stat-number">0</div>
                 <div class="stat-label">Aircon Disposal</div>
             </div>
         </div>
@@ -976,6 +935,11 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     -webkit-overflow-scrolling: touch;
                 }
 
+                /* Reduce table header font size */
+                .table-dark th {
+                    font-size: 0.85rem;
+                }
+
                 @media (max-width: 991.98px) {
 
                     .table th,
@@ -1043,6 +1007,31 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         padding: 0.25rem 0.5rem;
                         font-size: 0.8rem;
                     }
+                }
+
+                /* Reduce table text size for compactness */
+                .table {
+                    font-size: 0.875rem; /* 14px */
+                }
+
+                .table thead th {
+                    font-size: 0.875rem; /* 14px */
+                    padding: 0.5rem;
+                }
+
+                .table tbody td {
+                    font-size: 0.813rem; /* 13px */
+                    padding: 0.5rem;
+                }
+
+                .table .badge {
+                    font-size: 0.75rem; /* 12px */
+                    padding: 0.25rem 0.5rem;
+                }
+
+                .table .btn-sm {
+                    font-size: 0.75rem; /* 12px */
+                    padding: 0.25rem 0.4rem;
                 }
             </style>
 
@@ -1190,6 +1179,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 </div>
             </div>
 
+            <!-- Aircon Table List -->
             <div class="table-responsive">
                 <div id="inventoryTable">
                     <table class="table table-hover mb-0">
@@ -1199,7 +1189,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <th>Brand</th>
                                 <th>Model</th>
                                 <th>Type</th>
-                                <th>Capacity (BTU/hr)</th>
                                 <th>Serial No.</th>
                                 <th>Location</th>
                                 <th>Status</th>
@@ -1207,13 +1196,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <th>Warranty Expiry</th>
                                 <th>Last Service Date</th>
                                 <th>Maintenance Schedule</th>
-                                <th>Supplier Info</th>
                                 <th>Installation Date</th>
-                                <th>Energy Efficiency Rating</th>
-                                <th>Power Consumption (kW)</th>
                                 <th>Notes</th>
-                                <th>Purchase Price</th>
-                                <th>Depreciated Value</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -1228,7 +1212,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <td data-label="Brand"><?= htmlspecialchars($row['brand'] ?? 'N/A') ?></td>
                                         <td data-label="Model"><?= htmlspecialchars($row['model'] ?? 'N/A') ?></td>
                                         <td data-label="Type"><?= htmlspecialchars($row['type'] ?? 'N/A') ?></td>
-                                        <td data-label="Capacity (BTU/hr)"><?= htmlspecialchars($row['capacity'] ?? 'N/A') ?></td>
                                         <td data-label="Serial No."><?= htmlspecialchars($row['serial_number'] ?? 'N/A') ?></td>
                                         <td data-label="Location"><?= htmlspecialchars($row['location'] ?? 'N/A') ?></td>
                                         <td data-label="Status">
@@ -1244,45 +1227,65 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <td data-label="Warranty Expiry"><?= !empty($row['warranty_expiry']) ? date('M d, Y', strtotime($row['warranty_expiry'])) : 'N/A' ?></td>
                                         <td data-label="Last Service Date"><?= !empty($row['last_service_date']) ? date('M d, Y', strtotime($row['last_service_date'])) : 'N/A' ?></td>
                                         <td data-label="Maintenance Schedule"><?= htmlspecialchars($row['maintenance_schedule'] ?? 'N/A') ?></td>
-                                        <td data-label="Supplier Info"><?= htmlspecialchars($row['supplier_name'] ?? 'N/A') ?></td>
                                         <td data-label="Installation Date"><?= !empty($row['installation_date']) ? date('M d, Y', strtotime($row['installation_date'])) : 'N/A' ?></td>
-                                        <td data-label="Energy Efficiency Rating"><?= htmlspecialchars($row['energy_efficiency_rating'] ?? 'N/A') ?></td>
-                                        <td data-label="Power Consumption (kW)"><?= htmlspecialchars($row['power_consumption'] ?? 'N/A') ?></td>
                                         <td data-label="Notes"><?= htmlspecialchars($row['notes'] ?? 'N/A') ?></td>
-                                        <td data-label="Purchase Price">₱<?= number_format($row['unit_cost'] ?? 0, 2) ?></td>
-                                        <td data-label="Depreciated Value">₱<?= number_format($row['depreciated_value'] ?? 0, 2) ?></td>
                                         <td data-label="Actions" class="actions">
-                                            <button class="btn btn-sm btn-info" title="Edit"
-                                                onclick="openEditInventoryModal(
-                                                <?= (int)$row['inventory_id'] ?>,
-                                                <?= json_encode($row['item_name']) ?>,
-                                                <?= json_encode($row['category']) ?>,
-                                                <?= json_encode($row['unit']) ?>,
-                                                <?= (int)$row['current_stock'] ?>,
-                                                <?= (int)$row['reorder_level'] ?>,
-                                                <?= (int)$row['supplier_id'] ?>,
-                                                <?= (float)$row['unit_cost'] ?>,
-                                                <?= json_encode($row['description'] ?? '') ?>,
-                                                <?= (int)($row['quantity'] ?? 0) ?>,
-                                                <?= json_encode($row['receiver'] ?? '') ?>,
-                                                <?= json_encode($row['status'] ?? 'Active') ?>,
-                                                <?= json_encode($row['received_notes'] ?? '') ?>,
-                                                <?= json_encode($row['type'] ?? '') ?>,
+                                            <button class="btn btn-sm btn-primary" title="View Details"
+                                                onclick="viewAirconDetails(
+                                                <?= (int)$row['aircon_id'] ?>,
+                                                <?= json_encode($row['item_number'] ?? '') ?>,
                                                 <?= json_encode($row['brand'] ?? '') ?>,
-                                                <?= json_encode($row['size'] ?? '') ?>,
-                                                <?= json_encode($row['color'] ?? '') ?>
+                                                <?= json_encode($row['model'] ?? '') ?>,
+                                                <?= json_encode($row['type'] ?? '') ?>,
+                                                <?= json_encode($row['capacity'] ?? '') ?>,
+                                                <?= json_encode($row['serial_number'] ?? '') ?>,
+                                                <?= json_encode($row['location'] ?? '') ?>,
+                                                <?= json_encode($row['status'] ?? '') ?>,
+                                                <?= json_encode($row['purchase_date'] ?? '') ?>,
+                                                <?= json_encode($row['warranty_expiry'] ?? '') ?>,
+                                                <?= json_encode($row['last_service_date'] ?? '') ?>,
+                                                <?= json_encode($row['maintenance_schedule'] ?? '') ?>,
+                                                <?= json_encode($row['supplier_info'] ?? '') ?>,
+                                                <?= json_encode($row['installation_date'] ?? '') ?>,
+                                                <?= json_encode($row['energy_efficiency_rating'] ?? '') ?>,
+                                                <?= json_encode($row['power_consumption'] ?? '') ?>,
+                                                <?= json_encode($row['notes'] ?? '') ?>,
+                                                <?= json_encode($row['purchase_price'] ?? '0') ?>,
+                                                <?= json_encode($row['depreciated_value'] ?? '0') ?>,
+                                                <?= json_encode($row['receiver'] ?? '') ?>,
+                                                <?= json_encode($row['created_by'] ?? '') ?>,
+                                                <?= json_encode($row['date_created'] ?? '') ?>
                                             )">
-                                                <i class="fas fa-edit"></i>
+                                                <i class="fas fa-eye"></i>
                                             </button>
-                                            <button class="btn btn-sm btn-danger" title="Delete" onclick="deleteAircon(<?= $row['inventory_id'] ?>)">
-                                                <i class="fas fa-trash"></i>
+                                            <button class="btn btn-sm btn-info" title="Edit"
+                                                onclick="openEditAirconModal(
+                                                <?= (int)$row['aircon_id'] ?>,
+                                                <?= json_encode($row['model']) ?>,
+                                                <?= json_encode($row['brand']) ?>,
+                                                <?= json_encode($row['type']) ?>,
+                                                <?= json_encode($row['serial_number']) ?>,
+                                                <?= json_encode($row['location']) ?>,
+                                                <?= json_encode($row['status']) ?>,
+                                                <?= json_encode($row['purchase_date']) ?>,
+                                                <?= json_encode($row['warranty_expiry']) ?>,
+                                                <?= json_encode($row['last_service_date']) ?>,
+                                                <?= json_encode($row['maintenance_schedule']) ?>,
+                                                <?= json_encode($row['installation_date']) ?>,
+                                                <?= json_encode($row['notes']) ?>,
+                                                <?= json_encode($row['receiver'] ?? '') ?>,
+                                                <?= (int)($row['supplier_id'] ?? 0) ?>,
+                                                <?= json_encode($row['created_by'] ?? '') ?>,
+                                                <?= json_encode($row['date_created'] ?? '') ?>
+                                                )">
+                                                    <i class="fas fa-edit"></i>
                                             </button>
                                         </td>
                                     </tr>
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="20" class="text-center py-4">
+                                    <td colspan="14" class="text-center py-4">
                                         <i class="fas fa-snowflake fa-3x text-muted mb-3"></i>
                                         <p class="text-muted">No aircon units found</p>
                                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
@@ -1312,121 +1315,10 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         </ul>
                     </nav>
                 <?php endif; ?>
-
-
             </div>
 
-            <!-- Accquired Supplies Table -->
-            <div class="table-container">
-                <div class="table-header">
-                    <h3>Acquired Supplies</h3>
-                    <form method="GET" class="d-flex align-items-end gap-2">
-                        <div>
-                            <label for="sy_recv" class="form-label mb-0 text-white">School Year</label>
-                            <select id="sy_recv" name="sy_recv" class="form-select" onchange="this.form.submit()">
-                                <option value="">All</option>
-                                <?php foreach ($sy_years as $sy): ?>
-                                    <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_recv_raw === $sy) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($sy) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="pt-4">
-                            <?php if (!empty($sy_recv_raw)): ?>
-                                <a href="aircon_list.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv' => true])) ?>" class="btn btn-outline-light">Reset</a>
-                            <?php endif; ?>
-                        </div>
-                    </form>
-                </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0 table-striped">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Date Received</th>
-                                <th>Invoice Number</th>
-                                <th>Supplier</th>
-                                <th>Sales Type</th>
-                                <th>Category</th>
-                                <th>Item Description</th>
-                                <th>Quantity</th>
-                                <th>Unit</th>
-                                <th>Unit Price</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if ($result1 && $result1->num_rows > 0): ?>
-                                <?php while ($row = $result1->fetch_assoc()): ?>
-                                    <?php
-                                    if ($row['sales_type'] == 0) {
-                                    } elseif ($row['sales_type']) {
-                                    } elseif ($row['sales_type']) {
-                                    }
-                                    ?>
-                                    <tr
-                                        data-supplier-id="<?= (int)($row['supplier_id'] ?? 0) ?>"
-                                        data-category="<?= htmlspecialchars($row['category'] ?? '') ?>"
-                                        data-description="<?= htmlspecialchars($row['item_name'] ?? '') ?>"
-                                        data-quantity="<?= (int)($row['quantity'] ?? 0) ?>"
-                                        data-unit="<?= htmlspecialchars($row['unit'] ?? '') ?>"
-                                        data-unit-price="<?= htmlspecialchars($row['unit_price'] ?? '0.00') ?>"
-                                        data-invoice="<?= htmlspecialchars($row['invoice_no'] ?? '') ?>">
-                                        <td><?= date('M d, Y', strtotime($row['date_created'])) ?></td>
-                                        <td><?= htmlspecialchars($row['invoice_no']) ?></td>
-                                        <td><?= htmlspecialchars($row['supplier_name']) ?></td>
-                                        <td><?= htmlspecialchars($row['sales_type']) ?></td>
-                                        <td><?= htmlspecialchars($row['category']) ?></td>
-                                        <td><?= htmlspecialchars($row['item_name']) ?></td>
-                                        <td><?= htmlspecialchars($row['quantity']) ?></td>
-                                        <td><?= htmlspecialchars($row['unit']) ?></td>
-                                        <td>₱ <?= htmlspecialchars($row['unit_price']) ?></td>
-                                        <td>₱ <?= htmlspecialchars($row['total_amount']) ?></td>
-                                        <td>
-                                            <span class="badge bg-success">
-                                                <?= htmlspecialchars($row['status']) ?>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <button type="button" class="btn btn-sm btn-success mark-received-btn" data-bs-toggle="modal" data-bs-target="#receivedModal" title="Mark as Received"
-                                                data-transaction-id="<?= $row['procurement_id'] ?>"
-                                                data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
-                                                data-category="<?= htmlspecialchars($row['category']) ?>"
-                                                data-quantity="<?= $row['quantity'] ?>"
-                                                data-unit="<?= htmlspecialchars($row['unit']) ?>"
-                                                data-supplier-id="<?= $row['supplier_id'] ?>"
-                                                data-unit-price="<?= $row['unit_price'] ?>"
-                                                data-invoice="<?= htmlspecialchars($row['invoice_number'] ?? '') ?>"
-                                                data-status="<?= htmlspecialchars($row['status']) ?>"
-                                                data-receiver="<?= htmlspecialchars($row['receiver']) ?>">
-                                                <i class="fas fa-check-circle"></i>
-                                            </button>
-
-
-                                            <!-- Add to Inventory button (submits mapped data to existing add endpoint)
-                            <button type="button" class="btn btn-sm btn-primary" onclick="addToInventoryFromRow(this)" title="Add to Inventory">
-                                <i class="fas fa-plus-circle"></i>
-                            </button> -->
-                                        </td>
-                                    </tr>
-                                <?php endwhile; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="12" class="text-center py-4">
-                                        <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
-                                        <p class="text-muted">No recieved items found</p>
-                                    </td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Add Inventory Modal -->
+            <!-- Add New Aircon Modal -->
             <div class="modal fade" id="addInventoryModal" tabindex="-1">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
@@ -1434,7 +1326,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             <h5 class="modal-title">Add New Aircon</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
-                        <form action="../actions/add_property.php" method="POST">
+                        <form action="../actions/add_aircon.php" method="POST">
                             <input type="hidden" name="receiver" value="Property Custodian">
                             <input type="hidden" name="status" value="Active">
                             <div class="modal-body">
@@ -1559,9 +1451,219 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-primary">Add Item</button>
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Item</button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Aircon Details Modal -->
+            <div class="modal fade" id="viewAirconModal" tabindex="-1">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white;">
+                            <h5 class="modal-title">
+                                <i class="fas fa-snowflake me-2"></i>Aircon Unit Details
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row g-4">
+                                <!-- Basic Information Section -->
+                                <div class="col-12">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header bg-primary text-white">
+                                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Basic Information</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-4">
+                                                    <label class="text-muted small">Aircon ID</label>
+                                                    <p class="fw-bold mb-0" id="view_aircon_id">-</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="text-muted small">Item Number</label>
+                                                    <p class="fw-bold mb-0" id="view_item_number">-</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="text-muted small">Brand</label>
+                                                    <p class="fw-bold mb-0" id="view_brand">-</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="text-muted small">Model</label>
+                                                    <p class="fw-bold mb-0" id="view_model">-</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="text-muted small">Type</label>
+                                                    <p class="fw-bold mb-0" id="view_type">-</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="text-muted small">Capacity (BTU/hr)</label>
+                                                    <p class="fw-bold mb-0" id="view_capacity">-</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Location & Status Section -->
+                                <div class="col-md-6">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <div class="card-header bg-success text-white">
+                                            <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location & Status</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label class="text-muted small">Serial Number</label>
+                                                <p class="fw-bold mb-0" id="view_serial_number">-</p>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="text-muted small">Location</label>
+                                                <p class="fw-bold mb-0" id="view_location">-</p>
+                                            </div>
+                                            <div class="mb-0">
+                                                <label class="text-muted small">Status</label>
+                                                <p class="fw-bold mb-0" id="view_status">-</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Dates Section -->
+                                <div class="col-md-6">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <div class="card-header bg-warning text-dark">
+                                            <h6 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Important Dates</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label class="text-muted small">Purchase Date</label>
+                                                <p class="fw-bold mb-0" id="view_purchase_date">-</p>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="text-muted small">Warranty Expiry</label>
+                                                <p class="fw-bold mb-0" id="view_warranty_expiry">-</p>
+                                            </div>
+                                            <div class="mb-0">
+                                                <label class="text-muted small">Installation Date</label>
+                                                <p class="fw-bold mb-0" id="view_installation_date">-</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Maintenance Section -->
+                                <div class="col-12">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header bg-info text-white">
+                                            <h6 class="mb-0"><i class="fas fa-tools me-2"></i>Maintenance Information</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-4">
+                                                    <label class="text-muted small">Last Service Date</label>
+                                                    <p class="fw-bold mb-0" id="view_last_service_date">-</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="text-muted small">Maintenance Schedule</label>
+                                                    <p class="fw-bold mb-0" id="view_maintenance_schedule">-</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="text-muted small">Supplier Info</label>
+                                                    <p class="fw-bold mb-0" id="view_supplier_info">-</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Technical Specifications Section -->
+                                <div class="col-12">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header bg-secondary text-white">
+                                            <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Technical Specifications</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="text-muted small">Energy Efficiency Rating</label>
+                                                    <p class="fw-bold mb-0" id="view_energy_efficiency_rating">-</p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="text-muted small">Power Consumption (kW)</label>
+                                                    <p class="fw-bold mb-0" id="view_power_consumption">-</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Financial Information Section -->
+                                <div class="col-12">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header bg-dark text-white">
+                                            <h6 class="mb-0"><i class="fas fa-dollar-sign me-2"></i>Financial Information</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-4">
+                                                    <label class="text-muted small">Purchase Price</label>
+                                                    <p class="fw-bold mb-0" id="view_purchase_price">-</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="text-muted small">Depreciated Value</label>
+                                                    <p class="fw-bold mb-0" id="view_depreciated_value">-</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="text-muted small">Receiver</label>
+                                                    <p class="fw-bold mb-0" id="view_receiver">-</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Notes Section -->
+                                <div class="col-12">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header" style="background-color: #6c757d; color: white;">
+                                            <h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Notes</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="mb-0" id="view_notes">-</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Record Information Section -->
+                                <div class="col-12">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header" style="background-color: #5a6268; color: white;">
+                                            <h6 class="mb-0"><i class="fas fa-database me-2"></i>Record Information</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="text-muted small">Created By</label>
+                                                    <p class="fw-bold mb-0" id="view_created_by">-</p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="text-muted small">Date Created</label>
+                                                    <p class="fw-bold mb-0" id="view_date_created">-</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="printAirconDetails()">
+                                <i class="fas fa-print me-2"></i>Print
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2405,6 +2507,97 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     const page = urlParams.get('page') || 1;
                     loadInventory(parseInt(page));
                 });
+
+                // Function to view aircon details
+                function viewAirconDetails(airconId, itemNumber, brand, model, type, capacity, serialNumber, location, status, 
+                    purchaseDate, warrantyExpiry, lastServiceDate, maintenanceSchedule, supplierInfo, installationDate, 
+                    energyEfficiency, powerConsumption, notes, purchasePrice, depreciatedValue, receiver, createdBy, dateCreated) {
+                    
+                    // Populate modal fields
+                    document.getElementById('view_aircon_id').textContent = airconId || 'N/A';
+                    document.getElementById('view_item_number').textContent = itemNumber || 'N/A';
+                    document.getElementById('view_brand').textContent = brand || 'N/A';
+                    document.getElementById('view_model').textContent = model || 'N/A';
+                    document.getElementById('view_type').textContent = type || 'N/A';
+                    document.getElementById('view_capacity').textContent = capacity || 'N/A';
+                    document.getElementById('view_serial_number').textContent = serialNumber || 'N/A';
+                    document.getElementById('view_location').textContent = location || 'N/A';
+                    document.getElementById('view_status').textContent = status || 'N/A';
+                    
+                    // Format dates
+                    document.getElementById('view_purchase_date').textContent = purchaseDate ? formatDate(purchaseDate) : 'N/A';
+                    document.getElementById('view_warranty_expiry').textContent = warrantyExpiry ? formatDate(warrantyExpiry) : 'N/A';
+                    document.getElementById('view_last_service_date').textContent = lastServiceDate ? formatDate(lastServiceDate) : 'N/A';
+                    document.getElementById('view_maintenance_schedule').textContent = maintenanceSchedule || 'N/A';
+                    document.getElementById('view_supplier_info').textContent = supplierInfo || 'N/A';
+                    document.getElementById('view_installation_date').textContent = installationDate ? formatDate(installationDate) : 'N/A';
+                    
+                    document.getElementById('view_energy_efficiency_rating').textContent = energyEfficiency || 'N/A';
+                    document.getElementById('view_power_consumption').textContent = powerConsumption || 'N/A';
+                    document.getElementById('view_notes').textContent = notes || 'N/A';
+                    
+                    // Format currency
+                    document.getElementById('view_purchase_price').textContent = purchasePrice ? '₱' + parseFloat(purchasePrice).toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '₱0.00';
+                    document.getElementById('view_depreciated_value').textContent = depreciatedValue ? '₱' + parseFloat(depreciatedValue).toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '₱0.00';
+                    
+                    document.getElementById('view_receiver').textContent = receiver || 'N/A';
+                    document.getElementById('view_created_by').textContent = createdBy || 'N/A';
+                    document.getElementById('view_date_created').textContent = dateCreated ? formatDateTime(dateCreated) : 'N/A';
+                    
+                    // Show modal
+                    const modal = new bootstrap.Modal(document.getElementById('viewAirconModal'));
+                    modal.show();
+                }
+
+                // Helper function to format date
+                function formatDate(dateString) {
+                    if (!dateString || dateString === '0000-00-00') return 'N/A';
+                    const date = new Date(dateString);
+                    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+                    return date.toLocaleDateString('en-US', options);
+                }
+
+                // Helper function to format datetime
+                function formatDateTime(dateString) {
+                    if (!dateString) return 'N/A';
+                    const date = new Date(dateString);
+                    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                    return date.toLocaleDateString('en-US', options);
+                }
+
+                // Function to print aircon details
+                function printAirconDetails() {
+                    const printContent = document.querySelector('#viewAirconModal .modal-body').innerHTML;
+                    const printWindow = window.open('', '', 'height=600,width=800');
+                    printWindow.document.write('<html><head><title>Aircon Details</title>');
+                    printWindow.document.write('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">');
+                    printWindow.document.write('<style>body { padding: 20px; } .card { margin-bottom: 20px; page-break-inside: avoid; }</style>');
+                    printWindow.document.write('</head><body>');
+                    printWindow.document.write('<h2 class="text-center mb-4">Aircon Unit Details</h2>');
+                    printWindow.document.write(printContent);
+                    printWindow.document.write('</body></html>');
+                    printWindow.document.close();
+                    printWindow.print();
+                }
+
+                // Function to delete aircon
+                function deleteAircon(airconId) {
+                    if (confirm('Are you sure you want to delete this aircon unit? This action cannot be undone.')) {
+                        // Create a form and submit it
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '../actions/delete_aircon.php';
+                        
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'aircon_id';
+                        input.value = airconId;
+                        
+                        form.appendChild(input);
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                }
             </script>
         <?php endif; ?>
 
@@ -2464,7 +2657,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '<th>Brand</th>';
             echo '<th>Model</th>';
             echo '<th>Type</th>';
-            echo '<th>Capacity (BTU/hr)</th>';
             echo '<th>Serial No.</th>';
             echo '<th>Location</th>';
             echo '<th>Status</th>';
@@ -2472,13 +2664,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '<th>Warranty Expiry</th>';
             echo '<th>Last Service Date</th>';
             echo '<th>Maintenance Schedule</th>';
-            echo '<th>Supplier Info</th>';
             echo '<th>Installation Date</th>';
-            echo '<th>Energy Efficiency Rating</th>';
-            echo '<th>Power Consumption (kW)</th>';
             echo '<th>Notes</th>';
-            echo '<th>Purchase Price</th>';
-            echo '<th>Depreciated Value</th>';
             echo '<th>Actions</th>';
             echo '</tr>';
             echo '</thead><tbody>';
@@ -2500,7 +2687,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '<td data-label="Brand">' . htmlspecialchars($row['brand'] ?? 'N/A') . '</td>';
                     echo '<td data-label="Model">' . htmlspecialchars($row['model'] ?? 'N/A') . '</td>';
                     echo '<td data-label="Type">' . htmlspecialchars($row['type'] ?? 'N/A') . '</td>';
-                    echo '<td data-label="Capacity (BTU/hr)">' . htmlspecialchars($row['capacity'] ?? 'N/A') . '</td>';
                     echo '<td data-label="Serial No.">' . htmlspecialchars($row['serial_number'] ?? 'N/A') . '</td>';
                     echo '<td data-label="Location">' . htmlspecialchars($row['location'] ?? 'N/A') . '</td>';
                     echo '<td data-label="Status"><span class="badge bg-' . $status_class . '">' . htmlspecialchars($row['status'] ?? 'N/A') . '</span></td>';
@@ -2508,39 +2694,58 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '<td data-label="Warranty Expiry">' . (!empty($row['warranty_expiry']) ? date('M d, Y', strtotime($row['warranty_expiry'])) : 'N/A') . '</td>';
                     echo '<td data-label="Last Service Date">' . (!empty($row['last_service_date']) ? date('M d, Y', strtotime($row['last_service_date'])) : 'N/A') . '</td>';
                     echo '<td data-label="Maintenance Schedule">' . htmlspecialchars($row['maintenance_schedule'] ?? 'N/A') . '</td>';
-                    echo '<td data-label="Supplier Info">' . htmlspecialchars($row['supplier_name'] ?? 'N/A') . '</td>';
                     echo '<td data-label="Installation Date">' . (!empty($row['installation_date']) ? date('M d, Y', strtotime($row['installation_date'])) : 'N/A') . '</td>';
-                    echo '<td data-label="Energy Efficiency Rating">' . htmlspecialchars($row['energy_efficiency_rating'] ?? 'N/A') . '</td>';
-                    echo '<td data-label="Power Consumption (kW)">' . htmlspecialchars($row['power_consumption'] ?? 'N/A') . '</td>';
                     echo '<td data-label="Notes">' . htmlspecialchars($row['notes'] ?? 'N/A') . '</td>';
-                    echo '<td data-label="Purchase Price">₱' . number_format($row['unit_cost'] ?? 0, 2) . '</td>';
-                    echo '<td data-label="Depreciated Value">₱' . number_format($row['depreciated_value'] ?? 0, 2) . '</td>';
                     echo '<td data-label="Actions" class="actions">';
-                    echo '<button class="btn btn-sm btn-info" title="Edit" onclick=\'openEditInventoryModal('
-                        . (int)$row['inventory_id'] . ', '
-                        . json_encode($row['item_name']) . ', '
-                        . json_encode($row['category']) . ', '
-                        . json_encode($row['unit']) . ', '
-                        . (int)$row['current_stock'] . ', '
-                        . (int)$row['reorder_level'] . ', '
-                        . json_encode((int)$row['supplier_id']) . ', '
-                        . json_encode((float)$row['unit_cost']) . ', '
-                        . json_encode($row['description'] ?? '') . ', '
-                        . json_encode((int)($row['quantity'] ?? 0)) . ', '
-                        . json_encode($row['receiver'] ?? '') . ', '
-                        . json_encode($row['status'] ?? 'Active') . ', '
-                        . json_encode($row['received_notes'] ?? '') . ', '
-                        . json_encode($row['type'] ?? '') . ', '
+                    echo '<button class="btn btn-sm btn-primary" title="View Details" onclick=\'viewAirconDetails('
+                        . (int)$row['aircon_id'] . ', '
+                        . json_encode($row['item_number'] ?? '') . ', '
                         . json_encode($row['brand'] ?? '') . ', '
-                        . json_encode($row['size'] ?? '') . ', '
-                        . json_encode($row['color'] ?? '')
+                        . json_encode($row['model'] ?? '') . ', '
+                        . json_encode($row['type'] ?? '') . ', '
+                        . json_encode($row['capacity'] ?? '') . ', '
+                        . json_encode($row['serial_number'] ?? '') . ', '
+                        . json_encode($row['location'] ?? '') . ', '
+                        . json_encode($row['status'] ?? '') . ', '
+                        . json_encode($row['purchase_date'] ?? '') . ', '
+                        . json_encode($row['warranty_expiry'] ?? '') . ', '
+                        . json_encode($row['last_service_date'] ?? '') . ', '
+                        . json_encode($row['maintenance_schedule'] ?? '') . ', '
+                        . json_encode($row['supplier_info'] ?? '') . ', '
+                        . json_encode($row['installation_date'] ?? '') . ', '
+                        . json_encode($row['energy_efficiency_rating'] ?? '') . ', '
+                        . json_encode($row['power_consumption'] ?? '') . ', '
+                        . json_encode($row['notes'] ?? '') . ', '
+                        . json_encode($row['purchase_price'] ?? '0') . ', '
+                        . json_encode($row['depreciated_value'] ?? '0') . ', '
+                        . json_encode($row['receiver'] ?? '') . ', '
+                        . json_encode($row['created_by'] ?? '') . ', '
+                        . json_encode($row['date_created'] ?? '')
+                        . ')\'><i class="fas fa-eye"></i></button> ';
+                    echo '<button class="btn btn-sm btn-info" title="Edit" onclick=\'openEditAirconModal('
+                        . (int)$row['aircon_id'] . ', '
+                        . json_encode($row['model']) . ', '
+                        . json_encode($row['brand']) . ', '
+                        . json_encode($row['type']) . ', '
+                        . json_encode($row['serial_number']) . ', '
+                        . json_encode($row['location']) . ', '
+                        . json_encode($row['status']) . ', '
+                        . json_encode($row['purchase_date']) . ', '
+                        . json_encode($row['warranty_expiry']) . ', '
+                        . json_encode($row['last_service_date']) . ', '
+                        . json_encode($row['maintenance_schedule']) . ', '
+                        . json_encode($row['installation_date']) . ', '
+                        . json_encode($row['notes']) . ', '
+                        . json_encode($row['receiver'] ?? '') . ', '
+                        . (int)($row['supplier_id'] ?? 0) . ', '
+                        . json_encode($row['created_by'] ?? '') . ', '
+                        . json_encode($row['date_created'] ?? '')
                         . ')\'><i class="fas fa-edit"></i></button> ';
-                    echo '<button class="btn btn-sm btn-danger" title="Delete" onclick="deleteAircon(' . $row['inventory_id'] . ')">';
-                    echo '<i class="fas fa-trash"></i></button>';
+                    
                     echo '</td></tr>';
                 }
             } else {
-                echo '<tr><td colspan="20" class="text-center py-4"><i class="fas fa-snowflake fa-3x text-muted mb-3"></i><p class="text-muted">No aircon units found</p></td></tr>';
+                echo '<tr><td colspan="14" class="text-center py-4"><i class="fas fa-snowflake fa-3x text-muted mb-3"></i><p class="text-muted">No aircon units found</p></td></tr>';
             }
 
             echo '</tbody></table></div>';
