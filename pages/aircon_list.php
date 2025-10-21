@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'Property Inventory Management';
+$pageTitle = 'Aircon Condition Management';
 include '../includes/auth.php';
 include '../includes/db.php';
 
@@ -86,14 +86,14 @@ $logs_where = !empty($logs_where_conditions) ? ' WHERE ' . implode(' AND ', $log
 // Get purchased data
 $sql = "SELECT pi.*, s.supplier_name 
         FROM aircons pi 
-        LEFT JOIN supplier s ON pi.aircon_id = s.supplier_id
+        LEFT JOIN supplier s ON pi.supplier_id = s.supplier_id
         ORDER BY pi.date_created DESC";
 $result = $conn->query($sql);
 
 // Get inventory data
 $sql = "SELECT i.*, s.supplier_name 
         FROM aircons i 
-        LEFT JOIN supplier s ON i.aircon_id = s.supplier_id 
+        LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
         $inv_where
         ORDER BY i.date_created DESC";
 $result = $conn->query($sql);
@@ -159,21 +159,21 @@ if ($categories_result && $categories_result->num_rows > 0) {
         if (!isset($organized_categories[$main])) {
             $organized_categories[$main] = [];
         }
-        
+
         if (!empty($row['subcategory'])) {
             $sub = $row['subcategory'];
             if (!in_array($sub, $organized_categories[$main])) {
                 $organized_categories[$main][] = $sub;
             }
         }
-        
+
         if (!empty($row['sub_subcategory'])) {
             $subsub = $row['sub_subcategory'];
             if (!in_array($subsub, $organized_categories[$main])) {
                 $organized_categories[$main][] = $subsub;
             }
         }
-        
+
         if (!empty($row['sub_sub_subcategory'])) {
             $subsubsub = $row['sub_sub_subcategory'];
             if (!in_array($subsubsub, $organized_categories[$main])) {
@@ -208,21 +208,21 @@ if ($categories_result && $categories_result->num_rows > 0) {
         if (!isset($organized_categories[$main])) {
             $organized_categories[$main] = [];
         }
-        
+
         if (!empty($row['subcategory'])) {
             $sub = $row['subcategory'];
             if (!in_array($sub, $organized_categories[$main])) {
                 $organized_categories[$main][] = $sub;
             }
         }
-        
+
         if (!empty($row['sub_subcategory'])) {
             $subsub = $row['sub_subcategory'];
             if (!in_array($subsub, $organized_categories[$main])) {
                 $organized_categories[$main][] = $subsub;
             }
         }
-        
+
         if (!empty($row['sub_sub_subcategory'])) {
             $subsubsub = $row['sub_sub_subcategory'];
             if (!in_array($subsubsub, $organized_categories[$main])) {
@@ -266,19 +266,25 @@ if ($categories_result && $categories_result->num_rows > 0) {
             font-weight: 600;
             transition: all 0.3s ease;
         }
+
         .stock-icons-btn:hover {
             opacity: 0.9;
             transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
+
         .stock-icons-btn i {
             font-weight: bold;
             margin: 0 2px;
         }
-        .stock-icons-btn i:first-child { /* plus icon */
+
+        .stock-icons-btn i:first-child {
+            /* plus icon */
             color: #ffffff;
         }
-        .stock-icons-btn i:last-child { /* minus icon */
+
+        .stock-icons-btn i:last-child {
+            /* minus icon */
             color: #000000;
         }
 
@@ -680,8 +686,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
         }
 
         @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .btn-search {
@@ -749,31 +760,31 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
         <nav class="sidebar-nav">
             <ul class="nav-item">
-            <li><a href="<?= $dashboard_link ?>" class="nav-link">
-                    <i class="fas fa-chart-line"></i> Dashboard
-                </a></li>
-            <li><a href="office_inventory.php" class="nav-link">
-                    <i class="fas fa-building"></i> Office Inventory
-                </a></li>
-            <li><a href="property_inventory.php" class="nav-link">
-                    <i class="fas fa-boxes"></i> Property Inventory
-                </a></li>
-            <li><a href="property_issuance.php" class="nav-link">
-                    <i class="fas fa-hand-holding"></i> Property Issuance
-                </a></li>
-                <li><a href="equipment_transfer_request.php" class="nav-link">
-                    <i class="fas fa-exchange-alt"></i> Transfer Request
-                </a></li>
-                <li><a href="borrowers_forms.php" class="nav-link">
-                    <i class="fas fa-hand-holding"></i> Borrower Forms
-                </a></li>
-                <li><a href="aircon_list.php" class="nav-link active">
-                    <i class="fas fa-snowflake"></i> Aircons
-                </a></li>
-            <li><a href="../logout.php" class="nav-link logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a></li>
+                <li><a href="<?= $dashboard_link ?>" class="nav-link">
+                        <i class="fas fa-chart-line"></i> Dashboard
                     </a></li>
+                <li><a href="office_inventory.php" class="nav-link">
+                        <i class="fas fa-building"></i> Office Inventory
+                    </a></li>
+                <li><a href="property_inventory.php" class="nav-link">
+                        <i class="fas fa-boxes"></i> Property Inventory
+                    </a></li>
+                <li><a href="property_issuance.php" class="nav-link">
+                        <i class="fas fa-hand-holding"></i> Property Issuance
+                    </a></li>
+                <li><a href="equipment_transfer_request.php" class="nav-link">
+                        <i class="fas fa-exchange-alt"></i> Transfer Request
+                    </a></li>
+                <li><a href="borrowers_forms.php" class="nav-link">
+                        <i class="fas fa-hand-holding"></i> Borrower Forms
+                    </a></li>
+                <li><a href="aircon_list.php" class="nav-link active">
+                        <i class="fas fa-snowflake"></i> Aircons
+                    </a></li>
+                <li><a href="../logout.php" class="nav-link logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a></li>
+                </a></li>
             </ul>
         </nav>
     </div>
@@ -822,7 +833,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             </div>
         </div>
 
-        <!-- Inventory Table --> 
+        <!-- Inventory Table -->
         <div class="table-container">
             <div class="table-header">
                 <h3> Aircons List</h3>
@@ -1011,26 +1022,31 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
                 /* Reduce table text size for compactness */
                 .table {
-                    font-size: 0.875rem; /* 14px */
+                    font-size: 0.875rem;
+                    /* 14px */
                 }
 
                 .table thead th {
-                    font-size: 0.875rem; /* 14px */
+                    font-size: 0.875rem;
+                    /* 14px */
                     padding: 0.5rem;
                 }
 
                 .table tbody td {
-                    font-size: 0.813rem; /* 13px */
+                    font-size: 0.813rem;
+                    /* 13px */
                     padding: 0.5rem;
                 }
 
                 .table .badge {
-                    font-size: 0.75rem; /* 12px */
+                    font-size: 0.75rem;
+                    /* 12px */
                     padding: 0.25rem 0.5rem;
                 }
 
                 .table .btn-sm {
-                    font-size: 0.75rem; /* 12px */
+                    font-size: 0.75rem;
+                    /* 12px */
                     padding: 0.25rem 0.4rem;
                 }
             </style>
@@ -1203,9 +1219,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         </thead>
                         <tbody>
                             <?php if ($result && $result->num_rows > 0): ?>
-                                <?php 
+                                <?php
                                 $item_counter = 1;
-                                while ($row = $result->fetch_assoc()): 
+                                while ($row = $result->fetch_assoc()):
                                 ?>
                                     <tr>
                                         <td data-label="Item No."><?= $item_counter++ ?></td>
@@ -1215,11 +1231,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <td data-label="Serial No."><?= htmlspecialchars($row['serial_number'] ?? 'N/A') ?></td>
                                         <td data-label="Location"><?= htmlspecialchars($row['location'] ?? 'N/A') ?></td>
                                         <td data-label="Status">
-                                            <span class="badge bg-<?= 
-                                                ($row['status'] == 'Working') ? 'success' : 
-                                                (($row['status'] == 'Needs Repair') ? 'warning' : 
-                                                (($row['status'] == 'Under Maintenance') ? 'info' : 'danger')) 
-                                            ?>">
+                                            <span class="badge bg-<?=
+                                                                    ($row['status'] == 'Working') ? 'success' : (($row['status'] == 'Needs Repair') ? 'warning' : (($row['status'] == 'Under Maintenance') ? 'info' : 'danger'))
+                                                                    ?>">
                                                 <?= htmlspecialchars($row['status'] ?? 'N/A') ?>
                                             </span>
                                         </td>
@@ -1245,7 +1259,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <?= json_encode($row['warranty_expiry'] ?? '') ?>,
                                                 <?= json_encode($row['last_service_date'] ?? '') ?>,
                                                 <?= json_encode($row['maintenance_schedule'] ?? '') ?>,
-                                                <?= json_encode($row['supplier_info'] ?? '') ?>,
+                                                <?= json_encode($row['supplier_name'] ?? '') ?>,
                                                 <?= json_encode($row['installation_date'] ?? '') ?>,
                                                 <?= json_encode($row['energy_efficiency_rating'] ?? '') ?>,
                                                 <?= json_encode($row['power_consumption'] ?? '') ?>,
@@ -1261,9 +1275,12 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <button class="btn btn-sm btn-info" title="Edit"
                                                 onclick="openEditAirconModal(
                                                 <?= (int)$row['aircon_id'] ?>,
-                                                <?= json_encode($row['model']) ?>,
+                                                <?= json_encode($row['item_number'] ?? '') ?>,
+                                                <?= json_encode($row['category'] ?? '') ?>,
                                                 <?= json_encode($row['brand']) ?>,
+                                                <?= json_encode($row['model']) ?>,
                                                 <?= json_encode($row['type']) ?>,
+                                                <?= json_encode($row['capacity'] ?? '') ?>,
                                                 <?= json_encode($row['serial_number']) ?>,
                                                 <?= json_encode($row['location']) ?>,
                                                 <?= json_encode($row['status']) ?>,
@@ -1271,14 +1288,15 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <?= json_encode($row['warranty_expiry']) ?>,
                                                 <?= json_encode($row['last_service_date']) ?>,
                                                 <?= json_encode($row['maintenance_schedule']) ?>,
-                                                <?= json_encode($row['installation_date']) ?>,
-                                                <?= json_encode($row['notes']) ?>,
-                                                <?= json_encode($row['receiver'] ?? '') ?>,
                                                 <?= (int)($row['supplier_id'] ?? 0) ?>,
-                                                <?= json_encode($row['created_by'] ?? '') ?>,
-                                                <?= json_encode($row['date_created'] ?? '') ?>
+                                                <?= json_encode($row['installation_date']) ?>,
+                                                <?= json_encode($row['energy_efficiency_rating'] ?? '') ?>,
+                                                <?= json_encode($row['power_consumption'] ?? '') ?>,
+                                                <?= json_encode($row['notes']) ?>,
+                                                <?= json_encode($row['purchase_price'] ?? '0') ?>,
+                                                <?= json_encode($row['depreciated_value'] ?? '0') ?>
                                                 )">
-                                                    <i class="fas fa-edit"></i>
+                                                <i class="fas fa-edit"></i>
                                             </button>
                                         </td>
                                     </tr>
@@ -1322,8 +1340,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
             <div class="modal fade" id="addInventoryModal" tabindex="-1">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Add New Aircon</h5>
+                        <div class="modal-header" style="background-color: var(--primary-green);">
+                            <h5 class="modal-title text-white">Add New Aircon</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <form action="../actions/add_aircon.php" method="POST">
@@ -1419,8 +1437,19 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <input type="date" name="maintenance_schedule" class="form-control">
                                         </div>
                                         <div class="col-md-3">
-                                            <label class="form-label">Supplier Info</label>
-                                            <input type="text" name="supplier_info" class="form-control" placeholder="Supplier/Vendor information">
+                                            <label class="form-label">Supplier</label>
+                                            <select name="supplier_id" class="form-select">
+                                                <option value="">Select Supplier</option>
+                                                <?php
+                                                // Reset the result pointer to reuse the suppliers data
+                                                if ($suppliers_result && $suppliers_result->num_rows > 0) {
+                                                    $suppliers_result->data_seek(0);
+                                                    while ($supplier = $suppliers_result->fetch_assoc()) {
+                                                        echo '<option value="' . $supplier['supplier_id'] . '">' . htmlspecialchars($supplier['supplier_name']) . '</option>';
+                                                    }
+                                                }
+                                                ?>
+                                            </select>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label">Installation Date</label>
@@ -1462,7 +1491,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             <div class="modal fade" id="viewAirconModal" tabindex="-1">
                 <div class="modal-dialog modal-xl">
                     <div class="modal-content">
-                        <div class="modal-header" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white;">
+                        <div class="modal-header text-white" style="background-color: var(--primary-green);">
                             <h5 class="modal-title">
                                 <i class="fas fa-snowflake me-2"></i>Aircon Unit Details
                             </h5>
@@ -1753,7 +1782,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <label class="form-label">Item Name</label>
                                             <input type="text" class="form-control" name="item_name" id="ei_item_name" required>
                                         </div>
-                                        
+
                                         <div class="col-md-6">
                                             <label class="form-label">Category</label>
                                             <select id="ei_category" name="category" class="form-select">
@@ -1780,32 +1809,32 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         </div>
                                     </div>
                                     <div class="row g-3 mt-2">
-                                    <div class="col-3">
-                                        <label class="form-label">Brand</label>
-                                        <input class="form-control" name="brand" id="ei_brand">
-                                    </div>
+                                        <div class="col-3">
+                                            <label class="form-label">Brand</label>
+                                            <input class="form-control" name="brand" id="ei_brand">
+                                        </div>
 
-                                    <div class="col-3">
-                                        <label class="form-label">Color</label>
-                                        <input class="form-control" name="color" id="ei_color">
-                                        <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
-                                    </div>
+                                        <div class="col-3">
+                                            <label class="form-label">Color</label>
+                                            <input class="form-control" name="color" id="ei_color">
+                                            <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
+                                        </div>
 
-                                    <div class="col-3">
-                                        <label class="form-label">Size</label>
-                                        <input class="form-control" name="size" id="ei_size">
-                                        <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
-                                    </div>
+                                        <div class="col-3">
+                                            <label class="form-label">Size</label>
+                                            <input class="form-control" name="size" id="ei_size">
+                                            <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
+                                        </div>
 
-                                    <div class="col-3">
-                                        <label class="form-label">Type</label>
-                                        <input class="form-control" name="type" id="ei_type">
-                                        <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
-                                    </div>
+                                        <div class="col-3">
+                                            <label class="form-label">Type</label>
+                                            <input class="form-control" name="type" id="ei_type">
+                                            <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
+                                        </div>
 
-                                    <div class="col-12">
-                                        <label class="form-label">Description</label>
-                                        <textarea class="form-control" name="description" id="ei_description" rows="2" placeholder="Optional description..."></textarea>
+                                        <div class="col-12">
+                                            <label class="form-label">Description</label>
+                                            <textarea class="form-control" name="description" id="ei_description" rows="2" placeholder="Optional description..."></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -2003,29 +2032,29 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     // Show loading indicator
                     const searchInput = $('#search');
                     const originalValue = searchInput.val();
-                    
+
                     // Add loading class to search input
                     searchInput.addClass('loading');
-                    
+
                     // Get current URL parameters
                     const currentParams = new URLSearchParams(window.location.search);
                     currentParams.set('search', searchTerm);
                     currentParams.set('ajax', '1');
                     currentParams.delete('page'); // Reset to first page for new search
-                    
+
                     // Fetch search results
                     fetch("aircon_list.php?" + currentParams.toString())
                         .then(response => response.text())
                         .then(data => {
                             // Remove loading class
                             searchInput.removeClass('loading');
-                            
+
                             // Extract table content from response
                             const temp = document.createElement('div');
                             temp.innerHTML = data;
                             const newTable = temp.querySelector('#inventoryTable');
                             const newPagination = temp.querySelector('#paginationContainer');
-                            
+
                             if (newTable) {
                                 document.getElementById("inventoryTable").innerHTML = newTable.innerHTML;
                             }
@@ -2035,13 +2064,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     paginationContainer.innerHTML = newPagination.innerHTML;
                                 }
                             }
-                            
+
                             // Update URL without page reload
                             const url = new URL(window.location);
                             url.searchParams.set('search', searchTerm);
                             url.searchParams.delete('page');
                             window.history.pushState({}, '', url);
-                            
+
                             // Smooth scroll to top of table
                             const table = document.querySelector('.table-responsive');
                             if (table) {
@@ -2054,7 +2083,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         .catch(error => {
                             console.error("Search error:", error);
                             searchInput.removeClass('loading');
-                            
+
                             // Show error message
                             const errorDiv = document.createElement('div');
                             errorDiv.className = 'alert alert-danger mt-3';
@@ -2065,7 +2094,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <i class="fas fa-sync-alt"></i> Retry
                                 </button>
                             `;
-                            
+
                             const tableContainer = document.querySelector('.table-responsive');
                             if (tableContainer) {
                                 tableContainer.parentNode.insertBefore(errorDiv, tableContainer.nextSibling);
@@ -2259,12 +2288,15 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     document.getElementById('ei_inventory_id').value = id;
                     document.getElementById('ei_item_name').value = name;
                     // Ensure Category select reflects the value even if it's not preset
-                    (function(){
+                    (function() {
                         const catSelect = document.getElementById('ei_category');
                         if (catSelect) {
                             let found = false;
                             for (let i = 0; i < catSelect.options.length; i++) {
-                                if (String(catSelect.options[i].value) === String(category)) { found = true; break; }
+                                if (String(catSelect.options[i].value) === String(category)) {
+                                    found = true;
+                                    break;
+                                }
                             }
                             if (!found && category) {
                                 const opt = document.createElement('option');
@@ -2276,12 +2308,15 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         }
                     })();
                     // Ensure Unit select reflects the value even if it's not preset
-                    (function(){
+                    (function() {
                         const unitSelect = document.getElementById('ei_unit');
                         if (unitSelect) {
                             let found = false;
                             for (let i = 0; i < unitSelect.options.length; i++) {
-                                if (String(unitSelect.options[i].value) === String(unit)) { found = true; break; }
+                                if (String(unitSelect.options[i].value) === String(unit)) {
+                                    found = true;
+                                    break;
+                                }
                             }
                             if (!found && unit) {
                                 const opt = document.createElement('option');
@@ -2313,19 +2348,21 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 // ANCHOR: Edit inventory item with modal management
                 function editInventoryItem(inventoryId, currentModalId) {
                     console.log('editInventoryItem called with ID:', inventoryId, 'Modal:', currentModalId);
-                    
+
                     // Hide the current modal first if specified
                     if (currentModalId) {
                         $('#' + currentModalId).modal('hide');
                     }
-                    
+
                     // Wait for modal to close, then fetch data and open edit modal
                     setTimeout(function() {
                         // Fetch inventory item data via AJAX
                         $.ajax({
                             url: '../actions/get_aircon_list.php',
                             method: 'GET',
-                            data: { inventory_id: inventoryId },
+                            data: {
+                                inventory_id: inventoryId
+                            },
                             dataType: 'json',
                             success: function(data) {
                                 console.log('AJAX response:', data);
@@ -2509,10 +2546,10 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 });
 
                 // Function to view aircon details
-                function viewAirconDetails(airconId, itemNumber, brand, model, type, capacity, serialNumber, location, status, 
-                    purchaseDate, warrantyExpiry, lastServiceDate, maintenanceSchedule, supplierInfo, installationDate, 
+                function viewAirconDetails(airconId, itemNumber, brand, model, type, capacity, serialNumber, location, status,
+                    purchaseDate, warrantyExpiry, lastServiceDate, maintenanceSchedule, supplierInfo, installationDate,
                     energyEfficiency, powerConsumption, notes, purchasePrice, depreciatedValue, receiver, createdBy, dateCreated) {
-                    
+
                     // Populate modal fields
                     document.getElementById('view_aircon_id').textContent = airconId || 'N/A';
                     document.getElementById('view_item_number').textContent = itemNumber || 'N/A';
@@ -2523,7 +2560,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     document.getElementById('view_serial_number').textContent = serialNumber || 'N/A';
                     document.getElementById('view_location').textContent = location || 'N/A';
                     document.getElementById('view_status').textContent = status || 'N/A';
-                    
+
                     // Format dates
                     document.getElementById('view_purchase_date').textContent = purchaseDate ? formatDate(purchaseDate) : 'N/A';
                     document.getElementById('view_warranty_expiry').textContent = warrantyExpiry ? formatDate(warrantyExpiry) : 'N/A';
@@ -2531,19 +2568,25 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     document.getElementById('view_maintenance_schedule').textContent = maintenanceSchedule || 'N/A';
                     document.getElementById('view_supplier_info').textContent = supplierInfo || 'N/A';
                     document.getElementById('view_installation_date').textContent = installationDate ? formatDate(installationDate) : 'N/A';
-                    
+
                     document.getElementById('view_energy_efficiency_rating').textContent = energyEfficiency || 'N/A';
                     document.getElementById('view_power_consumption').textContent = powerConsumption || 'N/A';
                     document.getElementById('view_notes').textContent = notes || 'N/A';
-                    
+
                     // Format currency
-                    document.getElementById('view_purchase_price').textContent = purchasePrice ? '₱' + parseFloat(purchasePrice).toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '₱0.00';
-                    document.getElementById('view_depreciated_value').textContent = depreciatedValue ? '₱' + parseFloat(depreciatedValue).toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '₱0.00';
-                    
+                    document.getElementById('view_purchase_price').textContent = purchasePrice ? '₱' + parseFloat(purchasePrice).toLocaleString('en-PH', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }) : '₱0.00';
+                    document.getElementById('view_depreciated_value').textContent = depreciatedValue ? '₱' + parseFloat(depreciatedValue).toLocaleString('en-PH', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }) : '₱0.00';
+
                     document.getElementById('view_receiver').textContent = receiver || 'N/A';
                     document.getElementById('view_created_by').textContent = createdBy || 'N/A';
                     document.getElementById('view_date_created').textContent = dateCreated ? formatDateTime(dateCreated) : 'N/A';
-                    
+
                     // Show modal
                     const modal = new bootstrap.Modal(document.getElementById('viewAirconModal'));
                     modal.show();
@@ -2553,7 +2596,11 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 function formatDate(dateString) {
                     if (!dateString || dateString === '0000-00-00') return 'N/A';
                     const date = new Date(dateString);
-                    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+                    const options = {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    };
                     return date.toLocaleDateString('en-US', options);
                 }
 
@@ -2561,7 +2608,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 function formatDateTime(dateString) {
                     if (!dateString) return 'N/A';
                     const date = new Date(dateString);
-                    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                    const options = {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    };
                     return date.toLocaleDateString('en-US', options);
                 }
 
@@ -2587,12 +2640,12 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         const form = document.createElement('form');
                         form.method = 'POST';
                         form.action = '../actions/delete_aircon.php';
-                        
+
                         const input = document.createElement('input');
                         input.type = 'hidden';
                         input.name = 'aircon_id';
                         input.value = airconId;
-                        
+
                         form.appendChild(input);
                         document.body.appendChild(form);
                         form.submit();
@@ -2711,7 +2764,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         . json_encode($row['warranty_expiry'] ?? '') . ', '
                         . json_encode($row['last_service_date'] ?? '') . ', '
                         . json_encode($row['maintenance_schedule'] ?? '') . ', '
-                        . json_encode($row['supplier_info'] ?? '') . ', '
+                        . json_encode($row['supplier_name'] ?? '') . ', '
                         . json_encode($row['installation_date'] ?? '') . ', '
                         . json_encode($row['energy_efficiency_rating'] ?? '') . ', '
                         . json_encode($row['power_consumption'] ?? '') . ', '
@@ -2741,7 +2794,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         . json_encode($row['created_by'] ?? '') . ', '
                         . json_encode($row['date_created'] ?? '')
                         . ')\'><i class="fas fa-edit"></i></button> ';
-                    
+
                     echo '</td></tr>';
                 }
             } else {
@@ -2766,3 +2819,197 @@ if ($categories_result && $categories_result->num_rows > 0) {
             exit;
         }
         ?>
+        <script>
+            // Add this to your aircon_list.php, preferably in the head section or before the closing body tag
+            function openEditAirconModal(
+                aircon_id, item_name, category, brand, model, type, capacity, serial_number, location, status,
+                purchase_date, warranty_expiry, last_service_date, maintenance_schedule, supplier_id,
+                installation_date, energy_efficient, power_consumption, notes, purchase_price, depreciated_value
+            ) {
+                // Format dates for input fields (YYYY-MM-DD)
+                const formatDate = (dateString) => {
+                    if (!dateString) return '';
+                    const date = new Date(dateString);
+                    // Check if date is valid
+                    if (isNaN(date.getTime())) return '';
+                    return date.toISOString().split('T')[0];
+                };
+
+                // Set form values
+                document.getElementById('edit_aircon_id').value = aircon_id;
+                document.getElementById('edit_item_name').value = item_name || '';
+                document.getElementById('edit_category').value = category || '';
+                document.getElementById('edit_brand').value = brand || '';
+                document.getElementById('edit_model').value = model || '';
+                document.getElementById('edit_type').value = type || '';
+                document.getElementById('edit_capacity').value = capacity || '';
+                document.getElementById('edit_serial_number').value = serial_number || '';
+                document.getElementById('edit_location').value = location || '';
+                document.getElementById('edit_status').value = status || 'Working';
+                document.getElementById('edit_purchase_date').value = formatDate(purchase_date);
+                document.getElementById('edit_warranty_expiry').value = formatDate(warranty_expiry);
+                document.getElementById('edit_last_service').value = formatDate(last_service_date);
+                document.getElementById('edit_maintenance_schedule').value = formatDate(maintenance_schedule);
+                document.getElementById('edit_supplier_id').value = supplier_id || '';
+                document.getElementById('edit_installation_date').value = formatDate(installation_date);
+                document.getElementById('edit_energy_efficient').value = energy_efficient || '';
+                document.getElementById('edit_power_consumption').value = power_consumption || '';
+                document.getElementById('edit_notes').value = notes || '';
+                document.getElementById('edit_purchase_price').value = purchase_price || '';
+                document.getElementById('edit_depreciated_value').value = depreciated_value || '';
+
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('editAirconModal'));
+                modal.show();
+            }
+        </script>
+        
+        <!-- Edit Aircon Modal -->
+        <div class="modal fade" id="editAirconModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: var(--primary-green);">
+                        <h5 class="modal-title text-white">Edit Aircon Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="../actions/edit_aircon.php" method="POST">
+                        <input type="hidden" name="aircon_id" id="edit_aircon_id">
+                        <div class="modal-body">
+                            <!-- Basic Information -->
+                            <div class="mb-3 pb-2 border-bottom">
+                                <h6 class="mb-3 text-uppercase text-muted">Basic Information</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Item Number</label>
+                                        <input type="text" name="item_name" id="edit_item_name" class="form-control" placeholder="e.g., AC-001">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Category</label>
+                                        <select id="edit_category" name="category" class="form-select">
+                                            <option value="">Select Category</option>
+                                            <?php
+                                            // Use the same organized categories from the main page
+                                            if (isset($organized_categories) && !empty($organized_categories)) {
+                                                foreach ($organized_categories as $main_category => $subcategories) {
+                                                    echo '<optgroup label="' . htmlspecialchars($main_category) . '">';
+                                                    foreach ($subcategories as $subcategory) {
+                                                        echo '<option value="' . htmlspecialchars($subcategory) . '">' . htmlspecialchars($subcategory) . '</option>';
+                                                    }
+                                                    echo '</optgroup>';
+                                                }
+                                            } else {
+                                                // Fallback options if no data available - display as bold headers only
+                                                echo '<optgroup label="Property and Equipment"></optgroup>';
+                                                echo '<optgroup label="Intangible Assets"></optgroup>';
+                                                echo '<optgroup label="Office Supplies"></optgroup>';
+                                                echo '<optgroup label="Medical Supplies"></optgroup>';
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Brand</label>
+                                        <input type="text" name="brand" id="edit_brand" class="form-control" placeholder="e.g., Carrier, Daikin">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Model</label>
+                                        <input type="text" name="model" id="edit_model" class="form-control" placeholder="e.g., 42QHC018">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Type</label>
+                                        <select name="type" id="edit_type" class="form-select">
+                                            <option value="">Select Type</option>
+                                            <option value="Split">Split</option>
+                                            <option value="Window">Window</option>
+                                            <option value="Portable">Portable</option>
+                                            <option value="Cassette">Cassette</option>
+                                            <option value="Central">Central</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Capacity (BTU/hr)</label>
+                                        <input type="text" name="capacity" id="edit_capacity" class="form-control" placeholder="e.g., 18,000">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Serial Number</label>
+                                        <input type="text" name="serial_number" id="edit_serial_number" class="form-control" placeholder="Manufacturer serial number">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Location</label>
+                                        <input type="text" name="location" id="edit_location" class="form-control" placeholder="e.g., Room 101, Office">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Status</label>
+                                        <select name="status" id="edit_status" class="form-select">
+                                            <option value="Working">Working</option>
+                                            <option value="Needs Repair">Needs Repair</option>
+                                            <option value="Under Maintenance">Under Maintenance</option>
+                                            <option value="Decommissioned">Decommissioned</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Purchase Date</label>
+                                        <input type="date" name="purchase_date" id="edit_purchase_date" class="form-control">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Warranty Expiry</label>
+                                        <input type="date" name="warranty_expiry" id="edit_warranty_expiry" class="form-control">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Last Service Date</label>
+                                        <input type="date" name="last_service" id="edit_last_service" class="form-control">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Maintenance Schedule</label>
+                                        <input type="date" name="maintenance_schedule" id="edit_maintenance_schedule" class="form-control">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Supplier</label>
+                                        <select name="supplier_id" id="edit_supplier_id" class="form-select">
+                                            <option value="">Select Supplier</option>
+                                            <?php
+                                            // Reset the result pointer to reuse the suppliers data
+                                            if ($suppliers_result && $suppliers_result->num_rows > 0) {
+                                                $suppliers_result->data_seek(0);
+                                                while ($supplier = $suppliers_result->fetch_assoc()) {
+                                                    echo '<option value="' . $supplier['supplier_id'] . '">' . htmlspecialchars($supplier['supplier_name']) . '</option>';
+                                                }
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Installation Date</label>
+                                        <input type="date" name="installation_date" id="edit_installation_date" class="form-control">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Energy Efficiency Rating</label>
+                                        <input type="text" name="energy_efficient" id="edit_energy_efficient" class="form-control" placeholder="e.g., 5-star, A++">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Power Consumption (kW)</label>
+                                        <input type="number" step="0.1" name="power_consumption" id="edit_power_consumption" class="form-control" placeholder="e.g., 1.5">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Notes</label>
+                                        <textarea name="notes" id="edit_notes" class="form-control" rows="2" placeholder="Any additional information..."></textarea>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Purchase Price (₱)</label>
+                                        <input type="number" step="0.01" name="purchase_price" id="edit_purchase_price" class="form-control" placeholder="0.00">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Depreciated Value (₱)</label>
+                                        <input type="number" step="0.01" name="depreciated_value" id="edit_depreciated_value" class="form-control" placeholder="0.00">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>

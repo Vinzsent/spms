@@ -1601,8 +1601,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         </div>
                                             <input type="hidden" name="quantity" class="form-control" required min="0">
                                         <div class="col-md-3">
-                                            <label class="form-label">Unit Cost <span class="text-danger">*</span></label>
-                                            <input type="number" name="unit_cost" step="0.01" class="form-control" required>
+                                            <label class="form-label">Unit Cost </label>
+                                            <input type="number" name="unit_cost" step="0.01" class="form-control">
                                         </div>
                                     </div>
                                 </div>
@@ -1828,6 +1828,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <div class="col-md-3">
                                             <label class="form-label">Unit Cost</label>
                                             <input type="number" step="0.01" class="form-control" name="unit_cost" id="ei_unit_cost" required>
+                                            <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
                                         </div>
                                     </div>
                                 </div>

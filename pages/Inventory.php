@@ -872,6 +872,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             <button type="button" class="btn btn-outline-light ms-2" onclick="clearInventoryFilters()" title="Clear filters">
                                 <i class="fas fa-times"></i> Clear
                             </button>
+                            <a href="../actions/export_inventory.php" class="btn btn-success ms-2" title="Export to Excel">
+                                <i class="fas fa-file-excel"></i> Export
+                            </a>
                         </div>
                     </div>
                     <button title="Add Item" class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">

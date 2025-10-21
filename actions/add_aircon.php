@@ -2,6 +2,9 @@
 session_start();
 include '../includes/db.php';
 
+  // Get user ID from session
+    $user_id = $_SESSION['user']['id'] ?? 1;
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validate and sanitize input
     $item_name = trim($_POST['item_name'] ?? '');
@@ -26,44 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $receiver = trim($_POST['receiver'] ?? 'Property Custodian');
     $supplier_id = !empty($_POST['supplier_id']) ? intval($_POST['supplier_id']) : null;
     
-    // Validation - only item_name, brand, and model are required based on the form
-    if (empty($item_name)) {
-        $_SESSION['error'] = "Item Number is required.";
-        header("Location: ../pages/aircon_list.php");
-        exit();
-    }
-    
-    if (empty($brand)) {
-        $_SESSION['error'] = "Brand is required.";
-        header("Location: ../pages/aircon_list.php");
-        exit();
-    }
-    
-    if (empty($model)) {
-        $_SESSION['error'] = "Model is required.";
-        header("Location: ../pages/aircon_list.php");
-        exit();
-    }
-    
-    // Check if aircon with same item_name already exists
-    $check_sql = "SELECT aircon_id FROM aircons WHERE model = ?";
-    $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bind_param("s", $model);
-    $check_stmt->execute();
-    $check_result = $check_stmt->get_result();
-    
-    if ($check_result->num_rows > 0) {
-        $_SESSION['error'] = "An aircon with this Model already exists.";
-        header("Location: ../pages/aircon_list.php");
-        exit();
-    }
-    $check_stmt->close();
-    
-    // Get user ID from session
-    $user_id = $_SESSION['user']['id'] ?? 1;
-    
+
     // Insert new aircon into database
     $sql = "INSERT INTO aircons ( 
+        item_number,
+        category,
         brand, 
         model, 
         type, 
@@ -78,13 +48,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         installation_date, 
         energy_efficiency_rating, 
         power_consumption, 
-        notes, 
+        notes,
+        purchase_price, 
         depreciated_value, 
         receiver, 
         supplier_id,
         created_by, 
         date_created
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
     
     $stmt = $conn->prepare($sql);
     
@@ -94,10 +65,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
     
-    // Bind parameters - 19 parameters total    
+    // Bind parameters - 22 parameters total    
     // Types: s=string, d=double, i=integer
     $stmt->bind_param(
-        "sssssssssssssdsdsii",
+        "sssssssssssssssdsddsii",
+        $item_name,
+        $category,
         $brand,
         $model,
         $type,
@@ -113,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $energy_efficiency_rating,
         $power_consumption,
         $notes,
+        $purchase_price,
         $depreciated_value,
         $receiver,
         $supplier_id,

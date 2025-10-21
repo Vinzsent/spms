@@ -22,25 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $receiver = trim($_POST['receiver'] ?? '');
     $procurement_id = intval($_POST['procurement_id'] ?? 0);
     
-    // Validation
-    if (empty($item_name) || empty($category) || empty($unit) || $current_stock < 0 || $reorder_level < 0) {
-        $_SESSION['error'] = "Please fill in all required fields with valid values.";
-        header("Location: ../pages/property_inventory.php");
-        exit();
-    }
-    
-    // Check if item already exists in property inventory
-    $check_sql = "SELECT inventory_id FROM property_inventory WHERE item_name = ? AND category = ?";
-    $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bind_param("ss", $item_name, $category);
-    $check_stmt->execute();
-    $check_result = $check_stmt->get_result();
-    
-    if ($check_result->num_rows > 0) {
-        $_SESSION['error'] = "An item with this name and category already exists.";
-        header("Location: ../pages/property_inventory.php");
-        exit();
-    }
     
     // Update supplier transaction status FIRST if procurement_id is provided
     if ($procurement_id > 0) {

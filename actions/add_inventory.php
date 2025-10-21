@@ -28,18 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
     
-    // Check if item already exists
-    $check_sql = "SELECT inventory_id FROM inventory WHERE item_name = ? AND category = ?";
-    $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bind_param("ss", $item_name, $category);
-    $check_stmt->execute();
-    $check_result = $check_stmt->get_result();
-    
-    if ($check_result->num_rows > 0) {
-        $_SESSION['error'] = "An item with this name and category already exists.";
-        header("Location: ../pages/Inventory.php");
-        exit();
-    }
+    // Allow inserting duplicates: removed blocking duplicate check
     
     // Update supplier transaction status FIRST if procurement_id is provided
     if ($procurement_id > 0) {
