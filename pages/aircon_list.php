@@ -58,7 +58,7 @@ $logs_where_conditions = [];
 // Add search filter if search term is provided
 if (!empty($search_term)) {
     $search_escaped = $conn->real_escape_string($search_term);
-    $inv_where_conditions[] = "i.item_name LIKE '%$search_escaped%'";
+    $inv_where_conditions[] = "(i.brand LIKE '%$search_escaped%' OR i.model LIKE '%$search_escaped%' OR i.type LIKE '%$search_escaped%' OR i.serial_number LIKE '%$search_escaped%' OR i.location LIKE '%$search_escaped%')";
 }
 
 // Add school year filters if provided
@@ -929,8 +929,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <div class="d-flex align-items-end gap-2">
                     <form method="GET" class="d-flex align-items-end gap-2 mb-0">
                         <div class="search-input">
-                            <label for="search" class="form-label mb-0 text-white">Search Aircon Name</label>
-                            <input type="text" id="search" name="search" class="form-control" placeholder="Search by aircon name..." value="<?= htmlspecialchars($search_term) ?>">
+                            <label for="search" class="form-label mb-0 text-white">Search Aircon</label>
+                            <input type="text" id="search" name="search" class="form-control" placeholder="Search by brand, model, type, serial no., location..." value="<?= htmlspecialchars($search_term) ?>">
                         </div>
                         <div>
                             <label for="sy_inv" class="form-label mb-0 text-white">School Year</label>
@@ -1292,31 +1292,31 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <td><?= htmlspecialchars($aircon['serial_number'] ?? 'N/A') ?></td>
                                         <td><?= !empty($aircon['last_service_date']) ? date('M d, Y', strtotime($aircon['last_service_date'])) : 'N/A' ?></td>
                                         <td>
-                                            <button class="btn btn-sm btn-primary" title="View Details" onclick="viewAirconDetails(
-                                                <?= (int)$aircon['aircon_id'] ?>,
-                                                <?= json_encode($aircon['item_number'] ?? '') ?>,
-                                                <?= json_encode($aircon['brand'] ?? '') ?>,
-                                                <?= json_encode($aircon['model'] ?? '') ?>,
-                                                <?= json_encode($aircon['type'] ?? '') ?>,
-                                                <?= json_encode($aircon['capacity'] ?? '') ?>,
-                                                <?= json_encode($aircon['serial_number'] ?? '') ?>,
-                                                <?= json_encode($aircon['location'] ?? '') ?>,
-                                                <?= json_encode($aircon['status'] ?? '') ?>,
-                                                <?= json_encode($aircon['purchase_date'] ?? '') ?>,
-                                                <?= json_encode($aircon['warranty_expiry'] ?? '') ?>,
-                                                <?= json_encode($aircon['last_service_date'] ?? '') ?>,
-                                                <?= json_encode($aircon['maintenance_schedule'] ?? '') ?>,
-                                                <?= json_encode($aircon['supplier_name'] ?? '') ?>,
-                                                <?= json_encode($aircon['installation_date'] ?? '') ?>,
-                                                <?= json_encode($aircon['energy_efficiency_rating'] ?? '') ?>,
-                                                <?= json_encode($aircon['power_consumption'] ?? '') ?>,
-                                                <?= json_encode($aircon['notes'] ?? '') ?>,
-                                                <?= json_encode($aircon['purchase_price'] ?? '0') ?>,
-                                                <?= json_encode($aircon['depreciated_value'] ?? '0') ?>,
-                                                <?= json_encode($aircon['receiver'] ?? '') ?>,
-                                                <?= json_encode($aircon['created_by'] ?? '') ?>,
-                                                <?= json_encode($aircon['date_created'] ?? '') ?>
-                                            ); $('#goodConditionModal').modal('hide');">
+                                            <button class="btn btn-sm btn-primary view-aircon-details-btn" 
+                                                title="View Details"
+                                                data-aircon-id="<?= (int)$aircon['aircon_id'] ?>"
+                                                data-item-number="<?= htmlspecialchars($aircon['item_number'] ?? '', ENT_QUOTES) ?>"
+                                                data-brand="<?= htmlspecialchars($aircon['brand'] ?? '', ENT_QUOTES) ?>"
+                                                data-model="<?= htmlspecialchars($aircon['model'] ?? '', ENT_QUOTES) ?>"
+                                                data-type="<?= htmlspecialchars($aircon['type'] ?? '', ENT_QUOTES) ?>"
+                                                data-capacity="<?= htmlspecialchars($aircon['capacity'] ?? '', ENT_QUOTES) ?>"
+                                                data-serial-number="<?= htmlspecialchars($aircon['serial_number'] ?? '', ENT_QUOTES) ?>"
+                                                data-location="<?= htmlspecialchars($aircon['location'] ?? '', ENT_QUOTES) ?>"
+                                                data-status="<?= htmlspecialchars($aircon['status'] ?? '', ENT_QUOTES) ?>"
+                                                data-purchase-date="<?= htmlspecialchars($aircon['purchase_date'] ?? '', ENT_QUOTES) ?>"
+                                                data-warranty-expiry="<?= htmlspecialchars($aircon['warranty_expiry'] ?? '', ENT_QUOTES) ?>"
+                                                data-last-service-date="<?= htmlspecialchars($aircon['last_service_date'] ?? '', ENT_QUOTES) ?>"
+                                                data-maintenance-schedule="<?= htmlspecialchars($aircon['maintenance_schedule'] ?? '', ENT_QUOTES) ?>"
+                                                data-supplier-info="<?= htmlspecialchars($aircon['supplier_name'] ?? '', ENT_QUOTES) ?>"
+                                                data-installation-date="<?= htmlspecialchars($aircon['installation_date'] ?? '', ENT_QUOTES) ?>"
+                                                data-energy-efficiency="<?= htmlspecialchars($aircon['energy_efficiency_rating'] ?? '', ENT_QUOTES) ?>"
+                                                data-power-consumption="<?= htmlspecialchars($aircon['power_consumption'] ?? '', ENT_QUOTES) ?>"
+                                                data-notes="<?= htmlspecialchars($aircon['notes'] ?? '', ENT_QUOTES) ?>"
+                                                data-purchase-price="<?= htmlspecialchars($aircon['purchase_price'] ?? '0', ENT_QUOTES) ?>"
+                                                data-depreciated-value="<?= htmlspecialchars($aircon['depreciated_value'] ?? '0', ENT_QUOTES) ?>"
+                                                data-receiver="<?= htmlspecialchars($aircon['receiver'] ?? '', ENT_QUOTES) ?>"
+                                                data-created-by="<?= htmlspecialchars($aircon['created_by'] ?? '', ENT_QUOTES) ?>"
+                                                data-date-created="<?= htmlspecialchars($aircon['date_created'] ?? '', ENT_QUOTES) ?>">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                         </td>
@@ -1385,31 +1385,32 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <td><?= htmlspecialchars($aircon['serial_number'] ?? 'N/A') ?></td>
                                         <td><?= !empty($aircon['last_service_date']) ? date('M d, Y', strtotime($aircon['last_service_date'])) : 'N/A' ?></td>
                                         <td>
-                                            <button class="btn btn-sm btn-primary" title="View Details" onclick="viewAirconDetails(
-                                                <?= (int)$aircon['aircon_id'] ?>,
-                                                <?= json_encode($aircon['item_number'] ?? '') ?>,
-                                                <?= json_encode($aircon['brand'] ?? '') ?>,
-                                                <?= json_encode($aircon['model'] ?? '') ?>,
-                                                <?= json_encode($aircon['type'] ?? '') ?>,
-                                                <?= json_encode($aircon['capacity'] ?? '') ?>,
-                                                <?= json_encode($aircon['serial_number'] ?? '') ?>,
-                                                <?= json_encode($aircon['location'] ?? '') ?>,
-                                                <?= json_encode($aircon['status'] ?? '') ?>,
-                                                <?= json_encode($aircon['purchase_date'] ?? '') ?>,
-                                                <?= json_encode($aircon['warranty_expiry'] ?? '') ?>,
-                                                <?= json_encode($aircon['last_service_date'] ?? '') ?>,
-                                                <?= json_encode($aircon['maintenance_schedule'] ?? '') ?>,
-                                                <?= json_encode($aircon['supplier_name'] ?? '') ?>,
-                                                <?= json_encode($aircon['installation_date'] ?? '') ?>,
-                                                <?= json_encode($aircon['energy_efficiency_rating'] ?? '') ?>,
-                                                <?= json_encode($aircon['power_consumption'] ?? '') ?>,
-                                                <?= json_encode($aircon['notes'] ?? '') ?>,
-                                                <?= json_encode($aircon['purchase_price'] ?? '0') ?>,
-                                                <?= json_encode($aircon['depreciated_value'] ?? '0') ?>,
-                                                <?= json_encode($aircon['receiver'] ?? '') ?>,
-                                                <?= json_encode($aircon['created_by'] ?? '') ?>,
-                                                <?= json_encode($aircon['date_created'] ?? '') ?>
-                                            ); $('#needsAttentionModal').modal('hide');">
+                                            <button class="btn btn-sm btn-primary view-aircon-details-btn" 
+                                                title="View Details"
+                                                data-aircon-id="<?= (int)$aircon['aircon_id'] ?>"
+                                                data-item-number="<?= htmlspecialchars($aircon['item_number'] ?? '', ENT_QUOTES) ?>"
+                                                data-brand="<?= htmlspecialchars($aircon['brand'] ?? '', ENT_QUOTES) ?>"
+                                                data-model="<?= htmlspecialchars($aircon['model'] ?? '', ENT_QUOTES) ?>"
+                                                data-type="<?= htmlspecialchars($aircon['type'] ?? '', ENT_QUOTES) ?>"
+                                                data-capacity="<?= htmlspecialchars($aircon['capacity'] ?? '', ENT_QUOTES) ?>"
+                                                data-serial-number="<?= htmlspecialchars($aircon['serial_number'] ?? '', ENT_QUOTES) ?>"
+                                                data-location="<?= htmlspecialchars($aircon['location'] ?? '', ENT_QUOTES) ?>"
+                                                data-status="<?= htmlspecialchars($aircon['status'] ?? '', ENT_QUOTES) ?>"
+                                                data-purchase-date="<?= htmlspecialchars($aircon['purchase_date'] ?? '', ENT_QUOTES) ?>"
+                                                data-warranty-expiry="<?= htmlspecialchars($aircon['warranty_expiry'] ?? '', ENT_QUOTES) ?>"
+                                                data-last-service-date="<?= htmlspecialchars($aircon['last_service_date'] ?? '', ENT_QUOTES) ?>"
+                                                data-maintenance-schedule="<?= htmlspecialchars($aircon['maintenance_schedule'] ?? '', ENT_QUOTES) ?>"
+                                                data-supplier-info="<?= htmlspecialchars($aircon['supplier_name'] ?? '', ENT_QUOTES) ?>"
+                                                data-installation-date="<?= htmlspecialchars($aircon['installation_date'] ?? '', ENT_QUOTES) ?>"
+                                                data-energy-efficiency="<?= htmlspecialchars($aircon['energy_efficiency_rating'] ?? '', ENT_QUOTES) ?>"
+                                                data-power-consumption="<?= htmlspecialchars($aircon['power_consumption'] ?? '', ENT_QUOTES) ?>"
+                                                data-notes="<?= htmlspecialchars($aircon['notes'] ?? '', ENT_QUOTES) ?>"
+                                                data-purchase-price="<?= htmlspecialchars($aircon['purchase_price'] ?? '0', ENT_QUOTES) ?>"
+                                                data-depreciated-value="<?= htmlspecialchars($aircon['depreciated_value'] ?? '0', ENT_QUOTES) ?>"
+                                                data-receiver="<?= htmlspecialchars($aircon['receiver'] ?? '', ENT_QUOTES) ?>"
+                                                data-created-by="<?= htmlspecialchars($aircon['created_by'] ?? '', ENT_QUOTES) ?>"
+                                                data-date-created="<?= htmlspecialchars($aircon['date_created'] ?? '', ENT_QUOTES) ?>"
+                                                data-modal-id="needsAttentionModal">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                         </td>
@@ -1474,31 +1475,32 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <td><?= htmlspecialchars($aircon['serial_number'] ?? 'N/A') ?></td>
                                         <td><?= !empty($aircon['last_service_date']) ? date('M d, Y', strtotime($aircon['last_service_date'])) : 'N/A' ?></td>
                                         <td>
-                                            <button class="btn btn-sm btn-primary" title="View Details" onclick="viewAirconDetails(
-                                                <?= (int)$aircon['aircon_id'] ?>,
-                                                <?= json_encode($aircon['item_number'] ?? '') ?>,
-                                                <?= json_encode($aircon['brand'] ?? '') ?>,
-                                                <?= json_encode($aircon['model'] ?? '') ?>,
-                                                <?= json_encode($aircon['type'] ?? '') ?>,
-                                                <?= json_encode($aircon['capacity'] ?? '') ?>,
-                                                <?= json_encode($aircon['serial_number'] ?? '') ?>,
-                                                <?= json_encode($aircon['location'] ?? '') ?>,
-                                                <?= json_encode($aircon['status'] ?? '') ?>,
-                                                <?= json_encode($aircon['purchase_date'] ?? '') ?>,
-                                                <?= json_encode($aircon['warranty_expiry'] ?? '') ?>,
-                                                <?= json_encode($aircon['last_service_date'] ?? '') ?>,
-                                                <?= json_encode($aircon['maintenance_schedule'] ?? '') ?>,
-                                                <?= json_encode($aircon['supplier_name'] ?? '') ?>,
-                                                <?= json_encode($aircon['installation_date'] ?? '') ?>,
-                                                <?= json_encode($aircon['energy_efficiency_rating'] ?? '') ?>,
-                                                <?= json_encode($aircon['power_consumption'] ?? '') ?>,
-                                                <?= json_encode($aircon['notes'] ?? '') ?>,
-                                                <?= json_encode($aircon['purchase_price'] ?? '0') ?>,
-                                                <?= json_encode($aircon['depreciated_value'] ?? '0') ?>,
-                                                <?= json_encode($aircon['receiver'] ?? '') ?>,
-                                                <?= json_encode($aircon['created_by'] ?? '') ?>,
-                                                <?= json_encode($aircon['date_created'] ?? '') ?>
-                                            ); $('#decommissionedModal').modal('hide');">
+                                            <button class="btn btn-sm btn-primary view-aircon-details-btn" 
+                                                title="View Details"
+                                                data-aircon-id="<?= (int)$aircon['aircon_id'] ?>"
+                                                data-item-number="<?= htmlspecialchars($aircon['item_number'] ?? '', ENT_QUOTES) ?>"
+                                                data-brand="<?= htmlspecialchars($aircon['brand'] ?? '', ENT_QUOTES) ?>"
+                                                data-model="<?= htmlspecialchars($aircon['model'] ?? '', ENT_QUOTES) ?>"
+                                                data-type="<?= htmlspecialchars($aircon['type'] ?? '', ENT_QUOTES) ?>"
+                                                data-capacity="<?= htmlspecialchars($aircon['capacity'] ?? '', ENT_QUOTES) ?>"
+                                                data-serial-number="<?= htmlspecialchars($aircon['serial_number'] ?? '', ENT_QUOTES) ?>"
+                                                data-location="<?= htmlspecialchars($aircon['location'] ?? '', ENT_QUOTES) ?>"
+                                                data-status="<?= htmlspecialchars($aircon['status'] ?? '', ENT_QUOTES) ?>"
+                                                data-purchase-date="<?= htmlspecialchars($aircon['purchase_date'] ?? '', ENT_QUOTES) ?>"
+                                                data-warranty-expiry="<?= htmlspecialchars($aircon['warranty_expiry'] ?? '', ENT_QUOTES) ?>"
+                                                data-last-service-date="<?= htmlspecialchars($aircon['last_service_date'] ?? '', ENT_QUOTES) ?>"
+                                                data-maintenance-schedule="<?= htmlspecialchars($aircon['maintenance_schedule'] ?? '', ENT_QUOTES) ?>"
+                                                data-supplier-info="<?= htmlspecialchars($aircon['supplier_name'] ?? '', ENT_QUOTES) ?>"
+                                                data-installation-date="<?= htmlspecialchars($aircon['installation_date'] ?? '', ENT_QUOTES) ?>"
+                                                data-energy-efficiency="<?= htmlspecialchars($aircon['energy_efficiency_rating'] ?? '', ENT_QUOTES) ?>"
+                                                data-power-consumption="<?= htmlspecialchars($aircon['power_consumption'] ?? '', ENT_QUOTES) ?>"
+                                                data-notes="<?= htmlspecialchars($aircon['notes'] ?? '', ENT_QUOTES) ?>"
+                                                data-purchase-price="<?= htmlspecialchars($aircon['purchase_price'] ?? '0', ENT_QUOTES) ?>"
+                                                data-depreciated-value="<?= htmlspecialchars($aircon['depreciated_value'] ?? '0', ENT_QUOTES) ?>"
+                                                data-receiver="<?= htmlspecialchars($aircon['receiver'] ?? '', ENT_QUOTES) ?>"
+                                                data-created-by="<?= htmlspecialchars($aircon['created_by'] ?? '', ENT_QUOTES) ?>"
+                                                data-date-created="<?= htmlspecialchars($aircon['date_created'] ?? '', ENT_QUOTES) ?>"
+                                                data-modal-id="decommissionedModal">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                         </td>
@@ -1567,36 +1569,44 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <td data-label="Purchase Date"><?= !empty($row['purchase_date']) ? date('M d, Y', strtotime($row['purchase_date'])) : 'N/A' ?></td>
                                         <td data-label="Warranty Expiry"><?= !empty($row['warranty_expiry']) ? date('M d, Y', strtotime($row['warranty_expiry'])) : 'N/A' ?></td>
                                         <td data-label="Last Service Date"><?= !empty($row['last_service_date']) ? date('M d, Y', strtotime($row['last_service_date'])) : 'N/A' ?></td>
-                                        <td data-label="Maintenance Schedule"><?= htmlspecialchars($row['maintenance_schedule'] ?? 'N/A') ?></td>
+                                        <td data-label="Maintenance Schedule">
+                                            <button class="btn btn-sm btn-outline-info view-maintenance-btn" 
+                                                data-aircon-id="<?= (int)$row['aircon_id'] ?>"
+                                                data-brand="<?= htmlspecialchars($row['brand'] ?? '', ENT_QUOTES) ?>"
+                                                data-model="<?= htmlspecialchars($row['model'] ?? '', ENT_QUOTES) ?>"
+                                                data-serial="<?= htmlspecialchars($row['serial_number'] ?? '', ENT_QUOTES) ?>"
+                                                title="View Maintenance Records">
+                                                <i class="fas fa-calendar-alt"></i> View Records
+                                            </button>
+                                        </td>
                                         <td data-label="Installation Date"><?= !empty($row['installation_date']) ? date('M d, Y', strtotime($row['installation_date'])) : 'N/A' ?></td>
                                         <td data-label="Notes"><?= htmlspecialchars($row['notes'] ?? 'N/A') ?></td>
                                         <td data-label="Actions" class="actions">
-                                            <button class="btn btn-sm btn-primary" title="View Details"
-                                                onclick="viewAirconDetails(
-                                                <?= (int)$row['aircon_id'] ?>,
-                                                <?= json_encode($row['item_number'] ?? '') ?>,
-                                                <?= json_encode($row['brand'] ?? '') ?>,
-                                                <?= json_encode($row['model'] ?? '') ?>,
-                                                <?= json_encode($row['type'] ?? '') ?>,
-                                                <?= json_encode($row['capacity'] ?? '') ?>,
-                                                <?= json_encode($row['serial_number'] ?? '') ?>,
-                                                <?= json_encode($row['location'] ?? '') ?>,
-                                                <?= json_encode($row['status'] ?? '') ?>,
-                                                <?= json_encode($row['purchase_date'] ?? '') ?>,
-                                                <?= json_encode($row['warranty_expiry'] ?? '') ?>,
-                                                <?= json_encode($row['last_service_date'] ?? '') ?>,
-                                                <?= json_encode($row['maintenance_schedule'] ?? '') ?>,
-                                                <?= json_encode($row['supplier_name'] ?? '') ?>,
-                                                <?= json_encode($row['installation_date'] ?? '') ?>,
-                                                <?= json_encode($row['energy_efficiency_rating'] ?? '') ?>,
-                                                <?= json_encode($row['power_consumption'] ?? '') ?>,
-                                                <?= json_encode($row['notes'] ?? '') ?>,
-                                                <?= json_encode($row['purchase_price'] ?? '0') ?>,
-                                                <?= json_encode($row['depreciated_value'] ?? '0') ?>,
-                                                <?= json_encode($row['receiver'] ?? '') ?>,
-                                                <?= json_encode($row['created_by'] ?? '') ?>,
-                                                <?= json_encode($row['date_created'] ?? '') ?>
-                                            )">
+                                            <button class="btn btn-sm btn-primary view-aircon-details-btn" 
+                                                title="View Details"
+                                                data-aircon-id="<?= (int)$row['aircon_id'] ?>"
+                                                data-item-number="<?= htmlspecialchars($row['item_number'] ?? '', ENT_QUOTES) ?>"
+                                                data-brand="<?= htmlspecialchars($row['brand'] ?? '', ENT_QUOTES) ?>"
+                                                data-model="<?= htmlspecialchars($row['model'] ?? '', ENT_QUOTES) ?>"
+                                                data-type="<?= htmlspecialchars($row['type'] ?? '', ENT_QUOTES) ?>"
+                                                data-capacity="<?= htmlspecialchars($row['capacity'] ?? '', ENT_QUOTES) ?>"
+                                                data-serial-number="<?= htmlspecialchars($row['serial_number'] ?? '', ENT_QUOTES) ?>"
+                                                data-location="<?= htmlspecialchars($row['location'] ?? '', ENT_QUOTES) ?>"
+                                                data-status="<?= htmlspecialchars($row['status'] ?? '', ENT_QUOTES) ?>"
+                                                data-purchase-date="<?= htmlspecialchars($row['purchase_date'] ?? '', ENT_QUOTES) ?>"
+                                                data-warranty-expiry="<?= htmlspecialchars($row['warranty_expiry'] ?? '', ENT_QUOTES) ?>"
+                                                data-last-service-date="<?= htmlspecialchars($row['last_service_date'] ?? '', ENT_QUOTES) ?>"
+                                                data-maintenance-schedule="<?= htmlspecialchars($row['maintenance_schedule'] ?? '', ENT_QUOTES) ?>"
+                                                data-supplier-info="<?= htmlspecialchars($row['supplier_name'] ?? '', ENT_QUOTES) ?>"
+                                                data-installation-date="<?= htmlspecialchars($row['installation_date'] ?? '', ENT_QUOTES) ?>"
+                                                data-energy-efficiency="<?= htmlspecialchars($row['energy_efficiency_rating'] ?? '', ENT_QUOTES) ?>"
+                                                data-power-consumption="<?= htmlspecialchars($row['power_consumption'] ?? '', ENT_QUOTES) ?>"
+                                                data-notes="<?= htmlspecialchars($row['notes'] ?? '', ENT_QUOTES) ?>"
+                                                data-purchase-price="<?= htmlspecialchars($row['purchase_price'] ?? '0', ENT_QUOTES) ?>"
+                                                data-depreciated-value="<?= htmlspecialchars($row['depreciated_value'] ?? '0', ENT_QUOTES) ?>"
+                                                data-receiver="<?= htmlspecialchars($row['receiver'] ?? '', ENT_QUOTES) ?>"
+                                                data-created-by="<?= htmlspecialchars($row['created_by'] ?? '', ENT_QUOTES) ?>"
+                                                data-date-created="<?= htmlspecialchars($row['date_created'] ?? '', ENT_QUOTES) ?>">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                             <button class="btn btn-sm btn-info" title="Edit"
@@ -2313,6 +2323,170 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 </div>
             </div>
 
+            <!-- Maintenance Records Modal -->
+            <div class="modal fade" id="maintenanceRecordsModal" tabindex="-1">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white;">
+                            <h5 class="modal-title">
+                                <i class="fas fa-tools me-2"></i>Maintenance Records
+                                <small class="d-block mt-1" style="font-size: 0.85rem;" id="maintenance-aircon-info"></small>
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0">Maintenance History</h6>
+                                <button type="button" class="btn btn-success btn-sm" id="addMaintenanceBtn">
+                                    <i class="fas fa-plus"></i> Add Maintenance Record
+                                </button>
+                            </div>
+
+                            <!-- Maintenance Records Table -->
+                            <div class="table-responsive">
+                                <table class="table table-hover table-striped" id="maintenanceTable">
+                                    <thead class="table-info">
+                                        <tr>
+                                            <th>Service Date</th>
+                                            <th>Service Type</th>
+                                            <th>Technician</th>
+                                            <th>Next Scheduled</th>
+                                            <th>Remarks</th>
+                                            <th>Created By</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="maintenanceTableBody">
+                                        <tr>
+                                            <td colspan="7" class="text-center">
+                                                <div class="spinner-border text-info" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div id="noMaintenanceMessage" class="text-center py-4" style="display: none;">
+                                <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                                <h5>No Maintenance Records</h5>
+                                <p class="text-muted">No maintenance records found for this aircon unit.</p>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add/Edit Maintenance Record Modal -->
+            <div class="modal fade" id="maintenanceFormModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: var(--primary-green);">
+                            <h5 class="modal-title text-white" id="maintenanceFormTitle">
+                                <i class="fas fa-wrench me-2"></i>Add Maintenance Record
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form id="maintenanceForm">
+                            <input type="hidden" id="maint_maintenance_id" name="maintenance_id">
+                            <input type="hidden" id="maint_aircon_id" name="aircon_id">
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Service Date <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="maint_service_date" name="service_date" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Service Type <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="maint_service_type" name="service_type" required>
+                                            <option value="">-- Select Service Type --</option>
+                                            <option value="Cleaning">Cleaning</option>
+                                            <option value="Repair">Repair</option>
+                                            <option value="Preventive Maintenance">Preventive Maintenance</option>
+                                            <option value="Filter Replacement">Filter Replacement</option>
+                                            <option value="Gas Refill">Gas Refill</option>
+                                            <option value="Inspection">Inspection</option>
+                                            <option value="Others">Others</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Technician</label>
+                                        <input type="text" class="form-control" id="maint_technician" name="technician" placeholder="Name or company">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Next Scheduled Date</label>
+                                        <input type="date" class="form-control" id="maint_next_scheduled_date" name="next_scheduled_date">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Remarks</label>
+                                        <textarea class="form-control" id="maint_remarks" name="remarks" rows="3" placeholder="Notes or issues found..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save Record
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Maintenance Detail Modal -->
+            <div class="modal fade" id="viewMaintenanceModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); color: white;">
+                            <h5 class="modal-title">
+                                <i class="fas fa-eye me-2"></i>Maintenance Record Details
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Service Date</label>
+                                    <p class="form-control-plaintext" id="view_service_date"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Service Type</label>
+                                    <p class="form-control-plaintext" id="view_service_type"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Technician</label>
+                                    <p class="form-control-plaintext" id="view_technician"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Next Scheduled Date</label>
+                                    <p class="form-control-plaintext" id="view_next_scheduled_date"></p>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">Remarks</label>
+                                    <p class="form-control-plaintext" id="view_remarks"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Created By</label>
+                                    <p class="form-control-plaintext" id="view_created_by"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Date Created</label>
+                                    <p class="form-control-plaintext" id="view_date_created"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -2385,7 +2559,115 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             receiver: receiver
                         });
                     });
+
+                    // View Aircon Details button handler
+                    $(document).on('click', '.view-aircon-details-btn', function() {
+                        const button = $(this);
+                        
+                        // Get all data attributes
+                        const airconId = button.data('aircon-id');
+                        const itemNumber = button.data('item-number') || '';
+                        const brand = button.data('brand') || '';
+                        const model = button.data('model') || '';
+                        const type = button.data('type') || '';
+                        const capacity = button.data('capacity') || '';
+                        const serialNumber = button.data('serial-number') || '';
+                        const location = button.data('location') || '';
+                        const status = button.data('status') || '';
+                        const purchaseDate = button.data('purchase-date') || '';
+                        const warrantyExpiry = button.data('warranty-expiry') || '';
+                        const lastServiceDate = button.data('last-service-date') || '';
+                        const maintenanceSchedule = button.data('maintenance-schedule') || '';
+                        const supplierInfo = button.data('supplier-info') || '';
+                        const installationDate = button.data('installation-date') || '';
+                        const energyEfficiency = button.data('energy-efficiency') || '';
+                        const powerConsumption = button.data('power-consumption') || '';
+                        const notes = button.data('notes') || '';
+                        const purchasePrice = button.data('purchase-price') || '0';
+                        const depreciatedValue = button.data('depreciated-value') || '0';
+                        const receiver = button.data('receiver') || '';
+                        const createdBy = button.data('created-by') || '';
+                        const dateCreated = button.data('date-created') || '';
+                        const modalId = button.data('modal-id');
+
+                        // Call the viewAirconDetails function
+                        viewAirconDetails(
+                            airconId, itemNumber, brand, model, type, capacity, serialNumber, 
+                            location, status, purchaseDate, warrantyExpiry, lastServiceDate, 
+                            maintenanceSchedule, supplierInfo, installationDate, energyEfficiency, 
+                            powerConsumption, notes, purchasePrice, depreciatedValue, receiver, 
+                            createdBy, dateCreated
+                        );
+
+                        // Hide the parent modal if modalId is specified
+                        if (modalId) {
+                            $('#' + modalId).modal('hide');
+                        }
+                    });
                 });
+
+                // Maintenance Records Modal Handler - Global scope
+                let currentAirconId = null;
+
+                $(document).ready(function() {
+                    $(document).on('click', '.view-maintenance-btn', function() {
+                        const button = $(this);
+                        currentAirconId = button.data('aircon-id');
+                        const brand = button.data('brand');
+                        const model = button.data('model');
+                        const serial = button.data('serial');
+
+                        // Set aircon info in modal
+                        $('#maintenance-aircon-info').text(`${brand} ${model} - S/N: ${serial}`);
+                        
+                        // Show modal
+                        $('#maintenanceRecordsModal').modal('show');
+                        
+                        // Load maintenance records
+                        loadMaintenanceRecords(currentAirconId);
+                    });
+
+                    // Add Maintenance Button
+                    $('#addMaintenanceBtn').on('click', function() {
+                        $('#maintenanceFormTitle').html('<i class="fas fa-wrench me-2"></i>Add Maintenance Record');
+                        $('#maintenanceForm')[0].reset();
+                        $('#maint_maintenance_id').val('');
+                        $('#maint_aircon_id').val(currentAirconId);
+                        $('#maintenanceFormModal').modal('show');
+                    });
+
+                    // Submit Maintenance Form
+                    $('#maintenanceForm').on('submit', function(e) {
+                        e.preventDefault();
+                        
+                        const formData = new FormData(this);
+                        const maintenanceId = $('#maint_maintenance_id').val();
+                        const url = maintenanceId ? '../actions/edit_aircon_maintenance.php' : '../actions/add_aircon_maintenance.php';
+                        
+                        $.ajax({
+                            url: url,
+                            type: 'POST',
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            dataType: 'json',
+                            success: function(response) {
+                                if (response.success) {
+                                    alert('✅ ' + response.message);
+                                    $('#maintenanceFormModal').modal('hide');
+                                    loadMaintenanceRecords(currentAirconId);
+                                    // Reload page to update last service date
+                                    setTimeout(() => location.reload(), 1000);
+                                } else {
+                                    alert('❌ ' + response.message);
+                                }
+                            },
+                            error: function() {
+                                alert('❌ Error saving maintenance record');
+                            }
+                        });
+                    });
+                }); // End of $(document).ready for maintenance handlers
 
                 // Function to show session message alert
                 function showSessionMessageAlert() {
@@ -2396,6 +2678,225 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         // Error message
                         alert('❌ Error!\n\n' + sessionError);
                     }
+                }
+
+                // Load Maintenance Records
+                function loadMaintenanceRecords(airconId) {
+                    $('#maintenanceTableBody').html(`
+                        <tr>
+                            <td colspan="7" class="text-center">
+                                <div class="spinner-border text-info" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    `);
+                    $('#noMaintenanceMessage').hide();
+
+                    $.ajax({
+                        url: '../actions/get_aircon_maintenance.php',
+                        type: 'GET',
+                        data: { aircon_id: airconId },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.success) {
+                                const records = response.maintenance_records;
+                                
+                                if (records.length === 0) {
+                                    $('#maintenanceTableBody').html('');
+                                    $('#noMaintenanceMessage').show();
+                                } else {
+                                    let html = '';
+                                    records.forEach(function(record) {
+                                        const serviceDate = record.service_date ? formatDate(record.service_date) : 'N/A';
+                                        const nextDate = record.next_scheduled_date ? formatDate(record.next_scheduled_date) : 'N/A';
+                                        const technician = record.technician || 'N/A';
+                                        const remarks = record.remarks ? (record.remarks.length > 50 ? record.remarks.substring(0, 50) + '...' : record.remarks) : 'N/A';
+                                        
+                                        // Escape data for HTML attributes
+                                        const escapedTechnician = (record.technician || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                                        const escapedRemarks = (record.remarks || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                                        const escapedServiceType = (record.service_type || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                                        
+                                        html += `
+                                            <tr>
+                                                <td>${serviceDate}</td>
+                                                <td><span class="badge bg-info">${record.service_type}</span></td>
+                                                <td>${technician}</td>
+                                                <td>${nextDate}</td>
+                                                <td>${remarks}</td>
+                                                <td>${record.created_by || 'N/A'}</td>
+                                                <td>
+                                                    <button type="button" class="btn btn-sm btn-secondary view-maint-btn" 
+                                                        data-id="${record.maintenance_id}"
+                                                        title="View Details">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-warning edit-maint-btn" 
+                                                        data-id="${record.maintenance_id}"
+                                                        data-date="${record.service_date || ''}"
+                                                        data-type="${escapedServiceType}"
+                                                        data-technician="${escapedTechnician}"
+                                                        data-next="${record.next_scheduled_date || ''}"
+                                                        data-remarks="${escapedRemarks}"
+                                                        title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-danger delete-maint-btn" 
+                                                        data-id="${record.maintenance_id}"
+                                                        title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `;
+                                    });
+                                    $('#maintenanceTableBody').html(html);
+                                    $('#noMaintenanceMessage').hide();
+                                }
+                            } else {
+                                $('#maintenanceTableBody').html(`
+                                    <tr>
+                                        <td colspan="7" class="text-center text-danger">
+                                            <i class="fas fa-exclamation-triangle"></i> ${response.message}
+                                        </td>
+                                    </tr>
+                                `);
+                            }
+                        },
+                        error: function() {
+                            $('#maintenanceTableBody').html(`
+                                <tr>
+                                    <td colspan="7" class="text-center text-danger">
+                                        <i class="fas fa-exclamation-triangle"></i> Error loading maintenance records
+                                    </td>
+                                </tr>
+                            `);
+                        }
+                    });
+                }
+
+                // View Maintenance Record
+                $(document).on('click', '.view-maint-btn', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('View button clicked');
+                    
+                    const maintenanceId = $(this).data('id');
+                    console.log('Maintenance ID:', maintenanceId);
+                    
+                    $.ajax({
+                        url: '../actions/get_aircon_maintenance.php',
+                        type: 'GET',
+                        data: { aircon_id: currentAirconId },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.success) {
+                                const record = response.maintenance_records.find(r => r.maintenance_id == maintenanceId);
+                                if (record) {
+                                    $('#view_service_date').text(record.service_date ? formatDate(record.service_date) : 'N/A');
+                                    $('#view_service_type').text(record.service_type || 'N/A');
+                                    $('#view_technician').text(record.technician || 'N/A');
+                                    $('#view_next_scheduled_date').text(record.next_scheduled_date ? formatDate(record.next_scheduled_date) : 'N/A');
+                                    $('#view_remarks').text(record.remarks || 'N/A');
+                                    $('#view_created_by').text(record.created_by || 'N/A');
+                                    $('#view_date_created').text(record.date_created ? formatDateTime(record.date_created) : 'N/A');
+                                    
+                                    $('#viewMaintenanceModal').modal('show');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error fetching maintenance details:', error);
+                            alert('Error loading maintenance details');
+                        }
+                    });
+                });
+
+                // Edit Maintenance Record
+                $(document).on('click', '.edit-maint-btn', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Edit button clicked');
+                    
+                    const button = $(this);
+                    const maintenanceId = button.data('id');
+                    console.log('Editing maintenance ID:', maintenanceId);
+                    
+                    $('#maintenanceFormTitle').html('<i class="fas fa-edit me-2"></i>Edit Maintenance Record');
+                    $('#maint_maintenance_id').val(maintenanceId);
+                    $('#maint_aircon_id').val(currentAirconId);
+                    $('#maint_service_date').val(button.data('date'));
+                    $('#maint_service_type').val(button.data('type'));
+                    
+                    // Decode HTML entities for technician
+                    const technicianValue = button.data('technician');
+                    const decodedTechnician = $('<textarea/>').html(technicianValue).text();
+                    $('#maint_technician').val(decodedTechnician !== 'N/A' && decodedTechnician !== '' ? decodedTechnician : '');
+                    
+                    $('#maint_next_scheduled_date').val(button.data('next'));
+                    
+                    // Decode HTML entities for remarks
+                    const remarksValue = button.data('remarks');
+                    const decodedRemarks = $('<textarea/>').html(remarksValue).text();
+                    $('#maint_remarks').val(decodedRemarks);
+                    
+                    $('#maintenanceFormModal').modal('show');
+                });
+
+                // Delete Maintenance Record
+                $(document).on('click', '.delete-maint-btn', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Delete button clicked');
+                    
+                    const maintenanceId = $(this).data('id');
+                    console.log('Deleting maintenance ID:', maintenanceId);
+                    
+                    if (confirm('Are you sure you want to delete this maintenance record?')) {
+                        $.ajax({
+                            url: '../actions/delete_aircon_maintenance.php',
+                            type: 'POST',
+                            data: { maintenance_id: maintenanceId },
+                            dataType: 'json',
+                            success: function(response) {
+                                if (response.success) {
+                                    alert('✅ ' + response.message);
+                                    loadMaintenanceRecords(currentAirconId);
+                                    // Reload page to update last service date
+                                    setTimeout(() => location.reload(), 1000);
+                                } else {
+                                    alert('❌ ' + response.message);
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Error deleting maintenance record:', error);
+                                alert('❌ Error deleting maintenance record');
+                            }
+                        });
+                    }
+                });
+
+                // Helper function to format date
+                function formatDate(dateString) {
+                    if (!dateString || dateString === '0000-00-00') return 'N/A';
+                    const date = new Date(dateString);
+                    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+                    return date.toLocaleDateString('en-US', options);
+                }
+
+                // Helper function to format datetime
+                function formatDateTime(dateString) {
+                    if (!dateString) return 'N/A';
+                    const date = new Date(dateString);
+                    const options = { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    };
+                    return date.toLocaleDateString('en-US', options);
                 }
 
                 // AJAX search function - no page refresh
@@ -3046,7 +3547,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
             if (!empty($search_term_ajax)) {
                 $search_escaped_ajax = $conn->real_escape_string($search_term_ajax);
-                $inv_where_conditions_ajax[] = "pi.item_name LIKE '%$search_escaped_ajax%'";
+                $inv_where_conditions_ajax[] = "(pi.brand LIKE '%$search_escaped_ajax%' OR pi.model LIKE '%$search_escaped_ajax%' OR pi.type LIKE '%$search_escaped_ajax%' OR pi.serial_number LIKE '%$search_escaped_ajax%' OR pi.location LIKE '%$search_escaped_ajax%')";
             }
 
             list($sy_inv_start_ajax, $sy_inv_end_ajax) = parse_school_year_range($sy_inv_raw_ajax);
@@ -3118,7 +3619,18 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '<td data-label="Purchase Date">' . (!empty($row['purchase_date']) ? date('M d, Y', strtotime($row['purchase_date'])) : 'N/A') . '</td>';
                     echo '<td data-label="Warranty Expiry">' . (!empty($row['warranty_expiry']) ? date('M d, Y', strtotime($row['warranty_expiry'])) : 'N/A') . '</td>';
                     echo '<td data-label="Last Service Date">' . (!empty($row['last_service_date']) ? date('M d, Y', strtotime($row['last_service_date'])) : 'N/A') . '</td>';
-                    echo '<td data-label="Maintenance Schedule">' . htmlspecialchars($row['maintenance_schedule'] ?? 'N/A') . '</td>';
+                    
+                    echo '<td data-label="Maintenance Schedule">
+                            <button class="btn btn-sm btn-outline-primary view-maintenance-btn" 
+                                data-aircon-id="' . (int)$row['aircon_id'] . '"
+                                data-brand="' . htmlspecialchars($row['brand'] ?? '', ENT_QUOTES) . '"
+                                data-model="' . htmlspecialchars($row['model'] ?? '', ENT_QUOTES) . '"
+                                data-serial="' . htmlspecialchars($row['serial_number'] ?? '', ENT_QUOTES) . '"
+                                title="View Maintenance Records">
+                                <i class="fas fa-calendar-alt"></i> View Records
+                            </button>
+                        </td>';
+
                     echo '<td data-label="Installation Date">' . (!empty($row['installation_date']) ? date('M d, Y', strtotime($row['installation_date'])) : 'N/A') . '</td>';
                     echo '<td data-label="Notes">' . htmlspecialchars($row['notes'] ?? 'N/A') . '</td>';
                     echo '<td data-label="Actions" class="actions">';

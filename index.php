@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // Debug: Log the attempted username
   error_log('Login attempt with username: ' . $username);
 
-  $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
+  $stmt = $conn->prepare("SELECT * FROM user WHERE username = ?");
   $stmt->bind_param("s", $username);
   $stmt->execute();
   $result = $stmt->get_result();
