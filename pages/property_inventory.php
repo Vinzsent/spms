@@ -106,13 +106,27 @@ $sql1 = "SELECT st.*, s.supplier_name
         ORDER BY COALESCE(st.date_received, st.date_created) DESC";
 $result1 = $conn->query($sql1);
 
-// Get stock movement logs
+// Get stock movement logs with pagination
+$logs_per_page = 5;
+$logs_page = isset($_GET['logs_page']) ? (int)$_GET['logs_page'] : 1;
+$logs_offset = ($logs_page - 1) * $logs_per_page;
+
+// Get total count of stock logs
+$logs_count_sql = "SELECT COUNT(*) as total 
+                   FROM property_stock_logs sl 
+                   LEFT JOIN property_inventory pi ON sl.inventory_id = pi.inventory_id 
+                   $logs_where";
+$logs_count_result = $conn->query($logs_count_sql);
+$logs_total_records = $logs_count_result->fetch_assoc()['total'];
+$logs_total_pages = ceil($logs_total_records / $logs_per_page);
+
 $stock_logs_sql = "SELECT sl.*, pi.item_name, s.supplier_name 
                    FROM property_stock_logs sl 
                    LEFT JOIN property_inventory pi ON sl.inventory_id = pi.inventory_id 
                    LEFT JOIN supplier s ON pi.supplier_id = s.supplier_id 
                    $logs_where
-                   ORDER BY sl.date_created DESC LIMIT 50";
+                   ORDER BY sl.date_created DESC 
+                   LIMIT $logs_per_page OFFSET $logs_offset";
 $stock_logs_result = $conn->query($stock_logs_sql);
 
 // Get suppliers for dropdown
@@ -787,6 +801,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
             <li><a href="property_inventory.php" class="nav-link active">
                     <i class="fas fa-boxes"></i> Property Inventory
                 </a></li>
+            <li><a href="rooms_inventory.php" class="nav-link">
+                    <i class="fas fa-building"></i> Rooms Inventory
+                </a></li>
             <li><a href="property_issuance.php" class="nav-link">
                     <i class="fas fa-hand-holding"></i> Property Issuance
                 </a></li>
@@ -813,6 +830,25 @@ if ($categories_result && $categories_result->num_rows > 0) {
             <h1>Property Inventory Management</h1>
             <p>Track supplies, monitor stock levels, and manage inventory movements</p>
         </div>
+
+        <!-- Success/Error Messages -->
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <?= htmlspecialchars($_SESSION['success']) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <?php unset($_SESSION['success']); ?>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <?= htmlspecialchars($_SESSION['error']) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
 
         <!-- Low Stock Alerts -->
         <?php if ($low_stock_count > 0 || $out_of_stock_count > 0): ?>
@@ -983,6 +1019,59 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 .table-responsive {
                     overflow-x: auto;
                     -webkit-overflow-scrolling: touch;
+                }
+
+                /* Fixed table layout to prevent column width issues */
+                .table {
+                    table-layout: fixed;
+                    width: 100%;
+                }
+
+                /* Column width controls */
+                .table th:nth-child(1), .table td:nth-child(1) { /* Item Name */
+                    width: 15%;
+                    min-width: 150px;
+                }
+                .table th:nth-child(2), .table td:nth-child(2) { /* Description */
+                    width: 20%;
+                    min-width: 200px;
+                    max-width: 300px;
+                    word-wrap: break-word;
+                    white-space: normal;
+                    overflow-wrap: break-word;
+                }
+                .table th:nth-child(3), .table td:nth-child(3) { /* Current Stock */
+                    width: 8%;
+                    min-width: 80px;
+                }
+                .table th:nth-child(4), .table td:nth-child(4) { /* Unit */
+                    width: 7%;
+                    min-width: 70px;
+                }
+                .table th:nth-child(5), .table td:nth-child(5) { /* Brand */
+                    width: 10%;
+                    min-width: 100px;
+                }
+                .table th:nth-child(6), .table td:nth-child(6) { /* Color */
+                    width: 8%;
+                    min-width: 80px;
+                }
+                .table th:nth-child(7), .table td:nth-child(7) { /* Size */
+                    width: 7%;
+                    min-width: 70px;
+                }
+                .table th:nth-child(8), .table td:nth-child(8) { /* Last Updated */
+                    width: 10%;
+                    min-width: 100px;
+                }
+                .table th:nth-child(9), .table td:nth-child(9) { /* Status */
+                    width: 8%;
+                    min-width: 80px;
+                }
+                .table th:nth-child(10), .table td:nth-child(10) { /* Actions */
+                    width: 12%;
+                    min-width: 120px;
+                    white-space: nowrap;
                 }
 
                 @media (max-width: 991.98px) {
@@ -1199,12 +1288,15 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 </div>
             </div>
 
+
+            <!-- Property Inventory Table -->
             <div class="table-responsive">
                 <div id="inventoryTable">
                     <table class="table table-hover mb-0">
                         <thead class="table-dark">
                             <tr>
                                 <th>Item Name</th>
+                                <th>Description</th>
                                 <th>Current Stock</th>
                                 <th>Unit</th>
                                 <th>Brand</th>
@@ -1230,6 +1322,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     ?>
                                     <tr>
                                         <td><?= htmlspecialchars($row['item_name']) ?></td>
+                                        <td><?= htmlspecialchars($row['description'] ?? '') ?></td>
                                         <td class="text-center"><strong><?= $row['current_stock'] ?></strong></td>
                                         <td><?= $row['unit'] ?></td>
                                         <td><?= htmlspecialchars($row['brand']) ?></td>
@@ -1272,7 +1365,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="9" class="text-center py-4">
+                                    <td colspan="10" class="text-center py-4">
                                         <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
                                         <p class="text-muted">No inventory items found</p>
                                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
@@ -1347,6 +1440,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <th>New Stock</th>
                                     <th>Receiver</th>
                                     <th>Notes</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1365,11 +1459,27 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <td><?= $log['new_stock'] ?></td>
                                             <td><?= htmlspecialchars($log['receiver'] ?? 'N/A') ?></td>
                                             <td><?= htmlspecialchars($log['notes']) ?></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-info" title="Edit" 
+                                                    onclick='openEditStockMovementModal(
+                                                        <?= (int)$log['log_id'] ?>,
+                                                        <?= (int)$log['inventory_id'] ?>,
+                                                        <?= json_encode($log['item_name']) ?>,
+                                                        <?= json_encode($log['movement_type']) ?>,
+                                                        <?= (int)$log['quantity'] ?>,
+                                                        <?= (int)$log['previous_stock'] ?>,
+                                                        <?= (int)$log['new_stock'] ?>,
+                                                        <?= json_encode($log['receiver'] ?? '') ?>,
+                                                        <?= json_encode($log['notes'] ?? '') ?>
+                                                    )'>
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                            </td>
                                         </tr>
                                         <?php endwhile; ?>
                                         <?php else: ?>
                                             <tr>
-                                        <td colspan="8" class="text-center py-4">
+                                        <td colspan="9" class="text-center py-4">
                                             <i class="fas fa-history fa-3x text-muted mb-3"></i>
                                             <p class="text-muted">No stock movements recorded</p>
                                         </td>
@@ -1378,6 +1488,24 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 </tbody>
                         </table>
                     </div>
+
+                    <?php if ($logs_total_pages > 1): ?>
+                        <nav>
+                            <ul class="pagination justify-content-center mt-3">
+                                <li class="page-item <?= ($logs_page <= 1) ? 'disabled' : '' ?>">
+                                    <a class="page-link" href="?logs_page=<?= $logs_page - 1 ?><?= !empty($sy_logs_raw) ? '&sy_logs=' . urlencode($sy_logs_raw) : '' ?>">&laquo;</a>
+                                </li>
+                                <?php for ($i = 1; $i <= $logs_total_pages; $i++): ?>
+                                    <li class="page-item <?= ($i == $logs_page) ? 'active' : '' ?>">
+                                        <a class="page-link" href="?logs_page=<?= $i ?><?= !empty($sy_logs_raw) ? '&sy_logs=' . urlencode($sy_logs_raw) : '' ?>"><?= $i ?></a>
+                                    </li>
+                                <?php endfor; ?>
+                                <li class="page-item <?= ($logs_page >= $logs_total_pages) ? 'disabled' : '' ?>">
+                                    <a class="page-link" href="?logs_page=<?= $logs_page + 1 ?><?= !empty($sy_logs_raw) ? '&sy_logs=' . urlencode($sy_logs_raw) : '' ?>">&raquo;</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -1688,6 +1816,62 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                 <button type="submit" class="btn btn-primary">Record Movement</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Stock Movement Modal -->
+            <div class="modal fade" id="editStockMovementModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Edit Stock Movement</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form id="editStockMovementForm" action="../actions/edit_property_stock_movement.php" method="POST">
+                            <div class="modal-body">
+                                <input type="hidden" name="log_id" id="esm_log_id">
+                                <input type="hidden" name="inventory_id" id="esm_inventory_id">
+                                <input type="hidden" name="previous_stock" id="esm_previous_stock">
+
+                                <div class="mb-3">
+                                    <label class="form-label">Item</label>
+                                    <input type="text" id="esm_item_name" class="form-control" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Movement Type</label>
+                                    <select name="movement_type" id="esm_movement_type" class="form-select" required>
+                                        <option value="IN">Stock In</option>
+                                        <option value="OUT">Stock Out</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Quantity</label>
+                                    <input type="number" name="quantity" id="esm_quantity" class="form-control" required min="1">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Receiver</label>
+                                    <input type="text" name="receiver" id="esm_receiver" class="form-control">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Notes</label>
+                                    <textarea name="notes" id="esm_notes" class="form-control" rows="3"></textarea>
+                                </div>
+
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> 
+                                    <strong>Note:</strong> Editing this movement will recalculate the inventory stock levels.
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Update Movement</button>
                             </div>
                         </form>
                     </div>
@@ -2288,6 +2472,21 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     modal.show();
                 }
 
+                // Open Edit Stock Movement modal with data
+                function openEditStockMovementModal(logId, inventoryId, itemName, movementType, quantity, previousStock, newStock, receiver, notes) {
+                    document.getElementById('esm_log_id').value = logId;
+                    document.getElementById('esm_inventory_id').value = inventoryId;
+                    document.getElementById('esm_item_name').value = itemName;
+                    document.getElementById('esm_movement_type').value = movementType;
+                    document.getElementById('esm_quantity').value = quantity;
+                    document.getElementById('esm_previous_stock').value = previousStock;
+                    document.getElementById('esm_receiver').value = receiver || '';
+                    document.getElementById('esm_notes').value = notes || '';
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('editStockMovementModal'));
+                    modal.show();
+                }
+
                 // ANCHOR: Edit inventory item with modal management
                 function editInventoryItem(inventoryId, currentModalId) {
                     console.log('editInventoryItem called with ID:', inventoryId, 'Modal:', currentModalId);
@@ -2539,7 +2738,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '<div id="inventoryTable">';
             echo '<table class="table table-hover mb-0">';
             echo '<thead class="table-dark">';
-            echo '<tr><th>Item Name</th><th>Current Stock</th><th>Unit</th><th>Brand</th><th>Color</th><th>Size</th><th>Last Updated</th><th>Status</th><th>Actions</th></tr>';
+            echo '<tr><th>Item Name</th><th>Description</th><th>Current Stock</th><th>Unit</th><th>Brand</th><th>Color</th><th>Size</th><th>Last Updated</th><th>Status</th><th>Actions</th></tr>';
             echo '</thead><tbody>';
 
             if ($result && $result->num_rows > 0) {
@@ -2555,6 +2754,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
                     echo '<tr>';
                     echo '<td>' . htmlspecialchars($row['item_name']) . '</td>';
+                    echo '<td>' . htmlspecialchars($row['description'] ?? '') . '</td>';
                     echo '<td class="text-center"><strong>' . $row['current_stock'] . '</strong></td>';
                     echo '<td>' . $row['unit'] . '</td>';
                     echo '<td>' . htmlspecialchars($row['brand']) . '</td>';
@@ -2589,7 +2789,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '</td></tr>';
                 }
             } else {
-                echo '<tr><td colspan="9" class="text-center py-4"><i class="fas fa-boxes fa-3x text-muted mb-3"></i><p class="text-muted">No inventory items found</p></td></tr>';
+                echo '<tr><td colspan="10" class="text-center py-4"><i class="fas fa-boxes fa-3x text-muted mb-3"></i><p class="text-muted">No inventory items found</p></td></tr>';
             }
 
             echo '</tbody></table></div>';
