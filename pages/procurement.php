@@ -1043,8 +1043,11 @@ if (isset($_SESSION['error'])) {
                 <li><a href="suppliers.php" class="nav-link">
                     <i class="fas fa-users"></i> Supplier List
                 </a></li>
+                <li><a href="procurement_statistics.php" class="nav-link">
+                        <i class="fas fa-chart-line"></i> Procurement Statistics
+                    </a></li>
                 <li><a href="procurement.php" class="nav-link active">
-                        <i class="fas fa-shopping-cart"></i> Procurement
+                        <i class="fas fa-shopping-cart"></i> Procurement Tables
                     </a></li>
             <li><a href="canvas_form.php" class="nav-link">
                     <i class="fas fa-clipboard-list"></i> Canvass Form
@@ -1141,7 +1144,10 @@ if (isset($_SESSION['error'])) {
     <!-- Purchase Items Table -->
     <div class="table-container">
         <div class="table-header">
-            <h3>Purchase Items List</h3>
+            <div>
+                <h2 class="mb-3">Purchase Items List</h2>
+                <small>Purchase Items from suppliers</small>
+            </div>
             <div class="d-flex align-items-end gap-2">
                 <form method="GET" class="d-flex align-items-end gap-2 mb-0">
                     <div>
@@ -1262,7 +1268,30 @@ if (isset($_SESSION['error'])) {
     <!-- Approved Request List -->
     <div class="table-container mt-4">
         <div class="table-header">
-            <h3>Approved Request List</h3>
+            <div>
+                <h3 class="mb-3">Approved Request List</h3>
+                <small>List of employers requests that needs to be approved</small>
+            </div>
+            <div class="d-flex align-items-end gap-2">
+                <form method="GET" class="d-flex align-items-end gap-2 mb-0">
+                    <div>
+                        <label for="sy_inv" class="form-label mb-0 text-white">School Year</label>
+                        <select id="sy_inv" name="sy_inv" class="form-select" onchange="this.form.submit()">
+                            <option value="">All</option>
+                            <?php foreach ($sy_years as $sy): ?>
+                                <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_inv_raw === $sy) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($sy) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="pt-4">
+                        <?php if (!empty($sy_inv_raw)): ?>
+                            <a href="procurement.php?<?= http_build_query(array_diff_key($_GET, ['sy_inv' => true])) ?>" class="btn btn-outline-light">Reset</a>
+                        <?php endif; ?>
+                    </div>
+                </form>
+            </div>
         </div>
         <div class="table-responsive">
             <table class="table table-hover mb-0">

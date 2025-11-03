@@ -764,7 +764,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Procurement</h3>
         <p class="card-description">Log purchased items with supplier details, costs, and receipts. Mark items as received when delivered.</p>
-        <a href="pages/procurement.php" class="card-button">Access</a>
+        <a href="pages/procurement_statistics.php" class="card-button">Access</a>
       </div>
       <!-- Received Items Card -->
       <div class="menu-card card-primary">
