@@ -58,7 +58,7 @@ $logs_where_conditions[] = "sl.receiver = 'Property Custodian'";
 // Add search filter if search term is provided
 if (!empty($search_term)) {
     $search_escaped = $conn->real_escape_string($search_term);
-    $inv_where_conditions[] = "i.item_name LIKE '%$search_escaped%'";
+    $inv_where_conditions[] = "(i.item_name LIKE '%$search_escaped%' OR i.description LIKE '%$search_escaped%' OR i.brand LIKE '%$search_escaped%')";
 }
 
 // Add school year filters if provided
@@ -279,6 +279,10 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
 <?php if (!$isAjax): ?>
     <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        
         :root {
             --primary-green: #073b1d;
             --dark-green: #073b1d;
@@ -802,7 +806,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     <i class="fas fa-boxes"></i> Property Inventory
                 </a></li>
             <li><a href="rooms_inventory.php" class="nav-link">
-                    <i class="fas fa-building"></i> Rooms Inventory
+                    <i class="fas fa-door-open"></i> Rooms Inventory
                 </a></li>
             <li><a href="property_issuance.php" class="nav-link">
                     <i class="fas fa-hand-holding"></i> Property Issuance
@@ -909,7 +913,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
         </div>
 
         <!-- Inventory Table --> 
-        <div class="table-container">
+        <div class="table-container" id="inventory-items">
             <div class="table-header">
                 <h3> Property Items</h3>
                 <div class="d-flex align-items-end gap-2">
@@ -1385,7 +1389,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <a class="page-link" href="#" onclick="loadInventory(<?= $page - 1 ?>); return false;">&laquo;</a>
                             </li>
                             <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                <li class="page-item <?= ((int)$i === (int)$page) ? 'active' : '' ?>">
                                     <a class="page-link" href="#" onclick="loadInventory(<?= $i ?>); return false;"><?= $i ?></a>
                                 </li>
                             <?php endfor; ?>
@@ -1400,7 +1404,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 
                 
                 <!-- Stock Movement Logs -->
-                <div class="table-container">
+                <div class="table-container" id="stock-movements">
                     <div class="table-header">
                         <h3>Recent Stock Movements</h3>
                         <div class="d-flex align-items-end gap-2">
@@ -1493,15 +1497,15 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         <nav>
                             <ul class="pagination justify-content-center mt-3">
                                 <li class="page-item <?= ($logs_page <= 1) ? 'disabled' : '' ?>">
-                                    <a class="page-link" href="?logs_page=<?= $logs_page - 1 ?><?= !empty($sy_logs_raw) ? '&sy_logs=' . urlencode($sy_logs_raw) : '' ?>">&laquo;</a>
+                                    <a class="page-link" href="#" onclick="loadStockMovements(<?= $logs_page - 1 ?>); return false;">&laquo;</a>
                                 </li>
                                 <?php for ($i = 1; $i <= $logs_total_pages; $i++): ?>
-                                    <li class="page-item <?= ($i == $logs_page) ? 'active' : '' ?>">
-                                        <a class="page-link" href="?logs_page=<?= $i ?><?= !empty($sy_logs_raw) ? '&sy_logs=' . urlencode($sy_logs_raw) : '' ?>"><?= $i ?></a>
+                                    <li class="page-item <?= ((int)$i === (int)$logs_page) ? 'active' : '' ?>">
+                                        <a class="page-link" href="#" onclick="loadStockMovements(<?= $i ?>); return false;"><?= $i ?></a>
                                     </li>
                                 <?php endfor; ?>
                                 <li class="page-item <?= ($logs_page >= $logs_total_pages) ? 'disabled' : '' ?>">
-                                    <a class="page-link" href="?logs_page=<?= $logs_page + 1 ?><?= !empty($sy_logs_raw) ? '&sy_logs=' . urlencode($sy_logs_raw) : '' ?>">&raquo;</a>
+                                    <a class="page-link" href="#" onclick="loadStockMovements(<?= $logs_page + 1 ?>); return false;">&raquo;</a>
                                 </li>
                             </ul>
                         </nav>
@@ -2637,10 +2641,10 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 }
                             });
 
-                            // Smooth scroll to top of table
-                            const table = document.querySelector('.table-responsive');
-                            if (table) {
-                                table.scrollIntoView({
+                            // Smooth scroll to inventory items section
+                            const inventorySection = document.getElementById('inventory-items');
+                            if (inventorySection) {
+                                inventorySection.scrollIntoView({
                                     behavior: 'smooth',
                                     block: 'start'
                                 });
@@ -2667,6 +2671,63 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             const tableContainer = document.querySelector('.table-responsive');
                             if (tableContainer) {
                                 tableContainer.parentNode.insertBefore(errorDiv, tableContainer.nextSibling);
+                            }
+                        });
+                }
+
+                // Load Stock Movements with AJAX
+                function loadStockMovements(page = 1) {
+                    // Get current school year filter
+                    const syLogs = document.getElementById('sy_logs')?.value || '';
+                    
+                    // Show loading state
+                    const tableBody = document.querySelector('#stock-movements tbody');
+                    if (tableBody) {
+                        tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>';
+                    }
+                    
+                    // Build URL parameters
+                    const params = new URLSearchParams();
+                    params.set('logs_page', page);
+                    if (syLogs) {
+                        params.set('sy_logs', syLogs);
+                    }
+                    
+                    // Fetch data from API
+                    fetch('../api/get_property_stock_movements.php?' + params.toString())
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Update table body
+                                if (tableBody) {
+                                    tableBody.innerHTML = data.table_rows;
+                                }
+                                
+                                // Update pagination
+                                const paginationContainer = document.querySelector('#stock-movements nav');
+                                if (paginationContainer) {
+                                    paginationContainer.innerHTML = data.pagination;
+                                }
+                                
+                                // Smooth scroll to stock movements section
+                                const stockSection = document.getElementById('stock-movements');
+                                if (stockSection) {
+                                    stockSection.scrollIntoView({
+                                        behavior: 'smooth',
+                                        block: 'start'
+                                    });
+                                }
+                            } else {
+                                console.error('Error:', data.message);
+                                if (tableBody) {
+                                    tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle"></i> ' + data.message + '</td></tr>';
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            if (tableBody) {
+                                tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle"></i> Error loading stock movements. Please try again.</td></tr>';
                             }
                         });
                 }
@@ -2800,7 +2861,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 echo '<li class="page-item ' . (($page <= 1) ? 'disabled' : '') . '">';
                 echo '<a class="page-link" href="#" onclick="loadInventory(' . ($page - 1) . '); return false;">&laquo;</a></li>';
                 for ($i = 1; $i <= $total_pages; $i++) {
-                    echo '<li class="page-item ' . (($i == $page) ? 'active' : '') . '">';
+                    echo '<li class="page-item ' . (((int)$i === (int)$page) ? 'active' : '') . '">';
                     echo '<a class="page-link" href="#" onclick="loadInventory(' . $i . '); return false;">' . $i . '</a></li>';
                 }
                 echo '<li class="page-item ' . (($page >= $total_pages) ? 'disabled' : '') . '">';

@@ -626,6 +626,9 @@ if (isset($_SESSION['error'])) {
             <li><a href="property_inventory.php" class="nav-link">
                     <i class="fas fa-boxes"></i> Property Inventory
                 </a></li>
+                <li><a href="rooms_inventory.php" class="nav-link">
+                    <i class="fas fa-door-open"></i> Rooms Inventory
+                </a></li>
             <li><a href="property_issuance.php" class="nav-link">
                     <i class="fas fa-hand-holding"></i> Property Issuance
                 </a></li>
@@ -634,6 +637,9 @@ if (isset($_SESSION['error'])) {
                 </a></li>
                 <li><a href="borrowers_forms.php" class="nav-link active">
                     <i class="fas fa-hand-holding"></i> Borrower Forms
+                </a></li>
+                <li><a href="aircon_list.php" class="nav-link">
+                    <i class="fas fa-snowflake"></i> Aircons
                 </a></li>
             <li><a href="../logout.php" class="nav-link logout">
                     <i class="fas fa-sign-out-alt"></i> Logout

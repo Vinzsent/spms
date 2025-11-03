@@ -857,6 +857,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <li><a href="property_inventory.php" class="nav-link">
                         <i class="fas fa-boxes"></i> Property Inventory
                     </a></li>
+                <li><a href="rooms_inventory.php" class="nav-link">
+                        <i class="fas fa-door-open"></i> Rooms Inventory
+                    </a></li>
                 <li><a href="property_issuance.php" class="nav-link">
                         <i class="fas fa-hand-holding"></i> Property Issuance
                     </a></li>
