@@ -192,19 +192,38 @@ while ($row = $category_inventory_result->fetch_assoc()) {
 
     /* Stats Cards */
     .stats-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 12px;
+        margin-bottom: 20px;
+        overflow-x: auto;
+        padding-bottom: 10px;
+    }
+    
+    .stats-container::-webkit-scrollbar {
+        height: 6px;
+    }
+    
+    .stats-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .stats-container::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
     }
 
     .stat-card {
-        background-color: #fff;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        background: white;
+        border-radius: 8px;
+        padding: 12px 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         text-align: center;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        min-width: 150px;
+        flex: 0 0 auto;
+        width: calc(16.666% - 11px); /* 6 cards with 12px gap */
     }
 
     .stat-card:hover {
@@ -213,15 +232,15 @@ while ($row = $category_inventory_result->fetch_assoc()) {
     }
 
     .stat-icon {
-        width: 60px;
-        height: 60px;
+        width: 36px;
+        height: 36px;
+        margin: 0 auto 8px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 15px;
-        font-size: 1.5rem;
-        color: var(--text-white);
+        font-size: 18px;
+        color: white;
     }
 
     .stat-icon.requests {
@@ -249,16 +268,17 @@ while ($row = $category_inventory_result->fetch_assoc()) {
     }
 
     .stat-number {
-        font-size: 2.5rem;
+        font-size: 20px;
         font-weight: 700;
-        color: var(--text-dark);
-        margin-bottom: 5px;
+        color: #333;
+        margin-bottom: 4px;
     }
 
     .stat-label {
+        font-size: 12px;
         color: #666;
-        font-size: 0.95rem;
-        font-weight: 500;
+        margin-bottom: 0;
+        line-height: 1.2;
     }
 
     /* Chart Containers */

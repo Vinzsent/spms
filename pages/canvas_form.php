@@ -494,9 +494,9 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         <!-- Signature Section -->
         <div class="signature-section">
             <div class="signature-box">
-                <div class="signature-line">Marilou Suarez</div>
+                <div class="signature-line"><?= htmlspecialchars(($_SESSION['user']['first_name'] ?? '') . ' ' . ($_SESSION['user']['last_name'] ?? '')) ?></div>
                 <div class="signature-title">Canvassed By:</div>
-                <div class="signature-subtitle">Purchasing Officer</div>
+                <div class="signature-subtitle"><?= htmlspecialchars($_SESSION['user']['position'] ?? 'Purchasing Officer') ?></div>
             </div>
         </div>
 

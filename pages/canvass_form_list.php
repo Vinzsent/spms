@@ -15,6 +15,7 @@ $canvass_query = "
         c.status,
         c.notes,
         c.created_at,
+        ci.supplier_name,
         CONCAT(u.first_name, ' ', u.last_name) as created_by_name,
         COUNT(ci.canvass_item_id) as item_count
     FROM canvass c
@@ -407,18 +408,34 @@ $canvass_result = $conn->query($canvass_query);
     <div class="list-container">
         <div class="list-header">
             <h2 class="list-title">All Canvass Records</h2>
-            <div class="action-buttons">
-                <a href="canvas_form.php" class="btn btn-primary text-dark">
+            <div class="table-actions">
+                <a href="canvas_form.php" class="btn btn-primary">
                     <i class="fas fa-plus"></i> New Canvass
                 </a>
+                <button id="selectForPrintBtn" class="btn btn-info" onclick="toggleSelectMode()">
+                    <i class="fas fa-print"></i> Select for Print
+                </button>
+                <button id="printSelectedBtn" class="btn btn-success" onclick="printSelected()" style="display: none;">
+                    <i class="fas fa-print"></i> Print Selected
+                </button>
+                <button id="cancelSelectBtn" class="btn btn-secondary" onclick="cancelSelectMode()" style="display: none;">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
             </div>
         </div>
 
         <?php if ($canvass_result && $canvass_result->num_rows > 0): ?>
             <table class="canvass-table">
                 <thead>
+                    <tr id="selectHeader" style="display: none;">
+                        <th style="width: 40px;">
+                            <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)">
+                        </th>
+                        <th colspan="8">Select items to print</th>
+                    </tr>
                     <tr>
-                        <th>Canvass #</th>
+                        <th id="selectHeaderCell" style="display: none; width: 40px;"></th>
+                        <th>Supplier Name</th>
                         <th>Date</th>
                         <th>Total Amount</th>
                         <th>Items</th>
@@ -430,9 +447,12 @@ $canvass_result = $conn->query($canvass_query);
                 </thead>
                 <tbody>
                     <?php while ($canvass = $canvass_result->fetch_assoc()): ?>
-                        <tr>
+                        <tr data-canvass-id="<?= $canvass['canvass_id'] ?>">
+                            <td class="select-cell" style="display: none;">
+                                <input type="checkbox" class="row-checkbox">
+                            </td>
                             <td>
-                                <strong><?= htmlspecialchars($canvass['canvass_id']) ?></strong>
+                                <strong><?= htmlspecialchars($canvass['supplier_name']) ?></strong>
                             </td>
                             <td>
                                 <?= date('M d, Y', strtotime($canvass['canvass_date'])) ?>
@@ -505,8 +525,450 @@ $canvass_result = $conn->query($canvass_query);
   </div>
 </div>
 
-
 <script>
+    // Toggle select mode for printing
+    function toggleSelectMode() {
+        const selectCells = document.querySelectorAll('.select-cell');
+        const selectHeader = document.getElementById('selectHeader');
+        const selectBtn = document.getElementById('selectForPrintBtn');
+        const printBtn = document.getElementById('printSelectedBtn');
+        const cancelBtn = document.getElementById('cancelSelectBtn');
+        
+        if (selectCells && selectCells.length > 0) {
+            selectCells.forEach(cell => {
+                if (cell && cell.style) {
+                    cell.style.display = cell.style.display === 'none' ? 'table-cell' : 'none';
+                }
+            });
+        }
+        
+        if (selectHeader) {
+            selectHeader.style.display = selectHeader.style.display === 'none' ? 'table-row' : 'none';
+        }
+        // Toggle header placeholder cell for checkbox column
+        const selectHeaderCell = document.getElementById('selectHeaderCell');
+        if (selectHeaderCell) {
+            selectHeaderCell.style.display = selectHeaderCell.style.display === 'none' ? 'table-cell' : 'none';
+        }
+        
+        if (selectBtn) {
+            selectBtn.style.display = selectBtn.style.display === 'none' ? 'inline-block' : 'none';
+        }
+        
+        if (printBtn) {
+            printBtn.style.display = printBtn.style.display === 'none' ? 'inline-block' : 'none';
+        }
+        
+        if (cancelBtn) {
+            cancelBtn.style.display = cancelBtn.style.display === 'none' ? 'inline-block' : 'none';
+        }
+    }
+    
+    // Cancel select mode
+    function cancelSelectMode() {
+        const selectCells = document.querySelectorAll('.select-cell');
+        const selectHeader = document.getElementById('selectHeader');
+        const selectBtn = document.getElementById('selectForPrintBtn');
+        const printBtn = document.getElementById('printSelectedBtn');
+        const cancelBtn = document.getElementById('cancelSelectBtn');
+        
+        if (selectCells && selectCells.length > 0) {
+            selectCells.forEach(cell => {
+                if (cell && cell.style) {
+                    cell.style.display = 'none';
+                }
+            });
+        }
+        
+        if (selectHeader) selectHeader.style.display = 'none';
+        const selectHeaderCell2 = document.getElementById('selectHeaderCell');
+        if (selectHeaderCell2) selectHeaderCell2.style.display = 'none';
+        if (selectBtn) selectBtn.style.display = 'inline-block';
+        if (printBtn) printBtn.style.display = 'none';
+        if (cancelBtn) cancelBtn.style.display = 'none';
+        
+        // Uncheck all checkboxes
+        document.querySelectorAll('.row-checkbox').forEach(checkbox => {
+            if (checkbox) checkbox.checked = false;
+        });
+    }
+    
+    // Toggle select all checkboxes
+    function toggleSelectAll(source) {
+        if (!source) return;
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        if (checkboxes && checkboxes.length > 0) {
+            checkboxes.forEach(checkbox => {
+                if (checkbox) {
+                    checkbox.checked = source.checked;
+                }
+            });
+        }
+    }
+    
+    // Print selected rows with detailed information
+    function printSelected() {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        
+        if (!checkboxes || checkboxes.length === 0) {
+            alert('Please select at least one row to print');
+            return;
+        }
+        
+        // Collect canvass IDs from selected rows
+        const canvassIds = [];
+        checkboxes.forEach(checkbox => {
+            const row = checkbox.closest('tr');
+            if (row) {
+                const canvassId = row.getAttribute('data-canvass-id');
+                if (canvassId) {
+                    canvassIds.push(canvassId);
+                }
+            }
+        });
+        
+        if (canvassIds.length === 0) {
+            alert('No valid canvass records selected for printing');
+            return;
+        }
+        
+        // Show loading message
+        const loadingMessage = document.createElement('div');
+        loadingMessage.innerHTML = `
+            <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                        background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); 
+                        z-index: 10000; text-align: center;">
+                <p><i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #073b1d;"></i></p>
+                <p style="margin-top: 15px; font-weight: 600;">Loading canvass details...</p>
+                <p style="font-size: 0.9rem; color: #666;">Please wait while we prepare your print document</p>
+            </div>
+        `;
+        document.body.appendChild(loadingMessage);
+        
+        // Fetch detailed information for each selected canvass
+        const fetchPromises = canvassIds.map(id => 
+            fetch(`../actions/get_canvass_details.php?id=${id}`)
+                .then(response => response.json())
+        );
+        
+        Promise.all(fetchPromises)
+            .then(results => {
+                document.body.removeChild(loadingMessage);
+                
+                // Filter successful results
+                const canvassData = results.filter(result => result.success);
+                
+                if (canvassData.length === 0) {
+                    alert('Failed to load canvass details');
+                    return;
+                }
+                
+                // Generate detailed print content
+                let printContent = `
+                    <div class="print-container">
+                        <div class="print-header">
+                            <h2>Canvass Details - Selected Items</h2>
+                            <div class="print-date">Printed on: ${new Date().toLocaleString()}</div>
+                        </div>`;
+                
+                // Add detailed information for each canvass
+                canvassData.forEach((data, index) => {
+                    const canvass = data.canvass;
+                    const items = data.items;
+                    
+                    let itemsHtml = '';
+                    let grandTotal = 0;
+                    
+                                         items.forEach(item => {
+                         itemsHtml += `
+                             <tr>
+                                 <td>${item.supplier_name || ''}</td>
+                                 <td>${item.item_description || ''}</td>
+                                 <td style="text-align: right;">${parseFloat(item.quantity || 0).toFixed(2)}</td>
+                                 <td style="text-align: right;">₱${parseFloat(item.unit_cost || 0).toFixed(2)}</td>
+                                 <td style="text-align: right;">₱${parseFloat(item.total_cost || 0).toFixed(2)}</td>
+                             </tr>
+                         `;
+                         grandTotal += parseFloat(item.total_cost || 0);
+                     });
+                    
+                    const statusColors = {
+                        'draft': '#6c757d',
+                        'completed': '#4a90e2',
+                        'approved': '#28a745',
+                        'cancelled': '#e74c3c'
+                    };
+                    
+                    const statusColor = statusColors[canvass.status?.toLowerCase()] || '#6c757d';
+                    
+                                         printContent += `
+                         <div class="canvass-detail-section" ${index > 0 ? 'style="page-break-before: always; margin-top: 30px;"' : ''}>
+                             <div class="canvass-info-header">
+                                 <h3>Canvass Number: ${canvass.canvass_id}</h3>
+                             </div>
+                             
+                             <div class="canvass-info-grid">
+                                 <div class="info-section">
+                                     <h4>Canvass Information</h4>
+                                     <p><strong>Canvass Number:</strong> ${canvass.canvass_id}</p>
+                                     <p><strong>Date:</strong> ${new Date(canvass.canvass_date).toLocaleDateString()}</p>
+                                     <p><strong>Status:</strong> <span class="status-badge" style="background-color: ${statusColor}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600;">${canvass.status || 'DRAFT'}</span></p>
+                                 </div>
+                                 <div class="info-section">
+                                     <p><strong>Total Amount:</strong> ₱${parseFloat(canvass.total_amount || 0).toFixed(2)}</p>
+                                     <p><strong>Created By:</strong> ${canvass.created_by_name || 'Unknown'}</p>
+                                     <p><strong>Created At:</strong> ${new Date(canvass.created_at).toLocaleString()}</p>
+                                 </div>
+                             </div>
+                             
+                             <div class="items-section">
+                                 <h4>Items</h4>
+                                 <table class="items-table">
+                                     <thead>
+                                         <tr>
+                                             <th>Supplier</th>
+                                             <th>Item Description</th>
+                                             <th style="text-align: right;">Quantity</th>
+                                             <th style="text-align: right;">Unit Cost</th>
+                                             <th style="text-align: right;">Total Cost</th>
+                                         </tr>
+                                     </thead>
+                                     <tbody>
+                                         ${itemsHtml}
+                                         <tr class="grand-total-row">
+                                             <td colspan="4" style="text-align: right;">GRAND TOTAL:</td>
+                                             <td style="text-align: right;">₱${grandTotal.toFixed(2)}</td>
+                                         </tr>
+                                     </tbody>
+                                 </table>
+                             </div>
+                             
+                             ${canvass.notes ? `<div class="notes-section"><h5>Notes:</h5><p>${canvass.notes}</p></div>` : ''}
+                         </div>
+                     `;
+                });
+                
+                printContent += `</div>`;
+                
+                // Add print styles
+                printContent += `
+                    <style>
+                        @page { size: 8.5in 11in; margin: 10mm; }
+                        body { 
+                            font-family: 'Segoe UI', Arial, sans-serif; 
+                            margin: 20px; 
+                            color: #333;
+                            background: white;
+                            font-size: 11px;
+                        }
+                        .print-container { 
+                            max-width: 100%; 
+                        }
+                        .print-header { 
+                             text-align: center; 
+                            margin-bottom: 24px;
+                            padding-bottom: 8px;
+                            border-bottom: 2px solid #333;
+                         }
+                         .print-header h2 {
+                             color: #333;
+                            margin: 0 0 6px 0;
+                            font-size: 1.2rem;
+                             font-weight: bold;
+                         }
+                         .print-date { 
+                             text-align: right; 
+                            margin-top: 6px; 
+                             color: #666;
+                            font-size: 0.8em;
+                         }
+                                                .canvass-detail-section {
+                            margin-bottom: 18px;
+                            padding: 12px;
+                            border: 1px solid #333;
+                            border-radius: 4px;
+                            background: white;
+                            page-break-inside: avoid;
+                        }
+                         .canvass-info-header {
+                             background: white;
+                             color: #333;
+                            padding: 0 0 8px 0;
+                            margin-bottom: 12px;
+                            border-bottom: 2px solid #333;
+                         }
+                         .canvass-info-header h3 {
+                             margin: 0;
+                            font-size: 1.1rem;
+                             font-weight: bold;
+                             color: #333;
+                         }
+                         .canvass-info-grid {
+                             display: grid;
+                             grid-template-columns: 1fr 1fr;
+                            gap: 16px;
+                            margin-bottom: 16px;
+                             padding: 0;
+                             align-items: start;
+                         }
+                         .info-section {
+                             display: flex;
+                             flex-direction: column;
+                         }
+                         .info-section h4 {
+                             color: #333;
+                            margin: 0 0 8px 0;
+                            padding-bottom: 6px;
+                             border-bottom: 2px solid #ddd;
+                            font-size: 0.95rem;
+                             font-weight: 600;
+                             line-height: 1.2;
+                             min-height: 1.5rem;
+                         }
+                         .info-section:last-child::before {
+                             content: '';
+                             display: block;
+                            margin: 0 0 8px 0;
+                            padding-bottom: 6px;
+                             border-bottom: 2px solid transparent;
+                             min-height: 1.5rem;
+                         }
+                         .info-section p {
+                            margin: 6px 0;
+                            line-height: 1.4;
+                             color: #333;
+                         }
+                         .info-section strong {
+                             color: #333;
+                             font-weight: 600;
+                         }
+                         .items-section {
+                            margin-top: 12px;
+                         }
+                         .items-section h4 {
+                             color: #333;
+                            margin: 0 0 8px 0;
+                            padding-bottom: 6px;
+                             border-bottom: 2px solid #ddd;
+                            font-size: 0.95rem;
+                             font-weight: 600;
+                         }
+                         .items-table {
+                             width: 100%;
+                             border-collapse: collapse;
+                            margin-top: 10px;
+                             background: white;
+                             border: 1px solid #333;
+                         }
+                         .items-table th {
+                             background: #f5f5f5;
+                             color: #333;
+                            font-weight: 700;
+                             text-transform: uppercase;
+                            font-size: 0.75em;
+                             letter-spacing: 0.5px;
+                            padding: 6px 8px;
+                            border: 1px solid #ddd;
+                            border-bottom: 1px solid #333;
+                             text-align: left;
+                         }
+                         .items-table td {
+                             background: white;
+                            padding: 6px 8px;
+                             border: 1px solid #ddd;
+                             color: #333;
+                         }
+                         .items-table tbody tr:nth-child(even) td {
+                             background-color: #f9f9f9;
+                         }
+                         .grand-total-row td {
+                             background-color: #f5f5f5 !important;
+                            font-weight: bold;
+                            font-size: 0.95em;
+                             color: #333;
+                            border-top: 1px solid #333 !important;
+                            padding: 8px 8px !important;
+                         }
+                         .notes-section {
+                             margin-top: 25px;
+                             padding: 15px;
+                             background: #f9f9f9;
+                             border: 1px solid #ddd;
+                             border-radius: 5px;
+                         }
+                         .notes-section h5 {
+                             color: #333;
+                             margin: 0 0 10px 0;
+                             font-weight: 600;
+                         }
+                         .notes-section p {
+                             margin: 0;
+                             color: #333;
+                             line-height: 1.6;
+                         }
+                         .status-badge {
+                             display: inline-block;
+                         }
+                        @media print {
+                            body { 
+                                margin: 0; 
+                                padding: 8mm; 
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            .no-print { 
+                                display: none !important; 
+                            }
+                            .canvass-detail-section {
+                                page-break-inside: avoid;
+                                break-inside: avoid;
+                                border: 1px solid #ccc;
+                            }
+                            .items-table {
+                                page-break-inside: auto;
+                            }
+                            .items-table tbody tr {
+                                page-break-inside: avoid;
+                                break-inside: avoid;
+                            }
+                            .items-table thead {
+                                display: table-header-group;
+                            }
+                        }
+                    </style>
+                `;
+                
+                // Open print window
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                        <head>
+                            <title>Canvass Details - Selected Items</title>
+                            <meta charset="UTF-8">
+                        </head>
+                        <body>
+                            ${printContent}
+                            <script>
+                                window.onload = function() {
+                                    setTimeout(function() {
+                                        window.print();
+                                        setTimeout(function() { window.close(); }, 100);
+                                    }, 500);
+                                };
+                            <\/script>
+                        </body>
+                    </html>
+                `);
+                printWindow.document.close();
+            })
+            .catch(error => {
+                document.body.removeChild(loadingMessage);
+                alert('Error loading canvass details: ' + error.message);
+                console.error('Error:', error);
+            });
+    }
+
     // View canvass details
     function viewCanvass(canvassId) {
         fetch(`../actions/get_canvass_details.php?id=${canvassId}`)
