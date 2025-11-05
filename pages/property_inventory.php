@@ -1385,16 +1385,49 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <?php if ($total_pages > 1): ?>
                     <nav>
                         <ul class="pagination justify-content-center mt-3" id="paginationContainer">
+                            <?php
+                                $neighborRange = 2;
+                                $start = max(1, (int)$page - $neighborRange);
+                                $end = min((int)$total_pages, (int)$page + $neighborRange);
+                            ?>
+
+                            <!-- Prev -->
                             <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="#" onclick="loadInventory(<?= $page - 1 ?>); return false;">&laquo;</a>
+                                <a class="page-link" href="#" onclick="loadInventory(<?= max(1, ($page - 1)) ?>); return false;">&laquo;</a>
                             </li>
-                            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                <li class="page-item <?= ((int)$i === (int)$page) ? 'active' : '' ?>">
+
+                            <!-- First page -->
+                            <li class="page-item <?= (1 === (int)$page) ? 'active' : '' ?>">
+                                <a class="page-link" href="#" onclick="loadInventory(1); return false;">1</a>
+                            </li>
+
+                            <!-- Leading ellipsis -->
+                            <?php if ($start > 2): ?>
+                                <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                            <?php endif; ?>
+
+                            <!-- Middle pages around current (excluding first/last) -->
+                            <?php for ($i = $start; $i <= $end; $i++): if ($i === 1 || $i === (int)$total_pages) continue; ?>
+                                <li class="page-item <?= ($i === (int)$page) ? 'active' : '' ?>">
                                     <a class="page-link" href="#" onclick="loadInventory(<?= $i ?>); return false;"><?= $i ?></a>
                                 </li>
                             <?php endfor; ?>
+
+                            <!-- Trailing ellipsis -->
+                            <?php if ($end < ((int)$total_pages - 1)): ?>
+                                <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                            <?php endif; ?>
+
+                            <!-- Last page -->
+                            <?php if ($total_pages > 1): ?>
+                                <li class="page-item <?= (((int)$total_pages === (int)$page) ? 'active' : '') ?>">
+                                    <a class="page-link" href="#" onclick="loadInventory(<?= (int)$total_pages ?>); return false;"><?= (int)$total_pages ?></a>
+                                </li>
+                            <?php endif; ?>
+
+                            <!-- Next -->
                             <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="#" onclick="loadInventory(<?= $page + 1 ?>); return false;">&raquo;</a>
+                                <a class="page-link" href="#" onclick="loadInventory(<?= min((int)$total_pages, ($page + 1)) ?>); return false;">&raquo;</a>
                             </li>
                         </ul>
                     </nav>
@@ -2824,8 +2857,12 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '<td>' . date('M d, Y', strtotime($row['date_updated'])) . '</td>';
                     echo '<td><span class="badge bg-' . ($stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success')) . '">' . ucfirst($stock_level) . '</span></td>';
                     echo '<td>';
-                    echo '<button class="btn btn-sm stock-icons-btn" title="Stock In/Out" onclick="stockIn(' . $row['inventory_id'] . ')">';
-                    echo '<i class="fas fa-plus"></i><i class="fas fa-minus"></i>';
+                    // Separate buttons for Stock In (+) and Stock Out (−)
+                    echo '<button class="btn btn-sm btn-outline-success me-1" title="Stock In" onclick="stockIn(' . $row['inventory_id'] . ')">';
+                    echo '<i class="fas fa-plus"></i>';
+                    echo '</button> ';
+                    echo '<button class="btn btn-sm btn-outline-warning me-1" title="Stock Out" onclick="stockOut(' . $row['inventory_id'] . ')">';
+                    echo '<i class="fas fa-minus"></i>';
                     echo '</button> ';
                     echo '<button class="btn btn-sm btn-info" title="Edit" onclick=\'openEditInventoryModal('
                         . (int)$row['inventory_id'] . ', '
@@ -2855,17 +2892,49 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
             echo '</tbody></table></div>';
 
-            // Output pagination
+            // Output pagination (compact with ellipses)
             if ($total_pages > 1) {
                 echo '<nav><ul class="pagination justify-content-center mt-3" id="paginationContainer">';
+
+                // Previous button
                 echo '<li class="page-item ' . (($page <= 1) ? 'disabled' : '') . '">';
-                echo '<a class="page-link" href="#" onclick="loadInventory(' . ($page - 1) . '); return false;">&laquo;</a></li>';
-                for ($i = 1; $i <= $total_pages; $i++) {
-                    echo '<li class="page-item ' . (((int)$i === (int)$page) ? 'active' : '') . '">';
+                echo '<a class="page-link" href="#" onclick="loadInventory(' . max(1, ($page - 1)) . '); return false;">&laquo;</a></li>';
+
+                $neighborRange = 2; // how many pages to show on each side of current
+                $start = max(1, (int)$page - $neighborRange);
+                $end = min((int)$total_pages, (int)$page + $neighborRange);
+
+                // Always show first page
+                echo '<li class="page-item ' . ((1 === (int)$page) ? 'active' : '') . '">';
+                echo '<a class="page-link" href="#" onclick="loadInventory(1); return false;">1</a></li>';
+
+                // Leading ellipsis
+                if ($start > 2) {
+                    echo '<li class="page-item disabled"><span class="page-link">&hellip;</span></li>';
+                }
+
+                // Middle pages (around current), excluding first and last
+                for ($i = $start; $i <= $end; $i++) {
+                    if ($i === 1 || $i === (int)$total_pages) continue;
+                    echo '<li class="page-item ' . (($i === (int)$page) ? 'active' : '') . '">';
                     echo '<a class="page-link" href="#" onclick="loadInventory(' . $i . '); return false;">' . $i . '</a></li>';
                 }
+
+                // Trailing ellipsis
+                if ($end < ((int)$total_pages - 1)) {
+                    echo '<li class="page-item disabled"><span class="page-link">&hellip;</span></li>';
+                }
+
+                // Always show last page (if more than one)
+                if ($total_pages > 1) {
+                    echo '<li class="page-item ' . (((int)$total_pages === (int)$page) ? 'active' : '') . '">';
+                    echo '<a class="page-link" href="#" onclick="loadInventory(' . (int)$total_pages . '); return false;">' . (int)$total_pages . '</a></li>';
+                }
+
+                // Next button
                 echo '<li class="page-item ' . (($page >= $total_pages) ? 'disabled' : '') . '">';
-                echo '<a class="page-link" href="#" onclick="loadInventory(' . ($page + 1) . '); return false;">&raquo;</a></li>';
+                echo '<a class="page-link" href="#" onclick="loadInventory(' . min((int)$total_pages, ($page + 1)) . '); return false;">&raquo;</a></li>';
+
                 echo '</ul></nav>';
             }
             exit;

@@ -431,7 +431,7 @@ $canvass_result = $conn->query($canvass_query);
                         <th style="width: 40px;">
                             <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)">
                         </th>
-                        <th colspan="8">Select items to print</th>
+                        <th colspan="8">Select All to print</th>
                     </tr>
                     <tr>
                         <th id="selectHeaderCell" style="display: none; width: 40px;"></th>
@@ -665,11 +665,7 @@ $canvass_result = $conn->query($canvass_query);
                 
                 // Generate detailed print content
                 let printContent = `
-                    <div class="print-container">
-                        <div class="print-header">
-                            <h2>Canvass Details - Selected Items</h2>
-                            <div class="print-date">Printed on: ${new Date().toLocaleString()}</div>
-                        </div>`;
+                    <div class="print-container">`;
                 
                 // Add detailed information for each canvass
                 canvassData.forEach((data, index) => {
@@ -703,13 +699,8 @@ $canvass_result = $conn->query($canvass_query);
                     
                                          printContent += `
                          <div class="canvass-detail-section" ${index > 0 ? 'style="page-break-before: always; margin-top: 30px;"' : ''}>
-                             <div class="canvass-info-header">
-                                 <h3>Canvass Number: ${canvass.canvass_id}</h3>
-                             </div>
-                             
                              <div class="canvass-info-grid">
                                  <div class="info-section">
-                                     <h4>Canvass Information</h4>
                                      <p><strong>Canvass Number:</strong> ${canvass.canvass_id}</p>
                                      <p><strong>Date:</strong> ${new Date(canvass.canvass_date).toLocaleDateString()}</p>
                                      <p><strong>Status:</strong> <span class="status-badge" style="background-color: ${statusColor}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600;">${canvass.status || 'DRAFT'}</span></p>
@@ -782,7 +773,7 @@ $canvass_result = $conn->query($canvass_query);
                              color: #666;
                             font-size: 0.8em;
                          }
-                                                .canvass-detail-section {
+                                                                                                .canvass-detail-section {
                             margin-bottom: 18px;
                             padding: 12px;
                             border: 1px solid #333;
@@ -790,19 +781,6 @@ $canvass_result = $conn->query($canvass_query);
                             background: white;
                             page-break-inside: avoid;
                         }
-                         .canvass-info-header {
-                             background: white;
-                             color: #333;
-                            padding: 0 0 8px 0;
-                            margin-bottom: 12px;
-                            border-bottom: 2px solid #333;
-                         }
-                         .canvass-info-header h3 {
-                             margin: 0;
-                            font-size: 1.1rem;
-                             font-weight: bold;
-                             color: #333;
-                         }
                          .canvass-info-grid {
                              display: grid;
                              grid-template-columns: 1fr 1fr;
@@ -814,24 +792,6 @@ $canvass_result = $conn->query($canvass_query);
                          .info-section {
                              display: flex;
                              flex-direction: column;
-                         }
-                         .info-section h4 {
-                             color: #333;
-                            margin: 0 0 8px 0;
-                            padding-bottom: 6px;
-                             border-bottom: 2px solid #ddd;
-                            font-size: 0.95rem;
-                             font-weight: 600;
-                             line-height: 1.2;
-                             min-height: 1.5rem;
-                         }
-                         .info-section:last-child::before {
-                             content: '';
-                             display: block;
-                            margin: 0 0 8px 0;
-                            padding-bottom: 6px;
-                             border-bottom: 2px solid transparent;
-                             min-height: 1.5rem;
                          }
                          .info-section p {
                             margin: 6px 0;
@@ -944,7 +904,7 @@ $canvass_result = $conn->query($canvass_query);
                     <!DOCTYPE html>
                     <html>
                         <head>
-                            <title>Canvass Details - Selected Items</title>
+                            <title>Canvass Details</title>
                             <meta charset="UTF-8">
                         </head>
                         <body>
