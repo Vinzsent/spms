@@ -58,7 +58,7 @@ $logs_where_conditions[] = "sl.receiver = 'Property Custodian'";
 // Add search filter if search term is provided
 if (!empty($search_term)) {
     $search_escaped = $conn->real_escape_string($search_term);
-    $inv_where_conditions[] = "(i.item_name LIKE '%$search_escaped%' OR i.description LIKE '%$search_escaped%' OR i.brand LIKE '%$search_escaped%')";
+    $inv_where_conditions[] = "(i.item_name LIKE '%$search_escaped%' OR i.brand LIKE '%$search_escaped%' OR i.type LIKE '%$search_escaped%')";
 }
 
 // Add school year filters if provided
@@ -944,6 +944,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             <?php endif; ?>
                         </div>
                     </form>
+                    <a href="../actions/export_property_inventory.php?search=<?= urlencode($search_term) ?>&sy_inv=<?= urlencode($sy_inv_raw) ?>" class="btn btn-success text-white" title="Export to Excel">
+                        <i class="fas fa-file-excel"></i> Export
+                    </a>
                     <button class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
                         <i class="fas fa-plus"></i> Add Item
                     </button>
@@ -1306,7 +1309,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <th>Brand</th>
                                 <th>Color</th>
                                 <th>Size</th>
-                                <th>Last Updated</th>
+                                <th>Type</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -1332,16 +1335,19 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <td><?= htmlspecialchars($row['brand']) ?></td>
                                         <td><?= htmlspecialchars($row['color']) ?></td>
                                         <td><?= htmlspecialchars($row['size']) ?></td>
-                                        <td><?= date('M d, Y', strtotime($row['date_updated'])) ?></td>
+                                        <td><?= htmlspecialchars($row['type'] ?? '') ?></td>
                                         <td>
                                             <span class="badge bg-<?= $stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success') ?>">
                                                 <?= ucfirst($stock_level) ?>
                                             </span>
                                         </td>
                                         <td>
-                                            <button class="btn btn-sm stock-icons-btn" title="Stock In/Out" onclick="stockIn(<?= $row['inventory_id'] ?>)">
-                                                <i class="fas fa-plus"></i><i class="fas fa-minus"></i>
-                                            </button>
+                                        <button class="btn btn-sm btn-outline-success me-1" title="Stock In" onclick="stockIn('<?= $row['inventory_id'] ?>')">
+                                            <i class="fas fa-plus"></i>
+                                        </button> 
+                                        <button class="btn btn-sm btn-outline-warning me-1" title="Stock Out" onclick="stockOut('<?= $row['inventory_id'] ?>')">
+                                            <i class="fas fa-minus"></i>
+                                        </button> 
                                             <button class="btn btn-sm btn-info" title="Edit"
                                                 onclick="openEditInventoryModal(
                                                 <?= (int)$row['inventory_id'] ?>,
@@ -2801,7 +2807,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
             if (!empty($search_term_ajax)) {
                 $search_escaped_ajax = $conn->real_escape_string($search_term_ajax);
-                $inv_where_conditions_ajax[] = "pi.item_name LIKE '%$search_escaped_ajax%'";
+                $inv_where_conditions_ajax[] = "(pi.item_name LIKE '%$search_escaped_ajax%' OR pi.brand LIKE '%$search_escaped_ajax%' OR pi.type LIKE '%$search_escaped_ajax%')";
             }
 
             list($sy_inv_start_ajax, $sy_inv_end_ajax) = parse_school_year_range($sy_inv_raw_ajax);
@@ -2832,7 +2838,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '<div id="inventoryTable">';
             echo '<table class="table table-hover mb-0">';
             echo '<thead class="table-dark">';
-            echo '<tr><th>Item Name</th><th>Description</th><th>Current Stock</th><th>Unit</th><th>Brand</th><th>Color</th><th>Size</th><th>Last Updated</th><th>Status</th><th>Actions</th></tr>';
+            echo '<tr><th>Item Name</th><th>Description</th><th>Current Stock</th><th>Unit</th><th>Brand</th><th>Color</th><th>Size</th><th>Type</th><th>Status</th><th>Actions</th></tr>';
             echo '</thead><tbody>';
 
             if ($result && $result->num_rows > 0) {
@@ -2854,7 +2860,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '<td>' . htmlspecialchars($row['brand']) . '</td>';
                     echo '<td>' . htmlspecialchars($row['color']) . '</td>';
                     echo '<td>' . htmlspecialchars($row['size']) . '</td>';
-                    echo '<td>' . date('M d, Y', strtotime($row['date_updated'])) . '</td>';
+                    echo '<td>' . htmlspecialchars($row['type'] ?? '') . '</td>';
                     echo '<td><span class="badge bg-' . ($stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success')) . '">' . ucfirst($stock_level) . '</span></td>';
                     echo '<td>';
                     // Separate buttons for Stock In (+) and Stock Out (−)
