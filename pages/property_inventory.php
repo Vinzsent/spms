@@ -1067,18 +1067,42 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     width: 7%;
                     min-width: 70px;
                 }
-                .table th:nth-child(8), .table td:nth-child(8) { /* Last Updated */
-                    width: 10%;
-                    min-width: 100px;
+                .table th:nth-child(8), .table td:nth-child(8) { /* Type */
+                    width: 8%;
+                    min-width: 80px;
                 }
                 .table th:nth-child(9), .table td:nth-child(9) { /* Status */
                     width: 8%;
                     min-width: 80px;
                 }
-                .table th:nth-child(10), .table td:nth-child(10) { /* Actions */
+                .table th:nth-child(10), .table td:nth-child(10) { /* Date Created */
+                    width: 10%;
+                    min-width: 100px;
+                }
+                .table th:nth-child(11), .table td:nth-child(11) { /* Actions */
                     width: 12%;
                     min-width: 120px;
                     white-space: nowrap;
+                }
+                
+                /* Reduce text size for table data and rows */
+                .table tbody tr td {
+                    font-size: 0.875rem;
+                }
+                .table tbody tr {
+                    font-size: 0.875rem;
+                }
+                .table thead th {
+                    font-size: 0.875rem;
+                }
+                
+                /* Reduce button sizes to match smaller text */
+                .table tbody tr td .btn-sm {
+                    font-size: 0.75rem;
+                    padding: 0.25rem 0.5rem;
+                }
+                .table tbody tr td .btn-sm i {
+                    font-size: 0.75rem;
                 }
 
                 @media (max-width: 991.98px) {
@@ -1311,6 +1335,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <th>Size</th>
                                 <th>Type</th>
                                 <th>Status</th>
+                                <th>Date Created</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -1341,6 +1366,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <?= ucfirst($stock_level) ?>
                                             </span>
                                         </td>
+                                        <td><?= $row['date_created'] ? date('M d, Y', strtotime($row['date_created'])) : 'N/A' ?></td>
                                         <td>
                                         <button class="btn btn-sm btn-outline-success me-1" title="Stock In" onclick="stockIn('<?= $row['inventory_id'] ?>')">
                                             <i class="fas fa-plus"></i>
@@ -1375,7 +1401,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="10" class="text-center py-4">
+                                    <td colspan="11" class="text-center py-4">
                                         <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
                                         <p class="text-muted">No inventory items found</p>
                                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
@@ -2838,7 +2864,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '<div id="inventoryTable">';
             echo '<table class="table table-hover mb-0">';
             echo '<thead class="table-dark">';
-            echo '<tr><th>Item Name</th><th>Description</th><th>Current Stock</th><th>Unit</th><th>Brand</th><th>Color</th><th>Size</th><th>Type</th><th>Status</th><th>Actions</th></tr>';
+            echo '<tr><th>Item Name</th><th>Description</th><th>Current Stock</th><th>Unit</th><th>Brand</th><th>Color</th><th>Size</th><th>Type</th><th>Status</th><th>Date Created</th><th>Actions</th></tr>';
             echo '</thead><tbody>';
 
             if ($result && $result->num_rows > 0) {
@@ -2862,6 +2888,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '<td>' . htmlspecialchars($row['size']) . '</td>';
                     echo '<td>' . htmlspecialchars($row['type'] ?? '') . '</td>';
                     echo '<td><span class="badge bg-' . ($stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success')) . '">' . ucfirst($stock_level) . '</span></td>';
+                    echo '<td>' . ($row['date_created'] ? date('M d, Y', strtotime($row['date_created'])) : 'N/A') . '</td>';
                     echo '<td>';
                     // Separate buttons for Stock In (+) and Stock Out (−)
                     echo '<button class="btn btn-sm btn-outline-success me-1" title="Stock In" onclick="stockIn(' . $row['inventory_id'] . ')">';
@@ -2893,7 +2920,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '</td></tr>';
                 }
             } else {
-                echo '<tr><td colspan="10" class="text-center py-4"><i class="fas fa-boxes fa-3x text-muted mb-3"></i><p class="text-muted">No inventory items found</p></td></tr>';
+                echo '<tr><td colspan="11" class="text-center py-4"><i class="fas fa-boxes fa-3x text-muted mb-3"></i><p class="text-muted">No inventory items found</p></td></tr>';
             }
 
             echo '</tbody></table></div>';
