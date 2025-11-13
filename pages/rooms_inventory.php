@@ -51,6 +51,7 @@ foreach ($rooms as $room) {
             --text-white: #ffffff;
             --text-dark: #073b1d;
             --bg-light: #f8f9fa;
+            --border-light: #dee2e6;
         }
 
         body {
@@ -588,13 +589,90 @@ foreach ($rooms as $room) {
             margin: -20px -20px 15px -20px;
             font-weight: 600;
             font-size: 1.1rem;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
         }
 
         .room-building {
             font-size: 0.85rem;
             opacity: 0.9;
             margin-top: 3px;
+        }
+
+        .room-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-edit-room {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, #357abd 100%);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-edit-room:hover {
+            background: linear-gradient(135deg, #357abd 0%, #2a5f8f 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-edit-room:active {
+            transform: translateY(0);
+        }
+
+        .btn-delete-room {
+            background: linear-gradient(135deg, var(--accent-red) 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-delete-room:hover {
+            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-delete-room:active {
+            transform: translateY(0);
+        }
+
+        /* Responsive room actions */
+        @media (max-width: 480px) {
+            .room-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn-edit-room,
+            .btn-delete-room {
+                width: 100%;
+                justify-content: center;
+            }
         }
 
         .inventory-list {
@@ -657,6 +735,96 @@ foreach ($rooms as $room) {
             align-items: center;
             margin-bottom: 30px;
         }
+
+        /* Modal Styling */
+        .modal-custom {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .modal-content-custom {
+            background-color: var(--text-white);
+            margin: 3% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 700px;
+            width: 90%;
+            color: var(--text-dark);
+            border: 1px solid var(--border-light);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: slideUp 0.4s ease-out;
+            position: relative;
+        }
+
+        .modal-header-custom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        .modal-header-custom h5 {
+            margin: 0;
+            color: var(--primary-green);
+            font-weight: 600;
+            font-size: 1.3rem;
+        }
+
+        .modal-header-custom .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #888;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .modal-header-custom .btn-close:hover {
+            background-color: #f0f0f0;
+            color: var(--accent-red);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive modal */
+        @media (max-width: 768px) {
+            .modal-content-custom {
+                margin: 5% auto;
+                padding: 1.5rem;
+                width: 95%;
+            }
+        }
     </style>
 
 <body>
@@ -711,18 +879,41 @@ foreach ($rooms as $room) {
             <p style="margin: 10px 0 0 0; opacity: 0.9;">Main Campus</p>
         </div>
 
+        <!-- Success/Error Messages -->
+        <?php if (isset($_SESSION['message'])): ?>
+            <div class="alert alert-success" role="alert" style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px;">
+                <div style="display: flex; align-items: center; flex: 1;">
+                    <i class="fas fa-check-circle" style="margin-right: 10px;"></i>
+                    <span><?= htmlspecialchars($_SESSION['message']) ?></span>
+                </div>
+                <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: white; opacity: 0.8;">&times;</button>
+            </div>
+            <?php unset($_SESSION['message']); ?>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="alert alert-danger" role="alert" style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px;">
+                <div style="display: flex; align-items: center; flex: 1;">
+                    <i class="fas fa-exclamation-circle" style="margin-right: 10px;"></i>
+                    <span><?= htmlspecialchars($_SESSION['error']) ?></span>
+                </div>
+                <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: white; opacity: 0.8;">&times;</button>
+            </div>
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
+
         <div class="page-header">
             <h2 style="margin: 0; color: var(--text-dark);">All Rooms</h2>
-            <button class="btn-add-room">
+            <button class="btn-add-room" onclick="document.getElementById('addRoomModal').style.display='block'">
                 <i class="fas fa-plus"></i> Add New Room
             </button>
         </div>
 
         <?php
         $floorNames = [
-            'R' => 'First Floor (R)',
-            'N' => 'Second Floor (N)',
-            'O' => 'Third Floor (O)'
+            'R' => 'First Floor (FF)',
+            'N' => 'Second Floor (SF)',
+            'O' => 'Third Floor (TF)'
         ];
 
         foreach ($roomsByFloor as $floor => $floorRooms):
@@ -738,12 +929,36 @@ foreach ($rooms as $room) {
                     <div class="room-header">
                         <?= htmlspecialchars($room['building_name']) ?>
                         <div class="room-building">Room <?= htmlspecialchars($room['room_number']) ?></div>
+                        <div class="room-actions">
+                            <button class="btn-edit-room" 
+                                    onclick="openEditModal(this)"
+                                    data-room-id="<?= $room['id'] ?>"
+                                    data-building="<?= htmlspecialchars($room['building_name'], ENT_QUOTES) ?>"
+                                    data-room-number="<?= htmlspecialchars($room['room_number'], ENT_QUOTES) ?>"
+                                    data-floor="<?= htmlspecialchars($room['floor'], ENT_QUOTES) ?>"
+                                    data-fluorescent="<?= $room['fluorescent_light'] ?>"
+                                    data-fans="<?= $room['electric_fans_wall'] ?>"
+                                    data-ceiling="<?= $room['ceiling'] ?>"
+                                    data-chairs="<?= $room['chairs_mono'] ?>"
+                                    data-steel="<?= $room['steel'] ?>"
+                                    data-plastic="<?= $room['plastic_mini'] ?>"
+                                    data-teacher-table="<?= $room['teacher_table'] ?>"
+                                    data-board="<?= $room['black_whiteboard'] ?>"
+                                    data-platform="<?= $room['platform'] ?>"
+                                    data-tv="<?= $room['tv'] ?>">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn-delete-room" 
+                                    onclick="confirmDeleteRoom(<?= $room['id'] ?>, '<?= htmlspecialchars($room['building_name'], ENT_QUOTES) ?>', '<?= htmlspecialchars($room['room_number'], ENT_QUOTES) ?>')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
                     </div>
 
                     <ul class="inventory-list">
                         <li class="inventory-item">
                             <span class="item-name">Fluorescent light</span>
-                            <span class="item-quantity <?= $room['fluorescent_light'] == 0 ? 'zero' : '' ?>">
+                            <span class="text-dark item-quantity <?= $room['fluorescent_light'] == 0 ? 'zero' : '' ?>">
                                 <?= $room['fluorescent_light'] ?>
                             </span>
                         </li>
@@ -817,7 +1032,112 @@ foreach ($rooms as $room) {
         <?php endif; ?>
     </main>
 
+    <!-- Add Room Modal -->
+    <div id="addRoomModal" class="modal-custom">
+        <div class="modal-content-custom">
+            <div class="modal-header-custom">
+                <h5><i class="fas fa-door-open me-2"></i>Add New Room</h5>
+                <button class="btn-close" onclick="document.getElementById('addRoomModal').style.display='none'">&times;</button>
+            </div>
+            <?php include '../modals/add_room.php'; ?>
+        </div>
+    </div>
 
-    
+    <!-- Edit Room Modal -->
+    <div id="editRoomModal" class="modal-custom">
+        <div class="modal-content-custom">
+            <div class="modal-header-custom">
+                <h5><i class="fas fa-edit me-2"></i>Edit Room</h5>
+                <button class="btn-close" onclick="document.getElementById('editRoomModal').style.display='none'">&times;</button>
+            </div>
+            <?php include '../modals/edit_room.php'; ?>
+        </div>
+    </div>
+
+    <script>
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const addModal = document.getElementById('addRoomModal');
+            const editModal = document.getElementById('editRoomModal');
+            if (event.target === addModal) {
+                addModal.style.display = 'none';
+            }
+            if (event.target === editModal) {
+                editModal.style.display = 'none';
+            }
+        }
+
+        // Close modals on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                document.getElementById('addRoomModal').style.display = 'none';
+                document.getElementById('editRoomModal').style.display = 'none';
+            }
+        });
+
+        // Open edit modal and populate form with room data
+        function openEditModal(button) {
+            if (!button) return;
+
+            // Get room data from data attributes
+            const roomData = {
+                id: button.getAttribute('data-room-id'),
+                building: button.getAttribute('data-building'),
+                roomNumber: button.getAttribute('data-room-number'),
+                floor: button.getAttribute('data-floor'),
+                fluorescent: button.getAttribute('data-fluorescent'),
+                fans: button.getAttribute('data-fans'),
+                ceiling: button.getAttribute('data-ceiling'),
+                chairs: button.getAttribute('data-chairs'),
+                steel: button.getAttribute('data-steel'),
+                plastic: button.getAttribute('data-plastic'),
+                teacherTable: button.getAttribute('data-teacher-table'),
+                board: button.getAttribute('data-board'),
+                platform: button.getAttribute('data-platform'),
+                tv: button.getAttribute('data-tv')
+            };
+
+            // Populate form fields
+            document.getElementById('edit_room_id').value = roomData.id || '';
+            document.getElementById('edit_building_name').value = roomData.building || '';
+            document.getElementById('edit_room_number').value = roomData.roomNumber || '';
+            document.getElementById('edit_floor').value = roomData.floor || '';
+            document.getElementById('edit_fluorescent_light').value = roomData.fluorescent || '0';
+            document.getElementById('edit_electric_fans_wall').value = roomData.fans || '0';
+            document.getElementById('edit_ceiling').value = roomData.ceiling || '0';
+            document.getElementById('edit_chairs_mono').value = roomData.chairs || '0';
+            document.getElementById('edit_steel').value = roomData.steel || '0';
+            document.getElementById('edit_plastic_mini').value = roomData.plastic || '0';
+            document.getElementById('edit_teacher_table').value = roomData.teacherTable || '0';
+            document.getElementById('edit_black_whiteboard').value = roomData.board || '0';
+            document.getElementById('edit_platform').value = roomData.platform || '0';
+            document.getElementById('edit_tv').value = roomData.tv || '0';
+
+            // Show modal
+            document.getElementById('editRoomModal').style.display = 'block';
+        }
+
+        // Confirm and delete room
+        function confirmDeleteRoom(roomId, buildingName, roomNumber) {
+            if (confirm(`Are you sure you want to delete "${buildingName} - Room ${roomNumber}"?\n\nThis action cannot be undone.`)) {
+                // Create a form and submit it
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '../actions/delete_room.php';
+                
+                const roomIdInput = document.createElement('input');
+                roomIdInput.type = 'hidden';
+                roomIdInput.name = 'room_id';
+                roomIdInput.value = roomId;
+                
+                form.appendChild(roomIdInput);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        // Auto-close modal on successful submission (messages are shown as alerts above)
+        // Modal will be closed by page reload after form submission
+    </script>
 </body>
 </html>

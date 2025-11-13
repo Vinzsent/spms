@@ -820,6 +820,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <li><a href="aircon_list.php" class="nav-link">
                     <i class="fas fa-snowflake"></i> Aircons
                 </a></li>
+                <li><a href="aircon_list.php" class="nav-link">
+                    <i class="fas fa-hand-holding-box"></i> Release Records
+                </a></li>
             <li><a href="../logout.php" class="nav-link logout">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a></li>
