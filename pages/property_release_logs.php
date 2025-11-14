@@ -889,10 +889,10 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <li><a href="borrowers_forms.php" class="nav-link">
                         <i class="fas fa-hand-holding"></i> Borrower Forms
                     </a></li>
-                <li><a href="aircon_list.php" class="nav-link active">
+                <li><a href="aircon_list.php" class="nav-link">
                         <i class="fas fa-snowflake"></i> Aircons
                     </a></li>
-                <li><a href="property_release_logs.php" class="nav-link">
+                <li><a href="property_release_logs.php" class="nav-link active">
                         <i class="fas fa-file"></i> Release Logs
                     </a></li>
                 <li><a href="../logout.php" class="nav-link logout">
@@ -906,8 +906,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
     <!-- Main Content -->
     <div class="main-content">
         <div class="content-header">
-            <h1>Aircon Condition Management</h1>
-            <p>Track aircon location, monitor aircon condition, and manage aircon details</p>
+            <h1>Release Logs</h1>
+            <p>Track release property logs, pass property movement, and manage property details</p>
         </div>
 
         <!-- Statistics Cards -->
@@ -1492,7 +1492,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
         <!-- Aircon Table -->
         <div class="table-container">
             <div class="table-header">
-                <h3> Aircons List</h3>
+                <h3>Release Logs</h3>
                 <div class="d-flex align-items-end gap-2">
                     <form method="GET" class="d-flex align-items-end gap-2 mb-0">
                         <div class="search-input">
@@ -1568,18 +1568,11 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     <table class="table table-hover mb-0">
                         <thead class="table-dark">
                             <tr>
-                                <th>Campus</th>
-                                <th>Brand</th>
-                                <th>Model</th>
-                                <th>Type</th>
-                                <th>Serial No.</th>
-                                <th>Location</th>
-                                <th>Status</th>
-                                <th>Purchase Date</th>
-                                <th>Warranty Expiry</th>
-                                <th>Last Service Date</th>
-                                <th>Maintenance Schedule</th>
-                                <th>Installation Date</th>
+                                <th>Date</th>
+                                <th>Name</th>
+                                <th>Item Description</th>
+                                <th>Quantity</th>
+                                <th>Unit</th>
                                 <th>Notes</th>
                                 <th>Actions</th>
                             </tr>
@@ -1591,23 +1584,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 while ($row = $result->fetch_assoc()):
                                 ?>
                                     <tr>
-                                        <td data-label="Campus"><?= htmlspecialchars($row['campus'] ?? 'N/A') ?></td>
-                                        <td data-label="Brand"><?= htmlspecialchars($row['brand'] ?? 'N/A') ?></td>
-                                        <td data-label="Model"><?= htmlspecialchars($row['model'] ?? 'N/A') ?></td>
-                                        <td data-label="Type"><?= htmlspecialchars($row['type'] ?? 'N/A') ?></td>
-                                        <td data-label="Serial No."><?= htmlspecialchars($row['serial_number'] ?? 'N/A') ?></td>
-                                        <td data-label="Location"><?= htmlspecialchars($row['location'] ?? 'N/A') ?></td>
-                                        <td data-label="Status">
-                                            <span class="badge bg-<?=
-                                                                    ($row['status'] == 'Working') ? 'success' : (($row['status'] == 'Needs Repair') ? 'warning' : (($row['status'] == 'Under Maintenance') ? 'info' : 'danger'))
-                                                                    ?>">
-                                                <?= htmlspecialchars($row['status'] ?? 'N/A') ?>
-                                            </span>
-                                        </td>
-                                        <td data-label="Purchase Date"><?= !empty($row['purchase_date']) ? date('M d, Y', strtotime($row['purchase_date'])) : 'N/A' ?></td>
-                                        <td data-label="Warranty Expiry"><?= !empty($row['warranty_expiry']) ? date('M d, Y', strtotime($row['warranty_expiry'])) : 'N/A' ?></td>
-                                        <td data-label="Last Service Date"><?= !empty($row['last_service_date']) ? date('M d, Y', strtotime($row['last_service_date'])) : 'N/A' ?></td>
-                                        <td data-label="Maintenance Schedule">
+                                        <td data-label="Date"><?= htmlspecialchars($row['date'] ?? 'N/A') ?></td>
+                                        <td data-label="Name"><?= htmlspecialchars($row['name'] ?? 'N/A') ?></td>
+                                        <td data-label="Item Description"><?= htmlspecialchars($row['item_description'] ?? 'N/A') ?></td>
+                                        <td data-label="Quantity"><?= htmlspecialchars($row['quantity'] ?? 'N/A') ?></td>
+                                        <td data-label="Unit"><?= htmlspecialchars($row['unit'] ?? 'N/A') ?></td>
+                                        <td data-label="Notes"><?= htmlspecialchars($row['notes'] ?? 'N/A') ?></td>
+                                        <td data-label="Actions" class="actions">
                                             <button class="btn btn-sm btn-outline-info view-maintenance-btn"
                                                 data-aircon-id="<?= (int)$row['aircon_id'] ?>"
                                                 data-brand="<?= htmlspecialchars($row['brand'] ?? '', ENT_QUOTES) ?>"
@@ -1616,10 +1599,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 title="View Maintenance Records">
                                                 <i class="fas fa-calendar-alt"></i> View Records
                                             </button>
-                                        </td>
-                                        <td data-label="Installation Date"><?= !empty($row['installation_date']) ? date('M d, Y', strtotime($row['installation_date'])) : 'N/A' ?></td>
-                                        <td data-label="Notes"><?= htmlspecialchars($row['notes'] ?? 'N/A') ?></td>
-                                        <td data-label="Actions" class="actions">
                                             <button class="btn btn-sm btn-primary view-aircon-details-btn"
                                                 title="View Details"
                                                 data-aircon-id="<?= (int)$row['aircon_id'] ?>"
@@ -1678,7 +1657,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="14" class="text-center py-4">
+                                    <td colspan="7" class="text-center py-4">
                                         <i class="fas fa-snowflake fa-3x text-muted mb-3"></i>
                                         <p class="text-muted">No aircon units found</p>
                                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
@@ -3403,8 +3382,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     currentParams.set('ajax', '1');
                     currentParams.set('page', page);
 
-                    // Fetch the page content
-                    fetch("aircon_list.php?" + currentParams.toString())
+                    // Fetch the page content from this Release Logs page (AJAX partial)
+                    fetch("property_release_logs.php?" + currentParams.toString())
                         .then(response => response.text())
                         .then(data => {
                             // Remove loading overlay
@@ -3672,19 +3651,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '<table class="table table-hover mb-0">';
             echo '<thead class="table-dark">';
             echo '<tr>';
-            echo '<th>Campus</th>';
-            echo '<th>Brand</th>';
-            echo '<th>Model</th>';
-            echo '<th>Type</th>';
-            echo '<th>Serial No.</th>';
-            echo '<th>Location</th>';
-            echo '<th>Status</th>';
-            echo '<th>Purchase Date</th>';
-            echo '<th>Warranty Expiry</th>';
-            echo '<th>Last Service Date</th>';
-            echo '<th>Maintenance Schedule</th>';
-            echo '<th>Installation Date</th>';
+            echo '<th>Date</th>';
+            echo '<th>Name</th>';
+            echo '<th>Item Description</th>';
+            echo '<th>Quantity</th>';
+            echo '<th>Unit</th>';
             echo '<th>Notes</th>';
+            echo '<th>Status</th>';
             echo '<th>Actions</th>';
             echo '</tr>';
             echo '</thead><tbody>';
@@ -3702,31 +3675,22 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     }
 
                     echo '<tr>';
-                    echo '<td data-label="Campus">' . htmlspecialchars($row['campus'] ?? 'N/A') . '</td>';
-                    echo '<td data-label="Brand">' . htmlspecialchars($row['brand'] ?? 'N/A') . '</td>';
-                    echo '<td data-label="Model">' . htmlspecialchars($row['model'] ?? 'N/A') . '</td>';
-                    echo '<td data-label="Type">' . htmlspecialchars($row['type'] ?? 'N/A') . '</td>';
-                    echo '<td data-label="Serial No.">' . htmlspecialchars($row['serial_number'] ?? 'N/A') . '</td>';
-                    echo '<td data-label="Location">' . htmlspecialchars($row['location'] ?? 'N/A') . '</td>';
+                    echo '<td data-label="Date">' . htmlspecialchars($row['date'] ?? 'N/A') . '</td>';
+                    echo '<td data-label="Name">' . htmlspecialchars($row['name'] ?? 'N/A') . '</td>';
+                    echo '<td data-label="Item Description">' . htmlspecialchars($row['item_description'] ?? 'N/A') . '</td>';
+                    echo '<td data-label="Quantity">' . htmlspecialchars($row['quantity'] ?? 'N/A') . '</td>';
+                    echo '<td data-label="Unit">' . htmlspecialchars($row['unit'] ?? 'N/A') . '</td>';
+                    echo '<td data-label="Notes">' . htmlspecialchars($row['notes'] ?? 'N/A') . '</td>';
                     echo '<td data-label="Status"><span class="badge bg-' . $status_class . '">' . htmlspecialchars($row['status'] ?? 'N/A') . '</span></td>';
-                    echo '<td data-label="Purchase Date">' . (!empty($row['purchase_date']) ? date('M d, Y', strtotime($row['purchase_date'])) : 'N/A') . '</td>';
-                    echo '<td data-label="Warranty Expiry">' . (!empty($row['warranty_expiry']) ? date('M d, Y', strtotime($row['warranty_expiry'])) : 'N/A') . '</td>';
-                    echo '<td data-label="Last Service Date">' . (!empty($row['last_service_date']) ? date('M d, Y', strtotime($row['last_service_date'])) : 'N/A') . '</td>';
-
-                    echo '<td data-label="Maintenance Schedule">
-                            <button class="btn btn-sm btn-outline-primary view-maintenance-btn" 
+                    echo '<td data-label="Actions" class="actions">';
+                    echo '<button class="btn btn-sm btn-outline-primary view-maintenance-btn" 
                                 data-aircon-id="' . (int)$row['aircon_id'] . '"
                                 data-brand="' . htmlspecialchars($row['brand'] ?? '', ENT_QUOTES) . '"
                                 data-model="' . htmlspecialchars($row['model'] ?? '', ENT_QUOTES) . '"
                                 data-serial="' . htmlspecialchars($row['serial_number'] ?? '', ENT_QUOTES) . '"
                                 title="View Maintenance Records">
                                 <i class="fas fa-calendar-alt"></i> View Records
-                            </button>
-                        </td>';
-
-                    echo '<td data-label="Installation Date">' . (!empty($row['installation_date']) ? date('M d, Y', strtotime($row['installation_date'])) : 'N/A') . '</td>';
-                    echo '<td data-label="Notes">' . htmlspecialchars($row['notes'] ?? 'N/A') . '</td>';
-                    echo '<td data-label="Actions" class="actions">';
+                            </button> ';
                     echo '<button class="btn btn-sm btn-primary" title="View Details" onclick=\'viewAirconDetails('
                         . (int)$row['aircon_id'] . ', '
                         . json_encode($row['item_number'] ?? '') . ', '
@@ -3779,7 +3743,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '</td></tr>';
                 }
             } else {
-                echo '<tr><td colspan="14" class="text-center py-4"><i class="fas fa-snowflake fa-3x text-muted mb-3"></i><p class="text-muted">No aircon units found</p></td></tr>';
+                echo '<tr><td colspan="8" class="text-center py-4"><i class="fas fa-snowflake fa-3x text-muted mb-3"></i><p class="text-muted">No aircon units found</p></td></tr>';
             }
 
             echo '</tbody></table></div>';
@@ -3818,8 +3782,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
                 // Set form values
                 document.getElementById('edit_aircon_id').value = aircon_id;
-                document.getElementById('edit_item_name').value = item_name || '';
-                document.getElementById('edit_category').value = category || '';
+                document.getElementById('edit_item_name').value = item_name || '';  
                 document.getElementById('edit_brand').value = brand || '';
                 document.getElementById('edit_model').value = model || '';
                 document.getElementById('edit_type').value = type || '';
