@@ -91,241 +91,9 @@ $inv_where = !empty($inv_where_conditions) ? ' WHERE ' . implode(' AND ', $inv_w
 $recv_where = !empty($recv_where_conditions) ? ' WHERE ' . implode(' AND ', $recv_where_conditions) : '';
 $logs_where = !empty($logs_where_conditions) ? ' WHERE ' . implode(' AND ', $logs_where_conditions) : '';
 
-// Get purchased data
-$sql = "SELECT pi.*, s.supplier_name 
-        FROM aircons pi 
-        LEFT JOIN supplier s ON pi.supplier_id = s.supplier_id
-        ORDER BY pi.date_created DESC";
+// Get release logs records
+$sql = "SELECT * FROM release_logs";
 $result = $conn->query($sql);
-
-// Get inventory data
-$sql = "SELECT i.*, s.supplier_name 
-        FROM aircons i 
-        LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
-        $inv_where
-        ORDER BY i.date_created DESC";
-$result = $conn->query($sql);
-
-$sql1 = "SELECT st.*, s.supplier_name
-        FROM supplier_transaction st
-        JOIN supplier s ON s.supplier_id = st.supplier_id
-        $recv_where
-        AND st.status IN ('Pending')
-        ORDER BY COALESCE(st.date_received, st.date_created) DESC";
-$result1 = $conn->query($sql1);
-
-// Get suppliers for dropdown
-$suppliers_sql = "SELECT supplier_id, supplier_name FROM supplier WHERE status = 'Active' ORDER BY supplier_name";
-$suppliers_result = $conn->query($suppliers_sql);
-
-// Build School Year options for dropdowns (last 10 years)
-$currYear = (int)date('Y');
-$minYear = $currYear - 10;
-$sy_years = [];
-for ($y = $currYear; $y >= $minYear; $y--) {
-    $sy_years[] = $y . '-' . ($y + 1);
-}
-
-// Calculate statistics - execute the query first to get proper counts
-$stats_result = $conn->query($sql);
-$total_items = $stats_result ? $stats_result->num_rows : 0;
-
-// Calculate aircon statistics by status
-$operational_count = 0;
-$needs_repair_count = 0;
-$under_maintenance_count = 0;
-$decommissioned_count = 0;
-$working_count = 0;
-$na_count = 0;
-
-$campus_clause = '';
-if ($campus_raw === 'BED' || $campus_raw === 'TED') {
-    $campus_esc_for_counts = $conn->real_escape_string($campus_raw);
-    $campus_clause = " WHERE campus = '$campus_esc_for_counts'";
-}
-
-$status_sql = "SELECT status, COUNT(*) as count FROM aircons" . $campus_clause . " GROUP BY status";
-$status_result = $conn->query($status_sql);
-if ($status_result) {
-    while ($row = $status_result->fetch_assoc()) {
-        $status = $row['status'];
-        $count = (int)$row['count'];
-
-        switch ($status) {
-            case 'Operational':
-                $operational_count = $count;
-                break;
-            case 'Working':
-                $working_count = $count;
-                break;
-            case 'Needs Repair':
-                $needs_repair_count = $count;
-                break;
-            case 'Under Maintenance':
-                $under_maintenance_count = $count;
-                break;
-            case 'Decommissioned':
-                $decommissioned_count = $count;
-                break;
-            case 'N/A':
-                $na_count = $count;
-                break;
-        }
-    }
-}
-
-// Calculate combined counts for display
-$good_condition_count = $operational_count + $working_count; // Operational + Working
-$attention_needed_count = $needs_repair_count + $under_maintenance_count; // Needs Repair + Under Maintenance
-
-// Fetch aircons by condition for modals
-$good_condition_aircons = [];
-$needs_attention_aircons = [];
-$decommissioned_aircons = [];
-
-// Get good condition aircons (Operational + Working)
-$good_sql = "SELECT * FROM aircons WHERE status IN ('Operational', 'Working')"
-    . ($campus_clause ? str_replace(' WHERE ', ' AND ', $campus_clause) : '')
-    . " ORDER BY location, brand";
-$good_result = $conn->query($good_sql);
-if ($good_result) {
-    while ($row = $good_result->fetch_assoc()) {
-        $good_condition_aircons[] = $row;
-    }
-}
-
-// Get aircons needing attention (Needs Repair + Under Maintenance)
-$attention_sql = "SELECT * FROM aircons WHERE status IN ('Needs Repair', 'Under Maintenance')"
-    . ($campus_clause ? str_replace(' WHERE ', ' AND ', $campus_clause) : '')
-    . " ORDER BY location, brand";
-$attention_result = $conn->query($attention_sql);
-if ($attention_result) {
-    while ($row = $attention_result->fetch_assoc()) {
-        $needs_attention_aircons[] = $row;
-    }
-}
-
-// Get decommissioned aircons
-$decom_sql = "SELECT * FROM aircons WHERE status = 'Decommissioned'"
-    . ($campus_clause ? str_replace(' WHERE ', ' AND ', $campus_clause) : '')
-    . " ORDER BY location, brand";
-$decom_result = $conn->query($decom_sql);
-if ($decom_result) {
-    while ($row = $decom_result->fetch_assoc()) {
-        $decommissioned_aircons[] = $row;
-    }
-}
-
-// Store session messages for modal display
-$session_message = '';
-$session_error = '';
-if (isset($_SESSION['message'])) {
-    $session_message = $_SESSION['message'];
-    unset($_SESSION['message']);
-}
-if (isset($_SESSION['error'])) {
-    $session_error = $_SESSION['error'];
-    unset($_SESSION['error']);
-}
-
-// Fetch all category data for dropdown
-$categories_query = "
-    SELECT 
-        at.id as category_id,
-        at.name as main_category,
-        sc.name as subcategory,
-        ssc.name as sub_subcategory,
-        sssc.name as sub_sub_subcategory
-    FROM account_types at
-    LEFT JOIN account_subcategories sc ON at.id = sc.parent_id
-    LEFT JOIN account_sub_subcategories ssc ON sc.id = ssc.subcategory_id
-    LEFT JOIN account_sub_sub_subcategories sssc ON ssc.id = sssc.sub_subcategory_id
-    WHERE at.id BETWEEN 14 AND 21
-    ORDER BY at.id, sc.name, ssc.name, sssc.name
-";
-$categories_result = $conn->query($categories_query);
-
-// Organize categories hierarchically
-$organized_categories = [];
-if ($categories_result && $categories_result->num_rows > 0) {
-    while ($row = $categories_result->fetch_assoc()) {
-        $main = $row['main_category'];
-        if (!isset($organized_categories[$main])) {
-            $organized_categories[$main] = [];
-        }
-
-        if (!empty($row['subcategory'])) {
-            $sub = $row['subcategory'];
-            if (!in_array($sub, $organized_categories[$main])) {
-                $organized_categories[$main][] = $sub;
-            }
-        }
-
-        if (!empty($row['sub_subcategory'])) {
-            $subsub = $row['sub_subcategory'];
-            if (!in_array($subsub, $organized_categories[$main])) {
-                $organized_categories[$main][] = $subsub;
-            }
-        }
-
-        if (!empty($row['sub_sub_subcategory'])) {
-            $subsubsub = $row['sub_sub_subcategory'];
-            if (!in_array($subsubsub, $organized_categories[$main])) {
-                $organized_categories[$main][] = $subsubsub;
-            }
-        }
-    }
-}
-
-// Fetch all category data for dropdown
-$categories_query = "
-    SELECT 
-        at.id as category_id,
-        at.name as main_category,
-        sc.name as subcategory,
-        ssc.name as sub_subcategory,
-        sssc.name as sub_sub_subcategory
-    FROM account_types at
-    LEFT JOIN account_subcategories sc ON at.id = sc.parent_id
-    LEFT JOIN account_sub_subcategories ssc ON sc.id = ssc.subcategory_id
-    LEFT JOIN account_sub_sub_subcategories sssc ON ssc.id = sssc.sub_subcategory_id
-    WHERE at.id BETWEEN 14 AND 21
-    ORDER BY at.id, sc.name, ssc.name, sssc.name
-";
-$categories_result = $conn->query($categories_query);
-
-// Organize categories hierarchically
-$organized_categories = [];
-if ($categories_result && $categories_result->num_rows > 0) {
-    while ($row = $categories_result->fetch_assoc()) {
-        $main = $row['main_category'];
-        if (!isset($organized_categories[$main])) {
-            $organized_categories[$main] = [];
-        }
-
-        if (!empty($row['subcategory'])) {
-            $sub = $row['subcategory'];
-            if (!in_array($sub, $organized_categories[$main])) {
-                $organized_categories[$main][] = $sub;
-            }
-        }
-
-        if (!empty($row['sub_subcategory'])) {
-            $subsub = $row['sub_subcategory'];
-            if (!in_array($subsub, $organized_categories[$main])) {
-                $organized_categories[$main][] = $subsub;
-            }
-        }
-
-        if (!empty($row['sub_sub_subcategory'])) {
-            $subsubsub = $row['sub_sub_subcategory'];
-            if (!in_array($subsubsub, $organized_categories[$main])) {
-                $organized_categories[$main][] = $subsubsub;
-            }
-        }
-    }
-}
-
 ?>
 
 <?php if (!$isAjax): ?>
@@ -910,593 +678,14 @@ if ($categories_result && $categories_result->num_rows > 0) {
             <p>Track release property logs, pass property movement, and manage property details</p>
         </div>
 
-        <!-- Statistics Cards -->
-        <div class="stats-container">
-            <div class="stat-card">
-                <div class="stat-icon items">
-                    <i class="fas fa-snowflake"></i>
-                </div>
-                <div class="stat-number"><?= $total_items ?></div>
-                <div class="stat-label">Total Aircon Units</div>
-            </div>
-
-            <div class="stat-card clickable" style="border-left: 4px solid #28a745; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#goodConditionModal" title="Click to view good condition aircons">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stat-number" style="color: #28a745;"><?= $good_condition_count ?></div>
-                <div class="stat-label">Good Condition</div>
-                <small class="text-muted mt-1"><i class="fas fa-eye"></i> Click to view details</small>
-            </div>
-
-            <div class="stat-card clickable" style="border-left: 4px solid #ffc107; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#needsAttentionModal" title="Click to view aircons needing attention">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div class="stat-number" style="color: #ffc107;"><?= $attention_needed_count ?></div>
-                <div class="stat-label">Needs Attention</div>
-                <small class="text-muted mt-1"><i class="fas fa-eye"></i> Click to view details</small>
-            </div>
-
-            <div class="stat-card clickable" style="border-left: 4px solid #dc3545; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#decommissionedModal" title="Click to view decommissioned aircons">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
-                    <i class="fas fa-times-circle"></i>
-                </div>
-                <div class="stat-number" style="color: #dc3545;"><?= $decommissioned_count ?></div>
-                <div class="stat-label">Decommissioned</div>
-                <small class="text-muted mt-1"><i class="fas fa-eye"></i> Click to view details</small>
-            </div>
-        </div>
-
-
-        <!-- Low Stock Items Modal -->
-        <div class="modal fade" id="lowStockModal" tabindex="-1" aria-labelledby="lowStockModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white;">
-                        <h5 class="modal-title" id="lowStockModalLabel">
-                            <i class="fas fa-exclamation-triangle me-2"></i>Low Stock Items
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <?php if (!empty($low_stock_items)): ?>
-                            <div class="alert alert-warning">
-                                <i class="fas fa-info-circle me-2"></i>
-                                <strong><?= count($low_stock_items) ?></strong> item(s) are running low on stock. Consider reordering soon.
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-hover table-striped">
-                                    <thead class="table-warning">
-                                        <tr>
-                                            <th>Item Name</th>
-                                            <th>Category</th>
-                                            <th>Current Stock</th>
-                                            <th>Reorder Level</th>
-                                            <th>Unit</th>
-                                            <th>Supplier</th>
-                                            <th>Last Updated</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($low_stock_items as $item): ?>
-                                            <tr>
-                                                <td><strong><?= htmlspecialchars($item['item_name']) ?></strong></td>
-                                                <td><?= htmlspecialchars($item['category']) ?></td>
-                                                <td>
-                                                    <span class="badge bg-warning text-dark">
-                                                        <?= $item['current_stock'] ?>
-                                                    </span>
-                                                </td>
-                                                <td><?= $item['reorder_level'] ?></td>
-                                                <td><?= htmlspecialchars($item['unit']) ?></td>
-                                                <td><?= htmlspecialchars($item['supplier_name'] ?? 'N/A') ?></td>
-                                                <td><?= date('M d, Y', strtotime($item['date_updated'])) ?></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-success" onclick="stockIn(<?= $item['inventory_id'] ?>); $('#lowStockModal').modal('hide');" title="Add Stock">
-                                                        <i class="fas fa-plus"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-info" onclick="editInventoryItem(<?= (int)$item['inventory_id'] ?>, 'lowStockModal');" title="Edit">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php else: ?>
-                            <div class="text-center py-5">
-                                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-                                <h4>All Good!</h4>
-                                <p class="text-muted">No items are running low on stock.</p>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Out of Stock Items Modal -->
-        <div class="modal fade" id="outOfStockModal" tabindex="-1" aria-labelledby="outOfStockModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white;">
-                        <h5 class="modal-title" id="outOfStockModalLabel">
-                            <i class="fas fa-times-circle me-2"></i>Out of Stock Items
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <?php if (!empty($out_of_stock_items)): ?>
-                            <div class="alert alert-danger">
-                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                <strong><?= count($out_of_stock_items) ?></strong> item(s) are completely out of stock. Immediate action required!
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-hover table-striped">
-                                    <thead class="table-danger">
-                                        <tr>
-                                            <th>Item Name</th>
-                                            <th>Category</th>
-                                            <th>Current Stock</th>
-                                            <th>Reorder Level</th>
-                                            <th>Unit</th>
-                                            <th>Supplier</th>
-                                            <th>Last Updated</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($out_of_stock_items as $item): ?>
-                                            <tr>
-                                                <td><strong><?= htmlspecialchars($item['item_name']) ?></strong></td>
-                                                <td><?= htmlspecialchars($item['category']) ?></td>
-                                                <td>
-                                                    <span class="badge bg-danger">
-                                                        <?= $item['current_stock'] ?>
-                                                    </span>
-                                                </td>
-                                                <td><?= $item['reorder_level'] ?></td>
-                                                <td><?= htmlspecialchars($item['unit']) ?></td>
-                                                <td><?= htmlspecialchars($item['supplier_name'] ?? 'N/A') ?></td>
-                                                <td><?= date('M d, Y', strtotime($item['date_updated'])) ?></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-success" onclick="stockIn(<?= $item['inventory_id'] ?>); $('#outOfStockModal').modal('hide');" title="Add Stock">
-                                                        <i class="fas fa-plus"></i> Restock
-                                                    </button>
-                                                    <button class="btn btn-sm btn-info" onclick="editInventoryItem(<?= (int)$item['inventory_id'] ?>, 'outOfStockModal');" title="Edit">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php else: ?>
-                            <div class="text-center py-5">
-                                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-                                <h4>Excellent!</h4>
-                                <p class="text-muted">No items are out of stock.</p>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Good Condition Aircons Modal -->
-        <div class="modal fade" id="goodConditionModal" tabindex="-1" aria-labelledby="goodConditionModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">
-                        <h5 class="modal-title" id="goodConditionModalLabel">
-                            <i class="fas fa-check-circle me-2"></i>Good Condition Aircons
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <?php if (!empty($good_condition_aircons)): ?>
-                            <div class="alert alert-success">
-                                <i class="fas fa-check-circle me-2"></i>
-                                <strong><?= count($good_condition_aircons) ?></strong> aircon unit(s) are in good working condition.
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-hover table-striped">
-                                    <thead class="table-success">
-                                        <tr>
-                                            <th>Brand</th>
-                                            <th>Model</th>
-                                            <th>Type</th>
-                                            <th>Location</th>
-                                            <th>Status</th>
-                                            <th>Serial No.</th>
-                                            <th>Last Service</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($good_condition_aircons as $aircon): ?>
-                                            <tr>
-                                                <td><strong><?= htmlspecialchars($aircon['brand'] ?? 'N/A') ?></strong></td>
-                                                <td><?= htmlspecialchars($aircon['model'] ?? 'N/A') ?></td>
-                                                <td><?= htmlspecialchars($aircon['type'] ?? 'N/A') ?></td>
-                                                <td><?= htmlspecialchars($aircon['location'] ?? 'N/A') ?></td>
-                                                <td><span class="badge bg-success"><?= htmlspecialchars($aircon['status']) ?></span></td>
-                                                <td><?= htmlspecialchars($aircon['serial_number'] ?? 'N/A') ?></td>
-                                                <td><?= !empty($aircon['last_service_date']) ? date('M d, Y', strtotime($aircon['last_service_date'])) : 'N/A' ?></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-primary view-aircon-details-btn"
-                                                        title="View Details"
-                                                        data-aircon-id="<?= (int)$aircon['aircon_id'] ?>"
-                                                        data-item-number="<?= htmlspecialchars($aircon['item_number'] ?? '', ENT_QUOTES) ?>"
-                                                        data-brand="<?= htmlspecialchars($aircon['brand'] ?? '', ENT_QUOTES) ?>"
-                                                        data-model="<?= htmlspecialchars($aircon['model'] ?? '', ENT_QUOTES) ?>"
-                                                        data-type="<?= htmlspecialchars($aircon['type'] ?? '', ENT_QUOTES) ?>"
-                                                        data-capacity="<?= htmlspecialchars($aircon['capacity'] ?? '', ENT_QUOTES) ?>"
-                                                        data-serial-number="<?= htmlspecialchars($aircon['serial_number'] ?? '', ENT_QUOTES) ?>"
-                                                        data-location="<?= htmlspecialchars($aircon['location'] ?? '', ENT_QUOTES) ?>"
-                                                        data-status="<?= htmlspecialchars($aircon['status'] ?? '', ENT_QUOTES) ?>"
-                                                        data-purchase-date="<?= htmlspecialchars($aircon['purchase_date'] ?? '', ENT_QUOTES) ?>"
-                                                        data-warranty-expiry="<?= htmlspecialchars($aircon['warranty_expiry'] ?? '', ENT_QUOTES) ?>"
-                                                        data-last-service-date="<?= htmlspecialchars($aircon['last_service_date'] ?? '', ENT_QUOTES) ?>"
-                                                        data-maintenance-schedule="<?= htmlspecialchars($aircon['maintenance_schedule'] ?? '', ENT_QUOTES) ?>"
-                                                        data-supplier-info="<?= htmlspecialchars($aircon['supplier_name'] ?? '', ENT_QUOTES) ?>"
-                                                        data-installation-date="<?= htmlspecialchars($aircon['installation_date'] ?? '', ENT_QUOTES) ?>"
-                                                        data-energy-efficiency="<?= htmlspecialchars($aircon['energy_efficiency_rating'] ?? '', ENT_QUOTES) ?>"
-                                                        data-power-consumption="<?= htmlspecialchars($aircon['power_consumption'] ?? '', ENT_QUOTES) ?>"
-                                                        data-notes="<?= htmlspecialchars($aircon['notes'] ?? '', ENT_QUOTES) ?>"
-                                                        data-purchase-price="<?= htmlspecialchars($aircon['purchase_price'] ?? '0', ENT_QUOTES) ?>"
-                                                        data-depreciated-value="<?= htmlspecialchars($aircon['depreciated_value'] ?? '0', ENT_QUOTES) ?>"
-                                                        data-receiver="<?= htmlspecialchars($aircon['receiver'] ?? '', ENT_QUOTES) ?>"
-                                                        data-created-by="<?= htmlspecialchars($aircon['created_by'] ?? '', ENT_QUOTES) ?>"
-                                                        data-date-created="<?= htmlspecialchars($aircon['date_created'] ?? '', ENT_QUOTES) ?>">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php else: ?>
-                            <div class="text-center py-5">
-                                <i class="fas fa-snowflake fa-4x text-muted mb-3"></i>
-                                <h4>No Aircons</h4>
-                                <p class="text-muted">No aircons in good condition found.</p>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Needs Attention Aircons Modal -->
-        <div class="modal fade" id="needsAttentionModal" tabindex="-1" aria-labelledby="needsAttentionModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white;">
-                        <h5 class="modal-title" id="needsAttentionModalLabel">
-                            <i class="fas fa-exclamation-triangle me-2"></i>Aircons Needing Attention
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <?php if (!empty($needs_attention_aircons)): ?>
-                            <div class="alert alert-warning">
-                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                <strong><?= count($needs_attention_aircons) ?></strong> aircon unit(s) need repair or maintenance attention.
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-hover table-striped">
-                                    <thead class="table-warning">
-                                        <tr>
-                                            <th>Brand</th>
-                                            <th>Model</th>
-                                            <th>Type</th>
-                                            <th>Location</th>
-                                            <th>Status</th>
-                                            <th>Serial No.</th>
-                                            <th>Last Service</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($needs_attention_aircons as $aircon): ?>
-                                            <tr>
-                                                <td><strong><?= htmlspecialchars($aircon['brand'] ?? 'N/A') ?></strong></td>
-                                                <td><?= htmlspecialchars($aircon['model'] ?? 'N/A') ?></td>
-                                                <td><?= htmlspecialchars($aircon['type'] ?? 'N/A') ?></td>
-                                                <td><?= htmlspecialchars($aircon['location'] ?? 'N/A') ?></td>
-                                                <td>
-                                                    <span class="badge bg-<?= $aircon['status'] == 'Needs Repair' ? 'warning' : 'info' ?>">
-                                                        <?= htmlspecialchars($aircon['status']) ?>
-                                                    </span>
-                                                </td>
-                                                <td><?= htmlspecialchars($aircon['serial_number'] ?? 'N/A') ?></td>
-                                                <td><?= !empty($aircon['last_service_date']) ? date('M d, Y', strtotime($aircon['last_service_date'])) : 'N/A' ?></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-primary view-aircon-details-btn"
-                                                        title="View Details"
-                                                        data-aircon-id="<?= (int)$aircon['aircon_id'] ?>"
-                                                        data-item-number="<?= htmlspecialchars($aircon['item_number'] ?? '', ENT_QUOTES) ?>"
-                                                        data-brand="<?= htmlspecialchars($aircon['brand'] ?? '', ENT_QUOTES) ?>"
-                                                        data-model="<?= htmlspecialchars($aircon['model'] ?? '', ENT_QUOTES) ?>"
-                                                        data-type="<?= htmlspecialchars($aircon['type'] ?? '', ENT_QUOTES) ?>"
-                                                        data-capacity="<?= htmlspecialchars($aircon['capacity'] ?? '', ENT_QUOTES) ?>"
-                                                        data-serial-number="<?= htmlspecialchars($aircon['serial_number'] ?? '', ENT_QUOTES) ?>"
-                                                        data-location="<?= htmlspecialchars($aircon['location'] ?? '', ENT_QUOTES) ?>"
-                                                        data-status="<?= htmlspecialchars($aircon['status'] ?? '', ENT_QUOTES) ?>"
-                                                        data-purchase-date="<?= htmlspecialchars($aircon['purchase_date'] ?? '', ENT_QUOTES) ?>"
-                                                        data-warranty-expiry="<?= htmlspecialchars($aircon['warranty_expiry'] ?? '', ENT_QUOTES) ?>"
-                                                        data-last-service-date="<?= htmlspecialchars($aircon['last_service_date'] ?? '', ENT_QUOTES) ?>"
-                                                        data-maintenance-schedule="<?= htmlspecialchars($aircon['maintenance_schedule'] ?? '', ENT_QUOTES) ?>"
-                                                        data-supplier-info="<?= htmlspecialchars($aircon['supplier_name'] ?? '', ENT_QUOTES) ?>"
-                                                        data-installation-date="<?= htmlspecialchars($aircon['installation_date'] ?? '', ENT_QUOTES) ?>"
-                                                        data-energy-efficiency="<?= htmlspecialchars($aircon['energy_efficiency_rating'] ?? '', ENT_QUOTES) ?>"
-                                                        data-power-consumption="<?= htmlspecialchars($aircon['power_consumption'] ?? '', ENT_QUOTES) ?>"
-                                                        data-notes="<?= htmlspecialchars($aircon['notes'] ?? '', ENT_QUOTES) ?>"
-                                                        data-purchase-price="<?= htmlspecialchars($aircon['purchase_price'] ?? '0', ENT_QUOTES) ?>"
-                                                        data-depreciated-value="<?= htmlspecialchars($aircon['depreciated_value'] ?? '0', ENT_QUOTES) ?>"
-                                                        data-receiver="<?= htmlspecialchars($aircon['receiver'] ?? '', ENT_QUOTES) ?>"
-                                                        data-created-by="<?= htmlspecialchars($aircon['created_by'] ?? '', ENT_QUOTES) ?>"
-                                                        data-date-created="<?= htmlspecialchars($aircon['date_created'] ?? '', ENT_QUOTES) ?>"
-                                                        data-modal-id="needsAttentionModal">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php else: ?>
-                            <div class="text-center py-5">
-                                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-                                <h4>All Good!</h4>
-                                <p class="text-muted">No aircons need repair or maintenance attention.</p>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Decommissioned Aircons Modal -->
-        <div class="modal fade" id="decommissionedModal" tabindex="-1" aria-labelledby="decommissionedModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white;">
-                        <h5 class="modal-title" id="decommissionedModalLabel">
-                            <i class="fas fa-times-circle me-2"></i>Decommissioned Aircons
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <?php if (!empty($decommissioned_aircons)): ?>
-                            <div class="alert alert-danger">
-                                <i class="fas fa-times-circle me-2"></i>
-                                <strong><?= count($decommissioned_aircons) ?></strong> aircon unit(s) have been decommissioned and are out of service.
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-hover table-striped">
-                                    <thead class="table-danger">
-                                        <tr>
-                                            <th>Brand</th>
-                                            <th>Model</th>
-                                            <th>Type</th>
-                                            <th>Location</th>
-                                            <th>Status</th>
-                                            <th>Serial No.</th>
-                                            <th>Last Service</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($decommissioned_aircons as $aircon): ?>
-                                            <tr>
-                                                <td><strong><?= htmlspecialchars($aircon['brand'] ?? 'N/A') ?></strong></td>
-                                                <td><?= htmlspecialchars($aircon['model'] ?? 'N/A') ?></td>
-                                                <td><?= htmlspecialchars($aircon['type'] ?? 'N/A') ?></td>
-                                                <td><?= htmlspecialchars($aircon['location'] ?? 'N/A') ?></td>
-                                                <td><span class="badge bg-danger"><?= htmlspecialchars($aircon['status']) ?></span></td>
-                                                <td><?= htmlspecialchars($aircon['serial_number'] ?? 'N/A') ?></td>
-                                                <td><?= !empty($aircon['last_service_date']) ? date('M d, Y', strtotime($aircon['last_service_date'])) : 'N/A' ?></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-primary view-aircon-details-btn"
-                                                        title="View Details"
-                                                        data-aircon-id="<?= (int)$aircon['aircon_id'] ?>"
-                                                        data-item-number="<?= htmlspecialchars($aircon['item_number'] ?? '', ENT_QUOTES) ?>"
-                                                        data-brand="<?= htmlspecialchars($aircon['brand'] ?? '', ENT_QUOTES) ?>"
-                                                        data-model="<?= htmlspecialchars($aircon['model'] ?? '', ENT_QUOTES) ?>"
-                                                        data-type="<?= htmlspecialchars($aircon['type'] ?? '', ENT_QUOTES) ?>"
-                                                        data-capacity="<?= htmlspecialchars($aircon['capacity'] ?? '', ENT_QUOTES) ?>"
-                                                        data-serial-number="<?= htmlspecialchars($aircon['serial_number'] ?? '', ENT_QUOTES) ?>"
-                                                        data-location="<?= htmlspecialchars($aircon['location'] ?? '', ENT_QUOTES) ?>"
-                                                        data-status="<?= htmlspecialchars($aircon['status'] ?? '', ENT_QUOTES) ?>"
-                                                        data-purchase-date="<?= htmlspecialchars($aircon['purchase_date'] ?? '', ENT_QUOTES) ?>"
-                                                        data-warranty-expiry="<?= htmlspecialchars($aircon['warranty_expiry'] ?? '', ENT_QUOTES) ?>"
-                                                        data-last-service-date="<?= htmlspecialchars($aircon['last_service_date'] ?? '', ENT_QUOTES) ?>"
-                                                        data-maintenance-schedule="<?= htmlspecialchars($aircon['maintenance_schedule'] ?? '', ENT_QUOTES) ?>"
-                                                        data-supplier-info="<?= htmlspecialchars($aircon['supplier_name'] ?? '', ENT_QUOTES) ?>"
-                                                        data-installation-date="<?= htmlspecialchars($aircon['installation_date'] ?? '', ENT_QUOTES) ?>"
-                                                        data-energy-efficiency="<?= htmlspecialchars($aircon['energy_efficiency_rating'] ?? '', ENT_QUOTES) ?>"
-                                                        data-power-consumption="<?= htmlspecialchars($aircon['power_consumption'] ?? '', ENT_QUOTES) ?>"
-                                                        data-notes="<?= htmlspecialchars($aircon['notes'] ?? '', ENT_QUOTES) ?>"
-                                                        data-purchase-price="<?= htmlspecialchars($aircon['purchase_price'] ?? '0', ENT_QUOTES) ?>"
-                                                        data-depreciated-value="<?= htmlspecialchars($aircon['depreciated_value'] ?? '0', ENT_QUOTES) ?>"
-                                                        data-receiver="<?= htmlspecialchars($aircon['receiver'] ?? '', ENT_QUOTES) ?>"
-                                                        data-created-by="<?= htmlspecialchars($aircon['created_by'] ?? '', ENT_QUOTES) ?>"
-                                                        data-date-created="<?= htmlspecialchars($aircon['date_created'] ?? '', ENT_QUOTES) ?>"
-                                                        data-modal-id="decommissionedModal">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php else: ?>
-                            <div class="text-center py-5">
-                                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-                                <h4>Excellent!</h4>
-                                <p class="text-muted">No aircons have been decommissioned.</p>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <style>
-            /* Responsive table styles */
-            .table-responsive {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            /* Reduce table header font size */
-            .table-dark th {
-                font-size: 0.85rem;
-            }
-
-            /* Action buttons styling */
-            .table .actions {
-                display: flex;
-                gap: 0.5rem;
-                justify-content: center;
-                align-items: center;
-            }
-
-            .table .actions .btn {
-                margin: 0;
-            }
-
-            @media (max-width: 991.98px) {
-
-                .table th,
-                .table td {
-                    white-space: nowrap;
-                    min-width: 120px;
-                }
-
-                .table thead {
-                    display: none;
-                }
-
-                .table,
-                .table tbody,
-                .table tr,
-                .table td {
-                    display: block;
-                    width: 100%;
-                }
-
-                .table tr {
-                    margin-bottom: 1rem;
-                    border: 1px solid #dee2e6;
-                    border-radius: 0.25rem;
-                    position: relative;
-                    padding-top: 2.5rem;
-                }
-
-                .table td {
-                    text-align: right;
-                    padding-left: 50%;
-                    position: relative;
-                    border-bottom: 1px solid #dee2e6;
-                }
-
-                .table td::before {
-                    content: attr(data-label);
-                    position: absolute;
-                    left: 1rem;
-                    width: 45%;
-                    padding-right: 1rem;
-                    text-align: left;
-                    font-weight: bold;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                }
-
-                .table .actions {
-                    display: flex;
-                    justify-content: flex-end;
-                    padding: 0.5rem;
-                    border-bottom: none;
-                }
-
-                .table .actions::before {
-                    display: none;
-                }
-
-                .table .btn-group {
-                    flex-wrap: nowrap;
-                }
-
-                .table .btn {
-                    padding: 0.25rem 0.5rem;
-                    font-size: 0.8rem;
-                }
-            }
-
-            /* Reduce table text size for compactness */
-            .table {
-                font-size: 0.875rem;
-                /* 14px */
-            }
-
-            .table thead th {
-                font-size: 0.875rem;
-                /* 14px */
-                padding: 0.5rem;
-            }
-
-            .table tbody td {
-                font-size: 0.813rem;
-                /* 13px */
-                padding: 0.5rem;
-            }
-
-            .table .badge {
-                font-size: 0.75rem;
-                /* 12px */
-                padding: 0.25rem 0.5rem;
-            }
-
-            .table .btn-sm {
-                font-size: 0.75rem;
-                /* 12px */
-                padding: 0.25rem 0.4rem;
-            }
-        </style>
-
-        <!-- Aircon Table -->
+        <!-- Release Logs Table -->
         <div class="table-container">
             <div class="table-header">
                 <h3>Release Logs</h3>
                 <div class="d-flex align-items-end gap-2">
                     <form method="GET" class="d-flex align-items-end gap-2 mb-0">
                         <div class="search-input">
-                            <label for="search" class="form-label mb-0 text-white">Search Aircon</label>
+                            <label for="search" class="form-label mb-0 text-white">Search Release Logs</label>
                             <input type="text" id="search" name="search" class="form-control" placeholder="Search by brand, model, type, serial no., location..." value="<?= htmlspecialchars($search_term) ?>">
                         </div>
                         <div>
@@ -1546,18 +735,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
             $offset = ($page - 1) * $records_per_page;
 
             // Get total number of records
-            $count_sql = "SELECT COUNT(*) as total FROM aircons i $inv_where";
+            $count_sql = "SELECT COUNT(*) as total FROM release_logs i $inv_where";
             $count_result = $conn->query($count_sql);
             $total_records = $count_result->fetch_assoc()['total'];
             $total_pages = ceil($total_records / $records_per_page);
 
             // Get inventory data with pagination (respect filters and join supplier)
-            $sql = "SELECT i.*, s.supplier_name 
-                    FROM aircons i 
-                    LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
-                    $inv_where
-                    ORDER BY i.date_created DESC
-                    LIMIT $records_per_page OFFSET $offset";
+            $sql = "SELECT * FROM release_logs $inv_where ORDER BY date_created DESC LIMIT $records_per_page OFFSET $offset";
             $result = $conn->query($sql);
             ?>
 
@@ -1585,29 +769,28 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 ?>
                                     <tr>
                                         <td data-label="Date"><?= htmlspecialchars($row['date'] ?? 'N/A') ?></td>
-                                        <td data-label="Name"><?= htmlspecialchars($row['name'] ?? 'N/A') ?></td>
+                                        <td data-label="Name"><?= htmlspecialchars($row['facility_name'] ?? 'N/A') ?></td>
                                         <td data-label="Item Description"><?= htmlspecialchars($row['item_description'] ?? 'N/A') ?></td>
                                         <td data-label="Quantity"><?= htmlspecialchars($row['quantity'] ?? 'N/A') ?></td>
                                         <td data-label="Unit"><?= htmlspecialchars($row['unit'] ?? 'N/A') ?></td>
                                         <td data-label="Notes"><?= htmlspecialchars($row['notes'] ?? 'N/A') ?></td>
                                         <td data-label="Actions" class="actions">
                                             <button class="btn btn-sm btn-outline-info view-maintenance-btn"
-                                                data-aircon-id="<?= (int)$row['aircon_id'] ?>"
+                                                data-aircon-id="<?= (int)($row['aircon_id'] ?? 0) ?>"
+                                                data-item-number="<?= htmlspecialchars($row['item_number'] ?? '', ENT_QUOTES) ?>"
                                                 data-brand="<?= htmlspecialchars($row['brand'] ?? '', ENT_QUOTES) ?>"
-                                                data-model="<?= htmlspecialchars($row['model'] ?? '', ENT_QUOTES) ?>"
                                                 data-serial="<?= htmlspecialchars($row['serial_number'] ?? '', ENT_QUOTES) ?>"
                                                 title="View Maintenance Records">
                                                 <i class="fas fa-calendar-alt"></i> View Records
                                             </button>
                                             <button class="btn btn-sm btn-primary view-aircon-details-btn"
                                                 title="View Details"
-                                                data-aircon-id="<?= (int)$row['aircon_id'] ?>"
+                                                data-aircon-id="<?= (int)($row['aircon_id'] ?? 0) ?>"
                                                 data-item-number="<?= htmlspecialchars($row['item_number'] ?? '', ENT_QUOTES) ?>"
-                                                data-brand="<?= htmlspecialchars($row['brand'] ?? '', ENT_QUOTES) ?>"
-                                                data-model="<?= htmlspecialchars($row['model'] ?? '', ENT_QUOTES) ?>"
-                                                data-type="<?= htmlspecialchars($row['type'] ?? '', ENT_QUOTES) ?>"
-                                                data-capacity="<?= htmlspecialchars($row['capacity'] ?? '', ENT_QUOTES) ?>"
-                                                data-serial-number="<?= htmlspecialchars($row['serial_number'] ?? '', ENT_QUOTES) ?>"
+                                                data-item-description="<?= htmlspecialchars($row['item_description'] ?? '', ENT_QUOTES) ?>"
+                                                data-quantity="<?= htmlspecialchars($row['quantity'] ?? '', ENT_QUOTES) ?>"
+                                                data-unit="<?= htmlspecialchars($row['unit'] ?? '', ENT_QUOTES) ?>"
+                                                data-notes="<?= htmlspecialchars($row['notes'] ?? '', ENT_QUOTES) ?>"
                                                 data-location="<?= htmlspecialchars($row['location'] ?? '', ENT_QUOTES) ?>"
                                                 data-status="<?= htmlspecialchars($row['status'] ?? '', ENT_QUOTES) ?>"
                                                 data-purchase-date="<?= htmlspecialchars($row['purchase_date'] ?? '', ENT_QUOTES) ?>"
@@ -1628,25 +811,25 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             </button>
                                             <button class="btn btn-sm btn-info" title="Edit"
                                                 onclick="openEditAirconModal(
-                                                <?= (int)$row['aircon_id'] ?>,
+                                                <?= (int)($row['aircon_id'] ?? 0) ?>,
                                                 <?= json_encode($row['item_number'] ?? '') ?>,
-                                                <?= json_encode($row['category'] ?? '') ?>,
-                                                <?= json_encode($row['brand']) ?>,
-                                                <?= json_encode($row['model']) ?>,
-                                                <?= json_encode($row['type']) ?>,
+                                                <?= json_encode($row['item_description'] ?? '') ?>,
+                                                <?= json_encode($row['brand'] ?? '') ?>,
+                                                <?= json_encode($row['model'] ?? '') ?>,
+                                                <?= json_encode($row['type'] ?? '') ?>,
                                                 <?= json_encode($row['capacity'] ?? '') ?>,
-                                                <?= json_encode($row['serial_number']) ?>,
-                                                <?= json_encode($row['location']) ?>,
-                                                <?= json_encode($row['status']) ?>,
-                                                <?= json_encode($row['purchase_date']) ?>,
-                                                <?= json_encode($row['warranty_expiry']) ?>,
-                                                <?= json_encode($row['last_service_date']) ?>,
-                                                <?= json_encode($row['maintenance_schedule']) ?>,
+                                                <?= json_encode($row['serial_number'] ?? '') ?>,
+                                                <?= json_encode($row['location'] ?? '') ?>,
+                                                <?= json_encode($row['status'] ?? '') ?>,
+                                                <?= json_encode($row['purchase_date'] ?? '') ?>,
+                                                <?= json_encode($row['warranty_expiry'] ?? '') ?>,
+                                                <?= json_encode($row['last_service_date'] ?? '') ?>,
+                                                <?= json_encode($row['maintenance_schedule'] ?? '') ?>,
                                                 <?= (int)($row['supplier_id'] ?? 0) ?>,
-                                                <?= json_encode($row['installation_date']) ?>,
+                                                <?= json_encode($row['installation_date'] ?? '') ?>,
                                                 <?= json_encode($row['energy_efficiency_rating'] ?? '') ?>,
                                                 <?= json_encode($row['power_consumption'] ?? '') ?>,
-                                                <?= json_encode($row['notes']) ?>,
+                                                <?= json_encode($row['notes'] ?? '') ?>,
                                                 <?= json_encode($row['purchase_price'] ?? '0') ?>,
                                                 <?= json_encode($row['depreciated_value'] ?? '0') ?>
                                                 )">
@@ -1742,145 +925,47 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             <h5 class="modal-title text-white">Add New Aircon</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
-                        <form action="../actions/add_aircon.php" method="POST">
-                            <input type="hidden" name="receiver" value="Property Custodian">
-                            <input type="hidden" name="status" value="Active">
+                        <form action="../actions/add_release.php" method="POST">
+                            <input type="text" name="user_id" value="<?php echo $_SESSION['user']['id'] ?? 1; ?>">
                             <div class="modal-body">
                                 <!-- Basic Information -->
                                 <div class="mb-3 pb-2 border-bottom">
                                     <h6 class="mb-3 text-uppercase text-muted">Basic Information</h6>
                                     <div class="row g-3">
                                         <div class="col-md-6">
-                                            <label class="form-label">Item Number <span class="text-danger">*</span></label>
-                                            <input type="text" name="item_name" class="form-control" required placeholder="e.g., AC-001">
+                                            <label for="date">Date <span class="text-danger">*</span></label>
+                                            <input type="date" name="date" class="form-control" value="<?= date('Y-m-d') ?>">
+
                                         </div>
                                         <div class="col-md-6">
-                                            <label class="form-label">Category <span class="text-danger">*</span></label>
-                                            <select id="accountSelect" name="category" class="form-select">
-                                                <option value="">Select Category</option>
-                                                <?php
-                                                // Use the same organized categories from the main page
-                                                if (isset($organized_categories) && !empty($organized_categories)) {
-                                                    foreach ($organized_categories as $main_category => $subcategories) {
-                                                        echo '<optgroup label="' . htmlspecialchars($main_category) . '">';
-                                                        foreach ($subcategories as $subcategory) {
-                                                            echo '<option value="' . htmlspecialchars($subcategory) . '">' . htmlspecialchars($subcategory) . '</option>';
-                                                        }
-                                                        echo '</optgroup>';
-                                                    }
-                                                } else {
-                                                    // Fallback options if no data available - display as bold headers only
-                                                    echo '<optgroup label="Property and Equipment"></optgroup>';
-                                                    echo '<optgroup label="Intangible Assets"></optgroup>';
-                                                    echo '<optgroup label="Office Supplies"></optgroup>';
-                                                    echo '<optgroup label="Medical Supplies"></optgroup>';
-                                                }
-                                                ?>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Brand <span class="text-danger">*</span></label>
-                                            <input type="text" name="brand" class="form-control" required placeholder="e.g., Carrier, Daikin">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Model <span class="text-danger">*</span></label>
-                                            <input type="text" name="model" class="form-control" required placeholder="e.g., 42QHC018">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Type</label>
-                                            <select name="type" class="form-select">
-                                                <option value="">Select Type</option>
-                                                <option value="Split">Split</option>
-                                                <option value="Window">Window</option>
-                                                <option value="Portable">Portable</option>
-                                                <option value="Cassette">Cassette</option>
-                                                <option value="Central">Central</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Capacity (BTU/hr)</label>
-                                            <input type="text" name="capacity" class="form-control" placeholder="e.g., 18,000">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Serial Number</label>
-                                            <input type="text" name="serial_number" class="form-control" placeholder="Manufacturer serial number">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Location</label>
-                                            <input type="text" name="location" class="form-control" placeholder="e.g., Room 101, Office">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Status</label>
-                                            <select name="status" class="form-select">
-                                                <option value="Working">Working</option>
-                                                <option value="Needs Repair">Needs Repair</option>
-                                                <option value="Under Maintenance">Under Maintenance</option>
-                                                <option value="Decommissioned">Decommissioned</option>
-                                            </select>
-                                        </div>
+                                            <label for="facility_name">Facility Name <span class="text-danger">*</span></label>
+                                            <input type="text" name="facility_name" class="form-control">
 
-                                        <div class="col-md-3">
-                                            <label class="form-label">Campus</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="item_description">Item Description <span class="text-danger">*</span></label>
+                                            <input type="text" name="item_description" class="form-control">
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="quantity">Quantity <span class="text-danger">*</span></label>
+                                            <input type="number" name="quantity" class="form-control">
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="unit">Unit <span class="text-danger">*</span></label>
+                                            <input type="text" name="unit" class="form-control">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Campus <span class="text-danger">*</span></label>
                                             <select name="campus" class="form-select">
                                                 <option value="TED">TED</option>
                                                 <option value="BED">BED</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Purchase Date</label>
-                                            <input type="date" name="purchase_date" class="form-control">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Warranty Expiry</label>
-                                            <input type="date" name="warranty_expiry" class="form-control">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Last Service Date</label>
-                                            <input type="date" name="last_service" class="form-control">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Maintenance Schedule</label>
-                                            <input type="date" name="maintenance_schedule" class="form-control">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Supplier</label>
-                                            <select name="supplier_id" class="form-select">
-                                                <option value="">Select Supplier</option>
-                                                <?php
-                                                // Reset the result pointer to reuse the suppliers data
-                                                if ($suppliers_result && $suppliers_result->num_rows > 0) {
-                                                    $suppliers_result->data_seek(0);
-                                                    while ($supplier = $suppliers_result->fetch_assoc()) {
-                                                        echo '<option value="' . $supplier['supplier_id'] . '">' . htmlspecialchars($supplier['supplier_name']) . '</option>';
-                                                    }
-                                                }
-                                                ?>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Installation Date</label>
-                                            <input type="date" name="installation_date" class="form-control">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Energy Efficiency Rating</label>
-                                            <input type="text" name="energy_efficient" class="form-control" placeholder="e.g., 5-star, A++">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Power Consumption (kW)</label>
-                                            <input type="number" step="0.1" name="power_consumption" class="form-control" placeholder="e.g., 1.5">
-                                        </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-12">
                                             <label class="form-label">Notes</label>
                                             <textarea name="notes" class="form-control" rows="2" placeholder="Any additional information..."></textarea>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Purchase Price (₱)</label>
-                                            <input type="number" step="0.01" name="purchase_price" class="form-control" placeholder="0.00">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Depreciated Value (₱)</label>
-                                            <input type="number" step="0.01" name="depreciated_value" class="form-control" placeholder="0.00">
-                                        </div>
                                     </div>
                                 </div>
                             </div>
