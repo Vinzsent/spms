@@ -615,7 +615,7 @@ if (isset($_SESSION['error'])) {
             <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
         </div>
 
-        <nav class="sidebar-nav">
+       <nav class="sidebar-nav">
             <ul class="nav-item">
             <li><a href="<?= $dashboard_link ?>" class="nav-link">
                     <i class="fas fa-chart-line"></i> Dashboard
@@ -626,7 +626,7 @@ if (isset($_SESSION['error'])) {
             <li><a href="property_inventory.php" class="nav-link">
                     <i class="fas fa-boxes"></i> Property Inventory
                 </a></li>
-                <li><a href="rooms_inventory.php" class="nav-link">
+            <li><a href="rooms_inventory.php" class="nav-link">
                     <i class="fas fa-door-open"></i> Rooms Inventory
                 </a></li>
             <li><a href="property_issuance.php" class="nav-link">
@@ -641,9 +641,13 @@ if (isset($_SESSION['error'])) {
                 <li><a href="aircon_list.php" class="nav-link">
                     <i class="fas fa-snowflake"></i> Aircons
                 </a></li>
+                <li><a href="property_release_logs.php" class="nav-link">
+                    <i class="fas fa-file"></i> Release Records
+                </a></li>
             <li><a href="../logout.php" class="nav-link logout">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a></li>
+                    </a></li>
             </ul>
         </nav>
     </div>

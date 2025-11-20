@@ -854,14 +854,17 @@ foreach ($rooms as $room) {
             <li><a href="property_issuance.php" class="nav-link">
                     <i class="fas fa-hand-holding"></i> Property Issuance
                 </a></li>
-            <li><a href="equipment_transfer_request.php" class="nav-link">
+                <li><a href="equipment_transfer_request.php" class="nav-link">
                     <i class="fas fa-exchange-alt"></i> Transfer Request
                 </a></li>
-            <li><a href="borrowers_forms.php" class="nav-link">
+                <li><a href="borrowers_forms.php" class="nav-link">
                     <i class="fas fa-hand-holding"></i> Borrower Forms
                 </a></li>
-            <li><a href="aircon_list.php" class="nav-link">
+                <li><a href="aircon_list.php" class="nav-link">
                     <i class="fas fa-snowflake"></i> Aircons
+                </a></li>
+                <li><a href="property_release_logs.php" class="nav-link">
+                    <i class="fas fa-file"></i> Release Records
                 </a></li>
             <li><a href="../logout.php" class="nav-link logout">
                     <i class="fas fa-sign-out-alt"></i> Logout

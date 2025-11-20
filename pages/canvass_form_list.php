@@ -16,6 +16,7 @@ $canvass_query = "
         c.notes,
         c.created_at,
         ci.supplier_name,
+        ci.item_description,
         CONCAT(u.first_name, ' ', u.last_name) as created_by_name,
         COUNT(ci.canvass_item_id) as item_count
     FROM canvass c
@@ -431,12 +432,13 @@ $canvass_result = $conn->query($canvass_query);
                         <th style="width: 40px;">
                             <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)">
                         </th>
-                        <th colspan="8">Select All to print</th>
+                        <th colspan="9">Select All to print</th>
                     </tr>
                     <tr>
                         <th id="selectHeaderCell" style="display: none; width: 40px;"></th>
                         <th>Supplier Name</th>
                         <th>Date</th>
+                        <th>Canvass Description</th>
                         <th>Total Amount</th>
                         <th>Items</th>
                         <th>Status</th>
@@ -456,6 +458,9 @@ $canvass_result = $conn->query($canvass_query);
                             </td>
                             <td>
                                 <?= date('M d, Y', strtotime($canvass['canvass_date'])) ?>
+                            </td>
+                            <td>
+                                <?= htmlspecialchars($canvass['item_description'] ?? '') ?>
                             </td>
                             <td>
                                 <strong>₱<?= number_format($canvass['total_amount'], 2) ?></strong>

@@ -589,8 +589,8 @@ if (isset($_SESSION['error'])) {
     </div>
 
     <nav class="sidebar-nav">
-        <ul class="nav-item">
-        <li><a href="<?= $dashboard_link ?>" class="nav-link">
+            <ul class="nav-item">
+            <li><a href="<?= $dashboard_link ?>" class="nav-link">
                     <i class="fas fa-chart-line"></i> Dashboard
                 </a></li>
             <li><a href="office_inventory.php" class="nav-link">
@@ -614,11 +614,15 @@ if (isset($_SESSION['error'])) {
                 <li><a href="aircon_list.php" class="nav-link">
                     <i class="fas fa-snowflake"></i> Aircons
                 </a></li>
+                <li><a href="property_release_logs.php" class="nav-link">
+                    <i class="fas fa-file"></i> Release Records
+                </a></li>
             <li><a href="../logout.php" class="nav-link logout">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a></li>
-        </ul>
-    </nav>
+                    </a></li>
+            </ul>
+        </nav>
 </div>
 
 <!-- Main Content -->
