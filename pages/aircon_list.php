@@ -892,9 +892,19 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <li><a href="aircon_list.php" class="nav-link active">
                         <i class="fas fa-snowflake"></i> Aircons
                     </a></li>
-                <li><a href="property_release_logs.php" class="nav-link">
-                        <i class="fas fa-file"></i> Release Logs
-                    </a></li>
+                <li>
+                    <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
+                        <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
+                    </a>
+                    <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
+                        <li>
+                            <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
+                        </li>
+                        <li>
+                            <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
+                        </li>
+                    </ul>
+                </li>
                 <li><a href="../logout.php" class="nav-link logout">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a></li>

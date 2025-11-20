@@ -702,7 +702,7 @@ $logs_result = $conn->query($sql);
                             <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
                         </li>
                         <li>
-                            <a href="bulb_release.php" class="nav-link">Bulb Release Logs</a>
+                            <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
                         </li>
                     </ul>
                 </li>
@@ -717,18 +717,18 @@ $logs_result = $conn->query($sql);
     <!-- Main Content -->
     <div class="main-content">
         <div class="content-header">
-            <h1>Release Logs</h1>
-            <p>Track release property logs, pass property movement, and manage property details</p>
+            <h1>Bulb Release Logs</h1>
+            <p>Track release bulb logs, pass bulb movement, and manage bulb details</p>
         </div>
 
         <!-- Release Logs Table -->
         <div class="table-container">
             <div class="table-header">
-                <h3>Release Logs</h3>
+                <h3>Bulb Logs</h3>
                 <div class="d-flex align-items-end gap-2">
                     <form method="GET" class="d-flex align-items-end gap-2 mb-0">
                         <div class="search-input">
-                            <label for="search" class="form-label mb-0 text-white">Search Release Logs</label>
+                            <label for="search" class="form-label mb-0 text-white">Search Bulb Logs</label>
                             <input type="text" id="search" name="search" class="form-control" placeholder="Search by Name..." value="<?= htmlspecialchars($search_term) ?>">
                         </div>
                         <div>
@@ -755,17 +755,17 @@ $logs_result = $conn->query($sql);
                                 <i class="fas fa-search"></i> Search
                             </button>
                             <?php if (!empty($search_term) || !empty($sy_inv_raw) || !empty($campus_raw)): ?>
-                                <a href="property_release_logs.php" class="btn btn-outline-light">
+                                <a href="bulb_release.php" class="btn btn-outline-light">
                                     <i class="fas fa-times"></i> Clear
                                 </a>
                             <?php endif; ?>
                         </div>
                     </form>
-                    <a class="btn btn-success" href="../actions/export_release_logs.php?search=<?= urlencode($search_term) ?>&sy_inv=<?= urlencode($sy_inv_raw) ?>&campus=<?= urlencode($campus_raw) ?>">
+                    <a class="btn btn-success" href="../actions/export_bulb_release_logs.php?search=<?= urlencode($search_term) ?>&sy_inv=<?= urlencode($sy_inv_raw) ?>&campus=<?= urlencode($campus_raw) ?>">
                         <i class="fas fa-file-export"></i> Export
                     </a>
                     <button class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
-                        <i class="fas fa-plus"></i> Add Aircon
+                        <i class="fas fa-plus"></i> Add Bulb
                     </button>
                 </div>
             </div>
@@ -840,10 +840,10 @@ $logs_result = $conn->query($sql);
                             <?php else: ?>
                                 <tr>
                                     <td colspan="7" class="text-center py-4">
-                                        <i class="fas fa-snowflake fa-3x text-muted mb-3"></i>
-                                        <p class="text-muted">No aircon units found</p>
+                                        <i class="fas fa-lightbulb fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No bulb units found</p>
                                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
-                                            Add First Aircon
+                                            Add First Bulb
                                         </button>
                                     </td>
                                 </tr>
@@ -876,7 +876,7 @@ $logs_result = $conn->query($sql);
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header" style="background-color: var(--primary-green);">
-                            <h5 class="modal-title text-white">Add New Aircon</h5>
+                            <h5 class="modal-title text-white">Add New Bulb</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <form action="../actions/add_release.php" method="POST">
