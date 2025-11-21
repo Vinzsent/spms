@@ -21,13 +21,28 @@ if (isset($_SESSION['admin_verified_time']) && (time() - $_SESSION['admin_verifi
 include '../includes/db.php';
 include '../includes/header.php';
 
-$result = $conn->query("SELECT * FROM user");
+$records_per_page = 5;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) {
+    $page = 1;
+}
 
 // Count different user types for dashboard cards
 $total_users = $conn->query("SELECT COUNT(*) as count FROM user")->fetch_assoc()['count'];
 $admin_users = $conn->query("SELECT COUNT(*) as count FROM user WHERE user_type = 'Admin'")->fetch_assoc()['count'];
 $regular_users = $conn->query("SELECT COUNT(*) as count FROM user WHERE user_type = 'User'")->fetch_assoc()['count'];
 $active_users = $conn->query("SELECT COUNT(*) as count FROM user WHERE user_type IN ('Admin', 'User')")->fetch_assoc()['count'];
+
+$total_pages = max(1, (int) ceil($total_users / $records_per_page));
+if ($page > $total_pages) {
+    $page = $total_pages;
+}
+$offset = ($page - 1) * $records_per_page;
+
+$stmt = $conn->prepare("SELECT * FROM user ORDER BY last_name, first_name LIMIT ?, ?");
+$stmt->bind_param("ii", $offset, $records_per_page);
+$stmt->execute();
+$result = $stmt->get_result();
 
 // Display session messages
 if (isset($_SESSION['message'])) {
@@ -418,6 +433,24 @@ if (isset($_SESSION['error'])) {
                     </tbody>
                 </table>
             </div>
+
+            <?php if ($total_pages > 0): ?>
+            <nav aria-label="User pagination" class="mt-3">
+              <ul class="pagination justify-content-center mb-0">
+                <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
+                  <a class="page-link" href="?page=<?= max(1, $page - 1) ?>">Previous</a>
+                </li>
+                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <li class="page-item <?= $page == $i ? 'active' : '' ?>">
+                  <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                </li>
+                <?php endfor; ?>
+                <li class="page-item <?= $page >= $total_pages ? 'disabled' : '' ?>">
+                  <a class="page-link" href="?page=<?= min($total_pages, $page + 1) ?>">Next</a>
+                </li>
+              </ul>
+            </nav>
+            <?php endif; ?>
         </div>
     </div>
 </div>

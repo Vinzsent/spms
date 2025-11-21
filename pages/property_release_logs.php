@@ -699,10 +699,10 @@ $logs_result = $conn->query($sql);
                     </a>
                     <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
                         <li>
-                            <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
+                            <a href="property_release_logs.php" class="nav-link active">Property Release Logs</a>
                         </li>
                         <li>
-                            <a href="bulb_release.php" class="nav-link">Bulb Release Logs</a>
+                            <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
                         </li>
                     </ul>
                 </li>
@@ -795,7 +795,7 @@ $logs_result = $conn->query($sql);
                         <thead class="table-dark">
                             <tr>
                                 <th>Date</th>
-                                <th>Name</th>
+                                <th>Name & Facility</th>
                                 <th>Item Description</th>
                                 <th>Quantity</th>
                                 <th>Unit</th>

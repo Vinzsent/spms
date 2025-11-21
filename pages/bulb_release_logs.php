@@ -702,7 +702,7 @@ $logs_result = $conn->query($sql);
                             <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
                         </li>
                         <li>
-                            <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
+                            <a href="bulb_release_logs.php" class="nav-link active">Bulb Release Logs</a>
                         </li>
                     </ul>
                 </li>
