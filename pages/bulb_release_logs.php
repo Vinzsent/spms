@@ -38,8 +38,8 @@ $sy_inv_raw  = $_GET['sy_inv']  ?? '';
 $sy_recv_raw = $_GET['sy_recv'] ?? '';
 $sy_logs_raw = $_GET['sy_logs'] ?? '';
 
-// Campus filter (BED/TED)
-$campus_raw = strtoupper(trim($_GET['campus'] ?? ''));
+// Campus filter (Old/New)
+$campus_raw = strtoupper(trim($_GET['remarks'] ?? ''));
 
 // Search parameter
 $search_term = trim($_GET['search'] ?? '');
@@ -61,10 +61,9 @@ $logs_where_conditions = [];
 // Add search filter if search term is provided (for release_logs)
 if (!empty($search_term)) {
     $search_escaped = $conn->real_escape_string($search_term);
-    $inv_where_conditions[] = "(i.facility_name LIKE '%$search_escaped%' 
-        OR i.item_description LIKE '%$search_escaped%' 
-        OR i.campus LIKE '%$search_escaped%' 
-        OR i.notes LIKE '%$search_escaped%')";
+    $inv_where_conditions[] = "(i.area_location LIKE '%$search_escaped%' 
+        OR i.quantity LIKE '%$search_escaped%' 
+        OR i.remarks LIKE '%$search_escaped%')";
 }
 
 // Add school year filters if provided
@@ -73,10 +72,10 @@ if ($sy_inv_start && $sy_inv_end) {
     $end_esc   = $conn->real_escape_string($sy_inv_end);
     $inv_where_conditions[] = "i.date_created >= '$start_esc' AND i.date_created <= '$end_esc'";
 }
-// Add campus filter if provided (expects values BED/TED stored in campus column)
-if ($campus_raw === 'BED' || $campus_raw === 'TED') {
+// Add campus filter if provided (expects values Old/New stored in campus column)
+if ($campus_raw === 'Old' || $campus_raw === 'New') {
     $campus_esc = $conn->real_escape_string($campus_raw);
-    $inv_where_conditions[] = "TRIM(UPPER(i.campus)) = '$campus_esc'";
+    $inv_where_conditions[] = "TRIM(UPPER(i.remarks)) = '$campus_esc'";
 }
 if ($sy_recv_start && $sy_recv_end) {
     $start_esc = $conn->real_escape_string($sy_recv_start);
@@ -120,7 +119,7 @@ if (!isset($suppliers_result)) {
 }
 
 // Get release logs records
-$sql = "SELECT * FROM release_logs ORDER BY date_created DESC";
+$sql = "SELECT * FROM bulb_release_logs ORDER BY date_created DESC";
 $logs_result = $conn->query($sql);
 ?>
 
@@ -667,19 +666,35 @@ $logs_result = $conn->query($sql);
             <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
         </div>
 
-        <nav class="sidebar-nav">
+         <nav class="sidebar-nav">
             <ul class="nav-item">
                 <li><a href="<?= $dashboard_link ?>" class="nav-link">
                         <i class="fas fa-chart-line"></i> Dashboard
-                    </a></li>
-                <li><a href="office_inventory.php" class="nav-link">
-                        <i class="fas fa-building"></i> Office Inventory
                     </a></li>
                 <li><a href="property_inventory.php" class="nav-link">
                         <i class="fas fa-boxes"></i> Property Inventory
                     </a></li>
                 <li><a href="rooms_inventory.php" class="nav-link">
                         <i class="fas fa-door-open"></i> Rooms Inventory
+                    </a></li>
+                    <li>
+                        <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
+                            <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
+                        </a>
+                        <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
+                            <li>
+                                <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
+                            </li>
+                            <li>
+                                <a href="bulb_release_logs.php" class="nav-link active">Bulb Release Logs</a>
+                            </li>
+                        </ul>
+                    </li>
+                <li><a href="aircon_list.php" class="nav-link">
+                        <i class="fas fa-snowflake"></i> Aircons
+                    </a></li>
+                <li><a href="office_inventory.php" class="nav-link">
+                        <i class="fas fa-building"></i> Office Inventory Form
                     </a></li>
                 <li><a href="property_issuance.php" class="nav-link">
                         <i class="fas fa-hand-holding"></i> Property Issuance
@@ -690,22 +705,6 @@ $logs_result = $conn->query($sql);
                 <li><a href="borrowers_forms.php" class="nav-link">
                         <i class="fas fa-hand-holding"></i> Borrower Forms
                     </a></li>
-                <li><a href="aircon_list.php" class="nav-link">
-                        <i class="fas fa-snowflake"></i> Aircons
-                    </a></li>
-                 <li>
-                    <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
-                        <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
-                    </a>
-                    <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
-                        <li>
-                            <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
-                        </li>
-                        <li>
-                            <a href="bulb_release_logs.php" class="nav-link active">Bulb Release Logs</a>
-                        </li>
-                    </ul>
-                </li>
                 <li><a href="../logout.php" class="nav-link logout">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a></li>
@@ -743,11 +742,11 @@ $logs_result = $conn->query($sql);
                             </select>
                         </div>
                         <div>
-                            <label for="campus" class="form-label mb-0 text-white">Campus</label>
-                            <select id="campus" name="campus" class="form-select">
-                                <option value="">All Campuses</option>
-                                <option value="BED" <?= ($campus_raw === 'BED') ? 'selected' : '' ?>>BED - Basic Education Department</option>
-                                <option value="TED" <?= ($campus_raw === 'TED') ? 'selected' : '' ?>>TED - Tertiary Education Department</option>
+                            <label for="remarks" class="form-label mb-0 text-white">Remarks</label>
+                            <select id="remarks" name="remarks" class="form-select">
+                                <option value="">Remarks</option>
+                                <option value="Old" <?= ($campus_raw === 'Old') ? 'selected' : '' ?>>Old</option>
+                                <option value="New" <?= ($campus_raw === 'New') ? 'selected' : '' ?>>New</option>
                             </select>
                         </div>
                         <div class="pt-4 d-flex align-items-center gap-2">
@@ -755,7 +754,7 @@ $logs_result = $conn->query($sql);
                                 <i class="fas fa-search"></i> Search
                             </button>
                             <?php if (!empty($search_term) || !empty($sy_inv_raw) || !empty($campus_raw)): ?>
-                                <a href="bulb_release.php" class="btn btn-outline-light">
+                                <a href="bulb_release_logs.php" class="btn btn-outline-light">
                                     <i class="fas fa-times"></i> Clear
                                 </a>
                             <?php endif; ?>
@@ -777,13 +776,13 @@ $logs_result = $conn->query($sql);
             $offset = ($page - 1) * $records_per_page;
 
             // Get total number of records
-            $count_sql = "SELECT COUNT(*) as total FROM release_logs i $inv_where";
+            $count_sql = "SELECT COUNT(*) as total FROM bulb_release_logs i $inv_where";
             $count_result = $conn->query($count_sql);
             $total_records = $count_result->fetch_assoc()['total'];
             $total_pages = ceil($total_records / $records_per_page);
 
             // Get inventory data with pagination (respect filters and join supplier)
-            $sql = "SELECT i.* FROM release_logs i $inv_where ORDER BY i.date_created DESC LIMIT $records_per_page OFFSET $offset";
+            $sql = "SELECT i.* FROM bulb_release_logs i $inv_where ORDER BY i.date_created DESC LIMIT $records_per_page OFFSET $offset";
             $result = $conn->query($sql);
             ?>
 
@@ -794,13 +793,10 @@ $logs_result = $conn->query($sql);
                     <table class="table table-hover mb-0">
                         <thead class="table-dark">
                             <tr>
-                                <th>Date</th>
-                                <th>Name</th>
-                                <th>Item Description</th>
+                                <th>Area Location</th>
+                                <th>Date Installed</th>
                                 <th>Quantity</th>
-                                <th>Unit</th>
-                                <th>Campus</th>
-                                <th>Notes</th>
+                                <th>Remarks</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -811,13 +807,18 @@ $logs_result = $conn->query($sql);
                                 while ($row = $result->fetch_assoc()):
                                 ?>
                                     <tr>
-                                        <td data-label="Date"><?= htmlspecialchars($row['date'] ?? 'N/A') ?></td>
-                                        <td data-label="Name"><?= htmlspecialchars($row['facility_name'] ?? 'N/A') ?></td>
-                                        <td data-label="Item Description"><?= htmlspecialchars($row['item_description'] ?? 'N/A') ?></td>
+                                        <td data-label="Area Location"><?= htmlspecialchars($row['area_location'] ?? 'N/A') ?></td>
+                                        <td data-label="Date Installed"><?php
+                                            $rawDateInstalled = $row['date_installed'] ?? null;
+                                            if (!empty($rawDateInstalled) && $rawDateInstalled !== '0000-00-00' && $rawDateInstalled !== '0000-00-00 00:00:00') {
+                                                $formattedDateInstalled = date('M.j Y', strtotime($rawDateInstalled));
+                                                echo htmlspecialchars($formattedDateInstalled);
+                                            } else {
+                                                echo 'N/A';
+                                            }
+                                        ?></td>
                                         <td data-label="Quantity"><?= htmlspecialchars($row['quantity'] ?? 'N/A') ?></td>
-                                        <td data-label="Unit"><?= htmlspecialchars($row['unit'] ?? 'N/A') ?></td>
-                                        <td data-label="Campus"><?= htmlspecialchars($row['campus'] ?? 'N/A') ?></td>
-                                        <td data-label="Notes"><?= htmlspecialchars($row['notes'] ?? 'N/A') ?></td>
+                                        <td data-label="Remarks"><?= htmlspecialchars($row['remarks'] ?? 'N/A') ?></td>
                                         <td data-label="Actions" class="actions">
                                             <button type="button"
                                                 class="btn btn-sm btn-info edit-release-btn"
@@ -825,13 +826,10 @@ $logs_result = $conn->query($sql);
                                                 data-bs-target="#editReleaseModal"
                                                 title="Edit Release Log"
                                                 data-logs_id="<?= (int)($row['logs_id'] ?? 0) ?>"
-                                                data-date="<?= htmlspecialchars($row['date'] ?? '', ENT_QUOTES) ?>"
-                                                data-facility-name="<?= htmlspecialchars($row['facility_name'] ?? '', ENT_QUOTES) ?>"
-                                                data-item-description="<?= htmlspecialchars($row['item_description'] ?? '', ENT_QUOTES) ?>"
+                                                data-area-location="<?= htmlspecialchars($row['area_location'] ?? '', ENT_QUOTES) ?>"
+                                                data-date-installed="<?= htmlspecialchars($row['date_installed'] ?? '', ENT_QUOTES) ?>"
                                                 data-quantity="<?= htmlspecialchars($row['quantity'] ?? '', ENT_QUOTES) ?>"
-                                                data-unit="<?= htmlspecialchars($row['unit'] ?? '', ENT_QUOTES) ?>"
-                                                data-notes="<?= htmlspecialchars($row['notes'] ?? '', ENT_QUOTES) ?>"
-                                                data-campus="<?= htmlspecialchars($row['campus'] ?? '', ENT_QUOTES) ?>">
+                                                data-remarks="<?= htmlspecialchars($row['remarks'] ?? '', ENT_QUOTES) ?>">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                         </td>
@@ -839,7 +837,7 @@ $logs_result = $conn->query($sql);
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="7" class="text-center py-4">
+                                    <td colspan="5" class="text-center py-4">
                                         <i class="fas fa-lightbulb fa-3x text-muted mb-3"></i>
                                         <p class="text-muted">No bulb units found</p>
                                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
@@ -879,7 +877,7 @@ $logs_result = $conn->query($sql);
                             <h5 class="modal-title text-white">Add New Bulb</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
-                        <form action="../actions/add_release.php" method="POST">
+                        <form action="../actions/add_bulb.php" method="POST">
                             <input type="hidden" name="user_id" value="<?php echo $_SESSION['user']['id'] ?? 1; ?>">
                             <div class="modal-body">
                                 <!-- Basic Information -->
@@ -887,18 +885,13 @@ $logs_result = $conn->query($sql);
                                     <h6 class="mb-3 text-uppercase text-muted">Basic Information</h6>
                                     <div class="row g-3">
                                         <div class="col-md-6">
-                                            <label for="date">Date <span class="text-danger">*</span></label>
-                                            <input type="date" name="date" class="form-control" value="<?= date('Y-m-d') ?>">
+                                            <label for="date">Area Location <span class="text-danger">*</span></label>
+                                            <input type="text" name="area_location" class="form-control">
 
                                         </div>
                                         <div class="col-md-6">
-                                            <label for="facility_name">Facility Name <span class="text-danger">*</span></label>
-                                            <input type="text" name="facility_name" class="form-control">
-
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="item_description">Item Description <span class="text-danger">*</span></label>
-                                            <input type="text" name="item_description" class="form-control">
+                                            <label for="facility_name">Date Installed <span class="text-danger">*</span></label>
+                                            <input type="date" name="date_installed" class="form-control">
 
                                         </div>
                                         <div class="col-md-6">
@@ -907,30 +900,9 @@ $logs_result = $conn->query($sql);
 
                                         </div>
                                         <div class="col-md-6">
-                                            <label for="unit">Unit <span class="text-danger">*</span></label>
-                                            <select name="unit" class="form-select">
-                                                <option value=""selected disabled>Choose Unit...</option>
-                                                <option value="set">Set</option>
-                                                <option value="pair">Pair</option>
-                                                <option value="piece">Piece</option>
-                                                <option value="box">Box</option>
-                                                <option value="roll">Roll</option>
-                                                <option value="sheet">Sheet</option>
-                                                <option value="bag">Bag</option>
-                                                <option value="can">Can</option>
-                                                <option value="gallon">Gallon</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Campus <span class="text-danger">*</span></label>
-                                            <select name="campus" class="form-select">
-                                                <option value="TED">TED</option>
-                                                <option value="BED">BED</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <label class="form-label">Notes</label>
-                                            <textarea name="notes" class="form-control" rows="2" placeholder="Any additional information..."></textarea>
+                                            <label for="remarks">Remarks <span class="text-danger">*</span></label>
+                                            <input type="text" name="remarks" class="form-control">
+
                                         </div>
                                     </div>
                                 </div>
@@ -952,7 +924,7 @@ $logs_result = $conn->query($sql);
                             <h5 class="modal-title text-white">Edit Release Log</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
-                        <form action="../actions/update_release.php" method="POST">
+                        <form action="../actions/bulb.php" method="POST">
                             <input type="hidden" name="logs_id" id="edit_release_id" class="form-control mb-3" readonly placeholder="Log ID">
 
                             <div class="modal-body">
@@ -961,47 +933,20 @@ $logs_result = $conn->query($sql);
                                     <h6 class="mb-3 text-uppercase text-muted">Basic Information</h6>
                                     <div class="row g-3">
                                         <div class="col-md-6">
-                                            <label for="edit_date">Date <span class="text-danger">*</span></label>
-                                            <input type="date" name="date" id="edit_date" class="form-control">
+                                            <label for="edit_area_location">Area Location <span class="text-danger">*</span></label>
+                                            <input type="text" name="area_location" id="edit_area_location" class="form-control">
                                         </div>
                                         <div class="col-md-6">
-                                            <label for="edit_facility_name">Facility Name <span class="text-danger">*</span></label>
-                                            <input type="text" name="facility_name" id="edit_facility_name" class="form-control">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="edit_item_description">Item Description <span class="text-danger">*</span></label>
-                                            <input type="text" name="item_description" id="edit_item_description" class="form-control">
+                                            <label for="edit_date_installed">Date Installed <span class="text-danger">*</span></label>
+                                            <input type="date" name="date_installed" id="edit_date_installed" class="form-control">
                                         </div>
                                         <div class="col-md-6">
                                             <label for="edit_quantity">Quantity <span class="text-danger">*</span></label>
                                             <input type="number" name="quantity" id="edit_quantity" class="form-control">
                                         </div>
                                         <div class="col-md-6">
-                                            <label for="edit_unit">Unit <span class="text-danger">*</span></label>
-                                            <select name="unit" id="edit_unit" class="form-select">
-                                                <option value="" selected disabled>Choose Unit...</option>
-                                                <option value="Set">Set</option>
-                                                <option value="Pair">Pair</option>
-                                                <option value="Pieces">Pieces</option>
-                                                <option value="Piece">Piece</option>
-                                                <option value="Box">Box</option>
-                                                <option value="Roll">Roll</option>
-                                                <option value="Sheet">Sheet</option>
-                                                <option value="Bag">Bag</option>
-                                                <option value="Can">Can</option>
-                                                <option value="Gallon">Gallon</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="edit_campus" class="form-label">Campus <span class="text-danger">*</span></label>
-                                            <select name="campus" id="edit_campus" class="form-select">
-                                                <option value="TED">TED</option>
-                                                <option value="BED">BED</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <label for="edit_notes" class="form-label">Notes</label>
-                                            <textarea name="notes" id="edit_notes" class="form-control" rows="2" placeholder="Any additional information..."></textarea>
+                                            <label for="edit_remarks">Remarks <span class="text-danger">*</span></label>
+                                            <input type="text" name="remarks" id="edit_remarks" class="form-control">
                                         </div>
                                     </div>
                                 </div>
@@ -1060,19 +1005,10 @@ $logs_result = $conn->query($sql);
                         var button = $(this);
 
                         $('#edit_release_id').val(button.data('logs_id') || button.attr('data-logs_id') || '');
-                        $('#edit_date').val(button.data('date') || button.attr('data-date') || '');
-                        $('#edit_facility_name').val(button.attr('data-facility-name') || '');
-                        $('#edit_item_description').val(button.attr('data-item-description') || '');
-                        $('#edit_quantity').val(button.data('quantity') || button.attr('data-quantity') || '');
-                        $('#edit_unit').val(button.data('unit') || button.attr('data-unit') || '');
-                        $('#edit_notes').val(button.attr('data-notes') || '');
-
-                        var campus = (button.data('campus') || button.attr('data-campus') || '').toString().toUpperCase();
-                        if (campus === 'BED' || campus === 'TED') {
-                            $('#edit_campus').val(campus);
-                        } else {
-                            $('#edit_campus').val('');
-                        }
+                        $('#edit_area_location').val(button.attr('data-area-location') || '');
+                        $('#edit_date_installed').val(button.attr('data-date-installed') || '');
+                        $('#edit_quantity').val(button.attr('data-quantity') || '');
+                        $('#edit_remarks').val(button.attr('data-remarks') || '');
                     });
                 });
 

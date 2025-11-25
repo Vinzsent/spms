@@ -1,7 +1,16 @@
+<style>
+
+  .header-text{
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+</style>
+
 <form method="POST" action="../actions/add_room.php" class="add-room-form" id="addRoomForm">
   <!-- Room Information Section -->
   <div class="form-section mb-4">
-    <h6 class="section-title">
+    <h6 class="section-title header-text">
       <i class="fas fa-building me-2"></i>Room Information
     </h6>
     <div class="row g-3">
@@ -36,7 +45,7 @@
 
   <!-- Inventory Items Section -->
   <div class="form-section mb-4">
-    <h6 class="section-title">
+    <h6 class="section-title header-text">
       <i class="fas fa-boxes me-2"></i>Inventory Items
     </h6>
     <div class="row g-3">

@@ -1,8 +1,10 @@
 <?php
-
 $pageTitle = 'Rooms Inventory';
 include '../includes/auth.php';
 include '../includes/db.php';
+
+$user_type = $_SESSION['user_type'] ?? '';
+$dashboard_link = ($user_type == 'Admin') ? '../dashboard.php' : '../dashboard.php';
 
 // Fetch all rooms inventory data
 $query = "SELECT * FROM rooms_inventory ORDER BY building_name, floor, room_number";
@@ -22,6 +24,60 @@ foreach ($rooms as $room) {
         $roomsByFloor[$floor] = [];
     }
     $roomsByFloor[$floor][] = $room;
+}
+
+$floorNames = [
+    'R' => 'First Floor (FF)',
+    'N' => 'Second Floor (SF)',
+    'O' => 'Third Floor (TF)'
+];
+
+if (!empty($roomsByFloor)) {
+    // Define desired floor order: First (R), Second (N), Third (O)
+    $floorOrder = ['R', 'N', 'O'];
+    $existingFloors = array_keys($roomsByFloor);
+
+    // Build floors array following the desired order for those that exist
+    $floors = [];
+    foreach ($floorOrder as $code) {
+        if (in_array($code, $existingFloors, true)) {
+            $floors[] = $code;
+        }
+    }
+
+    // Append any remaining floors not in the predefined order
+    foreach ($existingFloors as $code) {
+        if (!in_array($code, $floors, true)) {
+            $floors[] = $code;
+        }
+    }
+
+    $selectedFloor = isset($_GET['floor']) && isset($roomsByFloor[$_GET['floor']])
+        ? $_GET['floor']
+        : $floors[0];
+
+    $recordsPerPage = 4;
+    $currentPage = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+    if ($currentPage < 1) {
+        $currentPage = 1;
+    }
+
+    $selectedFloorRooms = $roomsByFloor[$selectedFloor];
+    $totalRooms = count($selectedFloorRooms);
+    $totalPages = max(1, (int) ceil($totalRooms / $recordsPerPage));
+    if ($currentPage > $totalPages) {
+        $currentPage = $totalPages;
+    }
+    $offset = ($currentPage - 1) * $recordsPerPage;
+    $paginatedRooms = array_slice($selectedFloorRooms, $offset, $recordsPerPage);
+} else {
+    $floors = [];
+    $selectedFloor = null;
+    $recordsPerPage = 0;
+    $currentPage = 1;
+    $totalRooms = 0;
+    $totalPages = 0;
+    $paginatedRooms = [];
 }
 
 ?>
@@ -122,6 +178,28 @@ foreach ($rooms as $room) {
             padding: 20px 0;
         }
 
+        .sidebar-nav ul {
+            list-style: none;
+            margin: 0;
+            padding-left: 0;
+        }
+
+        .sidebar-nav ul ul {
+            padding-left: 1.5rem;
+        }
+
+        .collapse {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.25s ease, opacity 0.25s ease;
+        }
+
+        .collapse.show {
+            max-height: 200px;
+            opacity: 1;
+        }
+
         .nav-item {
             padding: 0;
             margin: 0;
@@ -140,12 +218,12 @@ foreach ($rooms as $room) {
         .nav-link:hover {
             background-color: rgba(255, 255, 255, 0.1);
             color: var(--text-white);
-            border-left-color: var(--accent-orange);
+            border-left-color: var(--accent-yellow);
         }
 
         .nav-link.active {
             background-color: rgba(255, 255, 255, 0.15);
-            border-left-color: var(--accent-orange);
+            border-left-color: var(--accent-yellow);
             font-weight: 600;
         }
 
@@ -549,6 +627,39 @@ foreach ($rooms as $room) {
             margin-bottom: 40px;
         }
 
+        .floor-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .floor-tab {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 25px;
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+        }
+
+        .floor-tab:hover {
+            background: var(--primary-green);
+            color: var(--text-white);
+        }
+
+        .floor-tab.active {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
+            color: var(--text-white);
+            border-color: transparent;
+        }
+
         .floor-header {
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
             color: var(--text-white);
@@ -565,6 +676,43 @@ foreach ($rooms as $room) {
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
+        }
+
+        .rooms-pagination {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .rooms-pagination ul {
+            list-style: none;
+            display: flex;
+            gap: 6px;
+            padding: 0;
+            margin: 0;
+        }
+
+        .rooms-pagination li a {
+            display: block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            text-decoration: none;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .rooms-pagination li.active a {
+            background: var(--primary-green);
+            color: var(--text-white);
+            border-color: var(--primary-green);
+        }
+
+        .rooms-pagination li.disabled a {
+            opacity: 0.5;
+            pointer-events: none;
         }
 
         .room-card {
@@ -837,39 +985,49 @@ foreach ($rooms as $room) {
             <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
         </div>
 
-        <nav class="sidebar-nav">
+         <nav class="sidebar-nav">
             <ul class="nav-item">
-            <li><a href="<?= $dashboard_link ?>" class="nav-link">
-                    <i class="fas fa-chart-line"></i> Dashboard
-                </a></li>
-            <li><a href="office_inventory.php" class="nav-link">
-                    <i class="fas fa-building"></i> Office Inventory
-                </a></li>
-            <li><a href="property_inventory.php" class="nav-link">
-                    <i class="fas fa-boxes"></i> Property Inventory
-                </a></li>
-            <li><a href="rooms_inventory.php" class="nav-link active">
-                    <i class="fas fa-door-open"></i> Rooms Inventory
-                </a></li>
-            <li><a href="property_issuance.php" class="nav-link">
-                    <i class="fas fa-hand-holding"></i> Property Issuance
-                </a></li>
-                <li><a href="equipment_transfer_request.php" class="nav-link">
-                    <i class="fas fa-exchange-alt"></i> Transfer Request
-                </a></li>
-                <li><a href="borrowers_forms.php" class="nav-link">
-                    <i class="fas fa-hand-holding"></i> Borrower Forms
-                </a></li>
-                <li><a href="aircon_list.php" class="nav-link">
-                    <i class="fas fa-snowflake"></i> Aircons
-                </a></li>
-                <li><a href="property_release_logs.php" class="nav-link">
-                    <i class="fas fa-file"></i> Release Records
-                </a></li>
-            <li><a href="../logout.php" class="nav-link logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a></li>
+                <li><a href="<?= $dashboard_link ?>" class="nav-link">
+                        <i class="fas fa-chart-line"></i> Dashboard
                     </a></li>
+                <li><a href="property_inventory.php" class="nav-link">
+                        <i class="fas fa-boxes"></i> Property Inventory
+                    </a></li>
+                <li><a href="rooms_inventory.php" class="nav-link active">
+                        <i class="fas fa-door-open"></i> Rooms Inventory
+                    </a></li>
+                    <li>
+                        <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
+                            <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
+                        </a>
+                        <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
+                            <li>
+                                <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
+                            </li>
+                            <li>
+                                <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
+                            </li>
+                        </ul>
+                    </li>
+                <li><a href="aircon_list.php" class="nav-link">
+                        <i class="fas fa-snowflake"></i> Aircons
+                    </a></li>
+                <li><a href="office_inventory.php" class="nav-link">
+                        <i class="fas fa-building"></i> Office Inventory Form
+                    </a></li>
+                <li><a href="property_issuance.php" class="nav-link">
+                        <i class="fas fa-hand-holding"></i> Property Issuance
+                    </a></li>
+                <li><a href="equipment_transfer_request.php" class="nav-link">
+                        <i class="fas fa-exchange-alt"></i> Transfer Request
+                    </a></li>
+                <li><a href="borrowers_forms.php" class="nav-link">
+                        <i class="fas fa-hand-holding"></i> Borrower Forms
+                    </a></li>
+                <li><a href="../logout.php" class="nav-link logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a></li>
+                </a></li>
             </ul>
         </nav>
     </div>
@@ -911,23 +1069,25 @@ foreach ($rooms as $room) {
                 <i class="fas fa-plus"></i> Add New Room
             </button>
         </div>
+        <?php if (!empty($floors)): ?>
+        <div class="floor-tabs">
+            <?php foreach ($floors as $floor): ?>
+                <a href="?floor=<?= urlencode($floor) ?>&page=1" class="floor-tab <?= $selectedFloor === $floor ? 'active' : '' ?>">
+                    <i class="fas fa-layer-group"></i>
+                    <span><?= $floorNames[$floor] ?? "Floor $floor" ?></span>
+                </a>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
 
-        <?php
-        $floorNames = [
-            'R' => 'First Floor (FF)',
-            'N' => 'Second Floor (SF)',
-            'O' => 'Third Floor (TF)'
-        ];
-
-        foreach ($roomsByFloor as $floor => $floorRooms):
-        ?>
+        <?php if ($selectedFloor !== null): ?>
         <div class="floor-section">
             <div class="floor-header">
-                <i class="fas fa-layer-group"></i> <?= $floorNames[$floor] ?? "Floor $floor" ?>
+                <i class="fas fa-layer-group"></i> <?= $floorNames[$selectedFloor] ?? "Floor $selectedFloor" ?>
             </div>
 
             <div class="rooms-grid">
-                <?php foreach ($floorRooms as $room): ?>
+                <?php foreach ($paginatedRooms as $room): ?>
                 <div class="room-card">
                     <div class="room-header">
                         <?= htmlspecialchars($room['building_name']) ?>
@@ -1023,8 +1183,26 @@ foreach ($rooms as $room) {
                 </div>
                 <?php endforeach; ?>
             </div>
+
+            <?php if ($totalPages > 0): ?>
+            <div class="rooms-pagination">
+                <ul>
+                    <li class="<?= $currentPage <= 1 ? 'disabled' : '' ?>">
+                        <a href="?floor=<?= urlencode($selectedFloor) ?>&page=<?= max(1, $currentPage - 1) ?>">Prev</a>
+                    </li>
+                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <li class="<?= $currentPage == $i ? 'active' : '' ?>">
+                        <a href="?floor=<?= urlencode($selectedFloor) ?>&page=<?= $i ?>"><?= $i ?></a>
+                    </li>
+                    <?php endfor; ?>
+                    <li class="<?= $currentPage >= $totalPages ? 'disabled' : '' ?>">
+                        <a href="?floor=<?= urlencode($selectedFloor) ?>&page=<?= min($totalPages, $currentPage + 1) ?>">Next</a>
+                    </li>
+                </ul>
+            </div>
+            <?php endif; ?>
         </div>
-        <?php endforeach; ?>
+        <?php endif; ?>
 
         <?php if (empty($rooms)): ?>
         <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
@@ -1138,6 +1316,31 @@ foreach ($rooms as $room) {
                 form.submit();
             }
         }
+
+        (function () {
+            const toggles = document.querySelectorAll('[data-bs-toggle="collapse"]');
+            toggles.forEach(function (toggle) {
+                const selector = toggle.getAttribute('href') || toggle.getAttribute('data-bs-target');
+                if (!selector || !selector.startsWith('#')) return;
+                const target = document.querySelector(selector);
+                if (!target) return;
+
+                target.classList.remove('show');
+                toggle.setAttribute('aria-expanded', 'false');
+
+                toggle.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const isShown = target.classList.contains('show');
+                    if (isShown) {
+                        target.classList.remove('show');
+                        toggle.setAttribute('aria-expanded', 'false');
+                    } else {
+                        target.classList.add('show');
+                        toggle.setAttribute('aria-expanded', 'true');
+                    }
+                });
+            });
+        })();
 
         // Auto-close modal on successful submission (messages are shown as alerts above)
         // Modal will be closed by page reload after form submission

@@ -202,21 +202,21 @@ if ($categories_result && $categories_result->num_rows > 0) {
         if (!isset($organized_categories[$main])) {
             $organized_categories[$main] = [];
         }
-        
+
         if (!empty($row['subcategory'])) {
             $sub = $row['subcategory'];
             if (!in_array($sub, $organized_categories[$main])) {
                 $organized_categories[$main][] = $sub;
             }
         }
-        
+
         if (!empty($row['sub_subcategory'])) {
             $subsub = $row['sub_subcategory'];
             if (!in_array($subsub, $organized_categories[$main])) {
                 $organized_categories[$main][] = $subsub;
             }
         }
-        
+
         if (!empty($row['sub_sub_subcategory'])) {
             $subsubsub = $row['sub_sub_subcategory'];
             if (!in_array($subsubsub, $organized_categories[$main])) {
@@ -251,21 +251,21 @@ if ($categories_result && $categories_result->num_rows > 0) {
         if (!isset($organized_categories[$main])) {
             $organized_categories[$main] = [];
         }
-        
+
         if (!empty($row['subcategory'])) {
             $sub = $row['subcategory'];
             if (!in_array($sub, $organized_categories[$main])) {
                 $organized_categories[$main][] = $sub;
             }
         }
-        
+
         if (!empty($row['sub_subcategory'])) {
             $subsub = $row['sub_subcategory'];
             if (!in_array($subsub, $organized_categories[$main])) {
                 $organized_categories[$main][] = $subsub;
             }
         }
-        
+
         if (!empty($row['sub_sub_subcategory'])) {
             $subsubsub = $row['sub_sub_subcategory'];
             if (!in_array($subsubsub, $organized_categories[$main])) {
@@ -282,7 +282,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
         html {
             scroll-behavior: smooth;
         }
-        
+
         :root {
             --primary-green: #073b1d;
             --dark-green: #073b1d;
@@ -313,19 +313,25 @@ if ($categories_result && $categories_result->num_rows > 0) {
             font-weight: 600;
             transition: all 0.3s ease;
         }
+
         .stock-icons-btn:hover {
             opacity: 0.9;
             transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
+
         .stock-icons-btn i {
             font-weight: bold;
             margin: 0 2px;
         }
-        .stock-icons-btn i:first-child { /* plus icon */
+
+        .stock-icons-btn i:first-child {
+            /* plus icon */
             color: #ffffff;
         }
-        .stock-icons-btn i:last-child { /* minus icon */
+
+        .stock-icons-btn i:last-child {
+            /* minus icon */
             color: #000000;
         }
 
@@ -727,8 +733,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
         }
 
         @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .btn-search {
@@ -796,47 +807,47 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
         <nav class="sidebar-nav">
             <ul class="nav-item">
-            <li><a href="<?= $dashboard_link ?>" class="nav-link">
-                    <i class="fas fa-chart-line"></i> Dashboard
-                </a></li>
-            <li><a href="office_inventory.php" class="nav-link">
-                    <i class="fas fa-building"></i> Office Inventory
-                </a></li>
-            <li><a href="property_inventory.php" class="nav-link active">
-                    <i class="fas fa-boxes"></i> Property Inventory
-                </a></li>
-            <li><a href="rooms_inventory.php" class="nav-link">
-                    <i class="fas fa-door-open"></i> Rooms Inventory
-                </a></li>
-            <li><a href="property_issuance.php" class="nav-link">
-                    <i class="fas fa-hand-holding"></i> Property Issuance
-                </a></li>
-                <li><a href="equipment_transfer_request.php" class="nav-link">
-                    <i class="fas fa-exchange-alt"></i> Transfer Request
-                </a></li>
-                <li><a href="borrowers_forms.php" class="nav-link">
-                    <i class="fas fa-hand-holding"></i> Borrower Forms
-                </a></li>
-                <li><a href="aircon_list.php" class="nav-link">
-                    <i class="fas fa-snowflake"></i> Aircons
-                </a></li>
-                <li>
-                    <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
-                        <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
-                    </a>
-                    <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
-                        <li>
-                            <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
-                        </li>
-                        <li>
-                            <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
-                        </li>
-                    </ul>
-                </li>
-            <li><a href="../logout.php" class="nav-link logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a></li>
+                <li><a href="<?= $dashboard_link ?>" class="nav-link">
+                        <i class="fas fa-chart-line"></i> Dashboard
                     </a></li>
+                <li><a href="property_inventory.php" class="nav-link active">
+                        <i class="fas fa-boxes"></i> Property Inventory
+                    </a></li>
+                <li><a href="rooms_inventory.php" class="nav-link">
+                        <i class="fas fa-door-open"></i> Rooms Inventory
+                    </a></li>
+                    <li>
+                        <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
+                            <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
+                        </a>
+                        <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
+                            <li>
+                                <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
+                            </li>
+                            <li>
+                                <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
+                            </li>
+                        </ul>
+                    </li>
+                <li><a href="aircon_list.php" class="nav-link">
+                        <i class="fas fa-snowflake"></i> Aircons
+                    </a></li>
+                <li><a href="office_inventory.php" class="nav-link">
+                        <i class="fas fa-building"></i> Office Inventory Form
+                    </a></li>
+                <li><a href="property_issuance.php" class="nav-link">
+                        <i class="fas fa-hand-holding"></i> Property Issuance
+                    </a></li>
+                <li><a href="equipment_transfer_request.php" class="nav-link">
+                        <i class="fas fa-exchange-alt"></i> Transfer Request
+                    </a></li>
+                <li><a href="borrowers_forms.php" class="nav-link">
+                        <i class="fas fa-hand-holding"></i> Borrower Forms
+                    </a></li>
+                <li><a href="../logout.php" class="nav-link logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a></li>
+                </a></li>
             </ul>
         </nav>
     </div>
@@ -925,7 +936,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             </div>
         </div>
 
-        <!-- Inventory Table --> 
+        <!-- Inventory Table -->
         <div class="table-container" id="inventory-items">
             <div class="table-header">
                 <h3> Property Items</h3>
@@ -1048,11 +1059,16 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 }
 
                 /* Column width controls */
-                .table th:nth-child(1), .table td:nth-child(1) { /* Item Name */
+                .table th:nth-child(1),
+                .table td:nth-child(1) {
+                    /* Item Name */
                     width: 15%;
                     min-width: 150px;
                 }
-                .table th:nth-child(2), .table td:nth-child(2) { /* Description */
+
+                .table th:nth-child(2),
+                .table td:nth-child(2) {
+                    /* Description */
                     width: 20%;
                     min-width: 200px;
                     max-width: 300px;
@@ -1060,60 +1076,90 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     white-space: normal;
                     overflow-wrap: break-word;
                 }
-                .table th:nth-child(3), .table td:nth-child(3) { /* Current Stock */
+
+                .table th:nth-child(3),
+                .table td:nth-child(3) {
+                    /* Current Stock */
                     width: 8%;
                     min-width: 80px;
                 }
-                .table th:nth-child(4), .table td:nth-child(4) { /* Unit */
+
+                .table th:nth-child(4),
+                .table td:nth-child(4) {
+                    /* Unit */
                     width: 7%;
                     min-width: 70px;
                 }
-                .table th:nth-child(5), .table td:nth-child(5) { /* Brand */
+
+                .table th:nth-child(5),
+                .table td:nth-child(5) {
+                    /* Brand */
                     width: 10%;
                     min-width: 100px;
                 }
-                .table th:nth-child(6), .table td:nth-child(6) { /* Color */
+
+                .table th:nth-child(6),
+                .table td:nth-child(6) {
+                    /* Color */
                     width: 8%;
                     min-width: 80px;
                 }
-                .table th:nth-child(7), .table td:nth-child(7) { /* Size */
+
+                .table th:nth-child(7),
+                .table td:nth-child(7) {
+                    /* Size */
                     width: 7%;
                     min-width: 70px;
                 }
-                .table th:nth-child(8), .table td:nth-child(8) { /* Type */
+
+                .table th:nth-child(8),
+                .table td:nth-child(8) {
+                    /* Type */
                     width: 8%;
                     min-width: 80px;
                 }
-                .table th:nth-child(9), .table td:nth-child(9) { /* Status */
+
+                .table th:nth-child(9),
+                .table td:nth-child(9) {
+                    /* Status */
                     width: 8%;
                     min-width: 80px;
                 }
-                .table th:nth-child(10), .table td:nth-child(10) { /* Date Created */
+
+                .table th:nth-child(10),
+                .table td:nth-child(10) {
+                    /* Date Created */
                     width: 10%;
                     min-width: 100px;
                 }
-                .table th:nth-child(11), .table td:nth-child(11) { /* Actions */
+
+                .table th:nth-child(11),
+                .table td:nth-child(11) {
+                    /* Actions */
                     width: 12%;
                     min-width: 120px;
                     white-space: nowrap;
                 }
-                
+
                 /* Reduce text size for table data and rows */
                 .table tbody tr td {
                     font-size: 0.875rem;
                 }
+
                 .table tbody tr {
                     font-size: 0.875rem;
                 }
+
                 .table thead th {
                     font-size: 0.875rem;
                 }
-                
+
                 /* Reduce button sizes to match smaller text */
                 .table tbody tr td .btn-sm {
                     font-size: 0.75rem;
                     padding: 0.25rem 0.5rem;
                 }
+
                 .table tbody tr td .btn-sm i {
                     font-size: 0.75rem;
                 }
@@ -1381,12 +1427,12 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         </td>
                                         <td><?= $row['date_created'] ? date('M d, Y', strtotime($row['date_created'])) : 'N/A' ?></td>
                                         <td>
-                                        <button class="btn btn-sm btn-outline-success me-1" title="Stock In" onclick="stockIn('<?= $row['inventory_id'] ?>')">
-                                            <i class="fas fa-plus"></i>
-                                        </button> 
-                                        <button class="btn btn-sm btn-outline-warning me-1" title="Stock Out" onclick="stockOut('<?= $row['inventory_id'] ?>')">
-                                            <i class="fas fa-minus"></i>
-                                        </button> 
+                                            <button class="btn btn-sm btn-outline-success me-1" title="Stock In" onclick="stockIn('<?= $row['inventory_id'] ?>')">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-warning me-1" title="Stock Out" onclick="stockOut('<?= $row['inventory_id'] ?>')">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
                                             <button class="btn btn-sm btn-info" title="Edit"
                                                 onclick="openEditInventoryModal(
                                                 <?= (int)$row['inventory_id'] ?>,
@@ -1431,9 +1477,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     <nav>
                         <ul class="pagination justify-content-center mt-3" id="paginationContainer">
                             <?php
-                                $neighborRange = 2;
-                                $start = max(1, (int)$page - $neighborRange);
-                                $end = min((int)$total_pages, (int)$page + $neighborRange);
+                            $neighborRange = 2;
+                            $start = max(1, (int)$page - $neighborRange);
+                            $end = min((int)$total_pages, (int)$page + $neighborRange);
                             ?>
 
                             <!-- Prev -->
@@ -1479,8 +1525,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <?php endif; ?>
 
 
-                
-                
+
+
                 <!-- Stock Movement Logs -->
                 <div class="table-container" id="stock-movements">
                     <div class="table-header">
@@ -1542,7 +1588,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <td><?= htmlspecialchars($log['receiver'] ?? 'N/A') ?></td>
                                             <td><?= htmlspecialchars($log['notes']) ?></td>
                                             <td>
-                                                <button class="btn btn-sm btn-info" title="Edit" 
+                                                <button class="btn btn-sm btn-info" title="Edit"
                                                     onclick='openEditStockMovementModal(
                                                         <?= (int)$log['log_id'] ?>,
                                                         <?= (int)$log['inventory_id'] ?>,
@@ -1558,32 +1604,65 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 </button>
                                             </td>
                                         </tr>
-                                        <?php endwhile; ?>
-                                        <?php else: ?>
-                                            <tr>
+                                    <?php endwhile; ?>
+                                <?php else: ?>
+                                    <tr>
                                         <td colspan="9" class="text-center py-4">
                                             <i class="fas fa-history fa-3x text-muted mb-3"></i>
                                             <p class="text-muted">No stock movements recorded</p>
                                         </td>
                                     </tr>
-                                    <?php endif; ?>
-                                </tbody>
+                                <?php endif; ?>
+                            </tbody>
                         </table>
                     </div>
 
                     <?php if ($logs_total_pages > 1): ?>
                         <nav>
                             <ul class="pagination justify-content-center mt-3">
+                                <?php
+                                $logsNeighborRange = 2;
+                                $logsStart = max(1, (int)$logs_page - $logsNeighborRange);
+                                $logsEnd = min((int)$logs_total_pages, (int)$logs_page + $logsNeighborRange);
+                                ?>
+
+                                <!-- Prev -->
                                 <li class="page-item <?= ($logs_page <= 1) ? 'disabled' : '' ?>">
-                                    <a class="page-link" href="#" onclick="loadStockMovements(<?= $logs_page - 1 ?>); return false;">&laquo;</a>
+                                    <a class="page-link" href="#" onclick="loadStockMovements(<?= max(1, (int)$logs_page - 1) ?>); return false;">&laquo;</a>
                                 </li>
-                                <?php for ($i = 1; $i <= $logs_total_pages; $i++): ?>
-                                    <li class="page-item <?= ((int)$i === (int)$logs_page) ? 'active' : '' ?>">
+
+                                <!-- First page -->
+                                <li class="page-item <?= (1 === (int)$logs_page) ? 'active' : '' ?>">
+                                    <a class="page-link" href="#" onclick="loadStockMovements(1); return false;">1</a>
+                                </li>
+
+                                <!-- Leading ellipsis -->
+                                <?php if ($logsStart > 2): ?>
+                                    <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                                <?php endif; ?>
+
+                                <!-- Middle pages around current (excluding first/last) -->
+                                <?php for ($i = $logsStart; $i <= $logsEnd; $i++): if ($i === 1 || $i === (int)$logs_total_pages) continue; ?>
+                                    <li class="page-item <?= ($i === (int)$logs_page) ? 'active' : '' ?>">
                                         <a class="page-link" href="#" onclick="loadStockMovements(<?= $i ?>); return false;"><?= $i ?></a>
                                     </li>
                                 <?php endfor; ?>
+
+                                <!-- Trailing ellipsis -->
+                                <?php if ($logsEnd < ((int)$logs_total_pages - 1)): ?>
+                                    <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                                <?php endif; ?>
+
+                                <!-- Last page -->
+                                <?php if ($logs_total_pages > 1): ?>
+                                    <li class="page-item <?= (((int)$logs_total_pages === (int)$logs_page) ? 'active' : '') ?>">
+                                        <a class="page-link" href="#" onclick="loadStockMovements(<?= (int)$logs_total_pages ?>); return false;"><?= (int)$logs_total_pages ?></a>
+                                    </li>
+                                <?php endif; ?>
+
+                                <!-- Next -->
                                 <li class="page-item <?= ($logs_page >= $logs_total_pages) ? 'disabled' : '' ?>">
-                                    <a class="page-link" href="#" onclick="loadStockMovements(<?= $logs_page + 1 ?>); return false;">&raquo;</a>
+                                    <a class="page-link" href="#" onclick="loadStockMovements(<?= min((int)$logs_total_pages, (int)$logs_page + 1) ?>); return false;">&raquo;</a>
                                 </li>
                             </ul>
                         </nav>
@@ -1752,17 +1831,17 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <div class="col-md-3">
                                             <label class="form-label">Size</label>
                                             <input type="size" name="size" class="form-control">
-                                             <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
+                                            <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label">Color</label>
                                             <input type="text" name="color" class="form-control">
-                                             <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
+                                            <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label">Type</label>
                                             <input type="text" name="type" class="form-control">
-                                             <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
+                                            <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
                                         </div>
                                         <div class="col-12">
                                             <label class="form-label">Description</label>
@@ -1787,7 +1866,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <div class="col-md-3">
                                             <label class="form-label">Unit <span class="text-danger">*</span></label>
                                             <select name="unit" class="form-select" required>
-                                            <option value="">--Select Unit--</option>
+                                                <option value="">--Select Unit--</option>
                                                 <option value="pc">Piece</option>
                                                 <option value="pcs">Pieces</option>
                                                 <option value="box">Box</option>
@@ -1809,7 +1888,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <option value="none">Others</option>
                                             </select>
                                         </div>
-                                            <input type="hidden" name="quantity" class="form-control" required min="0">
+                                        <input type="hidden" name="quantity" class="form-control" required min="0">
                                         <div class="col-md-3">
                                             <label class="form-label">Unit Cost </label>
                                             <input type="number" name="unit_cost" step="0.01" class="form-control">
@@ -1947,7 +2026,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 </div>
 
                                 <div class="alert alert-info">
-                                    <i class="fas fa-info-circle"></i> 
+                                    <i class="fas fa-info-circle"></i>
                                     <strong>Note:</strong> Editing this movement will recalculate the inventory stock levels.
                                 </div>
                             </div>
@@ -1996,7 +2075,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <label class="form-label">Item Name</label>
                                             <input type="text" class="form-control" name="item_name" id="ei_item_name" required>
                                         </div>
-                                        
+
                                         <div class="col-md-6">
                                             <label class="form-label">Category</label>
                                             <select id="ei_category" name="category" class="form-select">
@@ -2023,32 +2102,32 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         </div>
                                     </div>
                                     <div class="row g-3 mt-2">
-                                    <div class="col-3">
-                                        <label class="form-label">Brand</label>
-                                        <input class="form-control" name="brand" id="ei_brand">
-                                    </div>
+                                        <div class="col-3">
+                                            <label class="form-label">Brand</label>
+                                            <input class="form-control" name="brand" id="ei_brand">
+                                        </div>
 
-                                    <div class="col-3">
-                                        <label class="form-label">Color</label>
-                                        <input class="form-control" name="color" id="ei_color">
-                                        <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
-                                    </div>
+                                        <div class="col-3">
+                                            <label class="form-label">Color</label>
+                                            <input class="form-control" name="color" id="ei_color">
+                                            <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
+                                        </div>
 
-                                    <div class="col-3">
-                                        <label class="form-label">Size</label>
-                                        <input class="form-control" name="size" id="ei_size">
-                                        <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
-                                    </div>
+                                        <div class="col-3">
+                                            <label class="form-label">Size</label>
+                                            <input class="form-control" name="size" id="ei_size">
+                                            <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
+                                        </div>
 
-                                    <div class="col-3">
-                                        <label class="form-label">Type</label>
-                                        <input class="form-control" name="type" id="ei_type">
-                                        <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
-                                    </div>
+                                        <div class="col-3">
+                                            <label class="form-label">Type</label>
+                                            <input class="form-control" name="type" id="ei_type">
+                                            <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
+                                        </div>
 
-                                    <div class="col-12">
-                                        <label class="form-label">Description</label>
-                                        <textarea class="form-control" name="description" id="ei_description" rows="2" placeholder="Optional description..."></textarea>
+                                        <div class="col-12">
+                                            <label class="form-label">Description</label>
+                                            <textarea class="form-control" name="description" id="ei_description" rows="2" placeholder="Optional description..."></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -2247,29 +2326,29 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     // Show loading indicator
                     const searchInput = $('#search');
                     const originalValue = searchInput.val();
-                    
+
                     // Add loading class to search input
                     searchInput.addClass('loading');
-                    
+
                     // Get current URL parameters
                     const currentParams = new URLSearchParams(window.location.search);
                     currentParams.set('search', searchTerm);
                     currentParams.set('ajax', '1');
                     currentParams.delete('page'); // Reset to first page for new search
-                    
+
                     // Fetch search results
                     fetch("property_inventory.php?" + currentParams.toString())
                         .then(response => response.text())
                         .then(data => {
                             // Remove loading class
                             searchInput.removeClass('loading');
-                            
+
                             // Extract table content from response
                             const temp = document.createElement('div');
                             temp.innerHTML = data;
                             const newTable = temp.querySelector('#inventoryTable');
                             const newPagination = temp.querySelector('#paginationContainer');
-                            
+
                             if (newTable) {
                                 document.getElementById("inventoryTable").innerHTML = newTable.innerHTML;
                             }
@@ -2279,13 +2358,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     paginationContainer.innerHTML = newPagination.innerHTML;
                                 }
                             }
-                            
+
                             // Update URL without page reload
                             const url = new URL(window.location);
                             url.searchParams.set('search', searchTerm);
                             url.searchParams.delete('page');
                             window.history.pushState({}, '', url);
-                            
+
                             // Smooth scroll to top of table
                             const table = document.querySelector('.table-responsive');
                             if (table) {
@@ -2298,7 +2377,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         .catch(error => {
                             console.error("Search error:", error);
                             searchInput.removeClass('loading');
-                            
+
                             // Show error message
                             const errorDiv = document.createElement('div');
                             errorDiv.className = 'alert alert-danger mt-3';
@@ -2309,7 +2388,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <i class="fas fa-sync-alt"></i> Retry
                                 </button>
                             `;
-                            
+
                             const tableContainer = document.querySelector('.table-responsive');
                             if (tableContainer) {
                                 tableContainer.parentNode.insertBefore(errorDiv, tableContainer.nextSibling);
@@ -2503,12 +2582,15 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     document.getElementById('ei_inventory_id').value = id;
                     document.getElementById('ei_item_name').value = name;
                     // Ensure Category select reflects the value even if it's not preset
-                    (function(){
+                    (function() {
                         const catSelect = document.getElementById('ei_category');
                         if (catSelect) {
                             let found = false;
                             for (let i = 0; i < catSelect.options.length; i++) {
-                                if (String(catSelect.options[i].value) === String(category)) { found = true; break; }
+                                if (String(catSelect.options[i].value) === String(category)) {
+                                    found = true;
+                                    break;
+                                }
                             }
                             if (!found && category) {
                                 const opt = document.createElement('option');
@@ -2520,12 +2602,15 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         }
                     })();
                     // Ensure Unit select reflects the value even if it's not preset
-                    (function(){
+                    (function() {
                         const unitSelect = document.getElementById('ei_unit');
                         if (unitSelect) {
                             let found = false;
                             for (let i = 0; i < unitSelect.options.length; i++) {
-                                if (String(unitSelect.options[i].value) === String(unit)) { found = true; break; }
+                                if (String(unitSelect.options[i].value) === String(unit)) {
+                                    found = true;
+                                    break;
+                                }
                             }
                             if (!found && unit) {
                                 const opt = document.createElement('option');
@@ -2564,7 +2649,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     document.getElementById('esm_previous_stock').value = previousStock;
                     document.getElementById('esm_receiver').value = receiver || '';
                     document.getElementById('esm_notes').value = notes || '';
-                    
+
                     const modal = new bootstrap.Modal(document.getElementById('editStockMovementModal'));
                     modal.show();
                 }
@@ -2572,19 +2657,21 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 // ANCHOR: Edit inventory item with modal management
                 function editInventoryItem(inventoryId, currentModalId) {
                     console.log('editInventoryItem called with ID:', inventoryId, 'Modal:', currentModalId);
-                    
+
                     // Hide the current modal first if specified
                     if (currentModalId) {
                         $('#' + currentModalId).modal('hide');
                     }
-                    
+
                     // Wait for modal to close, then fetch data and open edit modal
                     setTimeout(function() {
                         // Fetch inventory item data via AJAX
                         $.ajax({
                             url: '../actions/get_property_inventory_item.php',
                             method: 'GET',
-                            data: { inventory_id: inventoryId },
+                            data: {
+                                inventory_id: inventoryId
+                            },
                             dataType: 'json',
                             success: function(data) {
                                 console.log('AJAX response:', data);
@@ -2757,20 +2844,20 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 function loadStockMovements(page = 1) {
                     // Get current school year filter
                     const syLogs = document.getElementById('sy_logs')?.value || '';
-                    
+
                     // Show loading state
                     const tableBody = document.querySelector('#stock-movements tbody');
                     if (tableBody) {
                         tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>';
                     }
-                    
+
                     // Build URL parameters
                     const params = new URLSearchParams();
                     params.set('logs_page', page);
                     if (syLogs) {
                         params.set('sy_logs', syLogs);
                     }
-                    
+
                     // Fetch data from API
                     fetch('../api/get_property_stock_movements.php?' + params.toString())
                         .then(response => response.json())
@@ -2780,13 +2867,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 if (tableBody) {
                                     tableBody.innerHTML = data.table_rows;
                                 }
-                                
+
                                 // Update pagination
                                 const paginationContainer = document.querySelector('#stock-movements nav');
                                 if (paginationContainer) {
                                     paginationContainer.innerHTML = data.pagination;
                                 }
-                                
+
                                 // Smooth scroll to stock movements section
                                 const stockSection = document.getElementById('stock-movements');
                                 if (stockSection) {
