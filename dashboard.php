@@ -600,7 +600,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <button onclick="showPropertyRequestTypeModal()" class="card-button">Access</button>
       </div>
 
-    <?php elseif (strtolower($user_type) === 'immediate head'): ?>
+    <?php elseif (strtolower($user_type) === 'immediate head' || strtolower($user_type) === 'immediate head - cje' || strtolower($user_type) === 'immediate head - cbm' || strtolower($user_type) === 'immediate head - ite' || strtolower($user_type) === 'immediate head - hme'): ?>
       <!-- Supply Requisition Card ONLY for Immediate Head -->
       <!-- Assignment Card -->
       <div class="menu-card card-primary">
@@ -610,6 +610,15 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <h3 class="card-title">Assignment & Issuance</h3>
         <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
         <a href="pages/issuance.php" class="card-button">Access</a>
+      </div>
+
+      <div class="menu-card card-primary">
+        <div class="card-icon">
+          <i class="fas fa-coins"></i>
+        </div>
+        <h3 class="card-title">Budget Overview</h3>
+        <p class="card-description">View and manage budgets for your course.</p>
+        <a href="pages/budget.php" class="card-button">Access</a>
       </div>
 
       <?php elseif (strtolower($user_type) === 'accounting officer'): ?>
@@ -757,6 +766,17 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
         <a href="pages/issuance.php" class="card-button">Access</a>
       </div>
+
+      <!-- Budget Card -->
+      <div class="menu-card card-primary">
+        <div class="card-icon">
+          <i class="fas fa-coins"></i>
+        </div>
+        <h3 class="card-title">Budget Overview</h3>
+        <p class="card-description">View and manage budgets for your course.</p>
+        <a href="pages/budget.php" class="card-button">Access</a>
+      </div>
+
       <!-- Procurement Card -->
       <div class="menu-card card-warning">
         <div class="card-icon">
@@ -800,7 +820,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Asset Registration</h3>
         <p class="card-description">Register assets with specifications, values, and documents. Generate tags or barcodes automatically.</p>
-        <a href="pages/assets.php" class="card-button">Access</a>
+        <a href="pages/assets_page.php" class="card-button">Access</a>
       </div>
       <!-- Maintenance Card -->
       <div class="menu-card card-success">
