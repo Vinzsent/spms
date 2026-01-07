@@ -31,10 +31,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     );
 
     if ($stmt->execute()) {
-        header("Location: ../pages/users.php");
+        echo "<script>alert('User added successfully!'); window.location.href='../pages/users.php';</script>";
         exit;
     } else {
-        echo "Error: " . $stmt->error;
+        echo "<script>alert('Error: " . addslashes($stmt->error) . "'); window.history.back();</script>";
     }
 
     $stmt->close();

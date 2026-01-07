@@ -59,13 +59,13 @@
           <option value="Immediate Head - CJE">Immediate Head - CJE</option>
           <option value="Immediate Head - CBM">Immediate Head - CBM</option>
           <option value="Immediate Head - ITE">Immediate Head - ITE</option>
-          <option value="Immediate Head - HRM">Immediate Head - HRM</option>
+          <option value="Immediate Head - HRM">Immediate Head - HME</option>
           <option value="Faculty">Faculty</option>
           <option value="Faculty - CELA">Faculty - CELA</option>
           <option value="Faculty - CJE">Faculty - CJE</option>
           <option value="Faculty - CBM">Faculty - CBM</option>
           <option value="Faculty - ITE">Faculty - ITE</option>
-          <option value="Faculty - HRM">Faculty - HRM</option>
+          <option value="Faculty - HRM">Faculty - HME</option>
           <option value="Staff">Staff</option>
           <option value="MIS Head">MIS Head</option>
           <option value="MIS Computer Programmer">MIS Computer Programmer</option>

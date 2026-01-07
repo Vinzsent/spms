@@ -64,12 +64,27 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
                 </div>
               </div>
 
-              <div class="col-md-6">
-              <div class="form-floating">
-                <textarea name="purpose" class="form-control" id="purposeText" style="height: 60px" required></textarea>
-                <label for="purposeText">
-                  <i class="fas fa-bullseye me-1"></i>Purpose <span class="text-danger">*</span>
-                </label>
+              <div class="col-md-3">
+                <div class="form-floating">
+                  <textarea name="purpose" class="form-control" id="purposeText" style="height: 60px" required></textarea>
+                  <label for="purposeText">
+                    <i class="fas fa-bullseye me-1"></i>Purpose <span class="text-danger">*</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-floating">
+                  <select name="course" class="form-select" id="course">
+                    <option value="">Select Course</option>
+                    <option value="BSBA">BS Business Administration</option>
+                    <option value="CJE">BS Criminology Justice Education</option>
+                    <option value="HME">BS Home Economics</option>
+                    <option value="CELA">BS Education</option>
+                    <option value="BSIT">BS Information Technology</option>
+                  </select>
+                  <label for="course"><i class="fas fa-graduation-cap me-1"></i>Course <span class="text-danger">*</span></label>
+                </div>
               </div>
             </div>
 

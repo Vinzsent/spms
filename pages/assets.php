@@ -29,8 +29,8 @@ $account_names = mysqli_query($conn, "SELECT at.*, COUNT(sc.id) as subcategory_c
 
     <!-- Back button -->
     <div class="mb-3">
-        <button type="button" class="btn btn-modern btn-outline-brand" onclick="window.location.href='../dashboard.php'">
-            <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        <button type="button" class="btn btn-modern btn-outline-brand" onclick="window.location.href='assets_page.php'">
+            <i class="fa-solid fa-arrow-left"></i> Back to Budgets
         </button>
     </div>
 

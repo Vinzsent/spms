@@ -161,12 +161,26 @@ $suppliers = $conn->query("SELECT supplier_id, supplier_name FROM supplier ORDER
                 </div>
               </div>
 
-              <div class="col-md-12">
+              <div class="col-md-9">
                 <div class="form-floating">
                   <textarea name="request_description" class="form-control auto-resize" id="requestDescription" style="height: 70px; min-height: 70px; resize: vertical;" required></textarea>
                   <label for="requestDescription">
                     <i class="fas fa-align-left me-1"></i>Description <span class="text-danger">*</span>
                   </label>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-floating">
+                  <select name="course" class="form-select" id="course">
+                    <option value="">Select Course</option>
+                    <option value="BSBA">BS Business Administration</option>
+                    <option value="CJE">BS Criminology Justice Education</option>
+                    <option value="HME">BS Home Economics</option>
+                    <option value="CELA">BS Education</option>
+                    <option value="BSIT">BS Information Technology</option>
+                  </select>
+                  <label for="course"><i class="fas fa-graduation-cap me-1"></i>Course <span class="text-danger">*</span></label>
                 </div>
               </div>
 

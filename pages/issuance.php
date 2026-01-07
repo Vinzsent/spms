@@ -104,7 +104,7 @@ if (isset($_SESSION['error'])) {
 <style>
 :root {
     --primary-color: #073b1d;
-    --secondary-color: #ff6b35;
+    --secondary-color: #EACA26;
     --accent-color: #28a745;
     --light-bg: #f8f9fa;
     --dark-bg: #343a40;
@@ -183,6 +183,7 @@ body {
 .nav-link.active {
     background: rgba(255, 255, 255, 0.2);
     border-left: 4px solid var(--secondary-color);
+    font-weight: 600;
 }
 
 .nav-link i {
@@ -641,14 +642,15 @@ body {
             </a>
         </div>
         <div class="nav-item">
-            <a href="issuance.php" class="nav-link active">
-                <i class="fas fa-hand-holding"></i>
-                Issuance
+            <a href="budget.php" class="nav-link">
+                <i class="fas fa-wallet"></i>
+                Budget Overview
             </a>
         </div>
         <div class="nav-item">
-            <a href="Inventory.php" class="nav-link">
-                <i class="fas fa-boxes"></i> Inventory
+            <a href="issuance.php" class="nav-link active">
+                <i class="fas fa-hand-holding"></i>
+                Issuance
             </a>
         </div>
         <!--<div class="nav-item">
@@ -664,7 +666,7 @@ body {
             </a>
         </div>
         <div class="nav-item">
-            <a href="../logout.php" class="nav-link logout">
+            <a href="../logout.php" class="nav-link logout" style="color: #e74c3c;">
                 <i class="fas fa-sign-out-alt"></i>
                 Logout
             </a>

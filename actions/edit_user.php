@@ -24,12 +24,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($stmt->execute()) {
-        $_SESSION['message'] = "User updated successfully!";
+        $message = "User updated successfully!";
+        $alert_type = "success";
     } else {
-        $_SESSION['error'] = "Failed to update user: " . $stmt->error;
+        $message = "Failed to update user: " . $stmt->error;
+        $alert_type = "error";
     }
 
-    header("Location: ../pages/users.php");
+    // Redirect with JavaScript alert
+    echo "<script>alert('" . addslashes($message) . "'); window.location.href='../pages/users.php';</script>";
     exit;
 }
 ?>
