@@ -755,6 +755,84 @@ if ($categories_result && $categories_result->num_rows > 0) {
         }
 
         /* Responsive */
+
+
+        /* Acquired Supplies Table Optimization (Global) */
+        #acquiredSuppliesTable {
+            font-size: 0.85rem;
+            width: 100% !important;
+            table-layout: auto;
+        }
+
+        #acquiredSuppliesTable th,
+        #acquiredSuppliesTable td {
+            padding: 8px 4px;
+            vertical-align: middle;
+        }
+
+        .text-truncate-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            max-width: 150px;
+        }
+
+        .col-date {
+            width: 90px;
+        }
+
+        .col-invoice {
+            width: 100px;
+        }
+
+        .col-supplier {
+            max-width: 120px;
+        }
+
+        .col-type {
+            width: 80px;
+        }
+
+        .col-cat {
+            width: 100px;
+        }
+
+        .col-desc {
+            max-width: 150px;
+        }
+
+        .col-qty {
+            width: 50px;
+        }
+
+        .col-unit {
+            width: 50px;
+        }
+
+        .col-price {
+            width: 90px;
+        }
+
+        .col-amount {
+            width: 100px;
+        }
+
+        .col-status {
+            width: 90px;
+        }
+
+        .col-actions {
+            width: 60px;
+        }
+
+        @media (max-width: 1400px) {
+            #acquiredSuppliesTable {
+                font-size: 0.8rem;
+            }
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -795,6 +873,11 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 max-width: 100%;
                 margin-right: 30px;
             }
+
+            .alert .flex-grow-1 {
+                max-width: 100%;
+                margin-right: 30px;
+            }
         }
     </style>
 
@@ -816,19 +899,19 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <li><a href="rooms_inventory.php" class="nav-link">
                         <i class="fas fa-door-open"></i> Rooms Inventory
                     </a></li>
-                    <li>
-                        <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
-                            <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
-                        </a>
-                        <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
-                            <li>
-                                <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
-                            </li>
-                            <li>
-                                <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
-                            </li>
-                        </ul>
-                    </li>
+                <li>
+                    <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
+                        <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
+                    </a>
+                    <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
+                        <li>
+                            <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
+                        </li>
+                        <li>
+                            <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
+                        </li>
+                    </ul>
+                </li>
                 <li><a href="aircon_list.php" class="nav-link">
                         <i class="fas fa-snowflake"></i> Aircons
                     </a></li>
@@ -1535,7 +1618,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             <form method="GET" class="d-flex align-items-end gap-2 mb-0">
                                 <div>
                                     <label for="sy_logs" class="form-label mb-0 text-white">School Year</label>
-                                    <select id="sy_logs" name="sy_logs" class="form-select" onchange="this.form.submit()">
+                                    <select id="sy_logs" name="sy_logs" class="form-select" onchange="loadStockMovements(1)">
                                         <option value="">All</option>
                                         <?php foreach ($sy_years as $sy): ?>
                                             <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_logs_raw === $sy) ? 'selected' : '' ?>>
@@ -1543,6 +1626,10 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
+                                </div>
+                                <div class="search-input">
+                                    <label for="logs_search" class="form-label mb-0 text-white">Search</label>
+                                    <input type="text" id="logs_search" class="form-control" placeholder="Search item or date..." onkeyup="loadStockMovements(1)">
                                 </div>
                                 <div class="pt-4">
                                     <?php if (!empty($sy_logs_raw)): ?>
@@ -1695,21 +1782,21 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0 table-striped">
+                    <table class="table table-hover mb-0 table-striped" id="acquiredSuppliesTable">
                         <thead class="table-dark">
                             <tr>
-                                <th>Date Received</th>
-                                <th>Invoice Number</th>
-                                <th>Supplier</th>
-                                <th>Sales Type</th>
-                                <th>Category</th>
-                                <th>Item Description</th>
-                                <th>Quantity</th>
-                                <th>Unit</th>
-                                <th>Unit Price</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th class="col-date">Date</th>
+                                <th class="col-invoice">Invoice</th>
+                                <th class="col-supplier">Supplier</th>
+                                <th class="col-type">Type</th>
+                                <th class="col-cat">Category</th>
+                                <th class="col-desc">Description</th>
+                                <th class="col-qty">Qty</th>
+                                <th class="col-unit">Unit</th>
+                                <th class="col-price">Price</th>
+                                <th class="col-amount">Amount</th>
+                                <th class="col-status">Status</th>
+                                <th class="col-actions">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1729,22 +1816,34 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         data-unit="<?= htmlspecialchars($row['unit'] ?? '') ?>"
                                         data-unit-price="<?= htmlspecialchars($row['unit_price'] ?? '0.00') ?>"
                                         data-invoice="<?= htmlspecialchars($row['invoice_no'] ?? '') ?>">
-                                        <td><?= date('M d, Y', strtotime($row['date_created'])) ?></td>
-                                        <td><?= htmlspecialchars($row['invoice_no']) ?></td>
-                                        <td><?= htmlspecialchars($row['supplier_name']) ?></td>
-                                        <td><?= htmlspecialchars($row['sales_type']) ?></td>
-                                        <td><?= htmlspecialchars($row['category']) ?></td>
-                                        <td><?= htmlspecialchars($row['item_name']) ?></td>
-                                        <td><?= htmlspecialchars($row['quantity']) ?></td>
-                                        <td><?= htmlspecialchars($row['unit']) ?></td>
-                                        <td>₱ <?= htmlspecialchars($row['unit_price']) ?></td>
-                                        <td>₱ <?= htmlspecialchars($row['total_amount']) ?></td>
-                                        <td>
+                                        <td class="col-date"><?= date('M d, Y', strtotime($row['date_created'])) ?></td>
+                                        <td class="col-invoice"><?= htmlspecialchars($row['invoice_no']) ?></td>
+                                        <td class="col-supplier">
+                                            <div class="text-truncate-2" title="<?= htmlspecialchars($row['supplier_name']) ?>">
+                                                <?= htmlspecialchars($row['supplier_name']) ?>
+                                            </div>
+                                        </td>
+                                        <td class="col-type"><?= htmlspecialchars($row['sales_type']) ?></td>
+                                        <td class="col-cat">
+                                            <div class="text-truncate-2" title="<?= htmlspecialchars($row['category']) ?>">
+                                                <?= htmlspecialchars($row['category']) ?>
+                                            </div>
+                                        </td>
+                                        <td class="col-desc">
+                                            <div class="text-truncate-2" title="<?= htmlspecialchars($row['item_name']) ?>">
+                                                <?= htmlspecialchars($row['item_name']) ?>
+                                            </div>
+                                        </td>
+                                        <td class="col-qty"><?= htmlspecialchars($row['quantity']) ?></td>
+                                        <td class="col-unit"><?= htmlspecialchars($row['unit']) ?></td>
+                                        <td class="col-price">₱<?= number_format($row['unit_price'], 2) ?></td>
+                                        <td class="col-amount">₱<?= number_format($row['total_amount'], 2) ?></td>
+                                        <td class="col-status">
                                             <span class="badge bg-success">
                                                 <?= htmlspecialchars($row['status']) ?>
                                             </span>
                                         </td>
-                                        <td>
+                                        <td class="col-actions">
                                             <button type="button" class="btn btn-sm btn-success mark-received-btn" data-bs-toggle="modal" data-bs-target="#receivedModal" title="Mark as Received"
                                                 data-transaction-id="<?= $row['procurement_id'] ?>"
                                                 data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
@@ -2844,6 +2943,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 function loadStockMovements(page = 1) {
                     // Get current school year filter
                     const syLogs = document.getElementById('sy_logs')?.value || '';
+                    // Get search value
+                    const searchVal = document.getElementById('logs_search')?.value || '';
 
                     // Show loading state
                     const tableBody = document.querySelector('#stock-movements tbody');
@@ -2856,6 +2957,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     params.set('logs_page', page);
                     if (syLogs) {
                         params.set('sy_logs', syLogs);
+                    }
+                    if (searchVal) {
+                        params.set('search', searchVal);
                     }
 
                     // Fetch data from API
