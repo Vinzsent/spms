@@ -37,21 +37,14 @@ $admin_users = $conn->query("SELECT COUNT(*) as count FROM user WHERE user_type 
 $regular_users = $conn->query("SELECT COUNT(*) as count FROM user WHERE user_type = 'User'")->fetch_assoc()['count'];
 $active_users = $conn->query("SELECT COUNT(*) as count FROM user WHERE user_type IN ('Admin', 'User')")->fetch_assoc()['count'];
 
-// Count filtered users for pagination
-$count_query = "SELECT COUNT(*) as count FROM user WHERE (first_name LIKE ? OR last_name LIKE ? OR user_type LIKE ?)";
-$stmt_count = $conn->prepare($count_query);
-$stmt_count->bind_param("sss", $search_param, $search_param, $search_param);
-$stmt_count->execute();
-$filtered_users = $stmt_count->get_result()->fetch_assoc()['count'];
-
-$total_pages = max(1, (int) ceil($filtered_users / $records_per_page));
+$total_pages = max(1, (int) ceil($total_users / $records_per_page));
 if ($page > $total_pages) {
     $page = $total_pages;
 }
 $offset = ($page - 1) * $records_per_page;
 
-$stmt = $conn->prepare("SELECT * FROM user WHERE (first_name LIKE ? OR last_name LIKE ? OR user_type LIKE ?) ORDER BY last_name, first_name LIMIT ?, ?");
-$stmt->bind_param("sssii", $search_param, $search_param, $search_param, $offset, $records_per_page);
+$stmt = $conn->prepare("SELECT * FROM user ORDER BY last_name, first_name LIMIT ?, ?");
+$stmt->bind_param("ii", $offset, $records_per_page);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -178,38 +171,6 @@ if (isset($_SESSION['error'])) {
         margin: 0;
         font-size: 1.5rem;
         font-weight: 600;
-    }
-
-    .search-box {
-        position: relative;
-        max-width: 300px;
-    }
-
-    .search-box input {
-        padding-left: 2.5rem;
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-    }
-
-    .search-box input:focus {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-        border-color: white;
-        box-shadow: none;
-    }
-
-    .search-box input::placeholder {
-        color: rgba(255, 255, 255, 0.7);
-    }
-
-    .search-box .fa-search {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: rgba(255, 255, 255, 0.7);
     }
 
     /* Table Styling */
@@ -414,20 +375,9 @@ if (isset($_SESSION['error'])) {
         <!-- User Records Section -->
         <div class="section-header">
             <h2><i class="fas fa-list me-2"></i>User Records</h2>
-            <div class="d-flex align-items-center gap-3">
-                <form action="" method="GET" class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="search-input" name="search" class="form-control" placeholder="Search name or position..." value="<?= htmlspecialchars($search) ?>">
-                    <?php if ($search): ?>
-                        <a href="users.php" class="btn btn-sm text-white position-absolute end-0 top-50 translate-middle-y me-2">
-                            <i class="fas fa-times"></i>
-                        </a>
-                    <?php endif; ?>
-                </form>
-                <button class="btn btn-primary" onclick="document.getElementById('addUser').style.display='block'">
-                    <i class="fas fa-plus me-2"></i>New User
-                </button>
-            </div>
+            <button class="btn btn-primary" onclick="document.getElementById('addUser').style.display='block'">
+                <i class="fas fa-plus me-2"></i>New User
+            </button>
         </div>
 
         <!-- User Table -->
@@ -442,7 +392,7 @@ if (isset($_SESSION['error'])) {
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="user-table-body">
+                    <tbody>
                         <?php while ($row = $result->fetch_assoc()): ?>
                             <tr>
                                 <td>
@@ -499,185 +449,117 @@ if (isset($_SESSION['error'])) {
                 </table>
             </div>
 
-            <div id="pagination-container">
-                <?php if ($total_pages > 0): ?>
-                    <nav aria-label="User pagination" class="mt-3">
-                        <ul class="pagination justify-content-center mb-0">
-                            <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
-                                <a class="page-link" href="?page=<?= max(1, $page - 1) ?><?= $search ? '&search=' . urlencode($search) : '' ?>">Previous</a>
+            <?php if ($total_pages > 0): ?>
+                <nav aria-label="User pagination" class="mt-3">
+                    <ul class="pagination justify-content-center mb-0">
+                        <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?page=<?= max(1, $page - 1) ?>">Previous</a>
+                        </li>
+                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                            <li class="page-item <?= $page == $i ? 'active' : '' ?>">
+                                <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
                             </li>
-                            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                <li class="page-item <?= $page == $i ? 'active' : '' ?>">
-                                    <a class="page-link" href="?page=<?= $i ?><?= $search ? '&search=' . urlencode($search) : '' ?>"><?= $i ?></a>
-                                </li>
-                            <?php endfor; ?>
-                            <li class="page-item <?= $page >= $total_pages ? 'disabled' : '' ?>">
-                                <a class="page-link" href="?page=<?= min($total_pages, $page + 1) ?><?= $search ? '&search=' . urlencode($search) : '' ?>">Next</a>
-                            </li>
-                        </ul>
-                    </nav>
-                <?php endif; ?>
-            </div>
+                        <?php endfor; ?>
+                        <li class="page-item <?= $page >= $total_pages ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?page=<?= min($total_pages, $page + 1) ?>">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
         </div>
     </div>
+</div>
 
-    <!-- Add User Modal -->
-    <div id="addUser" class="modal-custom">
-        <div class="modal-content-custom shadow">
-            <div class="d-flex justify-content-between mb-3">
-                <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Add New User</h5>
-                <button class="btn-close" onclick="document.getElementById('addUser').style.display='none'"></button>
-            </div>
-            <?php include '../modals/add_user.php'; ?>
+<!-- Add User Modal -->
+<div id="addUser" class="modal-custom">
+    <div class="modal-content-custom shadow">
+        <div class="d-flex justify-content-between mb-3">
+            <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Add New User</h5>
+            <button class="btn-close" onclick="document.getElementById('addUser').style.display='none'"></button>
         </div>
+        <?php include '../modals/add_user.php'; ?>
     </div>
+</div>
 
-    <!-- Edit User Modal -->
-    <div id="editUser" class="modal-custom">
-        <div class="modal-content-custom shadow">
-            <div class="d-flex justify-content-between mb-3">
-                <h5 class="mb-0"><i class="fas fa-user-edit me-2"></i>Edit User</h5>
-                <button class="btn-close" onclick="document.getElementById('editUser').style.display='none'"></button>
-            </div>
-            <?php include '../modals/edit_user.php'; ?>
+<!-- Edit User Modal -->
+<div id="editUser" class="modal-custom">
+    <div class="modal-content-custom shadow">
+        <div class="d-flex justify-content-between mb-3">
+            <h5 class="mb-0"><i class="fas fa-user-edit me-2"></i>Edit User</h5>
+            <button class="btn-close" onclick="document.getElementById('editUser').style.display='none'"></button>
         </div>
+        <?php include '../modals/edit_user.php'; ?>
     </div>
+</div>
 
-    <!-- Delete User Modal -->
-    <div id="deleteUser" class="modal-custom">
-        <div class="modal-content-custom shadow">
-            <div class="d-flex justify-content-between mb-3">
-                <h5 class="mb-0"><i class="fas fa-user-times me-2"></i>Delete User</h5>
-                <button class="btn-close" onclick="document.getElementById('deleteUser').style.display='none'"></button>
-            </div>
-            <?php include '../modals/delete_user.php'; ?>
+<!-- Delete User Modal -->
+<div id="deleteUser" class="modal-custom">
+    <div class="modal-content-custom shadow">
+        <div class="d-flex justify-content-between mb-3">
+            <h5 class="mb-0"><i class="fas fa-user-times me-2"></i>Delete User</h5>
+            <button class="btn-close" onclick="document.getElementById('deleteUser').style.display='none'"></button>
         </div>
+        <?php include '../modals/delete_user.php'; ?>
     </div>
+</div>
 
-    <script>
-        // Close modals when clicking outside
-        window.onclick = function(event) {
-            if (event.target.className === 'modal-custom') {
-                event.target.style.display = 'none';
-            }
+<script>
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+        if (event.target.className === 'modal-custom') {
+            event.target.style.display = 'none';
         }
+    }
 
-        function openEditModal(id, title, firstName, middleName, lastName, suffix, academicTitle, userType, username) {
-            document.getElementById('edit-id').value = id;
-            document.getElementById('edit-title').value = title;
-            document.getElementById('edit-firstname').value = firstName;
-            document.getElementById('edit-middlename').value = middleName || '';
-            document.getElementById('edit-lastname').value = lastName;
-            document.getElementById('edit-suffix').value = suffix || '';
-            document.getElementById('edit-academictitle').value = academicTitle || '';
-            document.getElementById('edit-usertype').value = userType;
-            document.getElementById('edit-username').value = username;
+    function openEditModal(id, title, firstName, middleName, lastName, suffix, academicTitle, userType, username) {
+        document.getElementById('edit-id').value = id;
+        document.getElementById('edit-title').value = title;
+        document.getElementById('edit-firstname').value = firstName;
+        document.getElementById('edit-middlename').value = middleName || '';
+        document.getElementById('edit-lastname').value = lastName;
+        document.getElementById('edit-suffix').value = suffix || '';
+        document.getElementById('edit-academictitle').value = academicTitle || '';
+        document.getElementById('edit-usertype').value = userType;
+        document.getElementById('edit-username').value = username;
 
-            // Show the edit modal
-            document.getElementById('editUser').style.display = 'block';
-        }
+        // Show the edit modal
+        document.getElementById('editUser').style.display = 'block';
+    }
 
-        function openDeleteModal(id) {
-            document.getElementById('delete-id').value = id;
-            // Show the delete modal
-            document.getElementById('deleteUser').style.display = 'block';
-        }
+    function openDeleteModal(id) {
+        document.getElementById('delete-id').value = id;
+        document.getElementById('deleteUser').style.display = 'block';
+    }
 
-        // AJAX Search and Pagination
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('search-input');
-            const tableBody = document.getElementById('user-table-body');
-            const paginationContainer = document.getElementById('pagination-container');
-            let debounceTimer;
-
-            function fetchUsers(search = '', page = 1) {
-                const url = `../api/users_search.php?search=${encodeURIComponent(search)}&page=${page}`;
-
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            console.error('Search error:', data.error);
-                            return;
-                        }
-                        tableBody.innerHTML = data.rows;
-                        paginationContainer.innerHTML = data.pagination;
-
-                        // Update URL without reloading
-                        const newUrl = window.location.pathname + `?search=${encodeURIComponent(search)}&page=${page}`;
-                        window.history.pushState({
-                            search,
-                            page
-                        }, '', newUrl);
-                    })
-                    .catch(error => console.error('Error fetching users:', error));
-            }
-
-            // Debounced search input
-            if (searchInput) {
-                searchInput.addEventListener('input', function(e) {
-                    clearTimeout(debounceTimer);
-                    const searchTerm = e.target.value;
-                    debounceTimer = setTimeout(() => {
-                        fetchUsers(searchTerm, 1);
-                    }, 300);
-                });
-
-                // Prevent form submission
-                const searchForm = searchInput.closest('form');
-                if (searchForm) {
-                    searchForm.addEventListener('submit', (e) => e.preventDefault());
-                }
-            }
-
-            // Handle AJAX pagination clicks
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('ajax-pagination')) {
-                    e.preventDefault();
-                    const page = e.target.getAttribute('data-page');
-                    const searchTerm = searchInput ? searchInput.value : '';
-                    fetchUsers(searchTerm, page);
-                }
+    // Close modals with Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            document.querySelectorAll('.modal-custom').forEach(modal => {
+                modal.style.display = 'none';
             });
+        }
+    });
 
-            // Handle browser back/forward buttons
-            window.addEventListener('popstate', function(event) {
-                if (event.state) {
-                    if (searchInput) searchInput.value = event.state.search || '';
-                    fetchUsers(event.state.search || '', event.state.page || 1);
-                }
+    // Initialize DataTable with dark mode support
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize any DataTables if present
+        if ($.fn.DataTable.isDataTable('table')) {
+            $('table').DataTable({
+                responsive: true,
+                pageLength: 10,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "Search..."
+                },
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ]
             });
-        });
+        }
+    });
+</script>
 
-        // Close modals with Escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                document.querySelectorAll('.modal-custom').forEach(modal => {
-                    modal.style.display = 'none';
-                });
-            }
-        });
+<?php include('../includes/footer.php'); ?>
 
-        // Initialize DataTable with dark mode support
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize any DataTables if present
-            if ($.fn.DataTable.isDataTable('table')) {
-                $('table').DataTable({
-                    responsive: true,
-                    pageLength: 10,
-                    language: {
-                        search: "_INPUT_",
-                        searchPlaceholder: "Search..."
-                    },
-                    dom: 'Bfrtip',
-                    buttons: [
-                        'copy', 'csv', 'excel', 'pdf', 'print'
-                    ]
-                });
-            }
-        });
-    </script>
-
-    <?php include('../includes/footer.php'); ?>
-
-    </html>
+</html>

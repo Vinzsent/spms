@@ -27,6 +27,16 @@ $canvass_query = "
 ";
 
 $canvass_result = $conn->query($canvass_query);
+
+// Fetch suppliers for dropdown
+$suppliers_query = "SELECT supplier_name FROM supplier ORDER BY supplier_name ASC";
+$suppliers_result = $conn->query($suppliers_query);
+$suppliers = [];
+if ($suppliers_result && $suppliers_result->num_rows > 0) {
+    while ($row = $suppliers_result->fetch_assoc()) {
+        $suppliers[] = $row['supplier_name'];
+    }
+}
 ?>
 
 <style>
@@ -532,6 +542,9 @@ $canvass_result = $conn->query($canvass_query);
 </div>
 
 <script>
+    // Available suppliers from PHP
+    const availableSuppliers = <?= json_encode($suppliers) ?>;
+
     // Toggle select mode for printing
     function toggleSelectMode() {
         const selectCells = document.querySelectorAll('.select-cell');
@@ -952,19 +965,27 @@ $canvass_result = $conn->query($canvass_query);
             });
     }
 
+    let currentCanvassId = null;
+
     // Display canvass details in modal
     function displayCanvassDetails(canvass, items) {
+        currentCanvassId = canvass.canvass_id;
         let itemsHtml = '';
         let grandTotal = 0;
 
         items.forEach(item => {
             itemsHtml += `
-                <tr>
-                    <td>${item.supplier_name}</td>
-                    <td>${item.item_description}</td>
-                    <td>${item.quantity}</td>
-                    <td>₱${parseFloat(item.unit_cost).toFixed(2)}</td>
-                    <td>₱${parseFloat(item.total_cost).toFixed(2)}</td>
+                <tr data-id="${item.canvass_item_id}">
+                    <td class="supplier_name">${item.supplier_name}</td>
+                    <td class="item_description">${item.item_description}</td>
+                    <td class="quantity">${item.quantity}</td>
+                    <td class="unit_cost">₱${parseFloat(item.unit_cost).toFixed(2)}</td>
+                    <td class="total_cost">₱${parseFloat(item.total_cost).toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="editItem(this)">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
                 </tr>
             `;
             grandTotal += parseFloat(item.total_cost);
@@ -987,30 +1008,109 @@ $canvass_result = $conn->query($canvass_query);
                 </div>
                 
                 <h4>Items</h4>
-                <table class="table table-bordered">
-                    <thead style="background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%); color: white;">
-                        <tr>
-                            <th>Supplier</th>
-                            <th>Item Description</th>
-                            <th>Quantity</th>
-                            <th>Unit Cost</th>
-                            <th>Total Cost</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${itemsHtml}
-                        <tr style="background-color: var(--primary-green); color: white; font-weight: bold;">
-                            <td colspan="4" style="text-align: right;">GRAND TOTAL:</td>
-                            <td>₱${grandTotal.toFixed(2)}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead style="background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%); color: white;">
+                            <tr>
+                                <th>Supplier</th>
+                                <th>Item Description</th>
+                                <th>Quantity</th>
+                                <th>Unit Cost</th>
+                                <th>Total Cost</th>
+                                <th style="width: 100px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsHtml}
+                            <tr style="background-color: var(--primary-green); color: white; font-weight: bold;">
+                                <td colspan="4" style="text-align: right;">GRAND TOTAL:</td>
+                                <td colspan="2">₱${grandTotal.toFixed(2)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
                 
                 ${canvass.notes ? `<div class="mt-3"><h5>Notes:</h5><p>${canvass.notes}</p></div>` : ''}
             </div>
         `;
 
         document.getElementById('canvassDetailsContent').innerHTML = content;
+    }
+
+    function editItem(btn) {
+        const row = btn.closest('tr');
+        const supplier = row.querySelector('.supplier_name').innerText;
+        const description = row.querySelector('.item_description').innerText;
+        const quantity = row.querySelector('.quantity').innerText;
+        // Remove currency symbol and commas
+        const unitCost = row.querySelector('.unit_cost').innerText.replace(/[^\d.-]/g, '');
+
+        // Create supplier dropdown
+        let supplierOptions = '';
+        availableSuppliers.forEach(s => {
+            const isSelected = s === supplier ? 'selected' : '';
+            supplierOptions += `<option value="${s}" ${isSelected}>${s}</option>`;
+        });
+
+        row.querySelector('.supplier_name').innerHTML = `<select class="form-control form-control-sm">${supplierOptions}</select>`;
+        row.querySelector('.item_description').innerHTML = `<input type="text" class="form-control form-control-sm" value="${description}">`;
+        row.querySelector('.quantity').innerHTML = `<input type="number" class="form-control form-control-sm" value="${quantity}" step="0.01">`;
+        row.querySelector('.unit_cost').innerHTML = `<input type="number" class="form-control form-control-sm" value="${unitCost}" step="0.01">`;
+
+        // Change button to Save/Cancel
+        const actionCell = btn.parentElement;
+        actionCell.innerHTML = `
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-success" onclick="saveItem(this)">
+                    <i class="fas fa-save"></i>
+                </button>
+                <button class="btn btn-secondary" onclick="cancelEdit(${currentCanvassId})">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+    }
+
+    function cancelEdit(canvassId) {
+        viewCanvass(canvassId);
+    }
+
+    function saveItem(btn) {
+        const row = btn.closest('tr');
+        const canvassItemId = row.getAttribute('data-id');
+
+        const supplier = row.querySelector('.supplier_name select').value;
+        const description = row.querySelector('.item_description input').value;
+        const quantity = row.querySelector('.quantity input').value;
+        const unitCost = row.querySelector('.unit_cost input').value;
+
+        const data = {
+            canvass_item_id: canvassItemId,
+            supplier_name: supplier,
+            item_description: description,
+            quantity: quantity,
+            unit_cost: unitCost
+        };
+
+        fetch('../actions/update_canvass_item.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload modal to show updated values and totals
+                    viewCanvass(currentCanvassId);
+                } else {
+                    alert('Error updating item: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+            });
     }
 
     // Edit canvass

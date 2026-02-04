@@ -1022,8 +1022,7 @@ $existing_pos_result = $conn->query($existing_pos_sql);
         const totalRow = tbody.lastElementChild; // Get the total row
         const rowCount = tbody.querySelectorAll('tr:not(:last-child)').length + 1;
 
-        // Build unique options for the dropdown
-        let uniqueItems = [...new Set(canvassItems.map(item => item.description))];
+        // Build options for the dropdown
         let optionsHtml = '<option value="">Choose item from canvass list</option>';
         uniqueItems.forEach(description => {
             optionsHtml += `<option value="${description}">${description}</option>`;
@@ -1033,7 +1032,7 @@ $existing_pos_result = $conn->query($existing_pos_sql);
         newRow.innerHTML = `
             <td>${rowCount}</td>
             <td>
-                <select class="form-select form-select-sm" onchange="autoFillItemDetails(this); calculateRowTotal(this)">
+                <select class="form-select form-select-sm" onchange="calculateRowTotal(this)">
                     ${optionsHtml}
                 </select>
             </td>
@@ -1156,7 +1155,7 @@ $existing_pos_result = $conn->query($existing_pos_sql);
         newRow.innerHTML = `
             <td>${itemNumber}</td>
             <td>
-                <select class="form-select form-select-sm" onchange="autoFillItemDetails(this); calculateRowTotal(this)">
+                <select class="form-select form-select-sm" onchange="calculateRowTotal(this)">
                     ${optionsHtml}
                 </select>
             </td>
@@ -1249,6 +1248,23 @@ $existing_pos_result = $conn->query($existing_pos_sql);
             .catch(error => {
                 alert('Error generating PO number: ' + error.message);
             });
+    }
+    // Autofill item details and calculate total
+    function onItemSelect(select) {
+        const row = select.closest('tr');
+        const description = select.value;
+        const item = canvassItems.find(i => i.description === description);
+
+        if (item) {
+            row.cells[2].querySelector('input').value = item.quantity;
+            row.cells[3].querySelector('input').value = item.unit_cost;
+        } else if (description === '') {
+            // Clear if empty selection
+            row.cells[2].querySelector('input').value = '';
+            row.cells[3].querySelector('input').value = '';
+        }
+
+        calculateRowTotal(select);
     }
 </script>
 
