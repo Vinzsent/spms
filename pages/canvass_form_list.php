@@ -246,7 +246,8 @@ $canvass_result = $conn->query($canvass_query);
         letter-spacing: 0.5px;
     }
 
-    .status-draft {
+    .status-draft,
+    .status-canvassed {
         background: linear-gradient(135deg, #6c757d, #5a6268);
         color: white;
     }
@@ -376,9 +377,9 @@ $canvass_result = $conn->query($canvass_query);
             <li><a href="suppliers.php" class="nav-link">
                     <i class="fas fa-users"></i> Supplier List
                 </a></li>
-                <li><a href="procurement.php" class="nav-link">
-                        <i class="fas fa-shopping-cart"></i> Procurement
-                    </a></li>
+            <li><a href="procurement.php" class="nav-link">
+                    <i class="fas fa-shopping-cart"></i> Procurement
+                </a></li>
             <li><a href="canvas_form.php" class="nav-link">
                     <i class="fas fa-clipboard-list"></i> Canvass Form
                 </a></li>
@@ -511,23 +512,23 @@ $canvass_result = $conn->query($canvass_query);
 
 <!-- View Canvass Modal -->
 <div class="modal fade" id="viewCanvassModal" tabindex="-1" aria-labelledby="viewCanvassLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%); color: white;">
-        <h5 class="modal-title" id="viewCanvassLabel">Canvass Details</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
-      </div>
-      <div class="modal-body" id="canvassDetailsContent">
-        <!-- Content will be loaded here -->
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" onclick="printCanvassDetails()">
-          <i class="fas fa-print"></i> Print
-        </button>
-      </div>
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%); color: white;">
+                <h5 class="modal-title" id="viewCanvassLabel">Canvass Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+            </div>
+            <div class="modal-body" id="canvassDetailsContent">
+                <!-- Content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="printCanvassDetails()">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
@@ -538,7 +539,7 @@ $canvass_result = $conn->query($canvass_query);
         const selectBtn = document.getElementById('selectForPrintBtn');
         const printBtn = document.getElementById('printSelectedBtn');
         const cancelBtn = document.getElementById('cancelSelectBtn');
-        
+
         if (selectCells && selectCells.length > 0) {
             selectCells.forEach(cell => {
                 if (cell && cell.style) {
@@ -546,7 +547,7 @@ $canvass_result = $conn->query($canvass_query);
                 }
             });
         }
-        
+
         if (selectHeader) {
             selectHeader.style.display = selectHeader.style.display === 'none' ? 'table-row' : 'none';
         }
@@ -555,20 +556,20 @@ $canvass_result = $conn->query($canvass_query);
         if (selectHeaderCell) {
             selectHeaderCell.style.display = selectHeaderCell.style.display === 'none' ? 'table-cell' : 'none';
         }
-        
+
         if (selectBtn) {
             selectBtn.style.display = selectBtn.style.display === 'none' ? 'inline-block' : 'none';
         }
-        
+
         if (printBtn) {
             printBtn.style.display = printBtn.style.display === 'none' ? 'inline-block' : 'none';
         }
-        
+
         if (cancelBtn) {
             cancelBtn.style.display = cancelBtn.style.display === 'none' ? 'inline-block' : 'none';
         }
     }
-    
+
     // Cancel select mode
     function cancelSelectMode() {
         const selectCells = document.querySelectorAll('.select-cell');
@@ -576,7 +577,7 @@ $canvass_result = $conn->query($canvass_query);
         const selectBtn = document.getElementById('selectForPrintBtn');
         const printBtn = document.getElementById('printSelectedBtn');
         const cancelBtn = document.getElementById('cancelSelectBtn');
-        
+
         if (selectCells && selectCells.length > 0) {
             selectCells.forEach(cell => {
                 if (cell && cell.style) {
@@ -584,20 +585,20 @@ $canvass_result = $conn->query($canvass_query);
                 }
             });
         }
-        
+
         if (selectHeader) selectHeader.style.display = 'none';
         const selectHeaderCell2 = document.getElementById('selectHeaderCell');
         if (selectHeaderCell2) selectHeaderCell2.style.display = 'none';
         if (selectBtn) selectBtn.style.display = 'inline-block';
         if (printBtn) printBtn.style.display = 'none';
         if (cancelBtn) cancelBtn.style.display = 'none';
-        
+
         // Uncheck all checkboxes
         document.querySelectorAll('.row-checkbox').forEach(checkbox => {
             if (checkbox) checkbox.checked = false;
         });
     }
-    
+
     // Toggle select all checkboxes
     function toggleSelectAll(source) {
         if (!source) return;
@@ -610,16 +611,16 @@ $canvass_result = $conn->query($canvass_query);
             });
         }
     }
-    
+
     // Print selected rows with detailed information
     function printSelected() {
         const checkboxes = document.querySelectorAll('.row-checkbox:checked');
-        
+
         if (!checkboxes || checkboxes.length === 0) {
             alert('Please select at least one row to print');
             return;
         }
-        
+
         // Collect canvass IDs from selected rows
         const canvassIds = [];
         checkboxes.forEach(checkbox => {
@@ -631,12 +632,12 @@ $canvass_result = $conn->query($canvass_query);
                 }
             }
         });
-        
+
         if (canvassIds.length === 0) {
             alert('No valid canvass records selected for printing');
             return;
         }
-        
+
         // Show loading message
         const loadingMessage = document.createElement('div');
         loadingMessage.innerHTML = `
@@ -649,39 +650,39 @@ $canvass_result = $conn->query($canvass_query);
             </div>
         `;
         document.body.appendChild(loadingMessage);
-        
+
         // Fetch detailed information for each selected canvass
-        const fetchPromises = canvassIds.map(id => 
+        const fetchPromises = canvassIds.map(id =>
             fetch(`../actions/get_canvass_details.php?id=${id}`)
-                .then(response => response.json())
+            .then(response => response.json())
         );
-        
+
         Promise.all(fetchPromises)
             .then(results => {
                 document.body.removeChild(loadingMessage);
-                
+
                 // Filter successful results
                 const canvassData = results.filter(result => result.success);
-                
+
                 if (canvassData.length === 0) {
                     alert('Failed to load canvass details');
                     return;
                 }
-                
+
                 // Generate detailed print content
                 let printContent = `
                     <div class="print-container">`;
-                
+
                 // Add detailed information for each canvass
                 canvassData.forEach((data, index) => {
                     const canvass = data.canvass;
                     const items = data.items;
-                    
+
                     let itemsHtml = '';
                     let grandTotal = 0;
-                    
-                                         items.forEach(item => {
-                         itemsHtml += `
+
+                    items.forEach(item => {
+                        itemsHtml += `
                              <tr>
                                  <td>${item.supplier_name || ''}</td>
                                  <td>${item.item_description || ''}</td>
@@ -690,19 +691,19 @@ $canvass_result = $conn->query($canvass_query);
                                  <td style="text-align: right;">₱${parseFloat(item.total_cost || 0).toFixed(2)}</td>
                              </tr>
                          `;
-                         grandTotal += parseFloat(item.total_cost || 0);
-                     });
-                    
+                        grandTotal += parseFloat(item.total_cost || 0);
+                    });
+
                     const statusColors = {
                         'draft': '#6c757d',
                         'completed': '#4a90e2',
                         'approved': '#28a745',
                         'cancelled': '#e74c3c'
                     };
-                    
+
                     const statusColor = statusColors[canvass.status?.toLowerCase()] || '#6c757d';
-                    
-                                         printContent += `
+
+                    printContent += `
                          <div class="canvass-detail-section" ${index > 0 ? 'style="page-break-before: always; margin-top: 30px;"' : ''}>
                              <div class="canvass-info-grid">
                                  <div class="info-section">
@@ -743,9 +744,9 @@ $canvass_result = $conn->query($canvass_query);
                          </div>
                      `;
                 });
-                
+
                 printContent += `</div>`;
-                
+
                 // Add print styles
                 printContent += `
                     <style>
@@ -902,7 +903,7 @@ $canvass_result = $conn->query($canvass_query);
                         }
                     </style>
                 `;
-                
+
                 // Open print window
                 const printWindow = window.open('', '_blank');
                 printWindow.document.write(`
@@ -1021,24 +1022,26 @@ $canvass_result = $conn->query($canvass_query);
     function deleteCanvass(canvassId) {
         if (confirm('Are you sure you want to delete this canvass? This action cannot be undone.')) {
             fetch('../actions/delete_canvass.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ canvass_id: canvassId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Canvass deleted successfully');
-                    location.reload();
-                } else {
-                    alert('Error deleting canvass: ' + data.message);
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error.message);
-            });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        canvass_id: canvassId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Canvass deleted successfully');
+                        location.reload();
+                    } else {
+                        alert('Error deleting canvass: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
+                });
         }
     }
 

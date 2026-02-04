@@ -421,6 +421,9 @@ $po_result = $conn->query($po_query);
         <div class="list-header">
             <h2 class="list-title">All Purchase Order Records</h2>
             <div class="action-buttons">
+                <a href="../actions/export_purchase_orders_excel.php" class="btn btn-success">
+                    <i class="fas fa-file-excel"></i> Export to Excel
+                </a>
                 <a href="purchase_order.php" class="btn btn-primary text-dark">
                     <i class="fas fa-plus"></i> New Purchase Order
                 </a>
@@ -508,23 +511,23 @@ $po_result = $conn->query($po_query);
 
 <!-- View Purchase Order Modal -->
 <div class="modal fade" id="viewPurchaseOrderModal" tabindex="-1" aria-labelledby="viewPurchaseOrderLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%); color: white;">
-        <h5 class="modal-title" id="viewPurchaseOrderLabel">Purchase Order Details</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
-      </div>
-      <div class="modal-body" id="purchaseOrderDetailsContent">
-        <!-- Content will be loaded here -->
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" onclick="printPurchaseOrderDetails()">
-          <i class="fas fa-print"></i> Print
-        </button>
-      </div>
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%); color: white;">
+                <h5 class="modal-title" id="viewPurchaseOrderLabel">Purchase Order Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+            </div>
+            <div class="modal-body" id="purchaseOrderDetailsContent">
+                <!-- Content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="printPurchaseOrderDetails()">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
@@ -618,24 +621,26 @@ $po_result = $conn->query($po_query);
     function deletePurchaseOrder(poId) {
         if (confirm('Are you sure you want to delete this purchase order? This action cannot be undone.')) {
             fetch('../actions/delete_purchase_order.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ po_id: poId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Purchase order deleted successfully');
-                    location.reload();
-                } else {
-                    alert('Error deleting purchase order: ' + data.message);
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error.message);
-            });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        po_id: poId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Purchase order deleted successfully');
+                        location.reload();
+                    } else {
+                        alert('Error deleting purchase order: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
+                });
         }
     }
 

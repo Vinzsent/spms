@@ -5,7 +5,6 @@ include '../includes/db.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validate and sanitize input
     $item_name = trim($_POST['item_name']);
-    $status = trim($_POST['status']);
     $brand = trim($_POST['brand']);
     $size = trim($_POST['size']);
     $color = trim($_POST['color']);
@@ -27,6 +26,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($procurement_id > 0) {
         $update_sql = "UPDATE supplier_transaction SET status = 'Added' WHERE procurement_id = ?";
         $update_stmt = $conn->prepare($update_sql);
+        if (!$update_stmt) {
+            $_SESSION['error'] = "Error preparing transaction update: " . $conn->error;
+            header("Location: ../pages/property_inventory.php");
+            exit();
+        }
         $update_stmt->bind_param("i", $procurement_id);
         
         if ($update_stmt->execute()) {
@@ -53,6 +57,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        if ($procurement_id > 0) {
+            $rollback_sql = "UPDATE supplier_transaction SET status = 'Received' WHERE procurement_id = ?";
+            $rollback_stmt = $conn->prepare($rollback_sql);
+            if ($rollback_stmt) {
+                $rollback_stmt->bind_param("i", $procurement_id);
+                $rollback_stmt->execute();
+                $rollback_stmt->close();
+            }
+        }
+        $_SESSION['error'] = "Error preparing inventory insert: " . $conn->error;
+        header("Location: ../pages/property_inventory.php");
+        exit();
+    }
     $user_id = $_SESSION['user']['id'] ?? 1;
     // Types for values: s,s,s,s,s,s,i,s,d,i,i,s,i,s (14 params)
     $stmt->bind_param("sssssssisdiisiss", $item_name, $brand, $size, $color, $type, $category, $description, $current_stock, $unit, $unit_cost, $reorder_level, $supplier_id, $location, $user_id, $receiver, $status);
@@ -65,8 +83,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $log_sql = "INSERT INTO property_stock_logs (inventory_id, movement_type, quantity, previous_stock, new_stock, notes, created_by, receiver) 
                         VALUES (?, 'IN', ?, 0, ?, 'Initial stock entry', ?, ?)";
             $log_stmt = $conn->prepare($log_sql);
-            $log_stmt->bind_param("iiiis", $inventory_id, $current_stock, $current_stock, $user_id, $receiver);
-            $log_stmt->execute();
+            if ($log_stmt) {
+                $log_stmt->bind_param("iiiis", $inventory_id, $current_stock, $current_stock, $user_id, $receiver);
+                $log_stmt->execute();
+                $log_stmt->close();
+            }
         }
         
         $_SESSION['message'] = "Inventory item '$item_name' has been added successfully.";

@@ -73,494 +73,510 @@ if (isset($_SESSION['error'])) {
 ?>
 
 <style>
-:root {
-    --primary-color: #073b1d;
-    --secondary-color: #ff6b35;
-    --accent-color: #28a745;
-    --light-bg: #f8f9fa;
-    --dark-bg: #343a40;
-    --text-light: #ffffff;
-    --text-dark: #212529;
-    --border-color: #dee2e6;
-    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --border-radius: 10px;
-}
+    :root {
+        --primary-color: #073b1d;
+        --secondary-color: #ff6b35;
+        --accent-color: #28a745;
+        --light-bg: #f8f9fa;
+        --dark-bg: #343a40;
+        --text-light: #ffffff;
+        --text-dark: #212529;
+        --border-color: #dee2e6;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --border-radius: 10px;
+    }
 
-body {
-    background: var(--light-bg);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-}
+    body {
+        background: var(--light-bg);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
 
-/* Sidebar Styles */
-.sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 280px;
-    background: linear-gradient(135deg, var(--primary-color), #0d4a2a);
-    color: var(--text-light);
-    z-index: 1000;
-    overflow-y: auto;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.sidebar-header {
-    padding: 2rem 1.5rem 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.sidebar-brand {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-light);
-    text-decoration: none;
-    display: block;
-    margin-bottom: 0.5rem;
-}
-
-.sidebar-user {
-    font-size: 0.9rem;
-    opacity: 0.9;
-}
-
-.sidebar-nav {
-    padding: 1rem 0;
-}
-
-.nav-item {
-    margin-bottom: 0.25rem;
-}
-
-.nav-link {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem 1.5rem;
-    color: var(--text-light);
-    text-decoration: none;
-    transition: all 0.3s ease;
-    border-radius: 0;
-    position: relative;
-}
-
-.nav-link:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-light);
-    transform: translateX(5px);
-}
-
-.nav-link.active {
-    background: rgba(255, 255, 255, 0.2);
-    border-left: 4px solid var(--secondary-color);
-}
-
-.nav-link i {
-    width: 20px;
-    margin-right: 0.75rem;
-    font-size: 1.1rem;
-}
-
-.nav-link.logout {
-    color: var(--secondary-color);
-    margin-top: 2rem;
-}
-
-.nav-link.logout:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-light);
-    transform: translateX(5px);
-}
-
-/* Main Content */
-.main-content {
-    margin-left: 280px;
-    min-height: 100vh;
-    background: var(--light-bg);
-}
-
-/* Header */
-.page-header {
-    background: linear-gradient(135deg, var(--primary-color), #0d4a2a);
-    color: var(--text-light);
-    padding: 2rem 2rem 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.page-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
-
-.page-subtitle {
-    font-size: 1.1rem;
-    opacity: 0.9;
-    margin-bottom: 0;
-}
-
-/* Stats Cards */
-.stats-container {
-    padding: 0 2rem 2rem;
-}
-
-.stats-card {
-    background: var(--text-light);
-    border-radius: var(--border-radius);
-    padding: 1.5rem;
-    box-shadow: var(--shadow);
-    border: none;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    height: 100%;
-}
-
-.stats-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.stats-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-.stats-number {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
-
-.stats-label {
-    font-size: 0.9rem;
-    color: #6c757d;
-    font-weight: 500;
-}
-
-/* Content Section */
-.content-section {
-    padding: 0 2rem 2rem;
-}
-
-.section-header {
-    background: linear-gradient(135deg, var(--primary-color), #0d4a2a);
-    color: var(--text-light);
-    padding: 1.5rem 2rem;
-    border-radius: var(--border-radius) var(--border-radius) 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.section-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 0;
-}
-
-/* Table Styles */
-.table-container {
-    background: var(--text-light);
-    border-radius: 0 0 var(--border-radius) var(--border-radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-}
-
-.table-modern {
-    margin: 0;
-}
-
-.table-modern thead th {
-    background: #f8f9fa;
-    border: none;
-    padding: 1rem;
-    font-weight: 600;
-    color: var(--text-dark);
-    border-bottom: 2px solid var(--border-color);
-}
-
-.table-modern tbody td {
-    padding: 1rem;
-    border: none;
-    border-bottom: 1px solid var(--border-color);
-    vertical-align: middle;
-}
-
-.table-modern tbody tr:hover {
-    background: rgba(7, 59, 29, 0.05);
-}
-
-/* Status Badges */
-.status-badge {
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.status-pending {
-    background: linear-gradient(135deg, #ffc107, #ffb300);
-    color: #000;
-}
-
-.status-noted {
-    background: linear-gradient(135deg, #17a2b8, #138496);
-    color: white;
-}
-
-.status-checked {
-    background: linear-gradient(135deg, #6f42c1, #5a32a3);
-    color: white;
-}
-
-.status-verified {
-    background: linear-gradient(135deg, #fd7e14, #e55a00);
-    color: white;
-}
-
-.status-approved {
-    background: linear-gradient(135deg, #20c997, #1a9f7a);
-    color: white;
-}
-
-.status-issued {
-    background: linear-gradient(135deg, #28a745, #1e7e34);
-    color: white;
-}
-/* Action Buttons */
-.btn-action {
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    border: none;
-    transition: all 0.3s ease;
-    margin: 0.25rem;
-}
-
-.btn-action:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.btn-primary-modern {
-    background: linear-gradient(135deg, var(--secondary-color), #e55a00);
-    color: white;
-}
-
-.btn-success-modern {
-    background: linear-gradient(135deg, #28a745, #1e7e34);
-    color: white;
-}
-
-.btn-info-modern {
-    background: linear-gradient(135deg, #17a2b8, #138496);
-    color: white;
-}
-
-.btn-warning-modern {
-    background: linear-gradient(135deg, #ffc107, #ffb300);
-    color: #000;
-}
-
-.btn-danger-modern {
-    background: linear-gradient(135deg, #dc3545, #c82333);
-    color: white;
-}
-
-/* Modal Styles */
-.modal-modern .modal-header {
-    background: linear-gradient(135deg, var(--primary-color), #0d4a2a);
-    color: var(--text-light);
-    border-bottom: none;
-}
-
-.modal-modern .modal-title {
-    font-weight: 600;
-}
-
-.modal-modern .modal-body {
-    padding: 2rem;
-}
-
-.modal-modern .modal-footer {
-    border-top: none;
-    padding: 1rem 2rem 2rem;
-}
-
-/* Form Styles */
-.form-control-modern {
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    transition: all 0.3s ease;
-}
-
-.form-control-modern:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(7, 59, 29, 0.25);
-}
-
-.form-label-modern {
-    font-weight: 600;
-    color: var(--text-dark);
-    margin-bottom: 0.5rem;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
+    /* Sidebar Styles */
     .sidebar {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 280px;
+        background: linear-gradient(135deg, var(--primary-color), #0d4a2a);
+        color: var(--text-light);
+        z-index: 1000;
+        overflow-y: auto;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     }
-    
-    .sidebar.show {
-        transform: translateX(0);
+
+    .sidebar-header {
+        padding: 2rem 1.5rem 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
-    
+
+    .sidebar-brand {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-light);
+        text-decoration: none;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .sidebar-user {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .sidebar-nav {
+        padding: 1rem 0;
+    }
+
+    .nav-item {
+        margin-bottom: 0.25rem;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        color: var(--text-light);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border-radius: 0;
+        position: relative;
+    }
+
+    .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-light);
+        transform: translateX(5px);
+    }
+
+    .nav-link.active {
+        background: rgba(255, 255, 255, 0.2);
+        border-left: 4px solid var(--secondary-color);
+    }
+
+    .nav-link i {
+        width: 20px;
+        margin-right: 0.75rem;
+        font-size: 1.1rem;
+    }
+
+    .nav-link.logout {
+        color: var(--secondary-color);
+        margin-top: 2rem;
+    }
+
+    .nav-link.logout:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-light);
+        transform: translateX(5px);
+    }
+
+    /* Main Content */
     .main-content {
-        margin-left: 0;
+        margin-left: 280px;
+        min-height: 100vh;
+        background: var(--light-bg);
     }
-    
+
+    /* Header */
     .page-header {
-        padding: 1.5rem 1rem 1rem;
+        background: linear-gradient(135deg, var(--primary-color), #0d4a2a);
+        color: var(--text-light);
+        padding: 2rem 2rem 1.5rem;
+        margin-bottom: 2rem;
     }
-    
-    .content-section {
-        padding: 0 1rem 1rem;
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
     }
-    
+
+    .page-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 0;
+    }
+
+    /* Stats Cards */
     .stats-container {
-        padding: 0 1rem 1rem;
+        padding: 0 2rem 2rem;
     }
-}
 
-/* Empty State */
-.empty-state {
-    text-align: center;
-    padding: 3rem 2rem;
-    color: #6c757d;
-}
+    .stats-card {
+        background: var(--text-light);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        box-shadow: var(--shadow);
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+    }
 
-.empty-state i {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
-}
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
 
-.empty-state h5 {
-    margin-bottom: 1rem;
-    color: var(--text-dark);
-}
+    .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
 
-.empty-state p {
-    margin-bottom: 2rem;
-    opacity: 0.7;
-}
+    .stats-number {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
 
-/* Additional styles for timeline and info cards */
-.info-card {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 1.5rem;
-    border-left: 4px solid #28a745;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
+    .stats-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        font-weight: 500;
+    }
 
-.info-title {
-    color: #28a745;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
-}
+    /* Content Section */
+    .content-section {
+        padding: 0 2rem 2rem;
+    }
 
-.info-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
+    .section-header {
+        background: linear-gradient(135deg, var(--primary-color), #0d4a2a);
+        color: var(--text-light);
+        padding: 1.5rem 2rem;
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-.info-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #e9ecef;
-}
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0;
+    }
 
-.info-item:last-child {
-    border-bottom: none;
-}
+    /* Table Styles */
+    .table-container {
+        background: var(--text-light);
+        border-radius: 0 0 var(--border-radius) var(--border-radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
 
-.info-label {
-    font-weight: 600;
-    color: #495057;
-    min-width: 140px;
-}
+    .table-modern {
+        margin: 0;
+    }
 
-.info-value {
-    color: #212529;
-    text-align: right;
-    flex: 1;
-}
+    .table-modern thead th {
+        background: #f8f9fa;
+        border: none;
+        padding: 1rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        border-bottom: 2px solid var(--border-color);
+    }
 
-.status-timeline {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
+    .table-modern tbody td {
+        padding: 1rem;
+        border: none;
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: middle;
+    }
 
-.timeline-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border-left: 4px solid #dee2e6;
-}
+    .table-modern tbody tr:hover {
+        background: rgba(7, 59, 29, 0.05);
+    }
 
-.timeline-item.completed {
-    border-left-color: #28a745;
-    background: rgba(40, 167, 69, 0.1);
-}
+    /* Status Badges */
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
 
-.timeline-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1rem;
-}
+    .status-pending {
+        background: linear-gradient(135deg, #ffc107, #ffb300);
+        color: #000;
+    }
 
-.timeline-content h6 {
-    margin: 0;
-    font-weight: 600;
-    color: #495057;
-}
+    .status-noted {
+        background: linear-gradient(135deg, #17a2b8, #138496);
+        color: white;
+    }
 
-.timeline-content p {
-    margin: 0;
-    font-size: 0.9rem;
-    color: #6c757d;
-}
+    .status-checked {
+        background: linear-gradient(135deg, #6f42c1, #5a32a3);
+        color: white;
+    }
 
-.bg-info { background: #17a2b8; }
-.bg-purple { background: #6f42c1; }
-.bg-warning { background: #ffc107; color: #000; }
-.bg-success { background: #28a745; }
-.bg-primary { background: #007bff; }
+    .status-verified {
+        background: linear-gradient(135deg, #fd7e14, #e55a00);
+        color: white;
+    }
+
+    .status-approved {
+        background: linear-gradient(135deg, #20c997, #1a9f7a);
+        color: white;
+    }
+
+    .status-issued {
+        background: linear-gradient(135deg, #28a745, #1e7e34);
+        color: white;
+    }
+
+    /* Action Buttons */
+    .btn-action {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border: none;
+        transition: all 0.3s ease;
+        margin: 0.25rem;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-primary-modern {
+        background: linear-gradient(135deg, var(--secondary-color), #e55a00);
+        color: white;
+    }
+
+    .btn-success-modern {
+        background: linear-gradient(135deg, #28a745, #1e7e34);
+        color: white;
+    }
+
+    .btn-info-modern {
+        background: linear-gradient(135deg, #17a2b8, #138496);
+        color: white;
+    }
+
+    .btn-warning-modern {
+        background: linear-gradient(135deg, #ffc107, #ffb300);
+        color: #000;
+    }
+
+    .btn-danger-modern {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+    }
+
+    /* Modal Styles */
+    .modal-modern .modal-header {
+        background: linear-gradient(135deg, var(--primary-color), #0d4a2a);
+        color: var(--text-light);
+        border-bottom: none;
+    }
+
+    .modal-modern .modal-title {
+        font-weight: 600;
+    }
+
+    .modal-modern .modal-body {
+        padding: 2rem;
+    }
+
+    .modal-modern .modal-footer {
+        border-top: none;
+        padding: 1rem 2rem 2rem;
+    }
+
+    /* Form Styles */
+    .form-control-modern {
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control-modern:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(7, 59, 29, 0.25);
+    }
+
+    .form-label-modern {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.show {
+            transform: translateX(0);
+        }
+
+        .main-content {
+            margin-left: 0;
+        }
+
+        .page-header {
+            padding: 1.5rem 1rem 1rem;
+        }
+
+        .content-section {
+            padding: 0 1rem 1rem;
+        }
+
+        .stats-container {
+            padding: 0 1rem 1rem;
+        }
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: #6c757d;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h5 {
+        margin-bottom: 1rem;
+        color: var(--text-dark);
+    }
+
+    .empty-state p {
+        margin-bottom: 2rem;
+        opacity: 0.7;
+    }
+
+    /* Additional styles for timeline and info cards */
+    .info-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        border-left: 4px solid #28a745;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-title {
+        color: #28a745;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .info-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .info-item:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #495057;
+        min-width: 140px;
+    }
+
+    .info-value {
+        color: #212529;
+        text-align: right;
+        flex: 1;
+    }
+
+    .status-timeline {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .timeline-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #dee2e6;
+    }
+
+    .timeline-item.completed {
+        border-left-color: #28a745;
+        background: rgba(40, 167, 69, 0.1);
+    }
+
+    .timeline-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1rem;
+    }
+
+    .timeline-content h6 {
+        margin: 0;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .timeline-content p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .bg-info {
+        background: #17a2b8;
+    }
+
+    .bg-purple {
+        background: #6f42c1;
+    }
+
+    .bg-warning {
+        background: #ffc107;
+        color: #000;
+    }
+
+    .bg-success {
+        background: #28a745;
+    }
+
+    .bg-primary {
+        background: #007bff;
+    }
 </style>
 
 <!-- Sidebar -->
@@ -568,13 +584,13 @@ body {
     <div class="sidebar-header">
         <div class="sidebar-brand">
             <i class="fas fa-cubes me-2"></i>
-            ASSET MANAGEMENT
+            DARTS
         </div>
         <div class="sidebar-user">
             Welcome, <?= htmlspecialchars($user_name) ?>
         </div>
     </div>
-    
+
     <nav class="sidebar-nav">
         <div class="nav-item">
             <a href="../dashboard.php" class="nav-link">
@@ -689,7 +705,7 @@ body {
                 Requests List
             </h2>
         </div>
-        
+
         <div class="table-container">
             <?php if ($total_requests > 0): ?>
                 <div class="table-responsive">
@@ -742,7 +758,7 @@ body {
                                         <?php
                                         $status = 'Pending';
                                         $statusClass = 'status-pending';
-                                        
+
                                         if (!empty($row['approved_by'])) {
                                             $status = 'Approved';
                                             $statusClass = 'status-approved';
@@ -766,35 +782,35 @@ body {
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <button class="btn btn-info-modern btn-action" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#viewRequestModal"
-                                                    data-request-id="<?= $row['request_id'] ?>"
-                                                    data-date="<?= htmlspecialchars($row['date_requested']) ?>"
-                                                    data-description="<?= htmlspecialchars($row['request_description']) ?>"
-                                                    data-quantity="<?= $row['quantity_requested'] ?>"
-                                                    data-unit="<?= htmlspecialchars($row['unit']) ?>"
-                                                    data-cost="<?= $row['total_cost'] ?>"
-                                                    data-department="<?= htmlspecialchars($row['department_unit']) ?>"
-                                                    data-purpose="<?= htmlspecialchars($row['purpose']) ?>"
-                                                    data-category="<?= htmlspecialchars($row['category']) ?>"
-                                                    data-noted="<?= htmlspecialchars($row['noted_by'] ?? '') ?>"
-                                                    data-checked="<?= htmlspecialchars($row['checked_by'] ?? '') ?>"
-                                                    data-verified="<?= htmlspecialchars($row['verified_by'] ?? '') ?>"
-                                                    data-approved="<?= htmlspecialchars($row['approved_by'] ?? '') ?>"
-                                                    data-issued="<?= htmlspecialchars($row['issued_by'] ?? '') ?>"
-                                                    data-noted-date="<?= htmlspecialchars($row['noted_date'] ?? '') ?>"
-                                                    data-checked-date="<?= htmlspecialchars($row['checked_date'] ?? '') ?>"
-                                                    data-verified-date="<?= htmlspecialchars($row['verified_date'] ?? '') ?>"
-                                                    data-issued-date="<?= htmlspecialchars($row['issued_date'] ?? '') ?>"
-                                                    data-approved-date="<?= htmlspecialchars($row['approved_date'] ?? '') ?>">
+                                            <button class="btn btn-info-modern btn-action"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#viewRequestModal"
+                                                data-request-id="<?= $row['request_id'] ?>"
+                                                data-date="<?= htmlspecialchars($row['date_requested']) ?>"
+                                                data-description="<?= htmlspecialchars($row['request_description']) ?>"
+                                                data-quantity="<?= $row['quantity_requested'] ?>"
+                                                data-unit="<?= htmlspecialchars($row['unit']) ?>"
+                                                data-cost="<?= $row['total_cost'] ?>"
+                                                data-department="<?= htmlspecialchars($row['department_unit']) ?>"
+                                                data-purpose="<?= htmlspecialchars($row['purpose']) ?>"
+                                                data-category="<?= htmlspecialchars($row['category']) ?>"
+                                                data-noted="<?= htmlspecialchars($row['noted_by'] ?? '') ?>"
+                                                data-checked="<?= htmlspecialchars($row['checked_by'] ?? '') ?>"
+                                                data-verified="<?= htmlspecialchars($row['verified_by'] ?? '') ?>"
+                                                data-approved="<?= htmlspecialchars($row['approved_by'] ?? '') ?>"
+                                                data-issued="<?= htmlspecialchars($row['issued_by'] ?? '') ?>"
+                                                data-noted-date="<?= htmlspecialchars($row['noted_date'] ?? '') ?>"
+                                                data-checked-date="<?= htmlspecialchars($row['checked_date'] ?? '') ?>"
+                                                data-verified-date="<?= htmlspecialchars($row['verified_date'] ?? '') ?>"
+                                                data-issued-date="<?= htmlspecialchars($row['issued_date'] ?? '') ?>"
+                                                data-approved-date="<?= htmlspecialchars($row['approved_date'] ?? '') ?>">
                                                 <i class="fas fa-eye me-1"></i>View
                                             </button>
-                                            <button class="btn btn-warning-modern btn-action" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#updateStatusModal"
-                                                    data-request-id="<?= $row['request_id'] ?>"
-                                                    data-current-status="<?= $status ?>">
+                                            <button class="btn btn-warning-modern btn-action"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#updateStatusModal"
+                                                data-request-id="<?= $row['request_id'] ?>"
+                                                data-current-status="<?= $status ?>">
                                                 <i class="fas fa-edit me-1"></i>Update Status
                                             </button>
                                         </div>
@@ -873,7 +889,7 @@ body {
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Status Timeline -->
                 <div class="info-card">
                     <h6 class="info-title"><i class="fas fa-tasks me-2"></i>Approval Status</h6>
@@ -948,7 +964,7 @@ body {
             <form id="updateStatusForm" action="../actions/update_issuance_status.php" method="POST">
                 <div class="modal-body">
                     <input type="hidden" name="request_id" id="updateRequestId">
-                    
+
                     <div class="mb-3">
                         <label for="statusAction" class="form-label-modern">Select Action:</label>
                         <select class="form-select form-control-modern" id="statusAction" name="status_action" required>
@@ -960,17 +976,17 @@ body {
                             <option value="issued">Mark as Issued</option>
                         </select>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="actionBy" class="form-label-modern">Action By:</label>
-                        <input type="text" class="form-control form-control-modern" id="actionBy" name="action_by" 
-                               value="<?= htmlspecialchars($user_name) ?>" required>
+                        <input type="text" class="form-control form-control-modern" id="actionBy" name="action_by"
+                            value="<?= htmlspecialchars($user_name) ?>" required>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="remarks" class="form-label-modern">Remarks (Optional):</label>
-                        <textarea class="form-control form-control-modern" id="remarks" name="remarks" rows="3" 
-                                  placeholder="Add any additional remarks..."></textarea>
+                        <textarea class="form-control form-control-modern" id="remarks" name="remarks" rows="3"
+                            placeholder="Add any additional remarks..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -990,95 +1006,98 @@ body {
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
-$(document).ready(function() {
-    // View Request Modal
-    $(document).on('click', '[data-bs-target="#viewRequestModal"]', function() {
-        const data = $(this).data();
-        
-        // Populate basic info
-        $('#viewDate').text(new Date(data.date).toLocaleDateString('en-US', {
-            year: 'numeric', month: 'long', day: 'numeric'
-        }));
-        $('#viewDepartment').text(data.department);
-        $('#viewPurpose').text(data.purpose);
-        $('#viewCategory').text(data.category);
-        $('#viewDescription').text(data.description);
-        $('#viewQuantity').text(data.quantity + ' ' + data.unit);
-        $('#viewCost').text('₱' + parseFloat(data.cost).toLocaleString(undefined, {
-            minimumFractionDigits: 2, maximumFractionDigits: 2
-        }));
-        
-        // Update timeline status
-        updateTimelineStatus('noted', data.noted, data.notedDate);
-        updateTimelineStatus('checked', data.checked, data.checkedDate);
-        updateTimelineStatus('verified', data.verified, data.verifiedDate);
-        updateTimelineStatus('approved', data.approved, data.approvedDate);
-        updateTimelineStatus('issued', data.issued, data.issuedDate);
-    });
-    
-    function updateTimelineStatus(type, user, date) {
-        const item = $(`#${type}Status`);
-        const info = $(`#${type}Info`);
-        
-        if (user && date) {
-            item.addClass('completed');
-            info.html(`<strong>${user}</strong><br><small>${new Date(date).toLocaleDateString()}</small>`);
-        } else {
-            item.removeClass('completed');
-            info.text('Pending');
+    $(document).ready(function() {
+        // View Request Modal
+        $(document).on('click', '[data-bs-target="#viewRequestModal"]', function() {
+            const data = $(this).data();
+
+            // Populate basic info
+            $('#viewDate').text(new Date(data.date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }));
+            $('#viewDepartment').text(data.department);
+            $('#viewPurpose').text(data.purpose);
+            $('#viewCategory').text(data.category);
+            $('#viewDescription').text(data.description);
+            $('#viewQuantity').text(data.quantity + ' ' + data.unit);
+            $('#viewCost').text('₱' + parseFloat(data.cost).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }));
+
+            // Update timeline status
+            updateTimelineStatus('noted', data.noted, data.notedDate);
+            updateTimelineStatus('checked', data.checked, data.checkedDate);
+            updateTimelineStatus('verified', data.verified, data.verifiedDate);
+            updateTimelineStatus('approved', data.approved, data.approvedDate);
+            updateTimelineStatus('issued', data.issued, data.issuedDate);
+        });
+
+        function updateTimelineStatus(type, user, date) {
+            const item = $(`#${type}Status`);
+            const info = $(`#${type}Info`);
+
+            if (user && date) {
+                item.addClass('completed');
+                info.html(`<strong>${user}</strong><br><small>${new Date(date).toLocaleDateString()}</small>`);
+            } else {
+                item.removeClass('completed');
+                info.text('Pending');
+            }
         }
-    }
-    
-    // Update Status Modal
-    $(document).on('click', '[data-bs-target="#updateStatusModal"]', function() {
-        const requestId = $(this).data('request-id');
-        const currentStatus = $(this).data('current-status');
-        
-        $('#updateRequestId').val(requestId);
-        
-        // Disable options based on current status
-        const statusOrder = ['Pending', 'Noted', 'Checked', 'Verified', 'Approved','Issued' ];
-        const currentIndex = statusOrder.indexOf(currentStatus);
-        
-        $('#statusAction option').prop('disabled', false);
-        for (let i = 0; i <= currentIndex; i++) {
-            $(`#statusAction option[value="${statusOrder[i].toLowerCase()}"]`).prop('disabled', true);
-        }
-    });
-    
-    // Form submission
-    $('#updateStatusForm').on('submit', function(e) {
-        e.preventDefault();
-        
-        const submitBtn = $('#updateStatusBtn');
-        const originalText = submitBtn.html();
-        
-        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Updating...');
-        
-        $.ajax({
-            url: $(this).attr('action'),
-            type: 'POST',
-            data: $(this).serialize(),
-            dataType: 'json',
-            success: function(response) {
-                submitBtn.prop('disabled', false).html(originalText);
-                
-                if (response.success) {
-                    $('#updateStatusModal').modal('hide');
-                    alert('Status updated successfully!');
-                    location.reload();
-                } else {
-                    alert('Error: ' + response.message);
-                }
-            },
-            error: function(xhr, status, error) {
-                submitBtn.prop('disabled', false).html(originalText);
-                console.log('AJAX Error:', xhr.responseText);
-                alert('An error occurred while updating the status. Please try again.');
+
+        // Update Status Modal
+        $(document).on('click', '[data-bs-target="#updateStatusModal"]', function() {
+            const requestId = $(this).data('request-id');
+            const currentStatus = $(this).data('current-status');
+
+            $('#updateRequestId').val(requestId);
+
+            // Disable options based on current status
+            const statusOrder = ['Pending', 'Noted', 'Checked', 'Verified', 'Approved', 'Issued'];
+            const currentIndex = statusOrder.indexOf(currentStatus);
+
+            $('#statusAction option').prop('disabled', false);
+            for (let i = 0; i <= currentIndex; i++) {
+                $(`#statusAction option[value="${statusOrder[i].toLowerCase()}"]`).prop('disabled', true);
             }
         });
+
+        // Form submission
+        $('#updateStatusForm').on('submit', function(e) {
+            e.preventDefault();
+
+            const submitBtn = $('#updateStatusBtn');
+            const originalText = submitBtn.html();
+
+            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Updating...');
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function(response) {
+                    submitBtn.prop('disabled', false).html(originalText);
+
+                    if (response.success) {
+                        $('#updateStatusModal').modal('hide');
+                        alert('Status updated successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    submitBtn.prop('disabled', false).html(originalText);
+                    console.log('AJAX Error:', xhr.responseText);
+                    alert('An error occurred while updating the status. Please try again.');
+                }
+            });
+        });
     });
-});
 </script>
 
 <!-- Sidebar -->
@@ -1092,7 +1111,7 @@ $(document).ready(function() {
             Welcome, <?= htmlspecialchars($user_name) ?>
         </div>
     </div>
-    
+
     <nav class="sidebar-nav">
         <div class="nav-item">
             <a href="../dashboard.php" class="nav-link">
@@ -1200,7 +1219,7 @@ $(document).ready(function() {
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Status Timeline -->
                 <div class="info-card">
                     <h6 class="info-title"><i class="fas fa-tasks me-2"></i>Approval Status</h6>
@@ -1275,7 +1294,7 @@ $(document).ready(function() {
             <form id="updateStatusForm" action="../actions/update_issuance_status.php" method="POST">
                 <div class="modal-body">
                     <input type="hidden" name="request_id" id="updateRequestId">
-                    
+
                     <div class="mb-3">
                         <label for="statusAction" class="form-label-modern">Select Action:</label>
                         <select class="form-select form-control-modern" id="statusAction" name="status_action" required>
@@ -1287,17 +1306,17 @@ $(document).ready(function() {
                             <option value="approved">Mark as Approved</option>
                         </select>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="actionBy" class="form-label-modern">Action By:</label>
-                        <input type="text" class="form-control form-control-modern" id="actionBy" name="action_by" 
-                               value="<?= htmlspecialchars($user_name) ?>" required>
+                        <input type="text" class="form-control form-control-modern" id="actionBy" name="action_by"
+                            value="<?= htmlspecialchars($user_name) ?>" required>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="remarks" class="form-label-modern">Remarks (Optional):</label>
-                        <textarea class="form-control form-control-modern" id="remarks" name="remarks" rows="3" 
-                                  placeholder="Add any additional remarks..."></textarea>
+                        <textarea class="form-control form-control-modern" id="remarks" name="remarks" rows="3"
+                            placeholder="Add any additional remarks..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -1317,95 +1336,98 @@ $(document).ready(function() {
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
-$(document).ready(function() {
-    // View Request Modal
-    $(document).on('click', '[data-bs-target="#viewRequestModal"]', function() {
-        const data = $(this).data();
-        
-        // Populate basic info
-        $('#viewDate').text(new Date(data.date).toLocaleDateString('en-US', {
-            year: 'numeric', month: 'long', day: 'numeric'
-        }));
-        $('#viewDepartment').text(data.department);
-        $('#viewPurpose').text(data.purpose);
-        $('#viewCategory').text(data.category);
-        $('#viewDescription').text(data.description);
-        $('#viewQuantity').text(data.quantity + ' ' + data.unit);
-        $('#viewCost').text('₱' + parseFloat(data.cost).toLocaleString(undefined, {
-            minimumFractionDigits: 2, maximumFractionDigits: 2
-        }));
-        
-        // Update timeline status
-        updateTimelineStatus('noted', data.noted, data.notedDate);
-        updateTimelineStatus('checked', data.checked, data.checkedDate);
-        updateTimelineStatus('verified', data.verified, data.verifiedDate);
-        updateTimelineStatus('issued', data.issued, data.issuedDate);
-        updateTimelineStatus('approved', data.approved, data.approvedDate);
-    });
-    
-    function updateTimelineStatus(type, user, date) {
-        const item = $(`#${type}Status`);
-        const info = $(`#${type}Info`);
-        
-        if (user && date) {
-            item.addClass('completed');
-            info.html(`<strong>${user}</strong><br><small>${new Date(date).toLocaleDateString()}</small>`);
-        } else {
-            item.removeClass('completed');
-            info.text('Pending');
+    $(document).ready(function() {
+        // View Request Modal
+        $(document).on('click', '[data-bs-target="#viewRequestModal"]', function() {
+            const data = $(this).data();
+
+            // Populate basic info
+            $('#viewDate').text(new Date(data.date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }));
+            $('#viewDepartment').text(data.department);
+            $('#viewPurpose').text(data.purpose);
+            $('#viewCategory').text(data.category);
+            $('#viewDescription').text(data.description);
+            $('#viewQuantity').text(data.quantity + ' ' + data.unit);
+            $('#viewCost').text('₱' + parseFloat(data.cost).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }));
+
+            // Update timeline status
+            updateTimelineStatus('noted', data.noted, data.notedDate);
+            updateTimelineStatus('checked', data.checked, data.checkedDate);
+            updateTimelineStatus('verified', data.verified, data.verifiedDate);
+            updateTimelineStatus('issued', data.issued, data.issuedDate);
+            updateTimelineStatus('approved', data.approved, data.approvedDate);
+        });
+
+        function updateTimelineStatus(type, user, date) {
+            const item = $(`#${type}Status`);
+            const info = $(`#${type}Info`);
+
+            if (user && date) {
+                item.addClass('completed');
+                info.html(`<strong>${user}</strong><br><small>${new Date(date).toLocaleDateString()}</small>`);
+            } else {
+                item.removeClass('completed');
+                info.text('Pending');
+            }
         }
-    }
-    
-    // Update Status Modal
-    $(document).on('click', '[data-bs-target="#updateStatusModal"]', function() {
-        const requestId = $(this).data('request-id');
-        const currentStatus = $(this).data('current-status');
-        
-        $('#updateRequestId').val(requestId);
-        
-        // Disable options based on current status
-        const statusOrder = ['Pending', 'Noted', 'Checked', 'Verified','Approved', 'Issued' ];
-        const currentIndex = statusOrder.indexOf(currentStatus);
-        
-        $('#statusAction option').prop('disabled', false);
-        for (let i = 0; i <= currentIndex; i++) {
-            $(`#statusAction option[value="${statusOrder[i].toLowerCase()}"]`).prop('disabled', true);
-        }
-    });
-    
-    // Form submission
-    $('#updateStatusForm').on('submit', function(e) {
-        e.preventDefault();
-        
-        const submitBtn = $('#updateStatusBtn');
-        const originalText = submitBtn.html();
-        
-        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Updating...');
-        
-        $.ajax({
-            url: $(this).attr('action'),
-            type: 'POST',
-            data: $(this).serialize(),
-            dataType: 'json',
-            success: function(response) {
-                submitBtn.prop('disabled', false).html(originalText);
-                
-                if (response.success) {
-                    $('#updateStatusModal').modal('hide');
-                    alert('Status updated successfully!');
-                    location.reload();
-                } else {
-                    alert('Error: ' + response.message);
-                }
-            },
-            error: function(xhr, status, error) {
-                submitBtn.prop('disabled', false).html(originalText);
-                console.log('AJAX Error:', xhr.responseText);
-                alert('An error occurred while updating the status. Please try again.');
+
+        // Update Status Modal
+        $(document).on('click', '[data-bs-target="#updateStatusModal"]', function() {
+            const requestId = $(this).data('request-id');
+            const currentStatus = $(this).data('current-status');
+
+            $('#updateRequestId').val(requestId);
+
+            // Disable options based on current status
+            const statusOrder = ['Pending', 'Noted', 'Checked', 'Verified', 'Approved', 'Issued'];
+            const currentIndex = statusOrder.indexOf(currentStatus);
+
+            $('#statusAction option').prop('disabled', false);
+            for (let i = 0; i <= currentIndex; i++) {
+                $(`#statusAction option[value="${statusOrder[i].toLowerCase()}"]`).prop('disabled', true);
             }
         });
+
+        // Form submission
+        $('#updateStatusForm').on('submit', function(e) {
+            e.preventDefault();
+
+            const submitBtn = $('#updateStatusBtn');
+            const originalText = submitBtn.html();
+
+            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Updating...');
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function(response) {
+                    submitBtn.prop('disabled', false).html(originalText);
+
+                    if (response.success) {
+                        $('#updateStatusModal').modal('hide');
+                        alert('Status updated successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    submitBtn.prop('disabled', false).html(originalText);
+                    console.log('AJAX Error:', xhr.responseText);
+                    alert('An error occurred while updating the status. Please try again.');
+                }
+            });
+        });
     });
-});
 </script>
 
 <?php include '../includes/footer.php'; ?>

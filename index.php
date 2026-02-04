@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'includes/db.php';
+include_once('includes/db.php');
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

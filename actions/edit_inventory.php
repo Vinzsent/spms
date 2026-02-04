@@ -4,7 +4,7 @@ include '../includes/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     $_SESSION['error'] = 'Invalid request method.';
-    header('Location: ../pages/inventory.php');
+    header('Location: ../pages/Inventory.php');
     exit();
 }
 
@@ -27,7 +27,7 @@ $location      = trim($_POST['location'] ?? '');
 // Basic validation
 if ($inventory_id <= 0 || $item_name === '' || $category === '' || $unit === '' || $current_stock < 0 || $reorder_level < 0) {
     $_SESSION['error'] = 'Please fill in all required fields with valid values.';
-    header('Location: ../pages/inventory.php');
+    header('Location: ../pages/Inventory.php');
     exit();
 }
 
@@ -42,13 +42,13 @@ if ($fetch_stmt = $conn->prepare($fetch_sql)) {
         $prev_stock = (int)$row['current_stock'];
     } else {
         $_SESSION['error'] = 'Inventory item not found.';
-        header('Location: ../pages/inventory.php');
+        header('Location: ../pages/Inventory.php');
         exit();
     }
     $fetch_stmt->close();
 } else {
     $_SESSION['error'] = 'Database error (prepare fetch).';
-    header('Location: ../pages/inventory.php');
+    header('Location: ../pages/Inventory.php');
     exit();
 }
 
@@ -60,7 +60,7 @@ $update_sql = "UPDATE inventory
 $stmt = $conn->prepare($update_sql);
 if (!$stmt) {
     $_SESSION['error'] = 'Database error (prepare update): ' . $conn->error;
-    header('Location: ../pages/inventory.php');
+    header('Location: ../pages/Inventory.php');
     exit();
 }
 
@@ -85,7 +85,7 @@ $stmt->bind_param(
 
 if (!$stmt->execute()) {
     $_SESSION['error'] = 'Error updating inventory item: ' . $stmt->error;
-    header('Location: ../pages/inventory.php');
+    header('Location: ../pages/Inventory.php');
     exit();
 }
 $stmt->close();
@@ -108,6 +108,6 @@ if ($prev_stock !== null && $prev_stock !== $current_stock) {
 }
 
 $_SESSION['message'] = "Inventory item '{$item_name}' has been updated successfully.";
-header('Location: ../pages/inventory.php');
+header('Location: ../pages/Inventory.php');
 exit();
 

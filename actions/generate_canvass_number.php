@@ -17,25 +17,24 @@ if (!$user_id) {
     exit;
 }
 
-function generateCanvassNumber($conn) {
+function generateCanvassNumber($conn)
+{
     try {
         $year = date('Y');
-        $query = "SELECT canvass_number FROM canvass WHERE canvass_number LIKE 'CV-$year-%' ORDER BY canvass_number DESC LIMIT 1";
+        $query = "SELECT canvass_id FROM canvass ORDER BY canvass_id DESC LIMIT 1";
         $result = $conn->query($query);
-        
+
         if ($result && $result->num_rows > 0) {
-            $lastCanvass = $result->fetch_assoc()['canvass_number'];
-            $lastNumber = intval(substr($lastCanvass, -3));
-            $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+            $lastCanvassId = $result->fetch_assoc()['canvass_id'];
+            $newNumber = str_pad($lastCanvassId + 1, 3, '0', STR_PAD_LEFT);
         } else {
             $newNumber = '001';
         }
-        
+
         return [
-            'success' => true, 
+            'success' => true,
             'canvass_number' => "CV-$year-$newNumber"
         ];
-        
     } catch (Exception $e) {
         return ['success' => false, 'message' => $e->getMessage()];
     }
@@ -44,4 +43,3 @@ function generateCanvassNumber($conn) {
 // Process the generate request
 $result = generateCanvassNumber($conn);
 echo json_encode($result);
-?>
