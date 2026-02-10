@@ -5,8 +5,8 @@
     <div class="d-flex align-items-center me-3 position-relative">
       <img src="assets/images/user.png" onerror="this.src='/darts/assets/images/user.png'" alt="Profile" class="avatar rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
       <div class="d-none d-md-block text-white">
-        <div><?= htmlspecialchars($_SESSION['user']['first_name']); ?></div>
-        <span class="badge bg-light text-dark role-badge"><?= htmlspecialchars($_SESSION['user']['user_type']); ?></span>
+        <div><?= htmlspecialchars($_SESSION['name'] ?? $_SESSION['user']['name'] ?? $_SESSION['user']['username'] ?? 'Guest'); ?></div>
+        <span class="badge bg-light text-dark role-badge"><?= htmlspecialchars($_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? 'N/A'); ?></span>
       </div>
     </div>
 

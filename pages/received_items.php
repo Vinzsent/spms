@@ -1,4 +1,5 @@
 <?php
+
 $pageTitle = 'Received Items';
 include '../includes/auth.php';
 include '../includes/db.php';
