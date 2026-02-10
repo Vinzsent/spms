@@ -758,28 +758,42 @@ if ($categories_result && $categories_result->num_rows > 0) {
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <h3>DARTS</h3>
+            <a href="../dashboard.php" style="text-decoration: none; color: inherit;">
+                <h3>DARTS</h3>
+            </a>
             <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
         </div>
 
         <nav class="sidebar-nav">
-            <ul class="nav-item">
-                <li><a href="<?= $dashboard_link ?>" class="nav-link">
-                        <i class="fas fa-chart-line"></i> Dashboard
-                    </a></li>
-                <li><a href="issuance.php" class="nav-link">
-                        <i class="fas fa-hand-holding"></i> Issuance
-                    </a></li>
-                <li><a href="Inventory.php" class="nav-link active">
-                        <i class="fas fa-boxes"></i> Inventory
-                    </a></li>
-                <li><a href="notifications.php" class="nav-link">
-                        <i class="fas fa-bell"></i> Notifications
-                    </a></li>
-                <li><a href="../logout.php" class="nav-link logout">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a></li>
-            </ul>
+            <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                <ul class="nav-item">
+                    <li><a href="<?= $dashboard_link ?>" class="nav-link">
+                            <i class="fas fa-chart-line"></i> Dashboard
+                        </a></li>
+                    <li><a href="issuance.php" class="nav-link">
+                            <i class="fas fa-hand-holding"></i> Issuance
+                        </a></li>
+                    <li><a href="Inventory.php" class="nav-link active">
+                            <i class="fas fa-boxes"></i> Inventory
+                        </a></li>
+                    <li><a href="notifications.php" class="nav-link">
+                            <i class="fas fa-bell"></i> Notifications
+                        </a></li>
+                    <li><a href="../logout.php" class="nav-link logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a></li>
+                </ul>
+            <?php endif; ?>
+            <?php if (strtolower($user_type) == 'purchasing officer'): ?>
+                <ul class="nav-item">
+                    <li><a href="<?= $dashboard_link ?>" class="nav-link">
+                            <i class="fas fa-chart-line"></i> Dashboard
+                        </a></li>
+                    <li><a href="../logout.php" class="nav-link logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a></li>
+                </ul>
+            <?php endif; ?>
         </nav>
     </div>
 
@@ -788,6 +802,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
         <div class="content-header">
             <h1>Inventory Management</h1>
             <p>Track supplies, monitor stock levels, and manage inventory movements</p>
+            <?php if (strtolower($user_type) == 'purchasing officer' || strtolower($user_type) == 'admin'): ?>
+                <button class="btn" style="background-color: var(--accent-orange);" onclick="window.location.href='received_items.php'">Back to received page</button>
+            <?php endif; ?>
         </div>
 
         <!-- Low Stock Alerts -->
@@ -893,14 +910,18 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             <button type="button" class="btn btn-outline-light ms-2" onclick="clearInventoryFilters()" title="Clear filters">
                                 <i class="fas fa-times"></i> Clear
                             </button>
-                            <a href="../actions/export_inventory.php" class="btn btn-success ms-2" title="Export to Excel">
-                                <i class="fas fa-file-excel"></i> Export
-                            </a>
+                            <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                                <a href="../actions/export_inventory.php" class="btn btn-success ms-2" title="Export to Excel">
+                                    <i class="fas fa-file-excel"></i> Export
+                                </a>
+                            <?php endif; ?>
                         </div>
                     </div>
-                    <button title="Add Item" class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
-                        <i class="fas fa-plus"></i> Add Item
-                    </button>
+                    <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                        <button title="Add Item" class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                            <i class="fas fa-plus"></i> Add Item
+                        </button>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -1049,6 +1070,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 }
             </style>
 
+
             <!-- Inventory Table -->
             <div class="table-responsive">
                 <div id="inventoryTable">
@@ -1063,7 +1085,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <th>Size</th>
                                 <th>Last Updated</th>
                                 <th>Status</th>
-                                <th>Actions</th>
+                                <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                                    <th>Actions</th>
+                                <?php endif; ?>
                             </tr>
                         </thead>
                         <!-- ANCHOR: Inventory table body for AJAX updates -->
@@ -1093,20 +1117,22 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <?= ucfirst($stock_level) ?>
                                             </span>
                                         </td>
-                                        <td>
-                                            <div class="half-split btn btn-sm" title="Stock In / Out">
-                                                <span class="half plus" onclick="stockIn(<?= (int)$row['inventory_id'] ?>); event.stopPropagation();">
-                                                    <i class="fas fa-plus"></i>
-                                                </span>
-                                                <span class="half minus" onclick="stockOut(<?= (int)$row['inventory_id'] ?>); event.stopPropagation();">
-                                                    <i class="fas fa-minus"></i>
-                                                </span>
-                                            </div>
-                                            <button class="btn btn-sm btn-info" title="Edit"
-                                                onclick="editInventoryItem(<?= (int)$row['inventory_id'] ?>, null)">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                        </td>
+                                        <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                                            <td>
+                                                <div class="half-split btn btn-sm" title="Stock In / Out">
+                                                    <span class="half plus" onclick="stockIn(<?= (int)$row['inventory_id'] ?>); event.stopPropagation();">
+                                                        <i class="fas fa-plus"></i>
+                                                    </span>
+                                                    <span class="half minus" onclick="stockOut(<?= (int)$row['inventory_id'] ?>); event.stopPropagation();">
+                                                        <i class="fas fa-minus"></i>
+                                                    </span>
+                                                </div>
+                                                <button class="btn btn-sm btn-info" title="Edit"
+                                                    onclick="editInventoryItem(<?= (int)$row['inventory_id'] ?>, null)">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                            </td>
+                                        <?php endif; ?>
                                     </tr>
                                 <?php endwhile; ?>
                             <?php else: ?>
@@ -1124,26 +1150,28 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     </table>
                 </div>
 
-                <!-- ANCHOR: AJAX-based pagination for Inventory Items -->
-                <div id="inventory-pagination" class="mt-3">
-                    <?php if ($total_pages > 1): ?>
-                        <nav>
-                            <ul class="pagination justify-content-center" id="paginationContainer">
-                                <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
-                                    <a class="page-link" href="#" onclick="loadInventoryItems(<?= $page - 1 ?>, document.getElementById('search').value, document.getElementById('sy_inv').value); return false;">&laquo;</a>
-                                </li>
-                                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                    <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
-                                        <a class="page-link" href="#" onclick="loadInventoryItems(<?= $i ?>, document.getElementById('search').value, document.getElementById('sy_inv').value); return false;"><?= $i ?></a>
+                <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                    <!-- ANCHOR: AJAX-based pagination for Inventory Items -->
+                    <div id="inventory-pagination" class="mt-3">
+                        <?php if ($total_pages > 1): ?>
+                            <nav>
+                                <ul class="pagination justify-content-center" id="paginationContainer">
+                                    <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="#" onclick="loadInventoryItems(<?= $page - 1 ?>, document.getElementById('search').value, document.getElementById('sy_inv').value); return false;">&laquo;</a>
                                     </li>
-                                <?php endfor; ?>
-                                <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
-                                    <a class="page-link" href="#" onclick="loadInventoryItems(<?= $page + 1 ?>, document.getElementById('search').value, document.getElementById('sy_inv').value); return false;">&raquo;</a>
-                                </li>
-                            </ul>
-                        </nav>
-                    <?php endif; ?>
-                </div>
+                                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                                        <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                            <a class="page-link" href="#" onclick="loadInventoryItems(<?= $i ?>, document.getElementById('search').value, document.getElementById('sy_inv').value); return false;"><?= $i ?></a>
+                                        </li>
+                                    <?php endfor; ?>
+                                    <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="#" onclick="loadInventoryItems(<?= $page + 1 ?>, document.getElementById('search').value, document.getElementById('sy_inv').value); return false;">&raquo;</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
 
                 <!-- Stock Movement Logs -->
                 <div class="table-container" id="stock-movements">
@@ -1211,7 +1239,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <th>Previous Stock</th>
                                     <th>Remaining Stock</th>
                                     <th>Notes</th>
-                                    <th>Actions</th>
+                                    <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                                        <th>Actions</th>
+                                    <?php endif; ?>
                                 </tr>
                             </thead>
                             <!-- ANCHOR: Stock movements table body for AJAX updates -->
@@ -1230,11 +1260,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <td><?= $log['previous_stock'] ?></td>
                                             <td><?= $log['new_stock'] ?></td>
                                             <td><?= htmlspecialchars($log['notes']) ?></td>
-                                            <td>
-                                                <button title="Edit" class="btn btn-sm btn-info" onclick="editMovement(<?= $log['log_id'] ?>)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                            </td>
+                                            <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                                                <td>
+                                                    <button title="Edit" class="btn btn-sm btn-info" onclick="editMovement(<?= $log['log_id'] ?>)">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                </td>
+                                            <?php endif; ?>
 
                                         </tr>
                                     <?php endwhile; ?>
@@ -1250,58 +1282,60 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         </table>
                     </div>
 
-                    <!-- ANCHOR: AJAX-based pagination for Stock Movements -->
-                    <div id="stock-movements-pagination" class="mt-3">
-                        <?php if ($total_logs_pages > 1): ?>
-                            <nav>
-                                <ul class="pagination justify-content-center">
-                                    <li class="page-item <?= ($logs_page <= 1) ? 'disabled' : '' ?>">
-                                        <a class="page-link" href="#" onclick="loadStockMovements(<?= max(1, $logs_page - 1) ?>, document.getElementById('sy_logs').value, document.getElementById('item_search').value); return false;" aria-label="Previous">
-                                            <span aria-hidden="true">&laquo;</span>
-                                        </a>
-                                    </li>
-
-                                    <?php
-                                    // Smart pagination - show max 7 page numbers
-                                    $start_page = max(1, $logs_page - 3);
-                                    $end_page = min($total_logs_pages, $logs_page + 3);
-
-                                    if ($start_page > 1) {
-                                        echo '<li class="page-item"><a class="page-link" href="#" onclick="loadStockMovements(1, document.getElementById(\'sy_logs\').value, document.getElementById(\'item_search\').value); return false;">1</a></li>';
-                                        if ($start_page > 2) {
-                                            echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
-                                        }
-                                    }
-
-                                    for ($i = $start_page; $i <= $end_page; $i++):
-                                        $is_active = ($i === $logs_page);
-                                    ?>
-                                        <li class="page-item <?= $is_active ? 'active' : '' ?>">
-                                            <a class="page-link" href="#" onclick="loadStockMovements(<?= $i ?>, document.getElementById('sy_logs').value, document.getElementById('item_search').value); return false;"><?= $i ?></a>
+                    <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                        <!-- ANCHOR: AJAX-based pagination for Stock Movements -->
+                        <div id="stock-movements-pagination" class="mt-3">
+                            <?php if ($total_logs_pages > 1): ?>
+                                <nav>
+                                    <ul class="pagination justify-content-center">
+                                        <li class="page-item <?= ($logs_page <= 1) ? 'disabled' : '' ?>">
+                                            <a class="page-link" href="#" onclick="loadStockMovements(<?= max(1, $logs_page - 1) ?>, document.getElementById('sy_logs').value, document.getElementById('item_search').value); return false;" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
                                         </li>
-                                    <?php
-                                    endfor;
 
-                                    if ($end_page < $total_logs_pages) {
-                                        if ($end_page < $total_logs_pages - 1) {
-                                            echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                                        <?php
+                                        // Smart pagination - show max 7 page numbers
+                                        $start_page = max(1, $logs_page - 3);
+                                        $end_page = min($total_logs_pages, $logs_page + 3);
+
+                                        if ($start_page > 1) {
+                                            echo '<li class="page-item"><a class="page-link" href="#" onclick="loadStockMovements(1, document.getElementById(\'sy_logs\').value, document.getElementById(\'item_search\').value); return false;">1</a></li>';
+                                            if ($start_page > 2) {
+                                                echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                                            }
                                         }
-                                        echo '<li class="page-item"><a class="page-link" href="#" onclick="loadStockMovements(' . $total_logs_pages . ', document.getElementById(\'sy_logs\').value, document.getElementById(\'item_search\').value); return false;">' . $total_logs_pages . '</a></li>';
-                                    }
-                                    ?>
 
-                                    <li class="page-item <?= ($logs_page >= $total_logs_pages) ? 'disabled' : '' ?>">
-                                        <a class="page-link" href="#" onclick="loadStockMovements(<?= min($total_logs_pages, $logs_page + 1) ?>, document.getElementById('sy_logs').value, document.getElementById('item_search').value); return false;" aria-label="Next">
-                                            <span aria-hidden="true">&raquo;</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                                <div class="text-center text-muted small">
-                                    Showing page <strong><?= $logs_page ?></strong> of <strong><?= $total_logs_pages ?></strong> (<?= $total_logs ?> total movements)
-                                </div>
-                            </nav>
-                        <?php endif; ?>
-                    </div>
+                                        for ($i = $start_page; $i <= $end_page; $i++):
+                                            $is_active = ($i === $logs_page);
+                                        ?>
+                                            <li class="page-item <?= $is_active ? 'active' : '' ?>">
+                                                <a class="page-link" href="#" onclick="loadStockMovements(<?= $i ?>, document.getElementById('sy_logs').value, document.getElementById('item_search').value); return false;"><?= $i ?></a>
+                                            </li>
+                                        <?php
+                                        endfor;
+
+                                        if ($end_page < $total_logs_pages) {
+                                            if ($end_page < $total_logs_pages - 1) {
+                                                echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                                            }
+                                            echo '<li class="page-item"><a class="page-link" href="#" onclick="loadStockMovements(' . $total_logs_pages . ', document.getElementById(\'sy_logs\').value, document.getElementById(\'item_search\').value); return false;">' . $total_logs_pages . '</a></li>';
+                                        }
+                                        ?>
+
+                                        <li class="page-item <?= ($logs_page >= $total_logs_pages) ? 'disabled' : '' ?>">
+                                            <a class="page-link" href="#" onclick="loadStockMovements(<?= min($total_logs_pages, $logs_page + 1) ?>, document.getElementById('sy_logs').value, document.getElementById('item_search').value); return false;" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    <div class="text-center text-muted small">
+                                        Showing page <strong><?= $logs_page ?></strong> of <strong><?= $total_logs_pages ?></strong> (<?= $total_logs ?> total movements)
+                                    </div>
+                                </nav>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
 
@@ -2417,7 +2451,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 tableBody.innerHTML = data.table_rows;
 
                                 // Update pagination
-                                paginationContainer.innerHTML = data.pagination;
+                                if (paginationContainer) {
+                                    paginationContainer.innerHTML = data.pagination;
+                                }
 
                                 // Update URL without page reload (optional, for bookmarking)
                                 const url = new URL(window.location);
@@ -2438,14 +2474,14 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 // Handle error
                                 console.error('API returned error:', data.message);
                                 tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-2"></i><div>Error loading stock movements: ' + data.message + '</div></td></tr>';
-                                paginationContainer.innerHTML = '';
+                                if (paginationContainer) paginationContainer.innerHTML = '';
                             }
                         })
                         .catch(error => {
                             console.error('Fetch error:', error);
                             const errorMessage = error.message || 'Unknown error occurred';
-                            tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-2"></i><div>Error loading stock movements: ' + errorMessage + '</div><small class="text-muted">Check console for more details</small></td></tr>';
-                            paginationContainer.innerHTML = '';
+                            if (tableBody) tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-2"></i><div>Error loading stock movements: ' + errorMessage + '</div><small class="text-muted">Check console for more details</small></td></tr>';
+                            if (paginationContainer) paginationContainer.innerHTML = '';
                         });
                 }
 
@@ -2496,7 +2532,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 tableBody.innerHTML = data.table_rows;
 
                                 // Update pagination
-                                paginationContainer.innerHTML = data.pagination;
+                                if (paginationContainer) {
+                                    paginationContainer.innerHTML = data.pagination;
+                                }
 
                                 // Update URL without page reload (optional, for bookmarking)
                                 const url = new URL(window.location);
@@ -2852,21 +2890,24 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '<td>' . htmlspecialchars($row['size'] ?? '') . '</td>';
                     echo '<td>' . date('M d, Y', strtotime($row['date_updated'])) . '</td>';
                     echo '<td><span class="badge bg-' . ($stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success')) . '">' . ucfirst($stock_level) . '</span></td>';
-                    echo '<td>';
-                    echo '<div class="half-split btn btn-sm" title="Stock In / Out">
-                            <span class="half plus"  onclick="stockIn(' . (int)$row['inventory_id'] . '); event.stopPropagation();">
-                                <i class="fas fa-plus"></i>
-                            </span>
-                            <span class="half minus" onclick="stockOut(' . (int)$row['inventory_id'] . '); event.stopPropagation();">
-                                <i class="fas fa-minus"></i>
-                            </span>
-                        </div>';
+                    if (strtolower($user_type ?? '') != 'purchasing officer') {
+                        echo '<td>';
+                        echo '<div class="half-split btn btn-sm" title="Stock In / Out">
+                                <span class="half plus"  onclick="stockIn(' . (int)$row['inventory_id'] . '); event.stopPropagation();">
+                                    <i class="fas fa-plus"></i>
+                                </span>
+                                <span class="half minus" onclick="stockOut(' . (int)$row['inventory_id'] . '); event.stopPropagation();">
+                                    <i class="fas fa-minus"></i>
+                                </span>
+                            </div>';
 
-                    echo ' <button class="btn btn-sm btn-info" 
-                    title="Edit" 
-                    onclick="editInventoryItem(' . (int)$row['inventory_id'] . ', null)"><i class="fas fa-edit"></i></button>';
+                        echo ' <button class="btn btn-sm btn-info" 
+                        title="Edit" 
+                        onclick="editInventoryItem(' . (int)$row['inventory_id'] . ', null)"><i class="fas fa-edit"></i></button>';
 
-                    echo '</td></tr>';
+                        echo '</td>';
+                    }
+                    echo '</tr>';
                 }
             } else {
                 echo '<tr><td colspan="9" class="text-center py-4"><i class="fas fa-boxes fa-3x text-muted mb-3"></i><p class="text-muted">No inventory items found</p></td></tr>';

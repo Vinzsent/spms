@@ -1022,9 +1022,10 @@ $existing_pos_result = $conn->query($existing_pos_sql);
         const totalRow = tbody.lastElementChild; // Get the total row
         const rowCount = tbody.querySelectorAll('tr:not(:last-child)').length + 1;
 
-        // Build options for the dropdown
+        // Build options for the dropdown - extract unique descriptions from canvassItems
         let optionsHtml = '<option value="">Choose item from canvass list</option>';
-        uniqueItems.forEach(description => {
+        const uniqueDescriptions = [...new Set(canvassItems.map(item => item.description))];
+        uniqueDescriptions.forEach(description => {
             optionsHtml += `<option value="${description}">${description}</option>`;
         });
 

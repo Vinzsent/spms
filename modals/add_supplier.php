@@ -21,35 +21,31 @@
     <!-- Company Info -->
     <div class="tab-pane fade show active" id="company" role="tabpanel">
       <div class="row g-2">
-        <div class="col-md-8">
+        <div class="col-md-12">
           <label for="supplier-name" class="form-label">Supplier Name <span style="color: red">*</span></label>
           <input type="text" class="form-control" name="supplier_name" id="supplier-name" required>
         </div>
-        <div class="col-md-4">
-          <label for="tin" class="form-label">TIN <span style="color: red;">*</span></label>
-          <input type="text" class="form-control" name="tax_identification_number" id="tin">
-        </div>
-        <div class="col-md-8">
+        <div class="col-md-12">
           <label for="address" class="form-label">Full Address <span style="color: red;">*</span></label>
           <input type="text" class="form-control" name="address" id="address">
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
           <label for="province" class="form-label">Province <span style="color: red;">*</span></label>
           <select name="province" id="province" class="form-select" required>
             <option value="">-- Select Province --</option>
           </select>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
           <label for="city" class="form-label">City / Municipality <span style="color: red;">*</span></label>
           <select name="city" id="city" class="form-select" required>
             <option value="">-- Select City --</option>
           </select>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
           <label for="zip-code" class="form-label">ZIP Code <span style="color: red;">*</span></label>
           <input type="text" class="form-control" value="8000" name="zip_code" id="zip-code" readonly>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
           <label for="country" class="form-label">Country <span style="color: red;">*</span></label>
           <select name="country" id="country" class="form-select">
             <option value="">-- Select Country --</option>
@@ -62,9 +58,13 @@
     <!-- Contact Tab -->
     <div class="tab-pane fade" id="contact" role="tabpanel">
       <div class="row g-2">
-        <div class="col-md-8">
+        <div class="col-md-6">
           <label for="contact-person" class="form-label">Contact Person <span style="color: red;">*</span></label>
           <input type="text" class="form-control" name="contact_person" id="contact-person" required>
+        </div>
+        <div class="col-md-6">
+          <label for="landline-number" class="form-label">Landline Number <span style="color: red;">*</span></label>
+          <input type="text" class="form-control" name="landline_number" id="landline-number" required>
         </div>
         <div class="col-md-4">
           <label for="contact-number" class="form-label">Contact Number <span style="color: red;">*</span></label>
@@ -110,13 +110,22 @@
         </div>
         <div class="col-md-6">
           <label for="product-category" class="form-label">Category <span style="color: red;">*</span></label>
-          <select name="category" id="productcategory" class="form-select">
+          <select name="category" id="productcategory" class="form-select" required>
             <option value="">-- Select Category --</option>
           </select>
         </div>
         <div class="col-md-6">
           <label for="payment-terms" class="form-label">Payment Terms <span style="color: red;">*</span></label>
-          <input type="text" class="form-control" name="payment_terms" id="payment-terms">
+          <select name="payment_terms" id="payment-terms" class="form-select" required>
+            <option value="">-- Select Payment Terms --</option>
+            <option value="Cash">Cash</option>
+            <option value="Credit">Credit</option>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Debit Card">Debit Card</option>
+            <option value="PayPal">PayPal</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Other">Other</option>
+          </select>
         </div>
       </div>
     </div>
@@ -126,11 +135,11 @@
       <div class="row g-2">
         <div class="col-md-6">
           <label for="date-registered" class="form-label">Date Registered <span style="color: red;">*</span></label>
-          <input type="date" class="form-control" name="date_registered" id="date-registered">
+          <input type="date" class="form-control" name="date_registered" id="date-registered" required>
         </div>
         <div class="col-md-6">
           <label for="status" class="form-label">Status <span style="color: red;">*</span></label>
-          <select name="status" id="status" class="form-select">
+          <select name="status" id="status" class="form-select" required>
             <option value="">-- Status --</option>
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>

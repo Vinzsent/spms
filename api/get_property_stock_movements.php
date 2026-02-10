@@ -78,21 +78,23 @@ try {
             $table_rows .= '<td>' . $log['new_stock'] . '</td>';
             $table_rows .= '<td>' . htmlspecialchars($log['receiver'] ?? 'N/A') . '</td>';
             $table_rows .= '<td>' . htmlspecialchars($log['notes']) . '</td>';
-            $table_rows .= '<td>';
-            $table_rows .= '<button class="btn btn-sm btn-info" title="Edit" onclick=\'openEditStockMovementModal(';
-            $table_rows .= (int)$log['log_id'] . ', ';
-            $table_rows .= (int)$log['inventory_id'] . ', ';
-            $table_rows .= json_encode($log['item_name']) . ', ';
-            $table_rows .= json_encode($log['movement_type']) . ', ';
-            $table_rows .= (int)$log['quantity'] . ', ';
-            $table_rows .= (int)$log['previous_stock'] . ', ';
-            $table_rows .= (int)$log['new_stock'] . ', ';
-            $table_rows .= json_encode($log['receiver'] ?? '') . ', ';
-            $table_rows .= json_encode($log['notes'] ?? '');
-            $table_rows .= ')\'>';
-            $table_rows .= '<i class="fas fa-edit"></i>';
-            $table_rows .= '</button>';
-            $table_rows .= '</td>';
+            if (strtolower($_SESSION['user_type'] ?? '') != 'purchasing officer') {
+                $table_rows .= '<td>';
+                $table_rows .= '<button class="btn btn-sm btn-info" title="Edit" onclick=\'openEditStockMovementModal(';
+                $table_rows .= (int)$log['log_id'] . ', ';
+                $table_rows .= (int)$log['inventory_id'] . ', ';
+                $table_rows .= json_encode($log['item_name']) . ', ';
+                $table_rows .= json_encode($log['movement_type']) . ', ';
+                $table_rows .= (int)$log['quantity'] . ', ';
+                $table_rows .= (int)$log['previous_stock'] . ', ';
+                $table_rows .= (int)$log['new_stock'] . ', ';
+                $table_rows .= json_encode($log['receiver'] ?? '') . ', ';
+                $table_rows .= json_encode($log['notes'] ?? '');
+                $table_rows .= ')\'>';
+                $table_rows .= '<i class="fas fa-edit"></i>';
+                $table_rows .= '</button>';
+                $table_rows .= '</td>';
+            }
             $table_rows .= '</tr>';
         }
     } else {

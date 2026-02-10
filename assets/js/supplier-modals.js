@@ -112,35 +112,28 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  const businessTypeSelect = document.getElementById("edit-business-type");
-  const categorySelect = document.getElementById("edit-product-category");
 
-  if (businessTypeSelect && categorySelect) {
-    businessTypeSelect.addEventListener("change", function () {
-      populateCategoryOptions(this.value, "edit-product-category");
-    });
-  }
 
   // Delete Modal Functionality
   const deleteModal = document.getElementById('deleteModal');
-  
+
   if (deleteModal) {
     deleteModal.addEventListener('show.bs.modal', function (event) {
       const button = event.relatedTarget;
       const supplierId = button.getAttribute('data-supplier-id');
       const supplierName = button.getAttribute('data-supplier-name');
-      
+
       console.log('Delete modal opened for:', supplierName, 'ID:', supplierId);
-      
+
       // Set the values in the delete form
       const idField = document.getElementById('delete-supplier-id');
       const nameField = document.getElementById('delete-supplier-name');
       const displayField = document.getElementById('delete-supplier-name-display');
-      
+
       if (idField) idField.value = supplierId;
       if (nameField) nameField.value = supplierName;
       if (displayField) displayField.textContent = supplierName;
-      
+
       console.log('Form values set:', {
         id: idField ? idField.value : 'field not found',
         name: nameField ? nameField.value : 'field not found',

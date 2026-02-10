@@ -3,7 +3,7 @@
   <a class="navbar-brand" href="#">DARTS</a>
   <div class="ms-auto d-flex align-items-center">
     <div class="d-flex align-items-center me-3 position-relative">
-      <img src="/darts/assets/images/user.png" alt="Profile" class="avatar rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+      <img src="assets/images/user.png" onerror="this.src='/darts/assets/images/user.png'" alt="Profile" class="avatar rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
       <div class="d-none d-md-block text-white">
         <div><?= htmlspecialchars($_SESSION['user']['first_name']); ?></div>
         <span class="badge bg-light text-dark role-badge"><?= htmlspecialchars($_SESSION['user']['user_type']); ?></span>
@@ -27,13 +27,13 @@
           <!-- Notifications will be loaded here -->
         </div>
         <div class="notification-footer">
-          <a href="/spms/pages/notifications.php" class="text-decoration-none">View all Notifications</a>
+          <a href="pages/notifications.php" class="text-decoration-none">View all Notifications</a>
         </div>
       </div>
     </div>
 
     <button id="darkModeToggle" onclick="toggleDarkMode()" class="btn btn-outline-light me-2" aria-label="Toggle dark mode">🌙</button>
-    <a href="/darts/logout.php" class="btn btn-outline-light">🔓 Logout</a>
+    <a href="logout.php" class="btn btn-outline-light">🔓 Logout</a>
   </div>
 </nav>
 
@@ -343,7 +343,7 @@
       // Load notifications
       function loadNotifications() {
         $.ajax({
-          url: '/spms/actions/get_notifications.php',
+          url: 'actions/get_notifications.php',
           type: 'GET',
           dataType: 'json',
           success: function(response) {

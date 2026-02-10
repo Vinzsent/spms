@@ -306,7 +306,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     @media (max-width: 576px) {
       body {
-        background-attachment: scroll; /* Fix background on mobile */
+        background-attachment: scroll;
+        /* Fix background on mobile */
       }
 
       .login-container {
@@ -427,6 +428,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       color: #fff;
     }
 
+    .brand-badge img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
     .login-body {
       position: relative;
     }
@@ -501,7 +509,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     #time {
       font-size: 2em;
       font-weight: bold;
-      background: linear-gradient(135deg, #1a5f3c, #2d7a4d);;
+      background: linear-gradient(135deg, #1a5f3c, #2d7a4d);
+      ;
     }
   </style>
 </head>
@@ -520,7 +529,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="login-container">
     <div class="login-card">
       <div class="login-header">
-        <div class="brand-badge"><i class="fas fa-shield-alt"></i></div>
+        <div class="brand-badge"><img src="DCC2.png" alt="DCC Logo"></div>
         <h1><span class="visually-hidden">DCC-DARTS</span>DCC-DARTS</h1>
         <p>Digital Asset Repository and Tracking System</p>
 

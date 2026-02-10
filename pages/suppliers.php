@@ -325,7 +325,7 @@ if (!$result) {
             <button class="btn btn-secondary-modern btn-modern" onclick="window.history.back()">
               <i class="fas fa-arrow-left me-2"></i>Back
             </button>
-            <?php if (strtolower($user_type) === 'admin'): ?>
+            <?php if (in_array(strtolower($user_type), ['admin', 'purchasing officer'])): ?>
               <button class="btn btn-primary-modern btn-modern" data-bs-toggle="modal" data-bs-target="#addModal">
                 <i class="fas fa-plus me-2"></i>Add Supplier
               </button>
@@ -371,7 +371,7 @@ if (!$result) {
                 <th><i class="fas fa-user me-2"></i>Contact Person</th>
                 <th><i class="fas fa-phone me-2"></i>Contact No.</th>
                 <th><i class="fas fa-envelope me-2"></i>Email Address</th>
-                <?php if (strtolower($user_type) === 'admin'): ?>
+                <?php if (in_array(strtolower($user_type), ['admin', 'purchasing officer'])): ?>
                   <th><i class="fas fa-cogs me-2"></i>Actions</th>
                 <?php endif; ?>
               </tr>
@@ -384,7 +384,7 @@ if (!$result) {
                   <td><?= ucwords(strtolower($row['contact_person'])) ?></td>
                   <td><i class="fas fa-phone text-muted me-1"></i><?= htmlspecialchars($row['contact_number']) ?></td>
                   <td><i class="fas fa-envelope text-muted me-1"></i><?= htmlspecialchars($row['email_address']) ?></td>
-                  <?php if (strtolower($user_type) === 'admin'): ?>
+                  <?php if (in_array(strtolower($user_type), ['admin', 'purchasing officer'])): ?>
                     <td>
                       <button class="btn btn-warning-modern btn-action" data-bs-toggle="modal" data-bs-target="#editModal"
                         <?php foreach ($row as $key => $value): ?>

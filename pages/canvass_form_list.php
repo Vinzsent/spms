@@ -22,6 +22,7 @@ $canvass_query = "
     FROM canvass c
     LEFT JOIN user u ON c.created_by = u.id
     LEFT JOIN canvass_items ci ON c.canvass_id = ci.canvass_id
+    WHERE c.hide_canvass = '0'
     GROUP BY c.canvass_id
     ORDER BY c.created_at DESC
 ";

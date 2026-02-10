@@ -58,7 +58,7 @@ try {
     $stmt->execute();
 
     // Delete the canvass record
-    $delete_canvass_query = "DELETE FROM canvass WHERE canvass_id = ?";
+    $delete_canvass_query = "UPDATE canvass SET hide_canvass = '1' WHERE canvass_id = ?";
     $stmt = $conn->prepare($delete_canvass_query);
     $stmt->bind_param("i", $canvass_id);
     $stmt->execute();

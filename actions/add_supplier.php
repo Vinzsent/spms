@@ -14,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $supplier_name            = trim($_POST['supplier_name'] ?? '');
         $contact_person           = trim($_POST['contact_person'] ?? '');
+        $landline_number          = trim($_POST['landline_number'] ?? '');
         $contact_number           = trim($_POST['contact_number'] ?? '');
         $business_type            = trim($_POST['business_type'] ?? '');
         $category                 = trim($_POST['category'] ?? '');
@@ -29,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $province                 = trim($_POST['province'] ?? '');
         $zip_code                 = trim($_POST['zip_code'] ?? '');
         $country                  = trim($_POST['country'] ?? '');
-        $tax_identification_number = trim($_POST['tax_identification_number'] ?? '');
+        $landline_number          = trim($_POST['landline_number'] ?? '');
 
         $created_by = $_SESSION['user']['id'] ?? null;
         $date_created = date('Y-m-d H:i:s');
@@ -45,9 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Prepare and execute SQL statement
         $stmt = $conn->prepare("
             INSERT INTO supplier (
-                supplier_name, contact_person, contact_number, email_address,
+                supplier_name, contact_person, landline_number, contact_number, email_address,
                 fax_number, website, address, city, province, zip_code, country,
-                business_type, category, payment_terms, tax_identification_number,
+                business_type, category, payment_terms,
                 date_registered, status, created_by, date_created, notes
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
@@ -57,11 +58,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $stmt->bind_param(
-            "ssssssssssssssssssss",
-            $supplier_name, $contact_person, $contact_number, $email_address,
-            $fax_number, $website, $address, $city, $province, $zip_code, $country,
-            $business_type, $category, $payment_terms, $tax_identification_number,
-            $date_registered, $status, $created_by, $date_created, $notes
+            "ssssssssssssssssssss", // 20 strings
+            $supplier_name,
+            $contact_person,
+            $landline_number,
+            $contact_number,
+            $email_address,
+            $fax_number,
+            $website,
+            $address,
+            $city,
+            $province,
+            $zip_code,
+            $country,
+            $business_type,
+            $category,
+            $payment_terms,
+            $date_registered,
+            $status,
+            $created_by,
+            $date_created,
+            $notes
         );
 
         if (!$stmt->execute()) {
@@ -71,30 +88,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         error_log('Supplier added successfully');
 
         $_SESSION['message'] = "Supplier added successfully";
-        
+
         // If AJAX request
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        if (
+            !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'
+        ) {
             echo json_encode(['status' => 'success']);
             exit;
         }
-        
+
         header("Location: ../pages/suppliers.php");
         exit;
-
     } catch (Exception $e) {
         $_SESSION['error'] = $e->getMessage();
-        
+
         // If AJAX request
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        if (
+            !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'
+        ) {
             http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
             exit;
         }
-        
+
         header("Location: ../pages/suppliers.php");
         exit;
     }
 }
-?>

@@ -3,8 +3,9 @@ $pageTitle = 'DARTS';
 include 'includes/auth.php';
 include 'includes/header.php';
 
-// Get user type from session
-$user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
+// Get user type from session and normalize it (remove spaces and hyphens, convert to lowercase)
+$raw_user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
+$user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
 ?>
 <?php include('./includes/navbar.php'); ?>
 
@@ -592,7 +593,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
   </div>
 
   <div class="menu-grid">
-    <?php if (strtolower($user_type) === 'faculty' || strtolower($user_type) === 'staff'): ?>
+    <?php if ($user_type === 'faculty' || $user_type === 'staff'): ?>
       <!-- Supply Requisition Card ONLY for Faculty -->
       <div class="menu-card">
         <div class="card-icon" style="background: linear-gradient(135deg, #28a745, #20c997);">
@@ -612,7 +613,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <button onclick="showPropertyRequestTypeModal()" class="card-button">Access</button>
       </div>
 
-    <?php elseif (strtolower($user_type) === 'immediate head' || strtolower($user_type) === 'immediate head - cje' || strtolower($user_type) === 'immediate head - cbm' || strtolower($user_type) === 'immediate head - ite' || strtolower($user_type) === 'immediate head - hme'): ?>
+    <?php elseif ($user_type === 'immediatehead' || strpos($user_type, 'immediatehead') === 0): ?>
       <!-- Supply Requisition Card ONLY for Immediate Head -->
       <!-- Assignment Card -->
       <div class="menu-card card-primary">
@@ -633,7 +634,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <a href="pages/budget.php" class="card-button">Access</a>
       </div>
 
-    <?php elseif (strtolower($user_type) === 'accounting officer'): ?>
+    <?php elseif ($user_type === 'accountingofficer'): ?>
       <!-- Asset Registration Card ONLY for Accounting Officer -->
       <!-- Asset Registration Card -->
       <div class="menu-card card-dark">
@@ -655,7 +656,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <a href="pages/procurement.php" class="card-button">Access</a>
       </div>
 
-    <?php elseif (strtolower($user_type) === 'school president'): ?>
+    <?php elseif ($user_type === 'schoolpresident'): ?>
       <!-- Supply Requisition Card ONLY for School President -->
       <!-- Assignment Card -->
       <div class="menu-card card-primary">
@@ -667,7 +668,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <a href="pages/issuance.php" class="card-button">Access</a>
       </div>
 
-    <?php elseif (strtolower($user_type) === 'vp for finance & administration'): ?>
+    <?php elseif ($user_type === 'vpforfinanceadministration' || $user_type === 'vpforfinance&administration'): ?>
       <!-- Supply Requisition Card ONLY for School President -->
       <!-- Assignment Card -->
       <div class="menu-card card-primary">
@@ -679,7 +680,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <a href="pages/issuance.php" class="card-button">Access</a>
       </div>
 
-    <?php elseif (strtolower($user_type) === 'purchasing officer'): ?>
+    <?php elseif ($user_type === 'purchasingofficer'): ?>
       <!-- Supply Requisition Card ONLY for School President -->
 
       <!-- Assignment Card -->
@@ -690,6 +691,16 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <h3 class="card-title">Assignment & Issuance</h3>
         <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
         <a href="pages/issuance.php" class="card-button">Access</a>
+      </div>
+
+      <!-- Received Items Card -->
+      <div class="menu-card card-primary">
+        <div class="card-icon">
+          <i class="fas fa-box-open"></i>
+        </div>
+        <h3 class="card-title">Received Items</h3>
+        <p class="card-description">Record and track new supplier transactions. Manage incoming inventory and update stock levels.</p>
+        <a href="pages/received_items.php" class="card-button">Access</a>
       </div>
 
       <!-- Procurement Card -->
@@ -702,7 +713,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <a href="pages/procurement.php" class="card-button">Access</a>
       </div>
 
-    <?php elseif (strtolower($user_type) === 'property custodian'): ?>
+    <?php elseif ($user_type === 'propertycustodian'): ?>
       <!-- Supply Requisition Card ONLY for School President -->
 
       <!-- Assignment Card -->
@@ -715,6 +726,16 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <a href="pages/property_issuance.php" class="card-button">Access</a>
       </div>
 
+      <!-- Received Items Card -->
+      <div class="menu-card card-primary">
+        <div class="card-icon">
+          <i class="fas fa-box-open"></i>
+        </div>
+        <h3 class="card-title">Received Items</h3>
+        <p class="card-description">Record and track new supplier transactions. Manage incoming inventory and update stock levels.</p>
+        <a href="pages/received_items.php" class="card-button">Access</a>
+      </div>
+
       <!-- Inventory Card -->
       <div class="menu-card card-info">
         <div class="card-icon">
@@ -725,7 +746,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <a href="pages/property_inventory.php" class="card-button">Access</a>
       </div>
 
-    <?php elseif (strtolower($user_type) === 'supply in-charge'): ?>
+    <?php elseif ($user_type === 'supplyincharge'): ?>
       <!-- Supply Requisition Card ONLY for School President -->
 
       <!-- Assignment Card -->
@@ -737,6 +758,17 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
         <a href="pages/issuance.php" class="card-button">Access</a>
       </div>
+
+      <!-- Received Items Card -->
+      <div class="menu-card card-primary">
+        <div class="card-icon">
+          <i class="fas fa-box-open"></i>
+        </div>
+        <h3 class="card-title">Received Items</h3>
+        <p class="card-description">Record and track new supplier transactions. Manage incoming inventory and update stock levels.</p>
+        <a href="pages/received_items.php" class="card-button">Access</a>
+      </div>
+
       <!-- Inventory Card -->
       <div class="menu-card card-info">
         <div class="card-icon">
@@ -805,7 +837,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
         <h3 class="card-title">Received Items</h3>
         <p class="card-description">Record and track new supplier transactions. Manage incoming inventory and update stock levels.</p>
-        <a href="pages/transaction_list.php" class="card-button">Access</a>
+        <a href="pages/received_items.php" class="card-button">Access</a>
       </div>
       <!-- Inventory Card -->
       <div class="menu-card card-info">
