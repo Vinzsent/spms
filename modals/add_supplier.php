@@ -63,11 +63,11 @@
           <input type="text" class="form-control" name="contact_person" id="contact-person" required>
         </div>
         <div class="col-md-6">
-          <label for="landline-number" class="form-label">Landline Number <span style="color: red;">*</span></label>
-          <input type="text" class="form-control" name="landline_number" id="landline-number" required>
+          <label for="landline-number" class="form-label">Telephone No.</label>
+          <input type="text" class="form-control" name="landline_number" id="landline-number">
         </div>
         <div class="col-md-4">
-          <label for="contact-number" class="form-label">Contact Number <span style="color: red;">*</span></label>
+          <label for="contact-number" class="form-label">Mobile No.</label>
           <input type="text" class="form-control" name="contact_number" id="contact-number">
         </div>
         <div class="col-md-4">

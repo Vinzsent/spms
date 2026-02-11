@@ -219,6 +219,18 @@ if (!$result) {
       color: white;
     }
 
+    .btn-info-modern {
+      background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+      color: white;
+      box-shadow: 0 2px 10px rgba(14, 165, 233, 0.3);
+    }
+
+    .btn-info-modern:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(14, 165, 233, 0.5);
+      color: white;
+    }
+
     .alert-modern {
       border-radius: 12px;
       border: none;
@@ -366,10 +378,10 @@ if (!$result) {
           <table class="table table-modern">
             <thead>
               <tr>
-                <th><i class="fas fa-hashtag me-2"></i>ID</th>
                 <th><i class="fas fa-building me-2"></i>Supplier Name</th>
                 <th><i class="fas fa-user me-2"></i>Contact Person</th>
-                <th><i class="fas fa-phone me-2"></i>Contact No.</th>
+                <th><i class="fas fa-phone me-2"></i>Mobile No.</th>
+                <th><i class="fas fa-phone me-2"></i>Telephone No.</th>
                 <th><i class="fas fa-envelope me-2"></i>Email Address</th>
                 <?php if (in_array(strtolower($user_type), ['admin', 'purchasing officer'])): ?>
                   <th><i class="fas fa-cogs me-2"></i>Actions</th>
@@ -379,13 +391,19 @@ if (!$result) {
             <tbody>
               <?php while ($row = $result->fetch_assoc()): ?>
                 <tr>
-                  <td><span class="badge bg-primary rounded-pill"><?= htmlspecialchars($row['supplier_id']) ?></span></td>
                   <td><strong><?= ucwords(strtoupper($row['supplier_name'])) ?></strong></td>
                   <td><?= ucwords(strtolower($row['contact_person'])) ?></td>
                   <td><i class="fas fa-phone text-muted me-1"></i><?= htmlspecialchars($row['contact_number']) ?></td>
+                  <td><i class="fas fa-phone text-muted me-1"></i><?= htmlspecialchars($row['landline_number']) ?></td>
                   <td><i class="fas fa-envelope text-muted me-1"></i><?= htmlspecialchars($row['email_address']) ?></td>
                   <?php if (in_array(strtolower($user_type), ['admin', 'purchasing officer'])): ?>
                     <td>
+                      <button class="btn btn-info-modern btn-action" data-bs-toggle="modal" data-bs-target="#viewModal"
+                        <?php foreach ($row as $key => $value): ?>
+                        data-<?= htmlspecialchars(str_replace('_', '-', $key)) ?>="<?= htmlspecialchars($value) ?>"
+                        <?php endforeach; ?>>
+                        <i class="fas fa-eye me-1"></i>View
+                      </button>
                       <button class="btn btn-warning-modern btn-action" data-bs-toggle="modal" data-bs-target="#editModal"
                         <?php foreach ($row as $key => $value): ?>
                         data-<?= htmlspecialchars(str_replace('_', '-', $key)) ?>="<?= htmlspecialchars($value) ?>"
@@ -420,6 +438,25 @@ if (!$result) {
         </div>
         <div class="modal-body">
           <?php include '../modals/add_supplier.php'; ?>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade modal-modern" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-info">
+          <h5 class="modal-title" id="viewModalLabel">
+            <i class="fas fa-eye me-2"></i>View Supplier Details
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <?php include '../modals/view_supplier.php'; ?>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary-modern btn-modern" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
@@ -462,7 +499,7 @@ if (!$result) {
     </div>
   </div>
 
-  <script src="../assets/js/supplier-modals.js"></script>
+  <script src="../assets/js/supplier-modals.js?v=<?= time() ?>"></script>
   <script src="../assets/js/category-mapping.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>

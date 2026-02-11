@@ -21,13 +21,9 @@
   <!-- Company Info Tab -->
   <div class="tab-pane fade show active" id="edit-company" role="tabpanel" aria-labelledby="edit-company-tab">
     <div class="row g-2">
-      <div class="col-md-8">
+      <div class="col-md-12">
         <label for="edit-supplier-name" class="form-label">Supplier Name</label>
         <input type="text" class="form-control" name="supplier_name" id="edit-supplier-name" required>
-      </div>
-      <div class="col-md-4">
-        <label for="edit-tin" class="form-label">TIN</label>
-        <input type="text" class="form-control" name="tax_identification_number" id="edit-tin">
       </div>
     </div>
 
@@ -58,7 +54,7 @@
           <option value="">-- Select Country --</option>
           <option value="Philippines" selected>Philippines</option>
         </select>
-        
+
       </div>
     </div>
   </div>
@@ -66,13 +62,17 @@
   <!-- Contact Tab -->
   <div class="tab-pane fade" id="edit-contact" role="tabpanel" aria-labelledby="edit-contact-tab">
     <div class="row g-2">
-      <div class="col-md-8">
+      <div class="col-md-12">
         <label for="edit-contact-person" class="form-label">Contact Person</label>
         <input type="text" class="form-control" name="contact_person" id="edit-contact-person" required>
       </div>
-      <div class="col-md-4">
-        <label for="edit-contact-number" class="form-label">Contact Number</label>
+      <div class="col-md-6">
+        <label for="edit-contact-number" class="form-label">Mobile No.</label>
         <input type="text" class="form-control" name="contact_number" id="edit-contact-number">
+      </div>
+      <div class="col-md-6">
+        <label for="edit-landline-number" class="form-label">Telephone No.</label>
+        <input type="text" class="form-control" name="landline_number" id="edit-landline-number">
       </div>
       <div class="col-md-4">
         <label for="edit-email-address" class="form-label">Email Address</label>

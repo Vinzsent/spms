@@ -1,8 +1,14 @@
 <?php
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 $pageTitle = 'Canvass List';
 include '../includes/auth.php';
 include '../includes/db.php';
 include '../includes/header.php';
+
+
 
 $user_type = $_SESSION['user_type'] ?? '';
 
@@ -10,6 +16,7 @@ $user_type = $_SESSION['user_type'] ?? '';
 $canvass_query = "
     SELECT 
         c.canvass_id,
+        c.hide_canvass,
         c.canvass_date,
         c.total_amount,
         c.status,

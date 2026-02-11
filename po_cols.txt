@@ -1,1 +1,0 @@
-po_id, po_number, po_date, supplier_name, supplier_address, payment_method, payment_details, cash_amount, subtotal, total_amount, status, prepared_by, checked_by, approved_by, prepared_date, checked_date, approved_date, notes, created_by, created_at, received_by, received_date, updated_at
