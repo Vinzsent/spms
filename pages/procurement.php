@@ -430,31 +430,36 @@ if (isset($_SESSION['error'])) {
     }
 
     /* Optimized Column Widths for Monitor Fit */
-    .table td:nth-child(1), /* Date */
+    .table td:nth-child(1),
+    /* Date */
     .table th:nth-child(1) {
         width: 8%;
         min-width: 90px;
     }
 
-    .table td:nth-child(2), /* Invoice */
+    .table td:nth-child(2),
+    /* Invoice */
     .table th:nth-child(2) {
         width: 8%;
         min-width: 80px;
     }
 
-    .table td:nth-child(3), /* Supplier */
+    .table td:nth-child(3),
+    /* Supplier */
     .table th:nth-child(3) {
         width: 12%;
         min-width: 100px;
     }
 
-    .table td:nth-child(4), /* Sales Type */
+    .table td:nth-child(4),
+    /* Sales Type */
     .table th:nth-child(4) {
         width: 7%;
         min-width: 70px;
     }
 
-    .table td:nth-child(5), /* Category */
+    .table td:nth-child(5),
+    /* Category */
     .table th:nth-child(5) {
         width: 15%;
         min-width: 120px;
@@ -462,7 +467,8 @@ if (isset($_SESSION['error'])) {
         word-wrap: break-word;
     }
 
-    .table td:nth-child(6), /* Item Name */
+    .table td:nth-child(6),
+    /* Item Name */
     .table th:nth-child(6) {
         width: 18%;
         min-width: 140px;
@@ -470,35 +476,40 @@ if (isset($_SESSION['error'])) {
         word-wrap: break-word;
     }
 
-    .table td:nth-child(7), /* Quantity */
+    .table td:nth-child(7),
+    /* Quantity */
     .table th:nth-child(7) {
         width: 8%;
         min-width: 70px;
         text-align: center;
     }
 
-    .table td:nth-child(8), /* Unit Price */
+    .table td:nth-child(8),
+    /* Unit Price */
     .table th:nth-child(8) {
         width: 8%;
         min-width: 80px;
         text-align: right;
     }
 
-    .table td:nth-child(9), /* Amount */
+    .table td:nth-child(9),
+    /* Amount */
     .table th:nth-child(9) {
         width: 9%;
         min-width: 90px;
         text-align: right;
     }
 
-    .table td:nth-child(10), /* Status */
+    .table td:nth-child(10),
+    /* Status */
     .table th:nth-child(10) {
         width: 7%;
         min-width: 70px;
         text-align: center;
     }
 
-    .table td:nth-child(11), /* Action */
+    .table td:nth-child(11),
+    /* Action */
     .table th:nth-child(11) {
         width: 10%;
         min-width: 120px;
@@ -524,7 +535,7 @@ if (isset($_SESSION['error'])) {
         .table {
             font-size: 0.8rem;
         }
-        
+
         .table thead th,
         .table tbody td {
             padding: 10px 6px;
@@ -535,12 +546,12 @@ if (isset($_SESSION['error'])) {
         .table {
             font-size: 0.75rem;
         }
-        
+
         .table thead th,
         .table tbody td {
             padding: 8px 4px;
         }
-        
+
         .btn-sm {
             padding: 0.2rem 0.4rem;
             font-size: 0.7rem;
@@ -1022,6 +1033,7 @@ if (isset($_SESSION['error'])) {
         background-color: var(--primary-green);
         transform: translateY(-3px);
     }
+
     .cancel_purchase:hover {
         background-color: var(--primary-green);
         transform: translateY(-3px);
@@ -1040,15 +1052,15 @@ if (isset($_SESSION['error'])) {
             <li><a href="../dashboard.php" class="nav-link">
                     <i class="fas fa-chart-line"></i> Dashboard
                 </a></li>
-                <li><a href="suppliers.php" class="nav-link">
+            <li><a href="suppliers.php" class="nav-link">
                     <i class="fas fa-users"></i> Supplier List
                 </a></li>
-                <li><a href="procurement_statistics.php" class="nav-link">
-                        <i class="fas fa-chart-line"></i> Procurement Statistics
-                    </a></li>
-                <li><a href="procurement.php" class="nav-link active">
-                        <i class="fas fa-shopping-cart"></i> Procurement Tables
-                    </a></li>
+            <li><a href="procurement_statistics.php" class="nav-link">
+                    <i class="fas fa-chart-line"></i> Procurement Statistics
+                </a></li>
+            <li><a href="procurement.php" class="nav-link active">
+                    <i class="fas fa-shopping-cart"></i> Procurement Tables
+                </a></li>
             <li><a href="canvas_form.php" class="nav-link">
                     <i class="fas fa-clipboard-list"></i> Canvass Form
                 </a></li>
@@ -1091,6 +1103,7 @@ if (isset($_SESSION['error'])) {
             </div>
             <div class="stat-number"><?= $suppliers_result->num_rows ?></div>
             <div class="stat-label">Active Suppliers</div>
+            <a href="suppliers.php" class="btn btn-outline-success btn-sm w-100 mt-3">View Suppliers</a>
         </div>
 
         <div class="stat-card">
@@ -1099,6 +1112,7 @@ if (isset($_SESSION['error'])) {
             </div>
             <div class="stat-number"><?= $result->num_rows ?></div>
             <div class="stat-label">Total Purchases</div>
+            <a href="purchase_order_list.php" class="btn btn-outline-success btn-sm w-100 mt-3">View Purchases</a>
         </div>
 
         <!--<div class="stat-card pending">
@@ -1122,6 +1136,7 @@ if (isset($_SESSION['error'])) {
                 ?>
             </div>
             <div class="stat-label">Total Requests</div>
+            <a href="supply_request.php" class="btn btn-outline-success btn-sm w-100 mt-3">View Requests</a>
         </div>
 
 
@@ -1138,6 +1153,7 @@ if (isset($_SESSION['error'])) {
                 ?>
             </div>
             <div class="stat-label">Approved Request<?php echo $approved_count != 1 ? 's' : ''; ?></div>
+            <a href="issuance_approved.php" class="btn btn-outline-success btn-sm w-100 mt-3">View Approved</a>
         </div>
     </div>
 
@@ -1207,7 +1223,7 @@ if (isset($_SESSION['error'])) {
                                     <?php
                                     $status = $row['status'];
                                     $badgeClass = '';
-                                    switch(strtolower($status)) {
+                                    switch (strtolower($status)) {
                                         case 'pending':
                                             $badgeClass = 'bg-warning';
                                             break;
@@ -1424,7 +1440,7 @@ if (isset($_SESSION['error'])) {
                             <label class="form-label">Date of Purchase <span class="text-danger">*</span></label>
                             <input type="date" name="date_purchase" class="form-control" required value="<?= date('Y-m-d') ?>">
                         </div>
-                        
+
                         <div class="col-md-4">
                             <label class="form-label">Item Name <span class="text-danger">*</span></label>
                             <input type="text" name="item_name" class="form-control" required>
@@ -1526,7 +1542,7 @@ if (isset($_SESSION['error'])) {
 
                         <div class="col-md-4">
                             <label class="form-label">Receiver <span class="text-danger">*</span></label>
-                            
+
                             <select name="receiver" class="form-select" required>
                                 <option value="">Select Receiver</option>
                                 <option value="Supply In-charge">Supply In-charge</option>
@@ -1585,7 +1601,7 @@ if (isset($_SESSION['error'])) {
                             <label class="form-label">Date of Purchase <span class="text-danger">*</span></label>
                             <input type="date" name="date_purchase" class="form-control" required value="<?= date('Y-m-d') ?>">
                         </div>
-                        
+
                         <div class="col-md-4">
                             <label class="form-label">Item Name <span class="text-danger">*</span></label>
                             <input type="text" name="item_name" class="form-control" required>
@@ -1870,7 +1886,7 @@ if (isset($_SESSION['error'])) {
             const button = $(this);
             const modal = $('#editProcurementModal');
             const form = modal.find('form');
-            
+
             // Populate form fields with data attributes
             form.find('input[name="date_purchase"]').val(button.data('date-purchase') || '');
             form.find('input[name="item_name"]').val(button.data('item-name') || '');
@@ -1885,16 +1901,16 @@ if (isset($_SESSION['error'])) {
             form.find('input[name="type"]').val(button.data('type') || '');
             form.find('select[name="receiver"]').val(button.data('receiver') || '');
             form.find('textarea[name="notes"]').val(button.data('notes') || '');
-            
+
             // Set the procurement ID in a hidden field if needed
             form.find('input[name="procurement_id"]').val(button.data('procurement-id') || '');
-            
+
             // Calculate and set total amount
             const quantity = parseFloat(button.data('quantity')) || 0;
             const unitPrice = parseFloat(button.data('unit-price')) || 0;
             const totalAmount = (quantity * unitPrice).toFixed(2);
             form.find('input[name="total_amount"]').val(totalAmount);
-            
+
             // Set the supplier in the dropdown
             form.find('select[name="supplier_id"]').val(button.data('supplier-id') || '');
 

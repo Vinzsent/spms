@@ -398,6 +398,7 @@ if (!$result) {
                   <td><i class="fas fa-envelope text-muted me-1"></i><?= htmlspecialchars($row['email_address']) ?></td>
                   <?php if (in_array(strtolower($user_type), ['admin', 'purchasing officer'])): ?>
                     <td>
+<<<<<<< HEAD
                       <button class="btn btn-info-modern btn-action btn-sm" data-bs-toggle="modal" data-bs-target="#viewModal" title="View Details"
                         <?php foreach ($row as $key => $value): ?>
                         data-<?= htmlspecialchars(str_replace('_', '-', $key)) ?>="<?= htmlspecialchars($value) ?>"
@@ -414,6 +415,24 @@ if (!$result) {
                         data-supplier-id="<?= htmlspecialchars($row['supplier_id']) ?>"
                         data-supplier-name="<?= htmlspecialchars($row['supplier_name']) ?>">
                         <i class="fas fa-trash"></i>
+=======
+                      <button class="btn btn-info-modern btn-action" data-bs-toggle="modal" data-bs-target="#viewModal"
+                        <?php foreach ($row as $key => $value): ?>
+                        data-<?= htmlspecialchars(str_replace('_', '-', $key)) ?>="<?= htmlspecialchars($value) ?>"
+                        <?php endforeach; ?>>
+                        <i class="fas fa-eye me-1"></i>View
+                      </button>
+                      <button class="btn btn-warning-modern btn-action" data-bs-toggle="modal" data-bs-target="#editModal"
+                        <?php foreach ($row as $key => $value): ?>
+                        data-<?= htmlspecialchars(str_replace('_', '-', $key)) ?>="<?= htmlspecialchars($value) ?>"
+                        <?php endforeach; ?>>
+                        <i class="fas fa-edit me-1"></i>Edit
+                      </button>
+                      <button class="btn btn-danger-modern btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                        data-supplier-id="<?= htmlspecialchars($row['supplier_id']) ?>"
+                        data-supplier-name="<?= htmlspecialchars($row['supplier_name']) ?>">
+                        <i class="fas fa-trash me-1"></i>Delete
+>>>>>>> 643aa5bfd5a5f0ab08178fec8898740e2aaf3d45
                       </button>
                     </td>
                   <?php endif; ?>
@@ -500,7 +519,11 @@ if (!$result) {
   </div>
 
   <script src="../assets/js/supplier-modals.js?v=<?= time() ?>"></script>
+<<<<<<< HEAD
   <script src="../assets/js/category-mapping.js?v=<?= time() ?>"></script>
+=======
+  <script src="../assets/js/category-mapping.js"></script>
+>>>>>>> 643aa5bfd5a5f0ab08178fec8898740e2aaf3d45
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {

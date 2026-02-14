@@ -13,24 +13,24 @@ $canvass_items = [];
 
 if ($edit_mode) {
     $canvass_id = intval($_GET['edit']);
-    
+
     // Fetch canvass data
     $canvass_query = "SELECT * FROM canvass WHERE canvass_id = ?";
     $stmt = $conn->prepare($canvass_query);
     $stmt->bind_param("i", $canvass_id);
     $stmt->execute();
     $canvass_result = $stmt->get_result();
-    
+
     if ($canvass_result->num_rows > 0) {
         $canvass_data = $canvass_result->fetch_assoc();
-        
+
         // Fetch canvass items
         $items_query = "SELECT * FROM canvass_items WHERE canvass_id = ? ORDER BY item_number ASC";
         $stmt = $conn->prepare($items_query);
         $stmt->bind_param("i", $canvass_id);
         $stmt->execute();
         $items_result = $stmt->get_result();
-        
+
         while ($item = $items_result->fetch_assoc()) {
             $canvass_items[] = $item;
         }
@@ -256,7 +256,9 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         background-color: rgba(7, 59, 29, 0.05);
     }
 
-    .canvass-table input, .canvass-table select, .canvass-table textarea {
+    .canvass-table input,
+    .canvass-table select,
+    .canvass-table textarea {
         border: none;
         background: transparent;
         width: 100%;
@@ -264,7 +266,9 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         padding: 5px;
     }
 
-    .canvass-table input:focus, .canvass-table select:focus, .canvass-table textarea:focus {
+    .canvass-table input:focus,
+    .canvass-table select:focus,
+    .canvass-table textarea:focus {
         outline: 1px solid var(--primary-green);
         background: white;
     }
@@ -401,6 +405,69 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             margin-top: 30px;
         }
     }
+
+    /* Searchable Dropdown Styles */
+    .supplier-dropdown-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .supplier-input {
+        width: 100%;
+        padding: 8px;
+        border: none !important;
+        background: transparent !important;
+        text-align: center !important;
+    }
+
+    .supplier-input:focus {
+        outline: 1px solid var(--primary-green) !important;
+        background: white !important;
+    }
+
+    .supplier-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        max-height: 200px;
+        overflow-y: auto;
+        background: white;
+        border: 1px solid #ddd;
+        z-index: 1001;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: left;
+        display: none;
+    }
+
+    .supplier-item {
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: background 0.2s;
+        color: var(--text-dark);
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .supplier-item:hover {
+        background: rgba(7, 59, 29, 0.1);
+    }
+
+    .add-supplier-item {
+        display: block;
+        padding: 12px;
+        background: var(--primary-green);
+        color: white !important;
+        text-decoration: none;
+        font-weight: 600;
+        text-align: center;
+        position: sticky;
+        bottom: 0;
+    }
+
+    .add-supplier-item:hover {
+        background: var(--dark-green);
+        color: var(--accent-orange) !important;
+    }
 </style>
 
 <!-- Sidebar -->
@@ -418,9 +485,9 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             <li><a href="suppliers.php" class="nav-link">
                     <i class="fas fa-users"></i> Supplier List
                 </a></li>
-                <li><a href="procurement.php" class="nav-link">
-                        <i class="fas fa-shopping-cart"></i> Procurement
-                    </a></li>
+            <li><a href="procurement.php" class="nav-link">
+                    <i class="fas fa-shopping-cart"></i> Procurement
+                </a></li>
             <li><a href="canvas_form.php" class="nav-link active">
                     <i class="fas fa-clipboard-list"></i> Canvass Form
                 </a></li>
@@ -479,7 +546,7 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             </tbody>
         </table>
 
-       
+
 
         <!-- Row Management Buttons -->
         <div class="row-management" style="margin: 20px 0; text-align: center;">
@@ -522,9 +589,9 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         const quantity = parseFloat(row.cells[2].querySelector('input').value) || 0;
         const unitCost = parseFloat(row.cells[3].querySelector('input').value) || 0;
         const totalCost = quantity * unitCost;
-        
+
         row.cells[4].textContent = '₱' + totalCost.toFixed(2);
-        
+
         calculateGrandTotal();
     }
 
@@ -532,14 +599,17 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
     function calculateGrandTotal() {
         const rows = document.querySelectorAll('#canvassTable tbody tr:not(:last-child)');
         let total = 0;
-        
+
         rows.forEach(row => {
             const totalText = row.cells[4].textContent.replace('₱', '').replace(',', '');
             const amount = parseFloat(totalText) || 0;
             total += amount;
         });
-        
-        document.getElementById('grandTotal').textContent = '₱' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+        document.getElementById('grandTotal').textContent = '₱' + total.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
     }
 
     // Clear form
@@ -547,23 +617,23 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         if (confirm('Are you sure you want to clear all data?')) {
             // Reset date to today
             document.getElementById('canvassDate').value = '<?= date('Y-m-d') ?>';
-            
+
             // Clear all selects
             const selects = document.querySelectorAll('#canvassTable select');
             selects.forEach(select => select.value = '');
-            
+
             // Clear all inputs
             const inputs = document.querySelectorAll('#canvassTable input');
             inputs.forEach(input => input.value = '');
-            
+
             // Clear all textareas
             const textareas = document.querySelectorAll('#canvassTable textarea');
             textareas.forEach(textarea => textarea.value = '');
-            
+
             // Reset total cells
             const totalCells = document.querySelectorAll('.total-cost-cell');
             totalCells.forEach(cell => cell.textContent = '₱0.00');
-            
+
             // Reset grand total
             document.getElementById('grandTotal').textContent = '₱0.00';
         }
@@ -582,7 +652,7 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             const description = row.cells[1]?.querySelector('textarea')?.value?.trim() || '';
             const qty = row.cells[2]?.querySelector('input')?.value?.trim() || '';
             const unit = row.cells[3]?.querySelector('input')?.value?.trim() || '';
-            const totalText = (row.cells[4]?.textContent || '').replace('₱','').replace(/,/g,'').trim();
+            const totalText = (row.cells[4]?.textContent || '').replace('₱', '').replace(/,/g, '').trim();
             const total = parseFloat(totalText) || 0;
 
             if (!supplier && !description && !qty && !unit && total === 0) {
@@ -610,11 +680,12 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         const items = [];
         const rows = document.querySelectorAll('#canvassTable tbody tr:not(:last-child)');
         rows.forEach((row, index) => {
-            const supplier = row.cells[0].querySelector('select').value;
+            const supplierInput = row.cells[0].querySelector('.supplier-input');
+            const supplier = supplierInput ? supplierInput.value : '';
             const description = row.cells[1].querySelector('textarea').value;
             const quantity = parseFloat(row.cells[2].querySelector('input').value) || 0;
             const unit_cost = parseFloat(row.cells[3].querySelector('input').value) || 0;
-            
+
             if (supplier && description && (quantity > 0 || unit_cost > 0)) {
                 items.push({
                     supplier: supplier,
@@ -624,59 +695,59 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
                 });
             }
         });
-        
+
         if (items.length === 0) {
             alert('Please add at least one item to the canvass');
             return;
         }
-        
+
         const canvassDate = document.getElementById('canvassDate').value;
-        
+
         // Show loading state
         const saveBtn = document.querySelector('.btn-primary');
         const originalText = saveBtn.innerHTML;
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         saveBtn.disabled = true;
-        
+
         // Save canvass data directly
         const data = {
             canvass_date: canvassDate,
             items: items
         };
-        
+
         <?php if ($edit_mode && $canvass_data): ?>
-        data.canvass_id = <?= $canvass_data['canvass_id'] ?>;
-        data.edit_mode = true;
+            data.canvass_id = <?= $canvass_data['canvass_id'] ?>;
+            data.edit_mode = true;
         <?php endif; ?>
-        
+
         fetch('../actions/save_canvass.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                <?php if ($edit_mode): ?>
-                alert('Canvass updated successfully!');
-                window.location.href = 'canvass_form_list.php';
-                <?php else: ?>
-                alert('Canvass saved successfully!\nCanvass ID: ' + result.canvass_id);
-                location.reload();
-                <?php endif; ?>
-            } else {
-                alert('Failed to save canvass: ' + result.message);
-            }
-        })
-        .catch(error => {
-            alert('Error saving canvass: ' + error.message);
-        })
-        .finally(() => {
-            saveBtn.innerHTML = originalText;
-            saveBtn.disabled = false;
-        });
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    <?php if ($edit_mode): ?>
+                        alert('Canvass updated successfully!');
+                        window.location.href = 'canvass_form_list.php';
+                    <?php else: ?>
+                        alert('Canvass saved successfully!\nCanvass ID: ' + result.canvass_id);
+                        location.reload();
+                    <?php endif; ?>
+                } else {
+                    alert('Failed to save canvass: ' + result.message);
+                }
+            })
+            .catch(error => {
+                alert('Error saving canvass: ' + error.message);
+            })
+            .finally(() => {
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
+            });
     }
 
     // Auto-resize textarea function
@@ -689,25 +760,33 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
     function addRow() {
         const tbody = document.getElementById('canvassTableBody');
         const grandTotalRow = tbody.lastElementChild; // Get the grand total row
-        
+
         const newRow = document.createElement('tr');
         newRow.innerHTML = `
             <td>
-                <select onchange="calculateRowTotal(this)">
-                    <option value="">Select Supplier</option>
-                    <?php foreach ($suppliers_array as $supplier): ?>
-                        <option value="<?= htmlspecialchars($supplier['supplier_name']) ?>">
-                            <?= htmlspecialchars($supplier['supplier_name']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+                <div class="supplier-dropdown-container">
+                    <input type="text" class="supplier-input" placeholder="Select Supplier" 
+                        onfocus="showSupplierDropdown(this)" 
+                        oninput="filterSuppliers(this)" 
+                        onblur="hideSupplierDropdown(this)">
+                    <div class="supplier-list">
+                        <?php foreach ($suppliers_array as $supplier): ?>
+                            <div class="supplier-item" onmousedown="selectSupplier(this, '<?= htmlspecialchars(addslashes($supplier['supplier_name'])) ?>')">
+                                <?= htmlspecialchars($supplier['supplier_name']) ?>
+                            </div>
+                        <?php endforeach; ?>
+                        <a href="suppliers.php?add=1" class="add-supplier-item" onmousedown="window.location.href='suppliers.php?add=1'">
+                            <i class="fas fa-plus"></i> Add New Supplier
+                        </a>
+                    </div>
+                </div>
             </td>
             <td><textarea placeholder="Enter item description" onchange="calculateRowTotal(this)" oninput="autoResize(this)" style="resize: none; overflow: hidden; min-height: 20px; width: 100%; border: none; background: transparent; text-align: left; padding: 5px;"></textarea></td>
             <td><input type="number" placeholder="0" onchange="calculateRowTotal(this)" min="0"></td>
             <td><input type="number" placeholder="0.00" onchange="calculateRowTotal(this)" min="0" step="0.01"></td>
             <td class="total-cost-cell">₱0.00</td>
         `;
-        
+
         // Insert before the grand total row
         tbody.insertBefore(newRow, grandTotalRow);
     }
@@ -716,61 +795,108 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
     function addRowWithData(supplier, description, quantity, unitCost) {
         const tbody = document.getElementById('canvassTableBody');
         const grandTotalRow = tbody.lastElementChild; // Get the grand total row
-        
+
         const newRow = document.createElement('tr');
         newRow.innerHTML = `
             <td>
-                <select onchange="calculateRowTotal(this)">
-                    <option value="">Select Supplier</option>
-                    <?php foreach ($suppliers_array as $supplier): ?>
-                        <option value="<?= htmlspecialchars($supplier['supplier_name']) ?>">
-                            <?= htmlspecialchars($supplier['supplier_name']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+                <div class="supplier-dropdown-container">
+                    <input type="text" class="supplier-input" placeholder="Select Supplier" 
+                        onfocus="showSupplierDropdown(this)" 
+                        oninput="filterSuppliers(this)" 
+                        onblur="hideSupplierDropdown(this)">
+                    <div class="supplier-list">
+                        <?php foreach ($suppliers_array as $supplier): ?>
+                            <div class="supplier-item" onmousedown="selectSupplier(this, '<?= htmlspecialchars(addslashes($supplier['supplier_name'])) ?>')">
+                                <?= htmlspecialchars($supplier['supplier_name']) ?>
+                            </div>
+                        <?php endforeach; ?>
+                        <a href="suppliers.php?add=1" class="add-supplier-item" onmousedown="window.location.href='suppliers.php?add=1'">
+                            <i class="fas fa-plus"></i> Add New Supplier
+                        </a>
+                    </div>
+                </div>
             </td>
             <td><textarea placeholder="Enter item description" onchange="calculateRowTotal(this)" oninput="autoResize(this)" style="resize: none; overflow: hidden; min-height: 20px; width: 100%; border: none; background: transparent; text-align: left; padding: 5px;"></textarea></td>
             <td><input type="number" placeholder="0" onchange="calculateRowTotal(this)" min="0"></td>
             <td><input type="number" placeholder="0.00" onchange="calculateRowTotal(this)" min="0" step="0.01"></td>
             <td class="total-cost-cell">₱0.00</td>
         `;
-        
+
         // Insert before the grand total row
         tbody.insertBefore(newRow, grandTotalRow);
-        
+
         // Populate the row with existing data
-        const select = newRow.cells[0].querySelector('select');
+        const supplierInput = newRow.querySelector('.supplier-input');
         const textarea = newRow.cells[1].querySelector('textarea');
         const quantityInput = newRow.cells[2].querySelector('input');
         const unitCostInput = newRow.cells[3].querySelector('input');
-        
-        select.value = supplier;
+
+        supplierInput.value = supplier;
         textarea.value = description;
         quantityInput.value = quantity;
         unitCostInput.value = unitCost;
-        
+
         // Calculate and display total
         const totalCost = quantity * unitCost;
         newRow.cells[4].textContent = '₱' + totalCost.toFixed(2);
-        
+
         // Auto-resize textarea
         autoResize(textarea);
-        
+
         // Recalculate grand total
         calculateGrandTotal();
     }
-    
+
+    // Searchable Dropdown Functions
+    function showSupplierDropdown(input) {
+        const list = input.nextElementSibling;
+        list.style.display = 'block';
+    }
+
+    function hideSupplierDropdown(input) {
+        const list = input.nextElementSibling;
+        // Use timeout to allow mousedown on items to fire first
+        setTimeout(() => {
+            list.style.display = 'none';
+        }, 200);
+    }
+
+    function filterSuppliers(input) {
+        const filter = input.value.toLowerCase();
+        const list = input.nextElementSibling;
+        const items = list.getElementsByClassName('supplier-item');
+
+        for (let i = 0; i < items.length; i++) {
+            const txtValue = items[i].textContent || items[i].innerText;
+            if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                items[i].style.display = "";
+            } else {
+                items[i].style.display = "none";
+            }
+        }
+    }
+
+    function selectSupplier(item, name) {
+        const container = item.closest('.supplier-dropdown-container');
+        const input = container.querySelector('.supplier-input');
+        input.value = name;
+        container.querySelector('.supplier-list').style.display = 'none';
+
+        // Trigger calculation
+        calculateRowTotal(input);
+    }
+
     // Remove last row from the table
     function removeLastRow() {
         const tbody = document.getElementById('canvassTableBody');
         const rows = tbody.querySelectorAll('tr:not(:last-child)'); // Exclude grand total row
-        
+
         if (rows.length > 0) {
             rows[rows.length - 1].remove();
             calculateGrandTotal();
         }
     }
-    
+
     // Initialize with one empty row or load existing data
     document.addEventListener('DOMContentLoaded', function() {
         <?php if ($edit_mode && !empty($canvass_items)): ?>
@@ -791,95 +917,119 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
 
 <style media="print">
     @page {
-        size: auto; /* Auto-size based on content */
-        margin: 0; /* No margins - use full paper size */
+        size: auto;
+        /* Auto-size based on content */
+        margin: 0;
+        /* No margins - use full paper size */
     }
-    
+
     body {
         font-family: Arial, sans-serif;
-        font-size: 9pt; /* slightly smaller overall text */
+        font-size: 9pt;
+        /* slightly smaller overall text */
         line-height: 1.2;
         margin: 0;
         padding: 0;
         background: white;
         color: black;
     }
-    
-    .sidebar, .action-buttons, .content-header, .no-print, .row-management .view-button {
+
+    .sidebar,
+    .action-buttons,
+    .content-header,
+    .no-print,
+    .row-management .view-button {
         display: none !important;
     }
 
-    .view-button{
+    .view-button {
         display: none !important;
     }
-    
+
     .canvass-container {
         width: 100%;
         margin: 0;
-        padding: 0.2cm; /* tighter container padding */
+        padding: 0.2cm;
+        /* tighter container padding */
         box-shadow: none;
-        border: 0.4px solid #bbb; /* thinner border */
+        border: 0.4px solid #bbb;
+        /* thinner border */
         page-break-after: avoid;
         page-break-inside: avoid;
     }
-    
+
     .canvass-header {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 0.2cm; /* reduce spacing */
+        margin-bottom: 0.2cm;
+        /* reduce spacing */
         padding-bottom: 0.1cm;
-        border-bottom: 0.5px solid #000; /* thinner divider */
+        border-bottom: 0.5px solid #000;
+        /* thinner divider */
     }
-    
+
     .canvass-title {
-        font-size: 11pt; /* smaller title for print */
+        font-size: 11pt;
+        /* smaller title for print */
         font-weight: bold;
         margin: 0;
     }
-    
+
     .canvass-info {
         text-align: right;
     }
-    
+
     .canvass-table {
         width: 100%;
         border-collapse: collapse;
-        table-layout: fixed; /* keep cells compact */
-        margin: 0.2cm 0; /* reduce vertical margin */
-        font-size: 7pt; /* more compact font size */
+        table-layout: fixed;
+        /* keep cells compact */
+        margin: 0.2cm 0;
+        /* reduce vertical margin */
+        font-size: 7pt;
+        /* more compact font size */
         page-break-inside: avoid;
     }
-    
-    .canvass-table th, 
+
+    .canvass-table th,
     .canvass-table td {
-        border: 0.3px solid #888; /* thinner cell borders */
-        padding: 0 1px; /* tighter cell padding */
+        border: 0.3px solid #888;
+        /* thinner cell borders */
+        padding: 0 1px;
+        /* tighter cell padding */
         text-align: left;
     }
 
     .canvass-table tr {
-        height: 10px !important;  /* reduce row height more */
+        height: 10px !important;
+        /* reduce row height more */
         line-height: 1 !important;
     }
-    
+
     .canvass-table th {
-        background-color: #fff; /* remove shading to look thinner */
+        background-color: #fff;
+        /* remove shading to look thinner */
         font-weight: 600;
         text-align: center;
-        padding: 1px 1px; /* thinner header cells */
-        font-size: 7pt; /* smaller header text */
+        padding: 1px 1px;
+        /* thinner header cells */
+        font-size: 7pt;
+        /* smaller header text */
     }
-    
+
     .canvass-table input,
     .canvass-table select,
     .canvass-table textarea {
         width: 100%;
         border: none;
         background: transparent;
-        font-size: 7.5pt; /* smaller form control text */
-        padding: 0 1px; /* minimal padding */
+        font-size: 7.5pt;
+        /* smaller form control text */
+        padding: 0 1px;
+        /* minimal padding */
         line-height: 1.05;
-        height: 12px; /* compress control height */
+        height: 12px;
+        /* compress control height */
     }
 
     /* Make selects visually thinner in print */
@@ -888,7 +1038,8 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         -moz-appearance: none;
         appearance: none;
         background-image: none !important;
-        height: 12px; /* align with row height */
+        height: 12px;
+        /* align with row height */
     }
 
     /* Make the grand total row minimal in print */
@@ -896,48 +1047,54 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         background: #fff !important;
         color: #000 !important;
     }
+
     .canvass-table tbody tr:last-child td {
         font-weight: 600;
         padding: 0 1px !important;
         border-top: 0.3px solid #000;
     }
-    
+
     .signature-section {
-        margin-top: 0.5cm; /* tighter space before signatures */
+        margin-top: 0.5cm;
+        /* tighter space before signatures */
         display: flex;
         justify-content: space-between;
     }
-    
+
     .signature-box {
         text-align: center;
         width: 48%;
     }
-    
+
     .signature-line {
-        border-top: none; /* Remove underline in print */
+        border-top: none;
+        /* Remove underline in print */
         margin: 0.3cm 0;
         padding-top: 0.3cm;
     }
-    
+
     .print-only {
         display: block !important;
     }
-    
+
     .main-content {
         margin-left: 0 !important;
     }
-    
+
     .canvass-container {
         box-shadow: none !important;
-        padding: 8px !important; /* more compact */
+        padding: 8px !important;
+        /* more compact */
     }
-    
+
     body {
         background: white !important;
     }
 
     /* Hide helper class applied before printing */
-    .print-hide { display: none !important; }
+    .print-hide {
+        display: none !important;
+    }
 </style>
 
 <?php include '../includes/footer.php'; ?>
