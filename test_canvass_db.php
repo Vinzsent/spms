@@ -20,13 +20,13 @@ foreach ($tables_to_check as $table) {
 if (!empty($missing_tables)) {
     echo "Missing tables: " . implode(', ', $missing_tables) . "\n";
     echo "Creating tables...\n";
-    
+
     // Read and execute the SQL file
     $sql_content = file_get_contents('db/canvass_tables.sql');
-    
+
     // Split by semicolon and execute each statement
     $statements = explode(';', $sql_content);
-    
+
     foreach ($statements as $statement) {
         $statement = trim($statement);
         if (!empty($statement)) {
@@ -61,16 +61,15 @@ $test_data = [
 // Simulate the save function
 try {
     $conn->begin_transaction();
-    
-    $canvass_number = $conn->real_escape_string($test_data['canvass_number']);
+
     $canvass_date = $conn->real_escape_string($test_data['canvass_date']);
-    
-    $sql = "INSERT INTO canvass (canvass_number, canvass_date, created_by) VALUES ('$canvass_number', '$canvass_date', 1)";
-    
+
+    $sql = "INSERT INTO canvass (canvass_date, created_by) VALUES ('$canvass_date', 1)";
+
     if ($conn->query($sql)) {
         $canvass_id = $conn->insert_id;
         echo "✓ Canvass created with ID: $canvass_id\n";
-        
+
         // Insert test item
         $item = $test_data['items'][0];
         $supplier_name = $conn->real_escape_string($item['supplier']);
@@ -78,9 +77,9 @@ try {
         $quantity = floatval($item['quantity']);
         $unit_cost = floatval($item['unit_cost']);
         $total_cost = $quantity * $unit_cost;
-        
+
         $item_sql = "INSERT INTO canvass_items (canvass_id, item_number, supplier_name, item_description, quantity, unit_cost, total_cost) VALUES ($canvass_id, 1, '$supplier_name', '$description', $quantity, $unit_cost, $total_cost)";
-        
+
         if ($conn->query($item_sql)) {
             echo "✓ Test item inserted successfully\n";
             $conn->commit();
@@ -91,11 +90,9 @@ try {
     } else {
         throw new Exception("Failed to insert canvass: " . $conn->error);
     }
-    
 } catch (Exception $e) {
     $conn->rollback();
     echo "✗ Test failed: " . $e->getMessage() . "\n";
 }
 
 $conn->close();
-?>

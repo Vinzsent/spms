@@ -4,7 +4,6 @@
 -- Main Canvass Table
 CREATE TABLE IF NOT EXISTS canvass (
     canvass_id INT AUTO_INCREMENT PRIMARY KEY,
-    canvass_number VARCHAR(50) UNIQUE NOT NULL,
     canvass_date DATE NOT NULL,
     total_amount DECIMAL(15,2) DEFAULT 0.00,
     status ENUM('Draft', 'Completed', 'Approved', 'Cancelled') DEFAULT 'Draft',
@@ -19,7 +18,6 @@ CREATE TABLE IF NOT EXISTS canvass (
     FOREIGN KEY (canvassed_by) REFERENCES user(id) ON DELETE SET NULL,
     
     -- Indexes for better performance
-    INDEX idx_canvass_number (canvass_number),
     INDEX idx_canvass_date (canvass_date),
     INDEX idx_status (status),
     INDEX idx_created_by (created_by)
@@ -70,10 +68,10 @@ CREATE TABLE IF NOT EXISTS canvass_status_history (
 );
 
 -- Insert sample data for testing
-INSERT INTO canvass (canvass_number, canvass_date, total_amount, created_by) 
+INSERT INTO canvass (canvass_date, total_amount, created_by) 
 VALUES 
-('CV-2025-001', '2025-01-04', 25000.00, 1),
-('CV-2025-002', '2025-01-04', 18500.00, 1);
+('2025-01-04', 25000.00, 1),
+('2025-01-04', 18500.00, 1);
 
 -- Insert sample items for the first canvass
 INSERT INTO canvass_items (canvass_id, item_number, supplier_name, item_description, quantity, unit_cost, total_cost)

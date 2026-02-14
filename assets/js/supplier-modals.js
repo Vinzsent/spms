@@ -19,9 +19,9 @@ document.addEventListener('DOMContentLoaded', function () {
     'zip-code': 'edit-zip-code',
     'country': 'edit-country',
     'business-type': 'edit-business-type',
-    'product-category': 'edit-product-category',
+    'category': 'edit-category',
     'payment-terms': 'edit-payment-terms',
-    'tax-identification-number': 'edit-tin',
+    'landline-number': 'edit-landline-number',
     'date-registered': 'edit-date-registered',
     'status': 'edit-status',
     'notes': 'edit-notes'
@@ -65,6 +65,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
   editModal.addEventListener('show.bs.modal', async function (event) {
     const button = event.relatedTarget;
+    if (!button) return;
+
+    // 1. Populate all static fields immediately from data attributes
+    console.log('Populating modal fields...');
+    for (const [dataAttr, inputId] of Object.entries(fieldMap)) {
+      if (["province", "city", "country"].includes(dataAttr)) continue;
+      const input = document.getElementById(inputId);
+      const value = button.getAttribute(`data-${dataAttr}`) || '';
+      if (input) {
+        input.value = value;
+        console.log(`Set ${inputId} to: "${value}"`);
+      }
+    }
+
+    // 2. Handle location data (Async)
     const provinceSelect = document.getElementById('edit-province');
     const citySelect = document.getElementById('edit-city');
     const countrySelect = document.getElementById('edit-country');
@@ -73,13 +88,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const selectedCity = button.getAttribute('data-city') || '';
     const selectedCountry = button.getAttribute('data-country') || 'Philippines';
 
-    await populateProvincesAndCities(provinceSelect, citySelect, selectedProvince, selectedCity);
-    populateCountry(countrySelect, selectedCountry);
-
-    for (const [dataAttr, inputId] of Object.entries(fieldMap)) {
-      if (["province", "city", "country"].includes(dataAttr)) continue;
-      const input = document.getElementById(inputId);
-      if (input) input.value = button.getAttribute(`data-${dataAttr}`) || '';
+    try {
+      if (provinceSelect && citySelect) {
+        await populateProvincesAndCities(provinceSelect, citySelect, selectedProvince, selectedCity);
+      }
+      if (countrySelect) {
+        populateCountry(countrySelect, selectedCountry);
+      }
+    } catch (err) {
+      console.error('Error populating location data:', err);
     }
   });
 
@@ -112,35 +129,73 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  const businessTypeSelect = document.getElementById("edit-business-type");
-  const categorySelect = document.getElementById("edit-product-category");
 
-  if (businessTypeSelect && categorySelect) {
-    businessTypeSelect.addEventListener("change", function () {
-      populateCategoryOptions(this.value, "edit-product-category");
+
+  // View Modal Functionality
+  const viewModal = document.getElementById('viewModal');
+  const viewFieldMap = {
+    'supplier-id': 'view-supplier-id',
+    'supplier-name': 'view-supplier-name',
+    'contact-person': 'view-contact-person',
+    'contact-number': 'view-contact-number',
+    'landline-number': 'view-landline-number',
+    'email-address': 'view-email-address',
+    'fax-number': 'view-fax-number',
+    'website': 'view-website',
+    'address': 'view-address',
+    'city': 'view-city',
+    'province': 'view-province',
+    'zip-code': 'view-zip-code',
+    'country': 'view-country',
+    'business-type': 'view-business-type',
+    'category': 'view-category',
+    'payment-terms': 'view-payment-terms',
+    'date-registered': 'view-date-registered',
+    'status': 'view-status',
+    'notes': 'view-notes'
+  };
+
+  if (viewModal) {
+    viewModal.addEventListener('show.bs.modal', function (event) {
+      const button = event.relatedTarget;
+      if (!button) return;
+
+      for (const [dataAttr, inputId] of Object.entries(viewFieldMap)) {
+        const element = document.getElementById(inputId);
+        const value = button.getAttribute(`data-${dataAttr}`) || '';
+        if (element) {
+          if (element.tagName === 'TEXTAREA') {
+            element.value = value;
+          } else if (element.tagName === 'INPUT') {
+            element.value = value;
+          } else {
+            element.textContent = value;
+          }
+        }
+      }
     });
   }
 
   // Delete Modal Functionality
   const deleteModal = document.getElementById('deleteModal');
-  
+
   if (deleteModal) {
     deleteModal.addEventListener('show.bs.modal', function (event) {
       const button = event.relatedTarget;
       const supplierId = button.getAttribute('data-supplier-id');
       const supplierName = button.getAttribute('data-supplier-name');
-      
+
       console.log('Delete modal opened for:', supplierName, 'ID:', supplierId);
-      
+
       // Set the values in the delete form
       const idField = document.getElementById('delete-supplier-id');
       const nameField = document.getElementById('delete-supplier-name');
       const displayField = document.getElementById('delete-supplier-name-display');
-      
+
       if (idField) idField.value = supplierId;
       if (nameField) nameField.value = supplierName;
       if (displayField) displayField.textContent = supplierName;
-      
+
       console.log('Form values set:', {
         id: idField ? idField.value : 'field not found',
         name: nameField ? nameField.value : 'field not found',

@@ -56,7 +56,7 @@ const categoryMap = {
 };
 
 // Function to populate category options based on business type
-function populateCategoryOptions(businessType, categorySelectId = 'productcategory', selectedCategory = '') {
+function populateCategoryOptions(businessType, categorySelectId = 'product-category', selectedCategory = '') {
   const categorySelect = document.getElementById(categorySelectId);
   if (!categorySelect) return;
 
@@ -80,22 +80,22 @@ function populateCategoryOptions(businessType, categorySelectId = 'productcatego
 document.addEventListener('DOMContentLoaded', () => {
   // Handle Add Supplier Modal
   const addBusinessTypeSelect = document.getElementById('business-type');
-  const addCategorySelect = document.getElementById('productcategory');
+  const addCategorySelect = document.getElementById('product-category');
   const addModal = document.getElementById('addModal');
   
   if (addBusinessTypeSelect && addCategorySelect) {
     // Add change event listener for Add modal
     addBusinessTypeSelect.addEventListener('change', function() {
-      populateCategoryOptions(this.value, 'productcategory');
+      populateCategoryOptions(this.value, 'product-category');
     });
     
     // Handle when Add modal is shown
     if (addModal) {
       addModal.addEventListener('show.bs.modal', function() {
         if (addBusinessTypeSelect.value) {
-          populateCategoryOptions(addBusinessTypeSelect.value, 'productcategory');
+          populateCategoryOptions(addBusinessTypeSelect.value, 'product-category');
         } else {
-          populateCategoryOptions('', 'productcategory');
+          populateCategoryOptions('', 'product-category');
         }
       });
     }

@@ -24,22 +24,23 @@ if (!$canvass_id) {
     exit;
 }
 
-function loadCanvass($canvass_id, $conn) {
+function loadCanvass($canvass_id, $conn)
+{
     try {
         // Get canvass data
         $canvass_sql = "SELECT * FROM canvass WHERE canvass_id = $canvass_id";
         $canvass_result = $conn->query($canvass_sql);
-        
+
         if (!$canvass_result || $canvass_result->num_rows === 0) {
             return ['success' => false, 'message' => 'Canvass not found'];
         }
-        
+
         $canvass_data = $canvass_result->fetch_assoc();
-        
+
         // Get items
         $items_sql = "SELECT * FROM canvass_items WHERE canvass_id = $canvass_id ORDER BY item_number";
         $items_result = $conn->query($items_sql);
-        
+
         $items = [];
         if ($items_result) {
             while ($item = $items_result->fetch_assoc()) {
@@ -53,17 +54,16 @@ function loadCanvass($canvass_id, $conn) {
                 ];
             }
         }
-        
+
         return [
             'success' => true,
-            'canvass_number' => $canvass_data['canvass_number'],
+            'canvass_id' => $canvass_data['canvass_id'],
             'canvass_date' => $canvass_data['canvass_date'],
             'total_amount' => $canvass_data['total_amount'],
             'status' => $canvass_data['status'],
             'notes' => $canvass_data['notes'],
             'items' => $items
         ];
-        
     } catch (Exception $e) {
         return ['success' => false, 'message' => $e->getMessage()];
     }
@@ -72,4 +72,3 @@ function loadCanvass($canvass_id, $conn) {
 // Process the load request
 $result = loadCanvass($canvass_id, $conn);
 echo json_encode($result);
-?>

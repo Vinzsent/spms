@@ -1,6 +1,6 @@
 <form action="../actions/edit_user.php" method="POST" class="edit-user-form">
   <input type="hidden" name="id" id="edit-id">
-  
+
   <!-- Personal Information Section -->
   <div class="form-section mb-4">
     <h6 class="section-title">
@@ -20,7 +20,7 @@
         <input class="form-control" name="suffix" id="edit-suffix" placeholder="Jr., Sr., III, etc.">
       </div>
     </div>
-    
+
     <div class="row g-3 mt-2">
       <div class="col-md-4">
         <label for="edit-firstname" class="form-label">
@@ -41,7 +41,7 @@
         <input class="form-control" name="last_name" id="edit-lastname" placeholder="Last Name" required>
       </div>
     </div>
-    
+
     <div class="row g-3 mt-2">
       <div class="col-md-6">
         <label for="edit-academictitle" class="form-label">
@@ -54,7 +54,7 @@
           <i class="fas fa-briefcase me-1"></i>Position <span class="text-danger">*</span>
         </label>
         <select class="form-select" name="user_type" id="edit-usertype" required>
-              <option value="">-- Select Position --</option>
+          <option value="">-- Select Position --</option>
           <option value="Admin">Administrator</option>
           <option value="Immediate Head">Immediate Head</option>
           <option value="Immediate Head - CELA">Immediate Head - CELA</option>
@@ -75,6 +75,7 @@
           <option value="Supply In-charge">Supply In-charge</option>
           <option value="Property Custodian">Property Custodian</option>
           <option value="Purchasing Officer">Purchasing Officer</option>
+          <option value="Purchasing Staff">Purchasing Staff</option>
           <option value="VP for Finance & Administration">VP for Finance & Administration</option>
           <option value="Finance Officer">Finance Officer</option>
           <option value="VP for Academic Affairs">VP for Academic Affairs</option>
@@ -98,7 +99,7 @@
         <input class="form-control" type="text" name="username" id="edit-username" placeholder="user@example.com" required>
       </div>
     </div>
-    
+
     <div class="row g-3 mt-2">
       <div class="col-md-12">
         <label for="edit-password" class="form-label">
@@ -122,8 +123,8 @@
 </form>
 
 <style>
-/* Color scheme variables */
-:root {
+  /* Color scheme variables */
+  :root {
     --primary-green: #1a5f3c;
     --secondary-green: #2d7a4d;
     --accent-orange: #fd7e14;
@@ -134,62 +135,64 @@
     --bg-light: #ffffff;
     --border-light: #dee2e6;
     --success-green: #28a745;
-}
+  }
 
-/* Form styling */
-.edit-user-form {
+  /* Form styling */
+  .edit-user-form {
     color: var(--text-dark);
-}
+  }
 
-.form-section {
+  .form-section {
     background: #f8f9fa;
     border-radius: 8px;
     padding: 1.5rem;
     border-left: 4px solid var(--primary-green);
-}
+  }
 
-.section-title {
+  .section-title {
     color: var(--primary-green);
     font-weight: 600;
     font-size: 1.1rem;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
     border-bottom: 2px solid var(--border-light);
-}
+  }
 
-.form-label {
+  .form-label {
     font-weight: 500;
     color: var(--text-dark);
     margin-bottom: 0.5rem;
-}
+  }
 
-.form-control, .form-select {
+  .form-control,
+  .form-select {
     border: 1px solid var(--border-light);
     border-radius: 6px;
     padding: 0.75rem;
     font-size: 0.95rem;
     transition: all 0.2s ease;
-}
+  }
 
-.form-control:focus, .form-select:focus {
+  .form-control:focus,
+  .form-select:focus {
     border-color: var(--primary-green);
     box-shadow: 0 0 0 0.2rem rgba(26, 95, 60, 0.25);
     outline: none;
-}
+  }
 
-.form-control::placeholder {
+  .form-control::placeholder {
     color: var(--text-light);
     opacity: 0.7;
-}
+  }
 
-.form-text {
+  .form-text {
     font-size: 0.85rem;
     color: var(--text-light);
     margin-top: 0.25rem;
-}
+  }
 
-/* Button styling */
-.btn-primary {
+  /* Button styling */
+  .btn-primary {
     background: var(--accent-orange);
     border-color: var(--accent-orange);
     color: white;
@@ -198,70 +201,71 @@
     border-radius: 8px;
     transition: all 0.2s ease;
     font-size: 1rem;
-}
+  }
 
-.btn-primary:hover {
+  .btn-primary:hover {
     background: #e8690b;
     border-color: #e8690b;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(253, 126, 20, 0.3);
-}
+  }
 
-.btn-primary:active {
+  .btn-primary:active {
     transform: translateY(0);
-}
+  }
 
-/* Required field indicator */
-.text-danger {
+  /* Required field indicator */
+  .text-danger {
     color: var(--accent-red) !important;
-}
+  }
 
-/* Form actions */
-.form-actions {
+  /* Form actions */
+  .form-actions {
     margin-top: 1.5rem;
     padding-top: 1rem;
     border-top: 1px solid var(--border-light);
-}
+  }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
     .form-section {
-        padding: 1rem;
+      padding: 1rem;
     }
-    
+
     .section-title {
-        font-size: 1rem;
+      font-size: 1rem;
     }
-    
+
     .btn-primary {
-        padding: 0.6rem 1.2rem;
-        font-size: 0.95rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.95rem;
     }
-}
+  }
 
-/* Animation for form sections */
-.form-section {
+  /* Animation for form sections */
+  .form-section {
     animation: fadeInUp 0.3s ease-out;
-}
+  }
 
-@keyframes fadeInUp {
+  @keyframes fadeInUp {
     from {
-        opacity: 0;
-        transform: translateY(10px);
+      opacity: 0;
+      transform: translateY(10px);
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 
-/* Icon styling */
-.form-label i {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Icon styling */
+  .form-label i {
     color: var(--primary-green);
     width: 16px;
-}
+  }
 
-.section-title i {
+  .section-title i {
     color: var(--primary-green);
-}
+  }
 </style>

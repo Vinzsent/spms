@@ -1,8 +1,14 @@
 <?php
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 $pageTitle = 'Canvass List';
 include '../includes/auth.php';
 include '../includes/db.php';
 include '../includes/header.php';
+
+
 
 $user_type = $_SESSION['user_type'] ?? '';
 
@@ -10,6 +16,7 @@ $user_type = $_SESSION['user_type'] ?? '';
 $canvass_query = "
     SELECT 
         c.canvass_id,
+        c.hide_canvass,
         c.canvass_date,
         c.total_amount,
         c.status,
@@ -22,11 +29,22 @@ $canvass_query = "
     FROM canvass c
     LEFT JOIN user u ON c.created_by = u.id
     LEFT JOIN canvass_items ci ON c.canvass_id = ci.canvass_id
+    WHERE c.hide_canvass = '0'
     GROUP BY c.canvass_id
     ORDER BY c.created_at DESC
 ";
 
 $canvass_result = $conn->query($canvass_query);
+
+// Fetch suppliers for dropdown
+$suppliers_query = "SELECT supplier_name FROM supplier ORDER BY supplier_name ASC";
+$suppliers_result = $conn->query($suppliers_query);
+$suppliers = [];
+if ($suppliers_result && $suppliers_result->num_rows > 0) {
+    while ($row = $suppliers_result->fetch_assoc()) {
+        $suppliers[] = $row['supplier_name'];
+    }
+}
 ?>
 
 <style>
@@ -246,7 +264,8 @@ $canvass_result = $conn->query($canvass_query);
         letter-spacing: 0.5px;
     }
 
-    .status-draft {
+    .status-draft,
+    .status-canvassed {
         background: linear-gradient(135deg, #6c757d, #5a6268);
         color: white;
     }
@@ -376,9 +395,9 @@ $canvass_result = $conn->query($canvass_query);
             <li><a href="suppliers.php" class="nav-link">
                     <i class="fas fa-users"></i> Supplier List
                 </a></li>
-                <li><a href="procurement.php" class="nav-link">
-                        <i class="fas fa-shopping-cart"></i> Procurement
-                    </a></li>
+            <li><a href="procurement.php" class="nav-link">
+                    <i class="fas fa-shopping-cart"></i> Procurement
+                </a></li>
             <li><a href="canvas_form.php" class="nav-link">
                     <i class="fas fa-clipboard-list"></i> Canvass Form
                 </a></li>
@@ -511,26 +530,29 @@ $canvass_result = $conn->query($canvass_query);
 
 <!-- View Canvass Modal -->
 <div class="modal fade" id="viewCanvassModal" tabindex="-1" aria-labelledby="viewCanvassLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%); color: white;">
-        <h5 class="modal-title" id="viewCanvassLabel">Canvass Details</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
-      </div>
-      <div class="modal-body" id="canvassDetailsContent">
-        <!-- Content will be loaded here -->
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" onclick="printCanvassDetails()">
-          <i class="fas fa-print"></i> Print
-        </button>
-      </div>
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%); color: white;">
+                <h5 class="modal-title" id="viewCanvassLabel">Canvass Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+            </div>
+            <div class="modal-body" id="canvassDetailsContent">
+                <!-- Content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="printCanvassDetails()">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
+    // Available suppliers from PHP
+    const availableSuppliers = <?= json_encode($suppliers) ?>;
+
     // Toggle select mode for printing
     function toggleSelectMode() {
         const selectCells = document.querySelectorAll('.select-cell');
@@ -538,7 +560,7 @@ $canvass_result = $conn->query($canvass_query);
         const selectBtn = document.getElementById('selectForPrintBtn');
         const printBtn = document.getElementById('printSelectedBtn');
         const cancelBtn = document.getElementById('cancelSelectBtn');
-        
+
         if (selectCells && selectCells.length > 0) {
             selectCells.forEach(cell => {
                 if (cell && cell.style) {
@@ -546,7 +568,7 @@ $canvass_result = $conn->query($canvass_query);
                 }
             });
         }
-        
+
         if (selectHeader) {
             selectHeader.style.display = selectHeader.style.display === 'none' ? 'table-row' : 'none';
         }
@@ -555,20 +577,20 @@ $canvass_result = $conn->query($canvass_query);
         if (selectHeaderCell) {
             selectHeaderCell.style.display = selectHeaderCell.style.display === 'none' ? 'table-cell' : 'none';
         }
-        
+
         if (selectBtn) {
             selectBtn.style.display = selectBtn.style.display === 'none' ? 'inline-block' : 'none';
         }
-        
+
         if (printBtn) {
             printBtn.style.display = printBtn.style.display === 'none' ? 'inline-block' : 'none';
         }
-        
+
         if (cancelBtn) {
             cancelBtn.style.display = cancelBtn.style.display === 'none' ? 'inline-block' : 'none';
         }
     }
-    
+
     // Cancel select mode
     function cancelSelectMode() {
         const selectCells = document.querySelectorAll('.select-cell');
@@ -576,7 +598,7 @@ $canvass_result = $conn->query($canvass_query);
         const selectBtn = document.getElementById('selectForPrintBtn');
         const printBtn = document.getElementById('printSelectedBtn');
         const cancelBtn = document.getElementById('cancelSelectBtn');
-        
+
         if (selectCells && selectCells.length > 0) {
             selectCells.forEach(cell => {
                 if (cell && cell.style) {
@@ -584,20 +606,20 @@ $canvass_result = $conn->query($canvass_query);
                 }
             });
         }
-        
+
         if (selectHeader) selectHeader.style.display = 'none';
         const selectHeaderCell2 = document.getElementById('selectHeaderCell');
         if (selectHeaderCell2) selectHeaderCell2.style.display = 'none';
         if (selectBtn) selectBtn.style.display = 'inline-block';
         if (printBtn) printBtn.style.display = 'none';
         if (cancelBtn) cancelBtn.style.display = 'none';
-        
+
         // Uncheck all checkboxes
         document.querySelectorAll('.row-checkbox').forEach(checkbox => {
             if (checkbox) checkbox.checked = false;
         });
     }
-    
+
     // Toggle select all checkboxes
     function toggleSelectAll(source) {
         if (!source) return;
@@ -610,16 +632,16 @@ $canvass_result = $conn->query($canvass_query);
             });
         }
     }
-    
+
     // Print selected rows with detailed information
     function printSelected() {
         const checkboxes = document.querySelectorAll('.row-checkbox:checked');
-        
+
         if (!checkboxes || checkboxes.length === 0) {
             alert('Please select at least one row to print');
             return;
         }
-        
+
         // Collect canvass IDs from selected rows
         const canvassIds = [];
         checkboxes.forEach(checkbox => {
@@ -631,12 +653,12 @@ $canvass_result = $conn->query($canvass_query);
                 }
             }
         });
-        
+
         if (canvassIds.length === 0) {
             alert('No valid canvass records selected for printing');
             return;
         }
-        
+
         // Show loading message
         const loadingMessage = document.createElement('div');
         loadingMessage.innerHTML = `
@@ -649,39 +671,39 @@ $canvass_result = $conn->query($canvass_query);
             </div>
         `;
         document.body.appendChild(loadingMessage);
-        
+
         // Fetch detailed information for each selected canvass
-        const fetchPromises = canvassIds.map(id => 
+        const fetchPromises = canvassIds.map(id =>
             fetch(`../actions/get_canvass_details.php?id=${id}`)
-                .then(response => response.json())
+            .then(response => response.json())
         );
-        
+
         Promise.all(fetchPromises)
             .then(results => {
                 document.body.removeChild(loadingMessage);
-                
+
                 // Filter successful results
                 const canvassData = results.filter(result => result.success);
-                
+
                 if (canvassData.length === 0) {
                     alert('Failed to load canvass details');
                     return;
                 }
-                
+
                 // Generate detailed print content
                 let printContent = `
                     <div class="print-container">`;
-                
+
                 // Add detailed information for each canvass
                 canvassData.forEach((data, index) => {
                     const canvass = data.canvass;
                     const items = data.items;
-                    
+
                     let itemsHtml = '';
                     let grandTotal = 0;
-                    
-                                         items.forEach(item => {
-                         itemsHtml += `
+
+                    items.forEach(item => {
+                        itemsHtml += `
                              <tr>
                                  <td>${item.supplier_name || ''}</td>
                                  <td>${item.item_description || ''}</td>
@@ -690,19 +712,19 @@ $canvass_result = $conn->query($canvass_query);
                                  <td style="text-align: right;">₱${parseFloat(item.total_cost || 0).toFixed(2)}</td>
                              </tr>
                          `;
-                         grandTotal += parseFloat(item.total_cost || 0);
-                     });
-                    
+                        grandTotal += parseFloat(item.total_cost || 0);
+                    });
+
                     const statusColors = {
                         'draft': '#6c757d',
                         'completed': '#4a90e2',
                         'approved': '#28a745',
                         'cancelled': '#e74c3c'
                     };
-                    
+
                     const statusColor = statusColors[canvass.status?.toLowerCase()] || '#6c757d';
-                    
-                                         printContent += `
+
+                    printContent += `
                          <div class="canvass-detail-section" ${index > 0 ? 'style="page-break-before: always; margin-top: 30px;"' : ''}>
                              <div class="canvass-info-grid">
                                  <div class="info-section">
@@ -743,9 +765,9 @@ $canvass_result = $conn->query($canvass_query);
                          </div>
                      `;
                 });
-                
+
                 printContent += `</div>`;
-                
+
                 // Add print styles
                 printContent += `
                     <style>
@@ -902,7 +924,7 @@ $canvass_result = $conn->query($canvass_query);
                         }
                     </style>
                 `;
-                
+
                 // Open print window
                 const printWindow = window.open('', '_blank');
                 printWindow.document.write(`
@@ -951,19 +973,27 @@ $canvass_result = $conn->query($canvass_query);
             });
     }
 
+    let currentCanvassId = null;
+
     // Display canvass details in modal
     function displayCanvassDetails(canvass, items) {
+        currentCanvassId = canvass.canvass_id;
         let itemsHtml = '';
         let grandTotal = 0;
 
         items.forEach(item => {
             itemsHtml += `
-                <tr>
-                    <td>${item.supplier_name}</td>
-                    <td>${item.item_description}</td>
-                    <td>${item.quantity}</td>
-                    <td>₱${parseFloat(item.unit_cost).toFixed(2)}</td>
-                    <td>₱${parseFloat(item.total_cost).toFixed(2)}</td>
+                <tr data-id="${item.canvass_item_id}">
+                    <td class="supplier_name">${item.supplier_name}</td>
+                    <td class="item_description">${item.item_description}</td>
+                    <td class="quantity">${item.quantity}</td>
+                    <td class="unit_cost">₱${parseFloat(item.unit_cost).toFixed(2)}</td>
+                    <td class="total_cost">₱${parseFloat(item.total_cost).toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="editItem(this)">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
                 </tr>
             `;
             grandTotal += parseFloat(item.total_cost);
@@ -986,30 +1016,109 @@ $canvass_result = $conn->query($canvass_query);
                 </div>
                 
                 <h4>Items</h4>
-                <table class="table table-bordered">
-                    <thead style="background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%); color: white;">
-                        <tr>
-                            <th>Supplier</th>
-                            <th>Item Description</th>
-                            <th>Quantity</th>
-                            <th>Unit Cost</th>
-                            <th>Total Cost</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${itemsHtml}
-                        <tr style="background-color: var(--primary-green); color: white; font-weight: bold;">
-                            <td colspan="4" style="text-align: right;">GRAND TOTAL:</td>
-                            <td>₱${grandTotal.toFixed(2)}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead style="background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%); color: white;">
+                            <tr>
+                                <th>Supplier</th>
+                                <th>Item Description</th>
+                                <th>Quantity</th>
+                                <th>Unit Cost</th>
+                                <th>Total Cost</th>
+                                <th style="width: 100px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsHtml}
+                            <tr style="background-color: var(--primary-green); color: white; font-weight: bold;">
+                                <td colspan="4" style="text-align: right;">GRAND TOTAL:</td>
+                                <td colspan="2">₱${grandTotal.toFixed(2)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
                 
                 ${canvass.notes ? `<div class="mt-3"><h5>Notes:</h5><p>${canvass.notes}</p></div>` : ''}
             </div>
         `;
 
         document.getElementById('canvassDetailsContent').innerHTML = content;
+    }
+
+    function editItem(btn) {
+        const row = btn.closest('tr');
+        const supplier = row.querySelector('.supplier_name').innerText;
+        const description = row.querySelector('.item_description').innerText;
+        const quantity = row.querySelector('.quantity').innerText;
+        // Remove currency symbol and commas
+        const unitCost = row.querySelector('.unit_cost').innerText.replace(/[^\d.-]/g, '');
+
+        // Create supplier dropdown
+        let supplierOptions = '';
+        availableSuppliers.forEach(s => {
+            const isSelected = s === supplier ? 'selected' : '';
+            supplierOptions += `<option value="${s}" ${isSelected}>${s}</option>`;
+        });
+
+        row.querySelector('.supplier_name').innerHTML = `<select class="form-control form-control-sm">${supplierOptions}</select>`;
+        row.querySelector('.item_description').innerHTML = `<input type="text" class="form-control form-control-sm" value="${description}">`;
+        row.querySelector('.quantity').innerHTML = `<input type="number" class="form-control form-control-sm" value="${quantity}" step="0.01">`;
+        row.querySelector('.unit_cost').innerHTML = `<input type="number" class="form-control form-control-sm" value="${unitCost}" step="0.01">`;
+
+        // Change button to Save/Cancel
+        const actionCell = btn.parentElement;
+        actionCell.innerHTML = `
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-success" onclick="saveItem(this)">
+                    <i class="fas fa-save"></i>
+                </button>
+                <button class="btn btn-secondary" onclick="cancelEdit(${currentCanvassId})">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+    }
+
+    function cancelEdit(canvassId) {
+        viewCanvass(canvassId);
+    }
+
+    function saveItem(btn) {
+        const row = btn.closest('tr');
+        const canvassItemId = row.getAttribute('data-id');
+
+        const supplier = row.querySelector('.supplier_name select').value;
+        const description = row.querySelector('.item_description input').value;
+        const quantity = row.querySelector('.quantity input').value;
+        const unitCost = row.querySelector('.unit_cost input').value;
+
+        const data = {
+            canvass_item_id: canvassItemId,
+            supplier_name: supplier,
+            item_description: description,
+            quantity: quantity,
+            unit_cost: unitCost
+        };
+
+        fetch('../actions/update_canvass_item.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload modal to show updated values and totals
+                    viewCanvass(currentCanvassId);
+                } else {
+                    alert('Error updating item: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+            });
     }
 
     // Edit canvass
@@ -1021,24 +1130,26 @@ $canvass_result = $conn->query($canvass_query);
     function deleteCanvass(canvassId) {
         if (confirm('Are you sure you want to delete this canvass? This action cannot be undone.')) {
             fetch('../actions/delete_canvass.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ canvass_id: canvassId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Canvass deleted successfully');
-                    location.reload();
-                } else {
-                    alert('Error deleting canvass: ' + data.message);
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error.message);
-            });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        canvass_id: canvassId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Canvass deleted successfully');
+                        location.reload();
+                    } else {
+                        alert('Error deleting canvass: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
+                });
         }
     }
 

@@ -2,21 +2,22 @@
 include '../includes/auth.php';
 include '../includes/db.php';
 
-$user_type = $_SESSION['user_type']?? '';
+$user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
 
 $dashboard_link = ($user_type == 'Admin') ? '../admin_dashboard.php' : '../dashboard.php';
 
 
 $result = $conn->query("SELECT * FROM supplier");
 if (!$result) {
-    error_log("SQL Error: " . $conn->error);
-    $_SESSION['error'] = "Unable to load suppliers at the moment. Please try again later.";
-    header("Location: ../dashboard.php");
-    exit();
+  error_log("SQL Error: " . $conn->error);
+  $_SESSION['error'] = "Unable to load suppliers at the moment. Please try again later.";
+  header("Location: ../dashboard.php");
+  exit();
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -218,6 +219,18 @@ if (!$result) {
       color: white;
     }
 
+    .btn-info-modern {
+      background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+      color: white;
+      box-shadow: 0 2px 10px rgba(14, 165, 233, 0.3);
+    }
+
+    .btn-info-modern:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(14, 165, 233, 0.5);
+      color: white;
+    }
+
     .alert-modern {
       border-radius: 12px;
       border: none;
@@ -281,11 +294,11 @@ if (!$result) {
       .page-title {
         font-size: 2rem;
       }
-      
+
       .action-buttons {
         flex-direction: column;
       }
-      
+
       .btn-modern {
         width: 100%;
       }
@@ -295,166 +308,214 @@ if (!$result) {
 
 <body>
 
-<?php if (isset($_SESSION['message'])): ?>
-  <div class="alert alert-success-modern alert-modern">
-    <i class="fas fa-check-circle me-2"></i>
-    <?= htmlspecialchars($_SESSION['message']); unset($_SESSION['message']); ?>
-  </div>
-<?php endif; ?>
-<?php if (isset($_SESSION['error'])): ?>
-  <div class="alert alert-danger-modern alert-modern">
-    <i class="fas fa-exclamation-triangle me-2"></i>
-    <?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?>
-  </div>
-<?php endif; ?>
-
-<?php include('../includes/navbar.php'); ?>
-
-<div class="container">
-  <div class="main-container">
-    <div class="page-header">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <h1 class="page-title">Supplier Management</h1>
-          <p class="page-subtitle">Manage your supplier database efficiently</p>
-        </div>
-        <div class="action-buttons">
-          <button class="btn btn-secondary-modern btn-modern" onclick="window.history.back()">
-            <i class="fas fa-arrow-left me-2"></i>Back
-          </button>
-          <button class="btn btn-primary-modern btn-modern" data-bs-toggle="modal" data-bs-target="#addModal">
-            <i class="fas fa-plus me-2"></i>Add Supplier
-          </button>
-        </div>
-      </div>
+  <?php if (isset($_SESSION['message'])): ?>
+    <div class="alert alert-success-modern alert-modern">
+      <i class="fas fa-check-circle me-2"></i>
+      <?= htmlspecialchars($_SESSION['message']);
+      unset($_SESSION['message']); ?>
     </div>
+  <?php endif; ?>
+  <?php if (isset($_SESSION['error'])): ?>
+    <div class="alert alert-danger-modern alert-modern">
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      <?= htmlspecialchars($_SESSION['error']);
+      unset($_SESSION['error']); ?>
+    </div>
+  <?php endif; ?>
 
-    <div class="content-section">
-      <!-- Stats Cards -->
-      <div class="row mb-4">
-        <div class="col-md-4">
-          <div class="stats-card">
-            <div class="stats-number"><?= $result->num_rows ?></div>
-            <div class="stats-label">Total Suppliers</div>
+  <?php include('../includes/navbar.php'); ?>
+
+  <div class="container">
+    <div class="main-container">
+      <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="page-title">Supplier Management</h1>
+            <p class="page-subtitle">Manage your supplier database efficiently</p>
+          </div>
+          <div class="action-buttons">
+            <button class="btn btn-secondary-modern btn-modern" onclick="window.history.back()">
+              <i class="fas fa-arrow-left me-2"></i>Back
+            </button>
+            <?php if (in_array(strtolower($user_type), ['admin', 'purchasing officer'])): ?>
+              <button class="btn btn-primary-modern btn-modern" data-bs-toggle="modal" data-bs-target="#addModal">
+                <i class="fas fa-plus me-2"></i>Add Supplier
+              </button>
+            <?php endif; ?>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="stats-card">
-            <div class="stats-number">
-              <i class="fas fa-building text-primary"></i>
+      </div>
+
+      <div class="content-section">
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+          <div class="col-md-4">
+            <div class="stats-card">
+              <div class="stats-number"><?= $result->num_rows ?></div>
+              <div class="stats-label">Total Suppliers</div>
             </div>
-            <div class="stats-label">Active Records</div>
           </div>
-        </div>
-        <div class="col-md-4">
-          <div class="stats-card">
-            <div class="stats-number">
-              <i class="fas fa-chart-line text-success"></i>
+          <div class="col-md-4">
+            <div class="stats-card">
+              <div class="stats-number">
+                <i class="fas fa-building text-primary"></i>
+              </div>
+              <div class="stats-label">Active Records</div>
             </div>
-            <div class="stats-label">Management</div>
+          </div>
+          <div class="col-md-4">
+            <div class="stats-card">
+              <div class="stats-number">
+                <i class="fas fa-chart-line text-success"></i>
+              </div>
+              <div class="stats-label">Management</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Suppliers Table -->
-      <div class="table-responsive">
-        <table class="table table-modern">
-          <thead>
-            <tr>
-              <th><i class="fas fa-hashtag me-2"></i>ID</th>
-              <th><i class="fas fa-building me-2"></i>Supplier Name</th>
-              <th><i class="fas fa-user me-2"></i>Contact Person</th>
-              <th><i class="fas fa-phone me-2"></i>Contact No.</th>
-              <th><i class="fas fa-envelope me-2"></i>Email Address</th>
-              <th><i class="fas fa-cogs me-2"></i>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php while ($row = $result->fetch_assoc()): ?>
-            <tr>
-              <td><span class="badge bg-primary rounded-pill"><?= htmlspecialchars($row['supplier_id']) ?></span></td>
-              <td><strong><?= ucwords(strtoupper($row['supplier_name'])) ?></strong></td>
-              <td><?= ucwords(strtolower($row['contact_person'])) ?></td>
-              <td><i class="fas fa-phone text-muted me-1"></i><?= htmlspecialchars($row['contact_number']) ?></td>
-              <td><i class="fas fa-envelope text-muted me-1"></i><?= htmlspecialchars($row['email_address']) ?></td>
-              <td>
-                <button class="btn btn-warning-modern btn-action" data-bs-toggle="modal" data-bs-target="#editModal"
-                  <?php foreach ($row as $key => $value): ?>
-                    data-<?= htmlspecialchars(str_replace('_', '-', $key)) ?>="<?= htmlspecialchars($value) ?>"
-                  <?php endforeach; ?>>
-                  <i class="fas fa-edit me-1"></i>Edit
-                </button>
-                <button class="btn btn-danger-modern btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                  data-supplier-id="<?= htmlspecialchars($row['supplier_id']) ?>"
-                  data-supplier-name="<?= htmlspecialchars($row['supplier_name']) ?>">
-                  <i class="fas fa-trash me-1"></i>Delete
-                </button>
-              </td>
-            </tr>
-            <?php endwhile; ?>
-          </tbody>
-        </table>
+        <!-- Suppliers Table -->
+        <div class="table-responsive">
+          <table class="table table-modern">
+            <thead>
+              <tr>
+                <th><i class="fas fa-building me-2"></i>Supplier Name</th>
+                <th><i class="fas fa-user me-2"></i>Contact Person</th>
+                <th><i class="fas fa-phone me-2"></i>Mobile No.</th>
+                <th><i class="fas fa-phone me-2"></i>Telephone No.</th>
+                <th><i class="fas fa-envelope me-2"></i>Email Address</th>
+                <?php if (in_array(strtolower($user_type), ['admin', 'purchasing officer'])): ?>
+                  <th><i class="fas fa-cogs me-2"></i>Actions</th>
+                <?php endif; ?>
+              </tr>
+            </thead>
+            <tbody>
+              <?php while ($row = $result->fetch_assoc()): ?>
+                <tr>
+                  <td><strong><?= ucwords(strtoupper($row['supplier_name'])) ?></strong></td>
+                  <td><?= ucwords(strtolower($row['contact_person'])) ?></td>
+                  <td><i class="fas fa-phone text-muted me-1"></i><?= htmlspecialchars($row['contact_number']) ?></td>
+                  <td><i class="fas fa-phone text-muted me-1"></i><?= htmlspecialchars($row['landline_number']) ?></td>
+                  <td><i class="fas fa-envelope text-muted me-1"></i><?= htmlspecialchars($row['email_address']) ?></td>
+                  <?php if (in_array(strtolower($user_type), ['admin', 'purchasing officer'])): ?>
+                    <td>
+                      <button class="btn btn-info-modern btn-action btn-sm" data-bs-toggle="modal" data-bs-target="#viewModal" title="View Details"
+                        <?php foreach ($row as $key => $value): ?>
+                        data-<?= htmlspecialchars(str_replace('_', '-', $key)) ?>="<?= htmlspecialchars($value) ?>"
+                        <?php endforeach; ?>>
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <button class="btn btn-warning-modern btn-action btn-sm" data-bs-toggle="modal" data-bs-target="#editModal" title="Edit Supplier"
+                        <?php foreach ($row as $key => $value): ?>
+                        data-<?= htmlspecialchars(str_replace('_', '-', $key)) ?>="<?= htmlspecialchars($value) ?>"
+                        <?php endforeach; ?>>
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="btn btn-danger-modern btn-action btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" title="Delete Supplier"
+                        data-supplier-id="<?= htmlspecialchars($row['supplier_id']) ?>"
+                        data-supplier-name="<?= htmlspecialchars($row['supplier_name']) ?>">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  <?php endif; ?>
+                </tr>
+              <?php endwhile; ?>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Modals -->
-<div class="modal fade modal-modern" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addModalLabel">
-          <i class="fas fa-plus me-2"></i>Add New Supplier
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <?php include '../modals/add_supplier.php'; ?>
+  <!-- Modals -->
+  <div class="modal fade modal-modern" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addModalLabel">
+            <i class="fas fa-plus me-2"></i>Add New Supplier
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <?php include '../modals/add_supplier.php'; ?>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<div class="modal fade modal-modern" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-  <form class="modal-dialog modal-lg" action="../actions/edit_supplier.php" method="POST">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editModalLabel">
-          <i class="fas fa-edit me-2"></i>Edit Supplier
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <?php include '../modals/edit_supplier.php'; ?>
-      </div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-primary-modern btn-modern w-100">
-          <i class="fas fa-save me-2"></i>Save Changes
-        </button>
-      </div>
-    </div>
-  </form>
-</div>
-
-<div class="modal fade modal-modern" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title text-danger" id="deleteModalLabel">
-          <i class="fas fa-trash me-2"></i>Delete Supplier
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <?php include '../modals/delete_supplier.php'; ?>
+  <div class="modal fade modal-modern" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-info">
+          <h5 class="modal-title" id="viewModalLabel">
+            <i class="fas fa-eye me-2"></i>View Supplier Details
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <?php include '../modals/view_supplier.php'; ?>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary-modern btn-modern" data-bs-dismiss="modal">Close</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<script src="../assets/js/supplier-modals.js"></script>
-<script src="../assets/js/category-mapping.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <div class="modal fade modal-modern" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <form class="modal-dialog modal-lg" action="../actions/edit_supplier.php" method="POST">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editModalLabel">
+            <i class="fas fa-edit me-2"></i>Edit Supplier
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <?php include '../modals/edit_supplier.php'; ?>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary-modern btn-modern w-100">
+            <i class="fas fa-save me-2"></i>Save Changes
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="modal fade modal-modern" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger" id="deleteModalLabel">
+            <i class="fas fa-trash me-2"></i>Delete Supplier
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <?php include '../modals/delete_supplier.php'; ?>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/js/supplier-modals.js?v=<?= time() ?>"></script>
+  <script src="../assets/js/category-mapping.js?v=<?= time() ?>"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('add') === '1') {
+        const addModalEl = document.getElementById('addModal');
+        const addModal = new bootstrap.Modal(addModalEl);
+        addModal.show();
+
+        addModalEl.addEventListener('hidden.bs.modal', function() {
+          window.location.href = 'canvas_form.php';
+        });
+      }
+    });
+  </script>
 </body>
+
 </html>

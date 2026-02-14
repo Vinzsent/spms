@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $business_type = trim($_POST['business_type']);
     $category = trim($_POST['category']);
     $payment_terms = trim($_POST['payment_terms']);
-    $tin = trim($_POST['tax_identification_number']);
+    $landline_number = trim($_POST['landline_number']);
     $date_registered = trim($_POST['date_registered']);
     $status = trim($_POST['status']);
     $notes = trim($_POST['notes']);
@@ -28,13 +28,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $conn->prepare("UPDATE supplier SET 
         supplier_name=?, contact_person=?, contact_number=?, email_address=?, fax_number=?, website=?, address=?, 
         city=?, province=?, zip_code=?, country=?, business_type=?, category=?, payment_terms=?, 
-        tax_identification_number=?, date_registered=?, status=?, notes=? 
+        landline_number=?, date_registered=?, status=?, notes=? 
         WHERE supplier_id=?");
 
-    $stmt->bind_param("ssssssssssssssssssi",
-        $supplier_name, $contact_person, $contact_number, $email_address, $fax_number, $website, $address,
-        $city, $province, $zip_code, $country, $business_type, $category, $payment_terms,
-        $tin, $date_registered, $status, $notes, $id
+    $stmt->bind_param(
+        "ssssssssssssssssssi",
+        $supplier_name,
+        $contact_person,
+        $contact_number,
+        $email_address,
+        $fax_number,
+        $website,
+        $address,
+        $city,
+        $province,
+        $zip_code,
+        $country,
+        $business_type,
+        $category,
+        $payment_terms,
+        $landline_number,
+        $date_registered,
+        $status,
+        $notes,
+        $id
     );
 
     if ($stmt->execute()) {
@@ -50,4 +67,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header("Location: ../pages/suppliers.php");
     exit();
 }
-?>

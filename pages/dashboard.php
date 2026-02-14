@@ -1,12 +1,13 @@
 <?php
 $pageTitle = 'DARTS';
-include 'includes/auth.php';
-include 'includes/header.php';
+include '../includes/auth.php';
+include '../includes/header.php';
 
-// Get user type from session
-$user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
+// Get user type from session and normalize it (remove spaces and hyphens, convert to lowercase)
+$raw_user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
+$user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
 ?>
-<?php include('./includes/navbar.php'); ?>
+<?php include('../includes/navbar.php'); ?>
 
 <style>
   :root {
@@ -508,69 +509,81 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
   [data-bs-theme="dark"] .option-content h5 {
     color: var(--bs-body-color);
   }
+
   .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  animation: fadeIn 0.5s ease-in-out;
-}
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeIn 0.5s ease-in-out;
+  }
 
-.modal-content {
-  background: #ffffff;
-  padding: 30px 40px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-  position: relative;
-  max-width: 400px;
-  width: 90%;
-  animation: slideUp 0.4s ease-out;
-}
+  .modal-content {
+    background: #ffffff;
+    padding: 30px 40px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    position: relative;
+    max-width: 400px;
+    width: 90%;
+    animation: slideUp 0.4s ease-out;
+  }
 
-.modal-icon {
-  font-size: 40px;
-  color: #28a745;
-  margin-bottom: 15px;
-}
+  .modal-icon {
+    font-size: 40px;
+    color: #28a745;
+    margin-bottom: 15px;
+  }
 
-.modal-content h2 {
-  margin: 0;
-  font-size: 24px;
-  color: #333;
-}
+  .modal-content h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+  }
 
-.modal-content p {
-  margin-top: 10px;
-  font-size: 16px;
-  color: #555;
-}
+  .modal-content p {
+    margin-top: 10px;
+    font-size: 16px;
+    color: #555;
+  }
 
-.close-btn {
-  position: absolute;
-  top: 12px;
-  right: 16px;
-  font-size: 22px;
-  color: #888;
-  cursor: pointer;
-}
+  .close-btn {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 22px;
+    color: #888;
+    cursor: pointer;
+  }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
 
-@keyframes slideUp {
-  from { transform: translateY(30px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
+    to {
+      opacity: 1;
+    }
+  }
 
+  @keyframes slideUp {
+    from {
+      transform: translateY(30px);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
 </style>
 
 <div class="dashboard-container">
@@ -580,7 +593,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
   </div>
 
   <div class="menu-grid">
-    <?php if (strtolower($user_type) === 'faculty' || strtolower($user_type) === 'staff'): ?>
+    <?php if ($user_type === 'faculty' || $user_type === 'staff'): ?>
       <!-- Supply Requisition Card ONLY for Faculty -->
       <div class="menu-card">
         <div class="card-icon" style="background: linear-gradient(135deg, #28a745, #20c997);">
@@ -600,7 +613,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <button onclick="showPropertyRequestTypeModal()" class="card-button">Access</button>
       </div>
 
-    <?php elseif (strtolower($user_type) === 'immediate head'): ?>
+    <?php elseif ($user_type === 'immediatehead'): ?>
       <!-- Supply Requisition Card ONLY for Immediate Head -->
       <!-- Assignment Card -->
       <div class="menu-card card-primary">
@@ -612,7 +625,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <a href="pages/issuance.php" class="card-button">Access</a>
       </div>
 
-      <?php elseif (strtolower($user_type) === 'accounting officer'): ?>
+    <?php elseif ($user_type === 'accountingofficer'): ?>
       <!-- Asset Registration Card ONLY for Accounting Officer -->
       <!-- Asset Registration Card -->
       <div class="menu-card card-dark">
@@ -634,7 +647,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <a href="pages/procurement.php" class="card-button">Access</a>
       </div>
 
-    <?php elseif (strtolower($user_type) === 'school president'): ?>
+    <?php elseif ($user_type === 'schoolpresident'): ?>
       <!-- Supply Requisition Card ONLY for School President -->
       <!-- Assignment Card -->
       <div class="menu-card card-primary">
@@ -646,7 +659,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <a href="pages/issuance.php" class="card-button">Access</a>
       </div>
 
-    <?php elseif (strtolower($user_type) === 'vp for finance & administration'): ?>
+    <?php elseif ($user_type === 'vpforfinanceadministration' || $user_type === 'vpforfinance&administration'): ?>
       <!-- Supply Requisition Card ONLY for School President -->
       <!-- Assignment Card -->
       <div class="menu-card card-primary">
@@ -658,10 +671,10 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <a href="pages/issuance.php" class="card-button">Access</a>
       </div>
 
-      <?php elseif (strtolower($user_type) === 'purchasing officer'): ?>
+    <?php elseif ($user_type === 'purchasingofficer'): ?>
       <!-- Supply Requisition Card ONLY for School President -->
 
-         <!-- Assignment Card -->
+      <!-- Assignment Card -->
       <div class="menu-card card-primary">
         <div class="card-icon">
           <i class="fas fa-user-check"></i>
@@ -681,10 +694,10 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <a href="pages/procurement.php" class="card-button">Access</a>
       </div>
 
-      <?php elseif (strtolower($user_type) === 'property custodian'): ?>
+    <?php elseif ($user_type === 'propertycustodian'): ?>
       <!-- Supply Requisition Card ONLY for School President -->
 
-         <!-- Assignment Card -->
+      <!-- Assignment Card -->
       <div class="menu-card card-primary">
         <div class="card-icon">
           <i class="fas fa-user-check"></i>
@@ -704,7 +717,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <a href="pages/property_inventory.php" class="card-button">Access</a>
       </div>
 
-    <?php elseif (strtolower($user_type) === 'supply in-charge'): ?>
+    <?php elseif ($user_type === 'supplyincharge'): ?>
       <!-- Supply Requisition Card ONLY for School President -->
 
       <!-- Assignment Card -->
@@ -715,7 +728,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <h3 class="card-title">Assignment & Issuance</h3>
         <p class="card-description">Handle asset assignments and supply issuance with quantity tracking and user supply status.</p>
         <a href="pages/issuance.php" class="card-button">Access</a>
-      </div>      
+      </div>
       <!-- Inventory Card -->
       <div class="menu-card card-info">
         <div class="card-icon">
@@ -738,7 +751,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         <button onclick="showRequestTypeModal()" class="card-button">Access</button>
       </div>
 
-    <!-- Property Requisition Card -->
+      <!-- Property Requisition Card -->
       <div class="menu-card">
         <div class="card-icon" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0);">
           <i class="fas fa-boxes"></i>
@@ -861,16 +874,16 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
 </div>
 
 <?php if (!empty($_SESSION['show_login_modal'])): ?>
-<div id="loginSuccessModal" class="modal-overlay">
-  <div class="modal-content">
-    <span class="close-btn" onclick="closeModal()">&times;</span>
-    <i class="fas fa-check-circle modal-icon"></i>
-    <h2>Welcome, <?= htmlspecialchars(explode(' ', $_SESSION['title'])[0]) ?> <?= htmlspecialchars(explode(' ', $_SESSION['name'])[0]) ?>!</h2>
-    <p class="text-center">You have successfully logged in to DCC-DARTS.</p>
-    <button class="btn btn-success" onclick="closeModal()">Close</button>
+  <div id="loginSuccessModal" class="modal-overlay">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <i class="fas fa-check-circle modal-icon"></i>
+      <h2>Welcome, <?= htmlspecialchars(explode(' ', $_SESSION['title'])[0]) ?> <?= htmlspecialchars(explode(' ', $_SESSION['name'])[0]) ?>!</h2>
+      <p class="text-center">You have successfully logged in to DCC-DARTS.</p>
+      <button class="btn btn-success" onclick="closeModal()">Close</button>
+    </div>
   </div>
-</div>
-<?php unset($_SESSION['show_login_modal']); ?>
+  <?php unset($_SESSION['show_login_modal']); ?>
 <?php endif; ?>
 
 
@@ -884,36 +897,36 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
       <h4>Select Request Type</h4>
       <p class="text-muted">Choose the type of request you want to submit</p>
     </div>
-    
+
     <div class="request-type-options">
       <div class="request-option" onclick="selectSupplyRequestType('consumables')">
         <div class="option-icon">
           <i class="fas fa-building"></i>
         </div>
         <div class="option-content">
-          
-        <h5>Consumables</h5>
-        <p>Request for supplies, materials, and other consumable items</p>
+
+          <h5>Consumables</h5>
+          <p>Request for supplies, materials, and other consumable items</p>
         </div>
         <div class="option-arrow">
           <i class="fas fa-chevron-right"></i>
         </div>
       </div>
-      
+
       <div class="request-option" onclick="selectSupplyRequestType('nonconsumables')">
         <div class="option-icon">
           <i class="fas fa-box-open"></i>
         </div>
         <div class="option-content">
-        <h5>Non Consumables</h5>
-        <p>Request for equipment, furniture, and other durable assets</p>
+          <h5>Non Consumables</h5>
+          <p>Request for equipment, furniture, and other durable assets</p>
         </div>
         <div class="option-arrow">
           <i class="fas fa-chevron-right"></i>
         </div>
       </div>
     </div>
-    
+
     <div class="modal-footer-custom">
       <button type="button" class="btn btn-outline-secondary" onclick="hideRequestTypeModal()">
         <i class="fas fa-times me-1"></i>Cancel
@@ -933,7 +946,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
       <h4>Select Request Type</h4>
       <p class="text-muted">Choose the type of request you want to submit</p>
     </div>
-    
+
     <div class="request-type-options">
       <div class="request-option" onclick="selectRequestType('consumables')">
         <div class="option-icon">
@@ -947,7 +960,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
           <i class="fas fa-chevron-right"></i>
         </div>
       </div>
-      
+
       <div class="request-option" onclick="selectRequestType('nonconsumables')">
         <div class="option-icon">
           <i class="fas fa-box-open"></i>
@@ -961,7 +974,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
         </div>
       </div>
     </div>
-    
+
     <div class="modal-footer-custom">
       <button type="button" class="btn btn-outline-secondary" onclick="hidePropertyRequestTypeModal()">
         <i class="fas fa-times me-1"></i>Cancel
@@ -980,7 +993,7 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
       <h4>Admin Access Required</h4>
       <p class="text-muted">Please enter the admin password to access system settings</p>
     </div>
-    <form id="passwordForm" method="POST" action="actions/verify_admin_password.php">
+    <form id="passwordForm" method="POST" action="../actions/verify_admin_password.php">
       <div class="mb-4">
         <label for="adminPassword" class="form-label fw-bold">Admin Password:</label>
         <input type="password" class="form-control" id="adminPassword" name="admin_password" required placeholder="Enter admin password">
@@ -994,52 +1007,52 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
 </div>
 
 <script>
-function closeModal() {
-  const modal = document.getElementById('loginSuccessModal');
-  if (modal) modal.style.display = 'none';
-}
-
-// Auto-close after 5 seconds
-setTimeout(closeModal, 5000);
-
-// Property Request Type Modal Functions
-function showPropertyRequestTypeModal() {
-  const modal = document.getElementById('propertyRequestTypeModal');
-  if (modal) {
-    modal.style.display = 'block';
-    document.body.style.overflow = 'hidden';
+  function closeModal() {
+    const modal = document.getElementById('loginSuccessModal');
+    if (modal) modal.style.display = 'none';
   }
-}
 
-function hidePropertyRequestTypeModal() {
-  const modal = document.getElementById('propertyRequestTypeModal');
-  if (modal) {
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto';
+  // Auto-close after 5 seconds
+  setTimeout(closeModal, 5000);
+
+  // Property Request Type Modal Functions
+  function showPropertyRequestTypeModal() {
+    const modal = document.getElementById('propertyRequestTypeModal');
+    if (modal) {
+      modal.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
   }
-}
 
-function selectRequestType(type) {
-  // Persist selection for UI, but enforce tagging=consumables per requirement
-  sessionStorage.setItem('selectedRequestType', type);
-  const tagging = 'consumables';
-  window.location.href = 'pages/property_request.php?request_type=property&tagging=' + encodeURIComponent(tagging);
-}
-
-// Close modal when clicking outside the modal content
-window.addEventListener('click', function(event) {
-  const modal = document.getElementById('propertyRequestTypeModal');
-  if (event.target === modal) {
-    hidePropertyRequestTypeModal();
+  function hidePropertyRequestTypeModal() {
+    const modal = document.getElementById('propertyRequestTypeModal');
+    if (modal) {
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
   }
-});
 
-// Close modal with Escape key
-document.addEventListener('keydown', function(event) {
-  if (event.key === 'Escape') {
-    hidePropertyRequestTypeModal();
+  function selectRequestType(type) {
+    // Persist selection for UI, but enforce tagging=consumables per requirement
+    sessionStorage.setItem('selectedRequestType', type);
+    const tagging = 'consumables';
+    window.location.href = 'pages/property_request.php?request_type=property&tagging=' + encodeURIComponent(tagging);
   }
-});
+
+  // Close modal when clicking outside the modal content
+  window.addEventListener('click', function(event) {
+    const modal = document.getElementById('propertyRequestTypeModal');
+    if (event.target === modal) {
+      hidePropertyRequestTypeModal();
+    }
+  });
+
+  // Close modal with Escape key
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      hidePropertyRequestTypeModal();
+    }
+  });
 </script>
 
 <script>
@@ -1053,7 +1066,7 @@ document.addEventListener('keydown', function(event) {
     document.getElementById('requestTypeModal').style.display = 'none';
     document.body.style.overflow = 'auto';
   }
-  
+
   // Supply: handle request type selection and redirect
   function selectSupplyRequestType(type) {
     // Persist selection
@@ -1065,7 +1078,7 @@ document.addEventListener('keydown', function(event) {
   function selectRequestType(type) {
     // Store the selected request type in sessionStorage
     sessionStorage.setItem('selectedRequestType', type);
-    
+
     // Redirect to supply request page with the selected type
     window.location.href = 'pages/supply_request.php?type=' + type;
   }
@@ -1086,7 +1099,7 @@ document.addEventListener('keydown', function(event) {
   window.onclick = function(event) {
     var requestModal = document.getElementById('propertyRequestTypeModal');
     var passwordModal = document.getElementById('passwordModal');
-    
+
     if (event.target == requestModal) {
       hidePropertyRequestTypeModal();
     }
@@ -1103,8 +1116,8 @@ document.addEventListener('keydown', function(event) {
     }
   });
 
-   // Request Type Modal Functions
-   function showPropertyRequestTypeModal() {
+  // Request Type Modal Functions
+  function showPropertyRequestTypeModal() {
     document.getElementById('propertyRequestTypeModal').style.display = 'block';
     document.body.style.overflow = 'hidden';
   }
@@ -1117,7 +1130,7 @@ document.addEventListener('keydown', function(event) {
   function selectRequestType(type) {
     // Store the selected request type in sessionStorage
     sessionStorage.setItem('selectedRequestType', type);
-    
+
     // Redirect to supply request page with the selected type
     window.location.href = 'pages/property_request.php?type=' + type;
   }
@@ -1138,7 +1151,7 @@ document.addEventListener('keydown', function(event) {
   window.onclick = function(event) {
     var requestModal = document.getElementById('requestTypeModal');
     var passwordModal = document.getElementById('passwordModal');
-    
+
     if (event.target == requestModal) {
       hideRequestTypeModal();
     }
@@ -1168,7 +1181,7 @@ document.addEventListener('keydown', function(event) {
   // Add click animation to request options
   document.addEventListener('DOMContentLoaded', function() {
     const requestOptions = document.querySelectorAll('.request-option');
-    
+
     requestOptions.forEach(option => {
       option.addEventListener('click', function() {
         // Add click animation

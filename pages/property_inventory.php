@@ -755,6 +755,84 @@ if ($categories_result && $categories_result->num_rows > 0) {
         }
 
         /* Responsive */
+
+
+        /* Acquired Supplies Table Optimization (Global) */
+        #acquiredSuppliesTable {
+            font-size: 0.85rem;
+            width: 100% !important;
+            table-layout: auto;
+        }
+
+        #acquiredSuppliesTable th,
+        #acquiredSuppliesTable td {
+            padding: 8px 4px;
+            vertical-align: middle;
+        }
+
+        .text-truncate-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            max-width: 150px;
+        }
+
+        .col-date {
+            width: 90px;
+        }
+
+        .col-invoice {
+            width: 100px;
+        }
+
+        .col-supplier {
+            max-width: 120px;
+        }
+
+        .col-type {
+            width: 80px;
+        }
+
+        .col-cat {
+            width: 100px;
+        }
+
+        .col-desc {
+            max-width: 150px;
+        }
+
+        .col-qty {
+            width: 50px;
+        }
+
+        .col-unit {
+            width: 50px;
+        }
+
+        .col-price {
+            width: 90px;
+        }
+
+        .col-amount {
+            width: 100px;
+        }
+
+        .col-status {
+            width: 90px;
+        }
+
+        .col-actions {
+            width: 60px;
+        }
+
+        @media (max-width: 1400px) {
+            #acquiredSuppliesTable {
+                font-size: 0.8rem;
+            }
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -795,27 +873,35 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 max-width: 100%;
                 margin-right: 30px;
             }
+
+            .alert .flex-grow-1 {
+                max-width: 100%;
+                margin-right: 30px;
+            }
         }
     </style>
 
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <h3>DARTS</h3>
+            <a href="../dashboard.php" style="text-decoration: none; color: inherit;">
+                <h3>DARTS</h3>
+            </a>
             <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
         </div>
 
         <nav class="sidebar-nav">
-            <ul class="nav-item">
-                <li><a href="<?= $dashboard_link ?>" class="nav-link">
-                        <i class="fas fa-chart-line"></i> Dashboard
-                    </a></li>
-                <li><a href="property_inventory.php" class="nav-link active">
-                        <i class="fas fa-boxes"></i> Property Inventory
-                    </a></li>
-                <li><a href="rooms_inventory.php" class="nav-link">
-                        <i class="fas fa-door-open"></i> Rooms Inventory
-                    </a></li>
+            <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                <ul class="nav-item">
+                    <li><a href="<?= $dashboard_link ?>" class="nav-link">
+                            <i class="fas fa-chart-line"></i> Dashboard
+                        </a></li>
+                    <li><a href="property_inventory.php" class="nav-link active">
+                            <i class="fas fa-boxes"></i> Property Inventory
+                        </a></li>
+                    <li><a href="rooms_inventory.php" class="nav-link">
+                            <i class="fas fa-door-open"></i> Rooms Inventory
+                        </a></li>
                     <li>
                         <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
                             <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
@@ -829,26 +915,37 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             </li>
                         </ul>
                     </li>
-                <li><a href="aircon_list.php" class="nav-link">
-                        <i class="fas fa-snowflake"></i> Aircons
+                    <li><a href="aircon_list.php" class="nav-link">
+                            <i class="fas fa-snowflake"></i> Aircons
+                        </a></li>
+                    <li><a href="office_inventory.php" class="nav-link">
+                            <i class="fas fa-building"></i> Office Inventory Form
+                        </a></li>
+                    <li><a href="property_issuance.php" class="nav-link">
+                            <i class="fas fa-hand-holding"></i> Property Issuance
+                        </a></li>
+                    <li><a href="equipment_transfer_request.php" class="nav-link">
+                            <i class="fas fa-exchange-alt"></i> Transfer Request
+                        </a></li>
+                    <li><a href="borrowers_forms.php" class="nav-link">
+                            <i class="fas fa-hand-holding"></i> Borrower Forms
+                        </a></li>
+                    <li><a href="../logout.php" class="nav-link logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a></li>
                     </a></li>
-                <li><a href="office_inventory.php" class="nav-link">
-                        <i class="fas fa-building"></i> Office Inventory Form
-                    </a></li>
-                <li><a href="property_issuance.php" class="nav-link">
-                        <i class="fas fa-hand-holding"></i> Property Issuance
-                    </a></li>
-                <li><a href="equipment_transfer_request.php" class="nav-link">
-                        <i class="fas fa-exchange-alt"></i> Transfer Request
-                    </a></li>
-                <li><a href="borrowers_forms.php" class="nav-link">
-                        <i class="fas fa-hand-holding"></i> Borrower Forms
-                    </a></li>
-                <li><a href="../logout.php" class="nav-link logout">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a></li>
-                </a></li>
-            </ul>
+                </ul>
+            <?php endif; ?>
+            <?php if (strtolower($user_type) == 'purchasing officer'): ?>
+                <ul class="nav-item">
+                    <li><a href="../dashboard.php" class="nav-link">
+                            <i class="fas fa-chart-line"></i> Dashboard
+                        </a></li>
+                    <li><a href="../logout.php" class="nav-link logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a></li>
+                </ul>
+            <?php endif; ?>
         </nav>
     </div>
 
@@ -857,6 +954,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
         <div class="content-header">
             <h1>Property Inventory Management</h1>
             <p>Track supplies, monitor stock levels, and manage inventory movements</p>
+            <?php if (strtolower($user_type) == 'purchasing officer' || strtolower($user_type) == 'admin'): ?>
+                <button class="btn" style="background-color: var(--accent-orange);" onclick="window.location.href='received_items.php'">Back to received page</button>
+            <?php endif; ?>
         </div>
 
         <!-- Success/Error Messages -->
@@ -971,9 +1071,11 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     <a href="../actions/export_property_inventory.php?search=<?= urlencode($search_term) ?>&sy_inv=<?= urlencode($sy_inv_raw) ?>" class="btn btn-success text-white" title="Export to Excel">
                         <i class="fas fa-file-excel"></i> Export
                     </a>
-                    <button class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
-                        <i class="fas fa-plus"></i> Add Item
-                    </button>
+                    <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                        <button class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                            <i class="fas fa-plus"></i> Add Item
+                        </button>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -1395,7 +1497,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <th>Type</th>
                                 <th>Status</th>
                                 <th>Date Created</th>
-                                <th>Actions</th>
+                                <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                                    <th>Actions</th>
+                                <?php endif; ?>
                             </tr>
                         </thead>
                         <tbody>
@@ -1426,36 +1530,38 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             </span>
                                         </td>
                                         <td><?= $row['date_created'] ? date('M d, Y', strtotime($row['date_created'])) : 'N/A' ?></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-success me-1" title="Stock In" onclick="stockIn('<?= $row['inventory_id'] ?>')">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-warning me-1" title="Stock Out" onclick="stockOut('<?= $row['inventory_id'] ?>')">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-info" title="Edit"
-                                                onclick="openEditInventoryModal(
-                                                <?= (int)$row['inventory_id'] ?>,
-                                                <?= json_encode($row['item_name']) ?>,
-                                                <?= json_encode($row['category']) ?>,
-                                                <?= json_encode($row['unit']) ?>,
-                                                <?= (int)$row['current_stock'] ?>,
-                                                <?= (int)$row['reorder_level'] ?>,
-                                                <?= (int)$row['supplier_id'] ?>,
-                                                <?= (float)$row['unit_cost'] ?>,
-                                                <?= json_encode($row['description'] ?? '') ?>,
-                                                <?= (int)($row['quantity'] ?? 0) ?>,
-                                                <?= json_encode($row['receiver'] ?? '') ?>,
-                                                <?= json_encode($row['status'] ?? 'Active') ?>,
-                                                <?= json_encode($row['received_notes'] ?? '') ?>,
-                                                <?= json_encode($row['type'] ?? '') ?>,
-                                                <?= json_encode($row['brand'] ?? '') ?>,
-                                                <?= json_encode($row['size'] ?? '') ?>,
-                                                <?= json_encode($row['color'] ?? '') ?>
-                                            )">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                        </td>
+                                        <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-success me-1" title="Stock In" onclick="stockIn('<?= $row['inventory_id'] ?>')">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-warning me-1" title="Stock Out" onclick="stockOut('<?= $row['inventory_id'] ?>')">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-info" title="Edit"
+                                                    onclick="openEditInventoryModal(
+                                                    <?= (int)$row['inventory_id'] ?>,
+                                                    <?= json_encode($row['item_name']) ?>,
+                                                    <?= json_encode($row['category']) ?>,
+                                                    <?= json_encode($row['unit']) ?>,
+                                                    <?= (int)$row['current_stock'] ?>,
+                                                    <?= (int)$row['reorder_level'] ?>,
+                                                    <?= (int)$row['supplier_id'] ?>,
+                                                    <?= (float)$row['unit_cost'] ?>,
+                                                    <?= json_encode($row['description'] ?? '') ?>,
+                                                    <?= (int)($row['quantity'] ?? 0) ?>,
+                                                    <?= json_encode($row['receiver'] ?? '') ?>,
+                                                    <?= json_encode($row['status'] ?? 'Active') ?>,
+                                                    <?= json_encode($row['received_notes'] ?? '') ?>,
+                                                    <?= json_encode($row['type'] ?? '') ?>,
+                                                    <?= json_encode($row['brand'] ?? '') ?>,
+                                                    <?= json_encode($row['size'] ?? '') ?>,
+                                                    <?= json_encode($row['color'] ?? '') ?>
+                                                )">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                            </td>
+                                        <?php endif; ?>
                                     </tr>
                                 <?php endwhile; ?>
                             <?php else: ?>
@@ -1473,7 +1579,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     </table>
                 </div>
 
-                <?php if ($total_pages > 1): ?>
+                <?php if ($total_pages > 1 && strtolower($user_type) != 'purchasing officer'): ?>
                     <nav>
                         <ul class="pagination justify-content-center mt-3" id="paginationContainer">
                             <?php
@@ -1535,7 +1641,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             <form method="GET" class="d-flex align-items-end gap-2 mb-0">
                                 <div>
                                     <label for="sy_logs" class="form-label mb-0 text-white">School Year</label>
-                                    <select id="sy_logs" name="sy_logs" class="form-select" onchange="this.form.submit()">
+                                    <select id="sy_logs" name="sy_logs" class="form-select" onchange="loadStockMovements(1)">
                                         <option value="">All</option>
                                         <?php foreach ($sy_years as $sy): ?>
                                             <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_logs_raw === $sy) ? 'selected' : '' ?>>
@@ -1544,15 +1650,19 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
+                                <div class="search-input">
+                                    <label for="logs_search" class="form-label mb-0 text-white">Search</label>
+                                    <input type="text" id="logs_search" class="form-control" placeholder="Search item or date..." onkeyup="loadStockMovements(1)">
+                                </div>
                                 <div class="pt-4">
                                     <?php if (!empty($sy_logs_raw)): ?>
                                         <a href="property_inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_logs' => true])) ?>" class="btn btn-outline-light">Reset</a>
                                     <?php endif; ?>
+                                    <button type="button" class="btn btn-success" title="Export to Excel" onclick="exportPropertyStockMovements()">
+                                        <i class="fas fa-file-excel"></i> Export
+                                    </button>
                                 </div>
                             </form>
-                            <button class="btn btn-add text-dark" onclick="viewAllMovements()">
-                                <i class="fas fa-list"></i> View All
-                            </button>
                         </div>
                     </div>
 
@@ -1568,7 +1678,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <th>New Stock</th>
                                     <th>Receiver</th>
                                     <th>Notes</th>
-                                    <th>Actions</th>
+                                    <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                                        <th>Actions</th>
+                                    <?php endif; ?>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1587,22 +1699,24 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <td><?= $log['new_stock'] ?></td>
                                             <td><?= htmlspecialchars($log['receiver'] ?? 'N/A') ?></td>
                                             <td><?= htmlspecialchars($log['notes']) ?></td>
-                                            <td>
-                                                <button class="btn btn-sm btn-info" title="Edit"
-                                                    onclick='openEditStockMovementModal(
-                                                        <?= (int)$log['log_id'] ?>,
-                                                        <?= (int)$log['inventory_id'] ?>,
-                                                        <?= json_encode($log['item_name']) ?>,
-                                                        <?= json_encode($log['movement_type']) ?>,
-                                                        <?= (int)$log['quantity'] ?>,
-                                                        <?= (int)$log['previous_stock'] ?>,
-                                                        <?= (int)$log['new_stock'] ?>,
-                                                        <?= json_encode($log['receiver'] ?? '') ?>,
-                                                        <?= json_encode($log['notes'] ?? '') ?>
-                                                    )'>
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                            </td>
+                                            <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                                                <td>
+                                                    <button class="btn btn-sm btn-info" title="Edit"
+                                                        onclick='openEditStockMovementModal(
+                                                            <?= (int)$log['log_id'] ?>,
+                                                            <?= (int)$log['inventory_id'] ?>,
+                                                            <?= json_encode($log['item_name']) ?>,
+                                                            <?= json_encode($log['movement_type']) ?>,
+                                                            <?= (int)$log['quantity'] ?>,
+                                                            <?= (int)$log['previous_stock'] ?>,
+                                                            <?= (int)$log['new_stock'] ?>,
+                                                            <?= json_encode($log['receiver'] ?? '') ?>,
+                                                            <?= json_encode($log['notes'] ?? '') ?>
+                                                        )'>
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                </td>
+                                            <?php endif; ?>
                                         </tr>
                                     <?php endwhile; ?>
                                 <?php else: ?>
@@ -1617,7 +1731,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         </table>
                     </div>
 
-                    <?php if ($logs_total_pages > 1): ?>
+                    <?php if ($logs_total_pages > 1 && strtolower($user_type ?? '') != 'purchasing officer'): ?>
                         <nav>
                             <ul class="pagination justify-content-center mt-3">
                                 <?php
@@ -1695,21 +1809,21 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0 table-striped">
+                    <table class="table table-hover mb-0 table-striped" id="acquiredSuppliesTable">
                         <thead class="table-dark">
                             <tr>
-                                <th>Date Received</th>
-                                <th>Invoice Number</th>
-                                <th>Supplier</th>
-                                <th>Sales Type</th>
-                                <th>Category</th>
-                                <th>Item Description</th>
-                                <th>Quantity</th>
-                                <th>Unit</th>
-                                <th>Unit Price</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th class="col-date">Date</th>
+                                <th class="col-invoice">Invoice</th>
+                                <th class="col-supplier">Supplier</th>
+                                <th class="col-type">Type</th>
+                                <th class="col-cat">Category</th>
+                                <th class="col-desc">Description</th>
+                                <th class="col-qty">Qty</th>
+                                <th class="col-unit">Unit</th>
+                                <th class="col-price">Price</th>
+                                <th class="col-amount">Amount</th>
+                                <th class="col-status">Status</th>
+                                <th class="col-actions">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1729,22 +1843,34 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         data-unit="<?= htmlspecialchars($row['unit'] ?? '') ?>"
                                         data-unit-price="<?= htmlspecialchars($row['unit_price'] ?? '0.00') ?>"
                                         data-invoice="<?= htmlspecialchars($row['invoice_no'] ?? '') ?>">
-                                        <td><?= date('M d, Y', strtotime($row['date_created'])) ?></td>
-                                        <td><?= htmlspecialchars($row['invoice_no']) ?></td>
-                                        <td><?= htmlspecialchars($row['supplier_name']) ?></td>
-                                        <td><?= htmlspecialchars($row['sales_type']) ?></td>
-                                        <td><?= htmlspecialchars($row['category']) ?></td>
-                                        <td><?= htmlspecialchars($row['item_name']) ?></td>
-                                        <td><?= htmlspecialchars($row['quantity']) ?></td>
-                                        <td><?= htmlspecialchars($row['unit']) ?></td>
-                                        <td>₱ <?= htmlspecialchars($row['unit_price']) ?></td>
-                                        <td>₱ <?= htmlspecialchars($row['total_amount']) ?></td>
-                                        <td>
+                                        <td class="col-date"><?= date('M d, Y', strtotime($row['date_created'])) ?></td>
+                                        <td class="col-invoice"><?= htmlspecialchars($row['invoice_no']) ?></td>
+                                        <td class="col-supplier">
+                                            <div class="text-truncate-2" title="<?= htmlspecialchars($row['supplier_name']) ?>">
+                                                <?= htmlspecialchars($row['supplier_name']) ?>
+                                            </div>
+                                        </td>
+                                        <td class="col-type"><?= htmlspecialchars($row['sales_type']) ?></td>
+                                        <td class="col-cat">
+                                            <div class="text-truncate-2" title="<?= htmlspecialchars($row['category']) ?>">
+                                                <?= htmlspecialchars($row['category']) ?>
+                                            </div>
+                                        </td>
+                                        <td class="col-desc">
+                                            <div class="text-truncate-2" title="<?= htmlspecialchars($row['item_name']) ?>">
+                                                <?= htmlspecialchars($row['item_name']) ?>
+                                            </div>
+                                        </td>
+                                        <td class="col-qty"><?= htmlspecialchars($row['quantity']) ?></td>
+                                        <td class="col-unit"><?= htmlspecialchars($row['unit']) ?></td>
+                                        <td class="col-price">₱<?= number_format($row['unit_price'], 2) ?></td>
+                                        <td class="col-amount">₱<?= number_format($row['total_amount'], 2) ?></td>
+                                        <td class="col-status">
                                             <span class="badge bg-success">
                                                 <?= htmlspecialchars($row['status']) ?>
                                             </span>
                                         </td>
-                                        <td>
+                                        <td class="col-actions">
                                             <button type="button" class="btn btn-sm btn-success mark-received-btn" data-bs-toggle="modal" data-bs-target="#receivedModal" title="Mark as Received"
                                                 data-transaction-id="<?= $row['procurement_id'] ?>"
                                                 data-item-name="<?= htmlspecialchars($row['item_name']) ?>"
@@ -2501,11 +2627,17 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     console.log('View item:', inventoryId);
                 }
 
-                function viewAllMovements() {
-                    // Implement view all movements functionality
-                    console.log('View all movements');
-                }
+                function exportPropertyStockMovements() {
+                    const syValue = document.getElementById('sy_logs').value;
+                    const searchValue = document.getElementById('logs_search').value;
 
+                    let exportUrl = '../actions/export_property_stock_movements.php?';
+                    const params = new URLSearchParams();
+                    if (syValue) params.append('sy_logs', syValue);
+                    if (searchValue) params.append('search', searchValue);
+
+                    window.location.href = exportUrl + params.toString();
+                }
                 // Add to Inventory from Acquired Supplies Items row
                 function addToInventoryFromRow(button) {
                     const row = button.closest('tr');
@@ -2844,6 +2976,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 function loadStockMovements(page = 1) {
                     // Get current school year filter
                     const syLogs = document.getElementById('sy_logs')?.value || '';
+                    // Get search value
+                    const searchVal = document.getElementById('logs_search')?.value || '';
 
                     // Show loading state
                     const tableBody = document.querySelector('#stock-movements tbody');
@@ -2856,6 +2990,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     params.set('logs_page', page);
                     if (syLogs) {
                         params.set('sy_logs', syLogs);
+                    }
+                    if (searchVal) {
+                        params.set('search', searchVal);
                     }
 
                     // Fetch data from API
@@ -2964,7 +3101,11 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '<div id="inventoryTable">';
             echo '<table class="table table-hover mb-0">';
             echo '<thead class="table-dark">';
-            echo '<tr><th>Item Name</th><th>Description</th><th>Current Stock</th><th>Unit</th><th>Brand</th><th>Color</th><th>Size</th><th>Type</th><th>Status</th><th>Date Created</th><th>Actions</th></tr>';
+            echo '<tr><th>Item Name</th><th>Description</th><th>Current Stock</th><th>Unit</th><th>Brand</th><th>Color</th><th>Size</th><th>Type</th><th>Status</th><th>Date Created</th>';
+            if (strtolower($user_type ?? '') != 'purchasing officer') {
+                echo '<th>Actions</th>';
+            }
+            echo '</tr>';
             echo '</thead><tbody>';
 
             if ($result && $result->num_rows > 0) {
@@ -2989,35 +3130,38 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '<td>' . htmlspecialchars($row['type'] ?? '') . '</td>';
                     echo '<td><span class="badge bg-' . ($stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success')) . '">' . ucfirst($stock_level) . '</span></td>';
                     echo '<td>' . ($row['date_created'] ? date('M d, Y', strtotime($row['date_created'])) : 'N/A') . '</td>';
-                    echo '<td>';
-                    // Separate buttons for Stock In (+) and Stock Out (−)
-                    echo '<button class="btn btn-sm btn-outline-success me-1" title="Stock In" onclick="stockIn(' . $row['inventory_id'] . ')">';
-                    echo '<i class="fas fa-plus"></i>';
-                    echo '</button> ';
-                    echo '<button class="btn btn-sm btn-outline-warning me-1" title="Stock Out" onclick="stockOut(' . $row['inventory_id'] . ')">';
-                    echo '<i class="fas fa-minus"></i>';
-                    echo '</button> ';
-                    echo '<button class="btn btn-sm btn-info" title="Edit" onclick=\'openEditInventoryModal('
-                        . (int)$row['inventory_id'] . ', '
-                        . json_encode($row['item_name']) . ', '
-                        . json_encode($row['category']) . ', '
-                        . json_encode($row['unit']) . ', '
-                        . (int)$row['current_stock'] . ', '
-                        . (int)$row['reorder_level'] . ', '
-                        . json_encode($row['location'] ?? '') . ', '
-                        . json_encode((int)$row['supplier_id']) . ', '
-                        . json_encode((float)$row['unit_cost']) . ', '
-                        . json_encode($row['description'] ?? '') . ', '
-                        . json_encode((int)($row['quantity'] ?? 0)) . ', '
-                        . json_encode($row['receiver'] ?? '') . ', '
-                        . json_encode($row['status'] ?? 'Active') . ', '
-                        . json_encode($row['received_notes'] ?? '') . ', '
-                        . json_encode($row['type'] ?? '') . ', '
-                        . json_encode($row['brand'] ?? '') . ', '
-                        . json_encode($row['size'] ?? '') . ', '
-                        . json_encode($row['color'] ?? '')
-                        . ')\'><i class="fas fa-edit"></i></button>';
-                    echo '</td></tr>';
+                    if (strtolower($user_type ?? '') != 'purchasing officer') {
+                        echo '<td>';
+                        // Separate buttons for Stock In (+) and Stock Out (−)
+                        echo '<button class="btn btn-sm btn-outline-success me-1" title="Stock In" onclick="stockIn(' . $row['inventory_id'] . ')">';
+                        echo '<i class="fas fa-plus"></i>';
+                        echo '</button> ';
+                        echo '<button class="btn btn-sm btn-outline-warning me-1" title="Stock Out" onclick="stockOut(' . $row['inventory_id'] . ')">';
+                        echo '<i class="fas fa-minus"></i>';
+                        echo '</button> ';
+                        echo '<button class="btn btn-sm btn-info" title="Edit" onclick=\'openEditInventoryModal('
+                            . (int)$row['inventory_id'] . ', '
+                            . json_encode($row['item_name']) . ', '
+                            . json_encode($row['category']) . ', '
+                            . json_encode($row['unit']) . ', '
+                            . (int)$row['current_stock'] . ', '
+                            . (int)$row['reorder_level'] . ', '
+                            . json_encode($row['location'] ?? '') . ', '
+                            . json_encode((int)$row['supplier_id']) . ', '
+                            . json_encode((float)$row['unit_cost']) . ', '
+                            . json_encode($row['description'] ?? '') . ', '
+                            . json_encode((int)($row['quantity'] ?? 0)) . ', '
+                            . json_encode($row['receiver'] ?? '') . ', '
+                            . json_encode($row['status'] ?? 'Active') . ', '
+                            . json_encode($row['received_notes'] ?? '') . ', '
+                            . json_encode($row['type'] ?? '') . ', '
+                            . json_encode($row['brand'] ?? '') . ', '
+                            . json_encode($row['size'] ?? '') . ', '
+                            . json_encode($row['color'] ?? '')
+                            . ')\'><i class="fas fa-edit"></i></button>';
+                        echo '</td>';
+                    }
+                    echo '</tr>';
                 }
             } else {
                 echo '<tr><td colspan="11" class="text-center py-4"><i class="fas fa-boxes fa-3x text-muted mb-3"></i><p class="text-muted">No inventory items found</p></td></tr>';
@@ -3026,7 +3170,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '</tbody></table></div>';
 
             // Output pagination (compact with ellipses)
-            if ($total_pages > 1) {
+            if ($total_pages > 1 && strtolower($user_type ?? '') != 'purchasing officer') {
                 echo '<nav><ul class="pagination justify-content-center mt-3" id="paginationContainer">';
 
                 // Previous button
