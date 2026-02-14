@@ -1,11 +1,8 @@
 <?php
 
-<<<<<<< HEAD
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-=======
->>>>>>> 643aa5bfd5a5f0ab08178fec8898740e2aaf3d45
 $pageTitle = 'Received Items';
 include '../includes/auth.php';
 include '../includes/db.php';

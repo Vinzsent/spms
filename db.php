@@ -1,7 +1,7 @@
 <?php
-$host = 'locahost';
-$user = 'vleserver';
-$pass = 'M!s@dm1n';
+$host = '127.0.0.1';
+$user = 'root';
+$pass = '';
 $dbname = 'supplier_db';
 
 $conn = new mysqli($host, $user, $pass, $dbname);
@@ -9,4 +9,3 @@ $conn = new mysqli($host, $user, $pass, $dbname);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-?>

@@ -110,11 +110,8 @@
         </div>
         <div class="col-md-6">
           <label for="product-category" class="form-label">Category <span style="color: red;">*</span></label>
-<<<<<<< HEAD
           <select name="category" id="product-category" class="form-select" required>
-=======
-          <select name="category" id="productcategory" class="form-select" required>
->>>>>>> 643aa5bfd5a5f0ab08178fec8898740e2aaf3d45
+
             <option value="">-- Select Category --</option>
           </select>
         </div>
