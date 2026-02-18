@@ -671,8 +671,8 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <a href="pages/issuance.php" class="card-button">Access</a>
       </div>
 
-    <?php elseif ($user_type === 'purchasingofficer'): ?>
-      <!-- Supply Requisition Card ONLY for School President -->
+    <?php elseif ($user_type === 'purchasingofficer' || $user_type === 'purchasingstaff' || $user_type === 'purcashingstaff' || $user_type === 'purchsingstaff'): ?>
+      <!-- Cards for Purchasing Staff and Officers -->
 
       <!-- Assignment Card -->
       <div class="menu-card card-primary">

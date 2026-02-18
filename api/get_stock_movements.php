@@ -79,7 +79,7 @@ try {
             $table_rows .= '<td>' . $log['previous_stock'] . '</td>';
             $table_rows .= '<td>' . $log['new_stock'] . '</td>';
             $table_rows .= '<td>' . htmlspecialchars($log['notes']) . '</td>';
-            if (strtolower($_SESSION['user_type'] ?? '') != 'purchasing officer') {
+            if (strtolower($_SESSION['user_type'] ?? '') != 'purchasing officer' || strtolower($_SESSION['user_type'] ?? '') != 'purchasingstaff') {
                 $table_rows .= '<td>';
                 $table_rows .= '<button class="btn btn-sm btn-info" onclick="editMovement(' . $log['log_id'] . ')">';
                 $table_rows .= '<i class="fas fa-edit"></i>';

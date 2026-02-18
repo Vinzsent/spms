@@ -472,7 +472,7 @@ if ($isAjax) {
         </div>
 
         <nav class="sidebar-nav">
-            <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+            <?php if (strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasingstaff'): ?>
                 <ul class="nav-item">
                     <li><a href="<?= $dashboard_link ?>" class="nav-link">
                             <i class="fas fa-chart-line"></i> Dashboard

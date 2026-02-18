@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Notification Helper Functions
  * Provides utility functions to create notifications for different system events
@@ -21,7 +22,8 @@ if (!isset($conn)) {
  * @param mysqli $conn Database connection
  * @return bool Success status
  */
-function notifyPropertyRequestSubmitted($request_id, $department, $description, $tagging, $conn) {
+function notifyPropertyRequestSubmitted($request_id, $department, $description, $tagging, $conn)
+{
     // Normalize tagging
     $raw_tag = strtolower(trim($tagging));
     $is_consumables = ($raw_tag === 'consumables' || $raw_tag === 'consumambles');
@@ -38,6 +40,7 @@ function notifyPropertyRequestSubmitted($request_id, $department, $description, 
     $roles = [
         'Immediate Head',
         'Purchasing Officer',
+        'Purchasing Staff',
         'VP for Finance \\u0026 Administration',
         'VP for Academic Affairs',
         'Admistrative Officer'
@@ -89,22 +92,23 @@ function notifyPropertyRequestSubmitted($request_id, $department, $description, 
  * @param mysqli $conn Database connection
  * @return bool Success status
  */
-function createNotification($user_id, $type, $title, $message, $related_id = null, $related_type = null, $conn) {
+function createNotification($user_id, $type, $title, $message, $related_id = null, $related_type = null, $conn)
+{
     try {
         $sql = "INSERT INTO notifications (user_id, type, title, message, related_id, related_type) 
                 VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("isssss", $user_id, $type, $title, $message, $related_id, $related_type);
-        
+
         $result = $stmt->execute();
-        
+
         // Debug logging
         if ($result) {
             error_log("Notification created successfully for user $user_id: $title");
         } else {
             error_log("Failed to create notification for user $user_id: " . $stmt->error);
         }
-        
+
         return $result;
     } catch (Exception $e) {
         error_log("Error creating notification: " . $e->getMessage());
@@ -121,7 +125,8 @@ function createNotification($user_id, $type, $title, $message, $related_id = nul
  * @param mysqli $conn Database connection
  * @return bool Success status
  */
-function notifySupplyRequestSubmitted($request_id, $department, $description, $request_type, $conn) {
+function notifySupplyRequestSubmitted($request_id, $department, $description, $request_type, $conn)
+{
     // Normalize and label request type (handle possible misspelling "consumambles")
     $raw_type = strtolower(trim($request_type));
     $is_consumables = ($raw_type === 'consumables' || $raw_type === 'consumambles');
@@ -136,6 +141,7 @@ function notifySupplyRequestSubmitted($request_id, $department, $description, $r
     $base_roles = [
         'Immediate Head',
         'Purchasing Officer',
+        'Purchasing Staff',
         'VP for Finance \u0026 Administration',
         'VP for Academic Affairs',
         'Admistrative Officer'
@@ -184,10 +190,11 @@ function notifySupplyRequestSubmitted($request_id, $department, $description, $r
  * @param mysqli $conn Database connection
  * @return bool Success status
  */
-function notifyRequestApproved($request_id, $approved_by, $requester_id, $conn) {
+function notifyRequestApproved($request_id, $approved_by, $requester_id, $conn)
+{
     $title = "🎉 Request Approved!";
     $message = "Great news! Your supply request has been approved by $approved_by. Your items will be processed for issuance soon.";
-    
+
     return createNotification($requester_id, 'approved', $title, $message, $request_id, 'supply_request', $conn);
 }
 
@@ -201,13 +208,14 @@ function notifyRequestApproved($request_id, $approved_by, $requester_id, $conn) 
  * @param mysqli $conn Database connection
  * @return bool Success status
  */
-function notifyRequestRejected($request_id, $rejected_by, $requester_id, $reason = '', $conn) {
+function notifyRequestRejected($request_id, $rejected_by, $requester_id, $reason = '', $conn)
+{
     $title = "Request Rejected";
     $message = "Your supply request has been rejected by $rejected_by";
     if ($reason) {
         $message .= ". Reason: $reason";
     }
-    
+
     return createNotification($requester_id, 'rejected', $title, $message, $request_id, 'supply_request', $conn);
 }
 
@@ -221,10 +229,11 @@ function notifyRequestRejected($request_id, $rejected_by, $requester_id, $reason
  * @param mysqli $conn Database connection
  * @return bool Success status
  */
-function notifyItemIssued($transaction_id, $issued_by, $requester_id, $item_description, $conn) {
+function notifyItemIssued($transaction_id, $issued_by, $requester_id, $item_description, $conn)
+{
     $title = "📦 Item Issued!";
     $message = "Your requested item has been issued by $issued_by: $item_description. You can now collect your items from the supply office.";
-    
+
     return createNotification($requester_id, 'issued', $title, $message, $transaction_id, 'supplier_transaction', $conn);
 }
 
@@ -235,7 +244,8 @@ function notifyItemIssued($transaction_id, $issued_by, $requester_id, $item_desc
  * @param mysqli $conn Database connection
  * @return int|null User ID or null if not found
  */
-function findRequesterByDepartment($department, $conn) {
+function findRequesterByDepartment($department, $conn)
+{
     try {
         // Map department names to user types for better matching
         $department_mapping = [
@@ -245,25 +255,26 @@ function findRequesterByDepartment($department, $conn) {
             'Immediate Head' => 'Immediate Head',
             'Supply In-charge' => 'Supply In-charge',
             'Purchasing Officer' => 'Purchasing Officer',
+            'Purchasing Staff' => 'Purchasing Staff',
             'School President' => 'School President',
             'VP for Finance & Administration' => 'VP for Finance & Administration',
             'VP for Academic Affairs' => 'VP for Academic Affairs',
             'Admistrative Officer' => 'Admistrative Officer',
             'Property Custodian' => 'Property Custodian'
         ];
-        
+
         // Try to find by exact department match first
         $sql = "SELECT id FROM user WHERE user_type = ? LIMIT 1";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $department);
         $stmt->execute();
         $result = $stmt->get_result();
-        
+
         if ($result && $result->num_rows > 0) {
             $row = $result->fetch_assoc();
             return $row['id'];
         }
-        
+
         // Try mapped department name
         if (isset($department_mapping[$department])) {
             $mapped_type = $department_mapping[$department];
@@ -271,13 +282,13 @@ function findRequesterByDepartment($department, $conn) {
             $stmt->bind_param("s", $mapped_type);
             $stmt->execute();
             $result = $stmt->get_result();
-            
+
             if ($result && $result->num_rows > 0) {
                 $row = $result->fetch_assoc();
                 return $row['id'];
             }
         }
-        
+
         // If still not found, try to find any user with similar user_type
         $sql = "SELECT id FROM user WHERE user_type LIKE ? LIMIT 1";
         $stmt = $conn->prepare($sql);
@@ -285,12 +296,12 @@ function findRequesterByDepartment($department, $conn) {
         $stmt->bind_param("s", $search_term);
         $stmt->execute();
         $result = $stmt->get_result();
-        
+
         if ($result && $result->num_rows > 0) {
             $row = $result->fetch_assoc();
             return $row['id'];
         }
-        
+
         // Default: return the first user (fallback)
         $sql = "SELECT id FROM user LIMIT 1";
         $result = $conn->query($sql);
@@ -298,7 +309,7 @@ function findRequesterByDepartment($department, $conn) {
             $row = $result->fetch_assoc();
             return $row['id'];
         }
-        
+
         return null;
     } catch (Exception $e) {
         error_log("Error finding requester by department: " . $e->getMessage());
@@ -316,7 +327,8 @@ function findRequesterByDepartment($department, $conn) {
  * @param mysqli $conn Database connection
  * @return bool Success status
  */
-function notifyRequestStatusUpdate($request_id, $status, $updated_by, $requester_id, $conn) {
+function notifyRequestStatusUpdate($request_id, $status, $updated_by, $requester_id, $conn)
+{
     $status_display = ucfirst($status);
     $status_icons = [
         'noted' => '📝',
@@ -325,11 +337,11 @@ function notifyRequestStatusUpdate($request_id, $status, $updated_by, $requester
         'approved' => '🎉',
         'issued' => '📦'
     ];
-    
+
     $icon = $status_icons[$status] ?? '📋';
     $title = "$icon Request Status Updated";
     $message = "Your supply request has been $status_display by $updated_by. The approval process is progressing.";
-    
+
     return createNotification($requester_id, 'request', $title, $message, $request_id, 'supply_request', $conn);
 }
 
@@ -340,7 +352,8 @@ function notifyRequestStatusUpdate($request_id, $status, $updated_by, $requester
  * @param mysqli $conn Database connection
  * @return int The number of unread notifications
  */
-function getUnreadNotificationCount($user_id, $conn) {
+function getUnreadNotificationCount($user_id, $conn)
+{
     try {
         $sql = "SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0";
         $stmt = $conn->prepare($sql);
@@ -348,7 +361,7 @@ function getUnreadNotificationCount($user_id, $conn) {
         $stmt->execute();
         $result = $stmt->get_result();
         $row = $result->fetch_assoc();
-        
+
         return $row['count'];
     } catch (Exception $e) {
         error_log("Error getting notification count: " . $e->getMessage());
@@ -365,7 +378,8 @@ function getUnreadNotificationCount($user_id, $conn) {
  * @param mysqli $conn Database connection
  * @return bool Success status (true if all inserts attempted; false if any failed)
  */
-function notifyStaffAndFacultyForIssuance($request_id, $issued_by, $description, $conn) {
+function notifyStaffAndFacultyForIssuance($request_id, $issued_by, $description, $conn)
+{
     $title = "📦 Items Issued";
     $message = "An issuance has been completed by $issued_by: $description you can now get the item to the supply officer";
 
@@ -390,5 +404,3 @@ function notifyStaffAndFacultyForIssuance($request_id, $issued_by, $description,
 
     return $success;
 }
-
-?>

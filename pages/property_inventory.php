@@ -891,7 +891,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
         </div>
 
         <nav class="sidebar-nav">
-            <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+            <?php if (strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasing staff' && strtolower($user_type) != 'purchasingstaff'): ?>
                 <ul class="nav-item">
                     <li><a href="<?= $dashboard_link ?>" class="nav-link">
                             <i class="fas fa-chart-line"></i> Dashboard
@@ -954,7 +954,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
         <div class="content-header">
             <h1>Property Inventory Management</h1>
             <p>Track supplies, monitor stock levels, and manage inventory movements</p>
-            <?php if (strtolower($user_type) == 'purchasing officer' || strtolower($user_type) == 'admin'): ?>
+            <?php if (strtolower($user_type) == 'purchasing officer' || strtolower($user_type) == 'admin' || strtolower($user_type) == 'purchasing staff' || strtolower($user_type) == 'purchasingstaff'): ?>
                 <button class="btn" style="background-color: var(--accent-orange);" onclick="window.location.href='received_items.php'">Back to received page</button>
             <?php endif; ?>
         </div>
@@ -1071,7 +1071,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     <a href="../actions/export_property_inventory.php?search=<?= urlencode($search_term) ?>&sy_inv=<?= urlencode($sy_inv_raw) ?>" class="btn btn-success text-white" title="Export to Excel">
                         <i class="fas fa-file-excel"></i> Export
                     </a>
-                    <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                    <?php if (strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasing staff' && strtolower($user_type) != 'purchasingstaff'): ?>
                         <button class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
                             <i class="fas fa-plus"></i> Add Item
                         </button>
@@ -1497,7 +1497,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <th>Type</th>
                                 <th>Status</th>
                                 <th>Date Created</th>
-                                <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                                <?php if (strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasing staff' && strtolower($user_type) != 'purchasingstaff'): ?>
                                     <th>Actions</th>
                                 <?php endif; ?>
                             </tr>
@@ -1530,7 +1530,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             </span>
                                         </td>
                                         <td><?= $row['date_created'] ? date('M d, Y', strtotime($row['date_created'])) : 'N/A' ?></td>
-                                        <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                                        <?php if (strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasing staff' && strtolower($user_type) != 'purchasingstaff'): ?>
                                             <td>
                                                 <button class="btn btn-sm btn-outline-success me-1" title="Stock In" onclick="stockIn('<?= $row['inventory_id'] ?>')">
                                                     <i class="fas fa-plus"></i>
@@ -1579,7 +1579,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     </table>
                 </div>
 
-                <?php if ($total_pages > 1 && strtolower($user_type) != 'purchasing officer'): ?>
+                <?php if ($total_pages > 1 && strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasing staff' && strtolower($user_type) != 'purchasingstaff'): ?>
                     <nav>
                         <ul class="pagination justify-content-center mt-3" id="paginationContainer">
                             <?php
@@ -1678,7 +1678,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <th>New Stock</th>
                                     <th>Receiver</th>
                                     <th>Notes</th>
-                                    <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                                    <?php if (strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasing staff' && strtolower($user_type) != 'purchasingstaff'): ?>
                                         <th>Actions</th>
                                     <?php endif; ?>
                                 </tr>
@@ -1699,7 +1699,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <td><?= $log['new_stock'] ?></td>
                                             <td><?= htmlspecialchars($log['receiver'] ?? 'N/A') ?></td>
                                             <td><?= htmlspecialchars($log['notes']) ?></td>
-                                            <?php if (strtolower($user_type) != 'purchasing officer'): ?>
+                                            <?php if (strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasing staff' && strtolower($user_type) != 'purchasingstaff'): ?>
                                                 <td>
                                                     <button class="btn btn-sm btn-info" title="Edit"
                                                         onclick='openEditStockMovementModal(
@@ -1731,7 +1731,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         </table>
                     </div>
 
-                    <?php if ($logs_total_pages > 1 && strtolower($user_type ?? '') != 'purchasing officer'): ?>
+                    <?php if ($logs_total_pages > 1 && strtolower($user_type ?? '') != 'purchasing officer' && strtolower($user_type ?? '') != 'purchasing staff' && strtolower($user_type ?? '') != 'purchasingstaff'): ?>
                         <nav>
                             <ul class="pagination justify-content-center mt-3">
                                 <?php
@@ -3102,7 +3102,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '<table class="table table-hover mb-0">';
             echo '<thead class="table-dark">';
             echo '<tr><th>Item Name</th><th>Description</th><th>Current Stock</th><th>Unit</th><th>Brand</th><th>Color</th><th>Size</th><th>Type</th><th>Status</th><th>Date Created</th>';
-            if (strtolower($user_type ?? '') != 'purchasing officer') {
+            if (strtolower($user_type ?? '') != 'purchasing officer' && strtolower($user_type ?? '') != 'purchasing staff' && strtolower($user_type ?? '') != 'purchasingstaff') {
                 echo '<th>Actions</th>';
             }
             echo '</tr>';
@@ -3130,7 +3130,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '<td>' . htmlspecialchars($row['type'] ?? '') . '</td>';
                     echo '<td><span class="badge bg-' . ($stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success')) . '">' . ucfirst($stock_level) . '</span></td>';
                     echo '<td>' . ($row['date_created'] ? date('M d, Y', strtotime($row['date_created'])) : 'N/A') . '</td>';
-                    if (strtolower($user_type ?? '') != 'purchasing officer') {
+                    if (strtolower($user_type ?? '') != 'purchasing officer' && strtolower($user_type ?? '') != 'purchasing staff' && strtolower($user_type ?? '') != 'purchasingstaff') {
                         echo '<td>';
                         // Separate buttons for Stock In (+) and Stock Out (−)
                         echo '<button class="btn btn-sm btn-outline-success me-1" title="Stock In" onclick="stockIn(' . $row['inventory_id'] . ')">';
@@ -3170,7 +3170,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '</tbody></table></div>';
 
             // Output pagination (compact with ellipses)
-            if ($total_pages > 1 && strtolower($user_type ?? '') != 'purchasing officer') {
+            if ($total_pages > 1 && strtolower($user_type ?? '') != 'purchasing officer' && strtolower($user_type ?? '') != 'purchasing staff' && strtolower($user_type ?? '') != 'purchasingstaff') {
                 echo '<nav><ul class="pagination justify-content-center mt-3" id="paginationContainer">';
 
                 // Previous button

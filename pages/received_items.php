@@ -273,7 +273,7 @@ $result = $conn->query($query);
                             <td><?= htmlspecialchars($row['received_by_name'] ?? '---') ?></td>
                             <td><?= $row['received_date'] ? date('M d, Y g:i A', strtotime($row['received_date'])) : '---' ?></td>
                             <td>
-                                <?php if ($row['status'] !== 'Received' && (in_array($user_type, ['propertycustodian', 'supplyincharge', 'purchasingofficer', 'admin']))): ?>
+                                <?php if ($row['status'] !== 'Received' && (in_array($user_type, ['propertycustodian', 'supplyincharge', 'purchasingofficer', 'purchasingstaff', 'admin']))): ?>
                                     <button class="btn-received" onclick="markAsReceived(<?= $row['po_id'] ?>)">
                                         <i class="fas fa-check-circle"></i> Mark Received
                                     </button>

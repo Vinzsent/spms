@@ -1,9 +1,16 @@
+<?php
+// Calculate the path prefix based on the current script location
+// This ensures links work from both the root and the /pages/ directory
+$current_script = $_SERVER['SCRIPT_NAME'];
+$path_prefix = (strpos($current_script, '/pages/') !== false) ? '../' : '';
+$asset_prefix = (strpos($current_script, '/pages/') !== false) ? '../' : './';
+?>
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-success px-3 fixed-top">
   <a class="navbar-brand" href="#">DARTS</a>
   <div class="ms-auto d-flex align-items-center">
     <div class="d-flex align-items-center me-3 position-relative">
-      <img src="assets/images/user.png" onerror="this.src='/darts/assets/images/user.png'" alt="Profile" class="avatar rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+      <img src="<?= $asset_prefix ?>assets/images/user.png" onerror="this.src='/darts/assets/images/user.png'" alt="Profile" class="avatar rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
       <div class="d-none d-md-block text-white">
         <div><?= htmlspecialchars($_SESSION['name'] ?? $_SESSION['user']['name'] ?? $_SESSION['user']['username'] ?? 'Guest'); ?></div>
         <span class="badge bg-light text-dark role-badge"><?= htmlspecialchars($_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? 'N/A'); ?></span>
@@ -27,13 +34,13 @@
           <!-- Notifications will be loaded here -->
         </div>
         <div class="notification-footer">
-          <a href="pages/notifications.php" class="text-decoration-none">View all Notifications</a>
+          <a href="<?= $path_prefix ?>pages/notifications.php" class="text-decoration-none">View all Notifications</a>
         </div>
       </div>
     </div>
 
     <button id="darkModeToggle" onclick="toggleDarkMode()" class="btn btn-outline-light me-2" aria-label="Toggle dark mode">🌙</button>
-    <a href="logout.php" class="btn btn-outline-light">🔓 Logout</a>
+    <a href="<?= $path_prefix ?>logout.php" class="btn btn-outline-light">🔓 Logout</a>
   </div>
 </nav>
 
@@ -343,7 +350,7 @@
       // Load notifications
       function loadNotifications() {
         $.ajax({
-          url: 'actions/get_notifications.php',
+          url: '<?= $path_prefix ?>actions/get_notifications.php',
           type: 'GET',
           dataType: 'json',
           success: function(response) {
@@ -442,7 +449,7 @@
       // Mark notification as read
       function markAsRead(notificationId) {
         $.ajax({
-          url: '/spms/actions/mark_notification_read.php',
+          url: '<?= $path_prefix ?>actions/mark_notification_read.php',
           type: 'POST',
           data: {
             notification_id: notificationId
@@ -462,7 +469,7 @@
       // Mark all as read
       function markAllAsRead() {
         $.ajax({
-          url: '/spms/actions/mark_all_notifications_read.php',
+          url: '<?= $path_prefix ?>actions/mark_all_notifications_read.php',
           type: 'POST',
           dataType: 'json',
           success: function(response) {

@@ -63,33 +63,33 @@ $categories_result = $conn->query($categories_query);
 // Organize categories hierarchically
 $organized_categories = [];
 if ($categories_result && $categories_result->num_rows > 0) {
-    while ($row = $categories_result->fetch_assoc()) {
-        $main = $row['main_category'];
-        if (!isset($organized_categories[$main])) {
-            $organized_categories[$main] = [];
-        }
-        
-        if (!empty($row['subcategory'])) {
-            $sub = $row['subcategory'];
-            if (!in_array($sub, $organized_categories[$main])) {
-                $organized_categories[$main][] = $sub;
-            }
-        }
-        
-        if (!empty($row['sub_subcategory'])) {
-            $subsub = $row['sub_subcategory'];
-            if (!in_array($subsub, $organized_categories[$main])) {
-                $organized_categories[$main][] = $subsub;
-            }
-        }
-        
-        if (!empty($row['sub_sub_subcategory'])) {
-            $subsubsub = $row['sub_sub_subcategory'];
-            if (!in_array($subsubsub, $organized_categories[$main])) {
-                $organized_categories[$main][] = $subsubsub;
-            }
-        }
+  while ($row = $categories_result->fetch_assoc()) {
+    $main = $row['main_category'];
+    if (!isset($organized_categories[$main])) {
+      $organized_categories[$main] = [];
     }
+
+    if (!empty($row['subcategory'])) {
+      $sub = $row['subcategory'];
+      if (!in_array($sub, $organized_categories[$main])) {
+        $organized_categories[$main][] = $sub;
+      }
+    }
+
+    if (!empty($row['sub_subcategory'])) {
+      $subsub = $row['sub_subcategory'];
+      if (!in_array($subsub, $organized_categories[$main])) {
+        $organized_categories[$main][] = $subsub;
+      }
+    }
+
+    if (!empty($row['sub_sub_subcategory'])) {
+      $subsubsub = $row['sub_sub_subcategory'];
+      if (!in_array($subsubsub, $organized_categories[$main])) {
+        $organized_categories[$main][] = $subsubsub;
+      }
+    }
+  }
 }
 
 // Display session messages
@@ -110,7 +110,7 @@ if (isset($_SESSION['error'])) {
 ?>
 
 <style>
-   /* Center only specific optgroup labels in category dropdown */
+  /* Center only specific optgroup labels in category dropdown */
   #accountSelect optgroup[label="Assets"],
   #accountSelect optgroup[label="Expenses"] {
     text-align: center;
@@ -168,7 +168,7 @@ if (isset($_SESSION['error'])) {
       justify-content: center !important;
       flex-wrap: wrap;
     }
-    
+
     #exportContainer .btn {
       margin: 1px;
       font-size: 10px;
@@ -184,7 +184,7 @@ if (isset($_SESSION['error'])) {
       align-items: center;
       width: 100%;
     }
-    
+
     #exportContainer .btn {
       width: 100%;
       max-width: 120px;
@@ -198,7 +198,7 @@ if (isset($_SESSION['error'])) {
     #exportContainer {
       gap: 5px !important;
     }
-    
+
     #exportContainer .btn {
       margin: 0;
     }
@@ -273,7 +273,7 @@ if (isset($_SESSION['error'])) {
 
   <h5 class="text-center" style="font-size: 14px;">List of employee supply request</h5>
   <hr>
-  
+
   <!-- Filter Row -->
   <div class="row align-items-end mb-2 g-2">
     <div class="col-lg-2 col-md-3 col-sm-6">
@@ -295,24 +295,24 @@ if (isset($_SESSION['error'])) {
       <label for="accountSelect" style="font-size: 12px;">Select Account Category:</label>
       <select id="accountSelect" name="accountSelect" class="form-select" style="font-size: 12px; padding: 2px 6px;">
         <option value="">Select Category</option>
-                    <?php
-                    // Use the same organized categories from the main page
-                    if (isset($organized_categories) && !empty($organized_categories)) {
-                        foreach ($organized_categories as $main_category => $subcategories) {
-                            echo '<optgroup label="' . htmlspecialchars($main_category) . '">';
-                            foreach ($subcategories as $subcategory) {
-                                echo '<option value="' . htmlspecialchars($subcategory) . '">' . htmlspecialchars($subcategory) . '</option>';
-                            }
-                            echo '</optgroup>';
-                        }
-                    } else {
-                        // Fallback options if no data available - display as bold headers only
-                        echo '<optgroup label="Property and Equipment"></optgroup>';
-                        echo '<optgroup label="Intangible Assets"></optgroup>';
-                        echo '<optgroup label="Office Supplies"></optgroup>';
-                        echo '<optgroup label="Medical Supplies"></optgroup>';
-                    }
-                    ?>
+        <?php
+        // Use the same organized categories from the main page
+        if (isset($organized_categories) && !empty($organized_categories)) {
+          foreach ($organized_categories as $main_category => $subcategories) {
+            echo '<optgroup label="' . htmlspecialchars($main_category) . '">';
+            foreach ($subcategories as $subcategory) {
+              echo '<option value="' . htmlspecialchars($subcategory) . '">' . htmlspecialchars($subcategory) . '</option>';
+            }
+            echo '</optgroup>';
+          }
+        } else {
+          // Fallback options if no data available - display as bold headers only
+          echo '<optgroup label="Property and Equipment"></optgroup>';
+          echo '<optgroup label="Intangible Assets"></optgroup>';
+          echo '<optgroup label="Office Supplies"></optgroup>';
+          echo '<optgroup label="Medical Supplies"></optgroup>';
+        }
+        ?>
       </select>
     </div>
 
@@ -381,7 +381,7 @@ if (isset($_SESSION['error'])) {
             </td>
             <td style="padding: 4px 6px;">
               <button
-                class="btn btn-xs viewBtn" 
+                class="btn btn-xs viewBtn"
                 style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 2px 6px; border-radius: 3px;"
                 data-request-id="<?= $row['request_id'] ?>"
                 data-date-requested="<?= htmlspecialchars($row['date_requested']) ?>"
@@ -405,7 +405,7 @@ if (isset($_SESSION['error'])) {
               </button>
 
               <button
-                class="btn btn-xs editBtn" 
+                class="btn btn-xs editBtn"
                 style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white; font-size: 12px; padding: 2px 6px; border-radius: 3px;"
                 data-request-id="<?= $row['request_id'] ?>"
                 data-date-requested="<?= htmlspecialchars($row['date_requested']) ?>"
@@ -477,8 +477,8 @@ if (isset($_SESSION['error'])) {
       if (!requestType) {
         // Check if user has roles that should have direct access
         var userType = '<?= strtolower($user_type) ?>';
-        var allowedRoles = ['vp for finance & administration', 'purchasing officer', 'supply in-charge', 'property custodian', 'immediate head', 'school president'];
-        
+        var allowedRoles = ['vp for finance & administration', 'purchasing officer', 'purchasingstaff', 'supply in-charge', 'property custodian', 'immediate head', 'school president'];
+
         if (allowedRoles.includes(userType)) {
           // Allow direct access for these roles - don't redirect
           console.log('Direct access allowed for role: ' + userType);
@@ -511,120 +511,120 @@ if (isset($_SESSION['error'])) {
     let table;
     try {
       table = $('#transactionsTable').DataTable({
-      dom: 'Brtip',
-      buttons: [        {
-          extend: 'excelHtml5',
-          text: '<i class="fa-solid fa-file-excel"></i>',
-          className: 'btn btn-sm btn-outline-success',
-          titleAttr: 'Export to Excel',
-          customize: function(xlsx) {
-            let sheet = xlsx.xl.worksheets['sheet1.xml'];
-            $('row c[r]', sheet).attr('s', '0');
-          }
-        },
-        {
-          extend: 'pdfHtml5',
-          text: '<i class="fa-solid fa-file-pdf"></i>',
-          title: 'Supply Request Report',
-          className: 'btn btn-sm btn-outline-danger',
-          titleAttr: 'Export to PDF',
-          footer: true,
-          exportOptions: {
-            columns: ':not(:last-child)' // Exclude the last column (Action)
-          },
-          customize: function(doc) {
-            // Set document properties
-            doc.defaultStyle.fontSize = 8;
-            doc.styles.tableHeader.fontSize = 9;
-            doc.styles.tableHeader.bold = true;
-            doc.styles.tableHeader.fillColor = '#1a5f3c';
-            doc.styles.tableHeader.color = 'white';
-
-            // Set table layout with borders
-            doc.content[1].layout = {
-              hLineWidth: function(i, node) {
-                return 1;
-              },
-              vLineWidth: function(i, node) {
-                return 1;
-              },
-              hLineColor: function(i, node) {
-                return '#2d3748';
-              },
-              vLineColor: function(i, node) {
-                return '#2d3748';
-              },
-              paddingLeft: function(i, node) {
-                return 4;
-              },
-              paddingRight: function(i, node) {
-                return 4;
-              },
-              paddingTop: function(i, node) {
-                return 2;
-              },
-              paddingBottom: function(i, node) {
-                return 2;
-              }
-            };
-
-            // Make footer row bold
-            if (doc.content[1].table.body) {
-              const lastRowIndex = doc.content[1].table.body.length - 1;
-              if (lastRowIndex >= 0) {
-                doc.content[1].table.body[lastRowIndex].forEach(function(cell) {
-                  cell.bold = true;
-                  cell.fillColor = '#f8f9fa';
-                });
-              }
+        dom: 'Brtip',
+        buttons: [{
+            extend: 'excelHtml5',
+            text: '<i class="fa-solid fa-file-excel"></i>',
+            className: 'btn btn-sm btn-outline-success',
+            titleAttr: 'Export to Excel',
+            customize: function(xlsx) {
+              let sheet = xlsx.xl.worksheets['sheet1.xml'];
+              $('row c[r]', sheet).attr('s', '0');
             }
-
-            // Set page orientation to landscape for better table fit
-            doc.pageOrientation = 'landscape';
-            doc.pageMargins = [20, 20, 20, 20];
-          }
-        },
-        {
-          extend: 'print',
-          text: '<i class="fa-solid fa-print text-white"></i>',
-          title: 'Supply Request List',
-          className: 'btn btn-sm btn-outline-secondary',
-          titleAttr: 'Print Report',
-          footer: true, // <-- include the footer (TOTAL row)
-          exportOptions: {
-            columns: ':not(:last-child)' // Exclude the last column (Action)
           },
-          customize: function(win) {
-            const table = $(win.document.body).find('table');
-            table.removeClass('table-bordered table-striped table-dark').addClass('table');
+          {
+            extend: 'pdfHtml5',
+            text: '<i class="fa-solid fa-file-pdf"></i>',
+            title: 'Supply Request Report',
+            className: 'btn btn-sm btn-outline-danger',
+            titleAttr: 'Export to PDF',
+            footer: true,
+            exportOptions: {
+              columns: ':not(:last-child)' // Exclude the last column (Action)
+            },
+            customize: function(doc) {
+              // Set document properties
+              doc.defaultStyle.fontSize = 8;
+              doc.styles.tableHeader.fontSize = 9;
+              doc.styles.tableHeader.bold = true;
+              doc.styles.tableHeader.fillColor = '#1a5f3c';
+              doc.styles.tableHeader.color = 'white';
 
-            // Add custom styling for the print view
-            $(win.document.head).append(
-              '<style>' +
-              'table { width: 100%; border-collapse: collapse; }' +
-              'th, td { border: 1px solid #000; padding: 8px; text-align: left; }' +
-              'tfoot th { font-weight: bold; }' +
-              '</style>'
-            );
+              // Set table layout with borders
+              doc.content[1].layout = {
+                hLineWidth: function(i, node) {
+                  return 1;
+                },
+                vLineWidth: function(i, node) {
+                  return 1;
+                },
+                hLineColor: function(i, node) {
+                  return '#2d3748';
+                },
+                vLineColor: function(i, node) {
+                  return '#2d3748';
+                },
+                paddingLeft: function(i, node) {
+                  return 4;
+                },
+                paddingRight: function(i, node) {
+                  return 4;
+                },
+                paddingTop: function(i, node) {
+                  return 2;
+                },
+                paddingBottom: function(i, node) {
+                  return 2;
+                }
+              };
 
-            // Get the footer row and total amount
-            const footerRow = table.find('tfoot tr');
-            const totalAmount = footerRow.find('th').last().text();
+              // Make footer row bold
+              if (doc.content[1].table.body) {
+                const lastRowIndex = doc.content[1].table.body.length - 1;
+                if (lastRowIndex >= 0) {
+                  doc.content[1].table.body[lastRowIndex].forEach(function(cell) {
+                    cell.bold = true;
+                    cell.fillColor = '#f8f9fa';
+                  });
+                }
+              }
 
-            // Clear the footer cells
-            footerRow.find('th').html('');
+              // Set page orientation to landscape for better table fit
+              doc.pageOrientation = 'landscape';
+              doc.pageMargins = [20, 20, 20, 20];
+            }
+          },
+          {
+            extend: 'print',
+            text: '<i class="fa-solid fa-print text-white"></i>',
+            title: 'Supply Request List',
+            className: 'btn btn-sm btn-outline-secondary',
+            titleAttr: 'Print Report',
+            footer: true, // <-- include the footer (TOTAL row)
+            exportOptions: {
+              columns: ':not(:last-child)' // Exclude the last column (Action)
+            },
+            customize: function(win) {
+              const table = $(win.document.body).find('table');
+              table.removeClass('table-bordered table-striped table-dark').addClass('table');
 
-            // Set the content of the footer
-            footerRow.find('th').eq(-2).text('Total:').css('text-align', 'right');
-            footerRow.find('th').eq(-1).text(totalAmount);
+              // Add custom styling for the print view
+              $(win.document.head).append(
+                '<style>' +
+                'table { width: 100%; border-collapse: collapse; }' +
+                'th, td { border: 1px solid #000; padding: 8px; text-align: left; }' +
+                'tfoot th { font-weight: bold; }' +
+                '</style>'
+              );
+
+              // Get the footer row and total amount
+              const footerRow = table.find('tfoot tr');
+              const totalAmount = footerRow.find('th').last().text();
+
+              // Clear the footer cells
+              footerRow.find('th').html('');
+
+              // Set the content of the footer
+              footerRow.find('th').eq(-2).text('Total:').css('text-align', 'right');
+              footerRow.find('th').eq(-1).text(totalAmount);
+            }
           }
-        }
-      ],
-      ordering: true,
-      searching: true,
-      paging: true,
-      lengthChange: false
-    });
+        ],
+        ordering: true,
+        searching: true,
+        paging: true,
+        lengthChange: false
+      });
     } catch (error) {
       console.error('Error initializing DataTable:', error);
       return; // Exit early if table initialization fails
@@ -637,40 +637,40 @@ if (isset($_SESSION['error'])) {
     }
 
     try {
-    table.buttons().container().appendTo('#exportContainer');
+      table.buttons().container().appendTo('#exportContainer');
     } catch (error) {
       console.error('Error setting up export buttons:', error);
     }
 
     function updateGrandTotal(table) {
       try {
-      let total = 0;
-      // Loop through only the filtered rows
-      table.rows({
-        search: 'applied'
-      }).every(function() {
+        let total = 0;
+        // Loop through only the filtered rows
+        table.rows({
+          search: 'applied'
+        }).every(function() {
           try {
             // The "Total Cost" column is index 6 (0-based)
             const amountText = this.data()[6];
-            
+
             // Check if amountText exists and is a string
             if (amountText && typeof amountText === 'string') {
               // Remove currency symbol, commas, and any HTML tags, then parse as float
               const cleanAmount = amountText.replace(/[₱,]/g, '').replace(/<[^>]*>/g, '');
               const amount = parseFloat(cleanAmount);
-        if (!isNaN(amount)) total += amount;
+              if (!isNaN(amount)) total += amount;
             }
           } catch (rowError) {
             console.warn('Error processing row in updateGrandTotal:', rowError);
             // Continue processing other rows
           }
-      });
-        
-      // Update the footer cell
-      $('#grandTotalCell').text('₱' + total.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }));
+        });
+
+        // Update the footer cell
+        $('#grandTotalCell').text('₱' + total.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }));
       } catch (error) {
         console.error('Error in updateGrandTotal:', error);
         // Set a fallback value
@@ -681,7 +681,7 @@ if (isset($_SESSION['error'])) {
     // Initial total
     if (table) {
       try {
-    updateGrandTotal(table);
+        updateGrandTotal(table);
       } catch (error) {
         console.error('Error updating initial grand total:', error);
       }
@@ -689,13 +689,13 @@ if (isset($_SESSION['error'])) {
 
     // After every filter/search, update the total
     if (table) {
-    table.on('draw', function() {
+      table.on('draw', function() {
         try {
-      updateGrandTotal(table);
+          updateGrandTotal(table);
         } catch (error) {
           console.error('Error updating grand total after draw:', error);
         }
-    });
+      });
     }
 
     // Date range filtering function
@@ -704,7 +704,7 @@ if (isset($_SESSION['error'])) {
         console.error('Cannot filter: DataTable not initialized');
         return;
       }
-      
+
       const startDate = $('#filterDateStart').val();
       const endDate = $('#filterDateEnd').val();
 
@@ -722,7 +722,7 @@ if (isset($_SESSION['error'])) {
         }
 
         const transactionDate = new Date(dateReceived);
-        
+
         // Check if the date is valid
         if (isNaN(transactionDate.getTime())) {
           return false; // Skip rows with invalid dates
@@ -745,7 +745,7 @@ if (isset($_SESSION['error'])) {
 
       table.draw();
       try {
-      updateGrandTotal(table);
+        updateGrandTotal(table);
       } catch (error) {
         console.error('Error updating grand total after date filter:', error);
       }
@@ -757,11 +757,11 @@ if (isset($_SESSION['error'])) {
         console.error('Cannot apply filter: DataTable not initialized');
         return;
       }
-      
+
       try {
-      // Clear previous custom filters
-      $.fn.dataTable.ext.search.pop();
-      filterByDateRange();
+        // Clear previous custom filters
+        $.fn.dataTable.ext.search.pop();
+        filterByDateRange();
       } catch (error) {
         console.error('Error applying date range filter:', error);
       }
@@ -773,18 +773,18 @@ if (isset($_SESSION['error'])) {
         console.error('Cannot apply filter: DataTable not initialized');
         return;
       }
-      
+
       try {
-      const now = new Date();
-      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-      $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
-      $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
+        $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
+        $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
 
-      // Clear previous custom filters
-      $.fn.dataTable.ext.search.pop();
-      filterByDateRange();
+        // Clear previous custom filters
+        $.fn.dataTable.ext.search.pop();
+        filterByDateRange();
       } catch (error) {
         console.error('Error applying current month filter:', error);
       }
@@ -795,18 +795,18 @@ if (isset($_SESSION['error'])) {
         console.error('Cannot apply filter: DataTable not initialized');
         return;
       }
-      
+
       try {
-      const now = new Date();
-      const firstDay = new Date(now.getFullYear(), 0, 1);
-      const lastDay = new Date(now.getFullYear(), 11, 31);
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), 0, 1);
+        const lastDay = new Date(now.getFullYear(), 11, 31);
 
-      $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
-      $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
+        $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
+        $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
 
-      // Clear previous custom filters
-      $.fn.dataTable.ext.search.pop();
-      filterByDateRange();
+        // Clear previous custom filters
+        $.fn.dataTable.ext.search.pop();
+        filterByDateRange();
       } catch (error) {
         console.error('Error applying current year filter:', error);
       }
@@ -817,18 +817,18 @@ if (isset($_SESSION['error'])) {
         console.error('Cannot apply filter: DataTable not initialized');
         return;
       }
-      
+
       try {
-      const now = new Date();
-      const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
 
-      $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
-      $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
+        $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
+        $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
 
-      // Clear previous custom filters
-      $.fn.dataTable.ext.search.pop();
-      filterByDateRange();
+        // Clear previous custom filters
+        $.fn.dataTable.ext.search.pop();
+        filterByDateRange();
       } catch (error) {
         console.error('Error applying last month filter:', error);
       }
@@ -839,18 +839,18 @@ if (isset($_SESSION['error'])) {
         console.error('Cannot apply filter: DataTable not initialized');
         return;
       }
-      
+
       try {
-      const now = new Date();
-      const firstDay = new Date(now.getFullYear() - 1, 0, 1);
-      const lastDay = new Date(now.getFullYear() - 1, 11, 31);
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear() - 1, 0, 1);
+        const lastDay = new Date(now.getFullYear() - 1, 11, 31);
 
-      $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
-      $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
+        $('#filterDateStart').val(firstDay.toISOString().split('T')[0]);
+        $('#filterDateEnd').val(lastDay.toISOString().split('T')[0]);
 
-      // Clear previous custom filters
-      $.fn.dataTable.ext.search.pop();
-      filterByDateRange();
+        // Clear previous custom filters
+        $.fn.dataTable.ext.search.pop();
+        filterByDateRange();
       } catch (error) {
         console.error('Error applying last year filter:', error);
       }
@@ -861,7 +861,7 @@ if (isset($_SESSION['error'])) {
         console.error('Cannot clear filter: DataTable not initialized');
         return;
       }
-      
+
       $('#filterDateStart').val('');
       $('#filterDateEnd').val('');
 
@@ -869,7 +869,7 @@ if (isset($_SESSION['error'])) {
       $.fn.dataTable.ext.search.pop();
       table.draw();
       try {
-      updateGrandTotal(table);
+        updateGrandTotal(table);
       } catch (error) {
         console.error('Error updating grand total after clearing date filter:', error);
       }
@@ -881,12 +881,12 @@ if (isset($_SESSION['error'])) {
         console.error('Cannot filter: DataTable not initialized');
         return;
       }
-      
+
       const selectedCategory = $(this).val();
-      
+
       // Clear any previous search
       table.search('').columns().search('').draw();
-      
+
       if (selectedCategory) {
         // Search in the Description column (index 4) since category info might be in the description
         table.column(4).search(selectedCategory, true, false).draw();
@@ -894,10 +894,10 @@ if (isset($_SESSION['error'])) {
         // If 'All Categories' is selected, clear the search
         table.column(4).search('').draw();
       }
-      
+
       // Update the grand total after filtering
       try {
-      updateGrandTotal(table);
+        updateGrandTotal(table);
       } catch (error) {
         console.error('Error updating grand total after category filter:', error);
       }
@@ -909,7 +909,7 @@ if (isset($_SESSION['error'])) {
         console.error('Cannot clear filter: DataTable not initialized');
         return;
       }
-      
+
       $('#accountSelect').val('').trigger('change');
     });
 
@@ -918,10 +918,10 @@ if (isset($_SESSION['error'])) {
         console.error('Cannot search: DataTable not initialized');
         return;
       }
-      
+
       table.search(this.value).draw();
       try {
-      updateGrandTotal(table);
+        updateGrandTotal(table);
       } catch (error) {
         console.error('Error updating grand total after search:', error);
       }
@@ -935,13 +935,13 @@ if (isset($_SESSION['error'])) {
         console.error('Cannot view: DataTable not initialized');
         return;
       }
-      
+
       console.log('View button clicked!');
-      
+
       // Debug: Check if modal exists in DOM
       console.log('Modal exists in DOM:', $('#viewSupplyModal').length > 0);
       console.log('Modal HTML:', $('#viewSupplyModal').html());
-      
+
       // Get data attributes directly using data() method
       const dateRequested = $(this).data('date-requested');
       const dateNeeded = $(this).data('date-needed');
@@ -958,10 +958,23 @@ if (isset($_SESSION['error'])) {
       const qualityIssued = $(this).data('quality-issued');
       const unitCost = $(this).data('unit-cost');
       const totalCost = $(this).data('total-cost');
-      
+
       console.log('Data retrieved:', {
-        dateRequested, dateNeeded, departmentUnit, purpose, salesType, category,
-        itemName, brand, color, quantityRequested, unit, requestDescription, qualityIssued, unitCost, totalCost
+        dateRequested,
+        dateNeeded,
+        departmentUnit,
+        purpose,
+        salesType,
+        category,
+        itemName,
+        brand,
+        color,
+        quantityRequested,
+        unit,
+        requestDescription,
+        qualityIssued,
+        unitCost,
+        totalCost
       });
 
       // Debug: Check if modal elements exist
@@ -1002,8 +1015,21 @@ if (isset($_SESSION['error'])) {
       // Store the data for the edit button
       $('#viewSupplyModal').data('viewData', {
         requestId: $(this).data('request-id'),
-        dateRequested, dateNeeded, departmentUnit, purpose, salesType, category,
-        itemName, brand, color, quantityRequested, unit, requestDescription, qualityIssued, unitCost, totalCost
+        dateRequested,
+        dateNeeded,
+        departmentUnit,
+        purpose,
+        salesType,
+        category,
+        itemName,
+        brand,
+        color,
+        quantityRequested,
+        unit,
+        requestDescription,
+        qualityIssued,
+        unitCost,
+        totalCost
       });
     });
 
@@ -1013,12 +1039,12 @@ if (isset($_SESSION['error'])) {
         console.error('Cannot edit from view: DataTable not initialized');
         return;
       }
-      
+
       const viewData = $('#viewSupplyModal').data('viewData');
       if (viewData) {
         // Close view modal
-    $('#viewSupplyModal').modal('hide');
-        
+        $('#viewSupplyModal').modal('hide');
+
         // Set values in edit modal
         $('#editRequestId').val(viewData.requestId || '');
         $('#editDateRequest').val(viewData.dateRequested || '');
@@ -1039,7 +1065,7 @@ if (isset($_SESSION['error'])) {
 
         // Trigger calculation for total
         $('#editQuantity, #editPrice').trigger('input');
-        
+
         // Open edit modal
         $('#editSupplyModal').modal('show');
       }
@@ -1053,9 +1079,9 @@ if (isset($_SESSION['error'])) {
         console.error('Cannot edit: DataTable not initialized');
         return;
       }
-      
+
       console.log('Edit button clicked!');
-      
+
       // Debug: Check if edit modal elements exist
       console.log('Edit modal elements check:');
       console.log('editRequestId exists:', $('#editRequestId').length > 0);
@@ -1094,8 +1120,22 @@ if (isset($_SESSION['error'])) {
       const totalCost = $(this).data('total-cost');
 
       console.log('Data retrieved for edit:', {
-        requestId, dateRequested, dateNeeded, departmentUnit, purpose, salesType, category,
-        itemName, brand, color, requestDescription, qualityIssued, quantityRequested, unit, unitCost, totalCost
+        requestId,
+        dateRequested,
+        dateNeeded,
+        departmentUnit,
+        purpose,
+        salesType,
+        category,
+        itemName,
+        brand,
+        color,
+        requestDescription,
+        qualityIssued,
+        quantityRequested,
+        unit,
+        unitCost,
+        totalCost
       });
 
       // Set values in the edit modal

@@ -337,7 +337,7 @@ if (!$result) {
             <button class="btn btn-secondary-modern btn-modern" onclick="window.history.back()">
               <i class="fas fa-arrow-left me-2"></i>Back
             </button>
-            <?php if (in_array(strtolower($user_type), ['admin', 'purchasing officer'])): ?>
+            <?php if (in_array(strtolower($user_type), ['admin', 'purchasing officer', 'purchasing staff', 'purchasingstaff'])): ?>
               <button class="btn btn-primary-modern btn-modern" data-bs-toggle="modal" data-bs-target="#addModal">
                 <i class="fas fa-plus me-2"></i>Add Supplier
               </button>
@@ -383,7 +383,7 @@ if (!$result) {
                 <th><i class="fas fa-phone me-2"></i>Mobile No.</th>
                 <th><i class="fas fa-phone me-2"></i>Telephone No.</th>
                 <th><i class="fas fa-envelope me-2"></i>Email Address</th>
-                <?php if (in_array(strtolower($user_type), ['admin', 'purchasing officer'])): ?>
+                <?php if (in_array(strtolower($user_type), ['admin', 'purchasing officer', 'purchasing staff', 'purchasingstaff'])): ?>
                   <th><i class="fas fa-cogs me-2"></i>Actions</th>
                 <?php endif; ?>
               </tr>
@@ -396,7 +396,7 @@ if (!$result) {
                   <td><i class="fas fa-phone text-muted me-1"></i><?= htmlspecialchars($row['contact_number']) ?></td>
                   <td><i class="fas fa-phone text-muted me-1"></i><?= htmlspecialchars($row['landline_number']) ?></td>
                   <td><i class="fas fa-envelope text-muted me-1"></i><?= htmlspecialchars($row['email_address']) ?></td>
-                  <?php if (in_array(strtolower($user_type), ['admin', 'purchasing officer'])): ?>
+                  <?php if (in_array(strtolower($user_type), ['admin', 'purchasing officer', 'purchasing staff', 'purchasingstaff'])): ?>
                     <td>
                       <button class="btn btn-info-modern btn-action btn-sm" data-bs-toggle="modal" data-bs-target="#viewModal" title="View Details"
                         <?php foreach ($row as $key => $value): ?>
