@@ -1,67 +1,30 @@
-// Category mapping for both add and edit supplier modals
-const categoryMap = {
-  "IT Equipment Supplier": [
-    "ICT Equipment and Devices",
-    "Subscription, License, and Software Services"
-  ],
-  "Office Equipment Vendor": [
-    "Office Equipment",
-    "Office Supplies and Materials"
-  ],
-  "Air Conditioning Equipment Supplier": [
-    "Air Conditioning Units and Cooling Systems"
-  ],
-  "Equipment Maintenance Provider": [
-    "Repairs and Maintenance – Equipment and Devices"
-  ],
-  "Furniture Supplier": [
-    "Furniture and Fixtures"
-  ],
-  "Laboratory Equipment Supplier": [
-    "Lab Equipment",
-    "Lab Chemicals and Reagents"
-  ],
-  "Construction and Renovation Contractor": [
-    "Construction Materials",
-    "Renovation Services"
-  ],
-  "Machinery and Equipment Supplier": [
-    "Heavy Machinery",
-    "Production Equipment"
-  ],
-  "Janitorial Services": [
-    "Cleaning Supplies",
-    "Janitorial Services"
-  ],
-  "Educational Materials Supplier": [
-    "Books and Publications",
-    "Teaching Aids"
-  ],
-  "Medical Supplies Provider": [
-    "Medicines",
-    "Medical Equipment"
-  ],
-  "Printing Services": [
-    "Document Printing",
-    "Custom Printing"
-  ],
-  "Logistics and Delivery Services": [
-    "Freight Services",
-    "Courier Services"
-  ],
-  "Electrical Supplies Provider": [
-    "Electrical Components",
-    "Wiring and Cabling"
-  ]
-};
+// Category mapping for both add and edit supplier modals - initialized empty and populated from DB
+let categoryMap = {};
 
-// Function to populate category options based on business type
+// Function to fetch full business type and category mapping from DB
+function fetchBusinessTypes() {
+  const scriptsDir = window.location.pathname.includes('/pages/') ? '../actions/' : 'actions/';
+  return fetch(scriptsDir + 'get_full_category_mapping.php')
+    .then(response => response.json())
+    .then(data => {
+      if (data && typeof data === 'object' && !data.error) {
+        categoryMap = data;
+      }
+      // Dispatch event to notify modals that data is loaded
+      document.dispatchEvent(new CustomEvent('businessTypesLoaded'));
+      return categoryMap;
+    })
+    .catch(error => {
+      console.error('Error fetching category mapping:', error);
+      return categoryMap;
+    });
+}
 function populateCategoryOptions(businessType, categorySelectId = 'product-category', selectedCategory = '') {
   const categorySelect = document.getElementById(categorySelectId);
   if (!categorySelect) return;
 
   // Clear existing options
-  categorySelect.innerHTML = '<option value="">-- Select Category --</option>';
+  categorySelect.innerHTML = '<option value="">-- Select Category --</option><option value="N/A">-- N/A --</option>';
 
   // Get categories for the selected business type
   const categories = categoryMap[businessType] || [];
@@ -78,6 +41,9 @@ function populateCategoryOptions(businessType, categorySelectId = 'product-categ
 
 // Initialize when the document is ready
 document.addEventListener('DOMContentLoaded', () => {
+  // Initial fetch from DB to populate any new types
+  fetchBusinessTypes();
+  
   // Handle Add Supplier Modal
   const addBusinessTypeSelect = document.getElementById('business-type');
   const addCategorySelect = document.getElementById('product-category');
