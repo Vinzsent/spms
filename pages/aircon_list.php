@@ -866,7 +866,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
         </div>
 
-         <nav class="sidebar-nav">
+        <nav class="sidebar-nav">
             <ul class="nav-item">
                 <li><a href="<?= $dashboard_link ?>" class="nav-link">
                         <i class="fas fa-chart-line"></i> Dashboard
@@ -877,19 +877,19 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <li><a href="rooms_inventory.php" class="nav-link">
                         <i class="fas fa-door-open"></i> Rooms Inventory
                     </a></li>
-                    <li>
-                        <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
-                            <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
-                        </a>
-                        <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
-                            <li>
-                                <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
-                            </li>
-                            <li>
-                                <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
-                            </li>
-                        </ul>
-                    </li>
+                <li>
+                    <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
+                        <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
+                    </a>
+                    <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
+                        <li>
+                            <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
+                        </li>
+                        <li>
+                            <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
+                        </li>
+                    </ul>
+                </li>
                 <li><a href="aircon_list.php" class="nav-link active">
                         <i class="fas fa-snowflake"></i> Aircons
                     </a></li>
@@ -1169,6 +1169,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                         data-receiver="<?= htmlspecialchars($aircon['receiver'] ?? '', ENT_QUOTES) ?>"
                                                         data-created-by="<?= htmlspecialchars($aircon['created_by'] ?? '', ENT_QUOTES) ?>"
                                                         data-date-created="<?= htmlspecialchars($aircon['date_created'] ?? '', ENT_QUOTES) ?>">
+                                                        data-picture="<?= htmlspecialchars($aircon['picture'] ?? '', ENT_QUOTES) ?>">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
                                                 </td>
@@ -1230,7 +1231,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <td><?= htmlspecialchars($aircon['type'] ?? 'N/A') ?></td>
                                                 <td><?= htmlspecialchars($aircon['location'] ?? 'N/A') ?></td>
                                                 <td>
-                                                    <span class="badge bg-<?= $aircon['status'] == 'Needs Repair' ? 'warning' : 'info' ?>">
+                                                    <span class="badge bg-<?= match ($aircon['status']) {
+                                                                                'Working' => 'success',
+                                                                                'Needs Repair' => 'warning',
+                                                                                'Replace', 'Decommissioned' => 'danger',
+                                                                                'Under Maintenance' => 'info',
+                                                                                default => 'secondary'
+                                                                            } ?>">
                                                         <?= htmlspecialchars($aircon['status']) ?>
                                                     </span>
                                                 </td>
@@ -1262,6 +1269,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                         data-receiver="<?= htmlspecialchars($aircon['receiver'] ?? '', ENT_QUOTES) ?>"
                                                         data-created-by="<?= htmlspecialchars($aircon['created_by'] ?? '', ENT_QUOTES) ?>"
                                                         data-date-created="<?= htmlspecialchars($aircon['date_created'] ?? '', ENT_QUOTES) ?>"
+                                                        data-picture="<?= htmlspecialchars($aircon['picture'] ?? '', ENT_QUOTES) ?>"
                                                         data-modal-id="needsAttentionModal">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
@@ -1352,6 +1360,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                         data-receiver="<?= htmlspecialchars($aircon['receiver'] ?? '', ENT_QUOTES) ?>"
                                                         data-created-by="<?= htmlspecialchars($aircon['created_by'] ?? '', ENT_QUOTES) ?>"
                                                         data-date-created="<?= htmlspecialchars($aircon['date_created'] ?? '', ENT_QUOTES) ?>"
+                                                        data-picture="<?= htmlspecialchars($aircon['picture'] ?? '', ENT_QUOTES) ?>"
                                                         data-modal-id="decommissionedModal">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
@@ -1562,7 +1571,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
             $total_pages = ceil($total_records / $records_per_page);
 
             // Get inventory data with pagination (respect filters and join supplier)
-            $sql = "SELECT i.*, s.supplier_name 
+            $sql = "SELECT i.*, s.supplier_name, 
+                           (SELECT image_path FROM aircon_images WHERE aircon_id = i.aircon_id ORDER BY id ASC LIMIT 1) as first_image 
                     FROM aircons i 
                     LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
                     $inv_where
@@ -1608,9 +1618,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <td data-label="Serial No."><?= htmlspecialchars($row['serial_number'] ?? 'N/A') ?></td>
                                         <td data-label="Location"><?= htmlspecialchars($row['location'] ?? 'N/A') ?></td>
                                         <td data-label="Status">
-                                            <span class="badge bg-<?=
-                                                                    ($row['status'] == 'Working') ? 'success' : (($row['status'] == 'Needs Repair') ? 'warning' : (($row['status'] == 'Under Maintenance') ? 'info' : 'danger'))
-                                                                    ?>">
+                                            <span class="badge bg-<?= match ($row['status']) {
+                                                                        'Working' => 'success',
+                                                                        'Needs Repair' => 'warning',
+                                                                        'Replace', 'Decommissioned' => 'danger',
+                                                                        'Under Maintenance' => 'info',
+                                                                        default => 'danger'
+                                                                    } ?>">
                                                 <?= htmlspecialchars($row['status'] ?? 'N/A') ?>
                                             </span>
                                         </td>
@@ -1654,7 +1668,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 data-depreciated-value="<?= htmlspecialchars($row['depreciated_value'] ?? '0', ENT_QUOTES) ?>"
                                                 data-receiver="<?= htmlspecialchars($row['receiver'] ?? '', ENT_QUOTES) ?>"
                                                 data-created-by="<?= htmlspecialchars($row['created_by'] ?? '', ENT_QUOTES) ?>"
-                                                data-date-created="<?= htmlspecialchars($row['date_created'] ?? '', ENT_QUOTES) ?>">
+                                                data-date-created="<?= htmlspecialchars($row['date_created'] ?? '', ENT_QUOTES) ?>"
+                                                data-picture="<?= htmlspecialchars($row['first_image'] ?? '', ENT_QUOTES) ?>">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                             <button class="btn btn-sm btn-info" title="Edit"
@@ -1679,7 +1694,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <?= json_encode($row['power_consumption'] ?? '') ?>,
                                                 <?= json_encode($row['notes']) ?>,
                                                 <?= json_encode($row['purchase_price'] ?? '0') ?>,
-                                                <?= json_encode($row['depreciated_value'] ?? '0') ?>
+                                                <?= json_encode($row['depreciated_value'] ?? '0') ?>,
+                                                <?= json_encode($row['first_image'] ?? '') ?>
                                                 )">
                                                 <i class="fas fa-edit"></i>
                                             </button>
@@ -1773,7 +1789,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             <h5 class="modal-title text-white">Add New Aircon</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
-                        <form action="../actions/add_aircon.php" method="POST">
+                        <form action="../actions/add_aircon.php" method="POST" enctype="multipart/form-data">
                             <input type="hidden" name="receiver" value="Property Custodian">
                             <input type="hidden" name="status" value="Active">
                             <div class="modal-body">
@@ -1912,6 +1928,16 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <label class="form-label">Depreciated Value (₱)</label>
                                             <input type="number" step="0.01" name="depreciated_value" class="form-control" placeholder="0.00">
                                         </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Upload Pictures (Multiple)</label>
+                                            <input type="file" name="pictures[]" id="aircon_picture_add" class="form-control" accept="image/*" multiple>
+                                            <div id="picture_preview_container_add" class="mt-2" style="display:none;">
+                                                <div id="picture_previews_add" class="d-flex flex-wrap gap-2"></div>
+                                                <button type="button" class="btn btn-sm btn-danger mt-1 d-block" onclick="clearImagePreview('add')">
+                                                    <i class="fas fa-times"></i> Clear All
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1936,6 +1962,21 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         </div>
                         <div class="modal-body">
                             <div class="row g-4">
+
+                                <!-- Pictures Section -->
+                                <div class="col-12">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header bg-primary text-white">
+                                            <h6 class="mb-0"><i class="fas fa-images me-2"></i>Pictures</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div id="airconPicturesGallery" class="d-flex flex-wrap gap-2">
+                                                <!-- Images will be loaded dynamically via AJAX -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Basic Information Section -->
                                 <div class="col-12">
                                     <div class="card border-0 shadow-sm">
@@ -2652,6 +2693,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         const receiver = button.data('receiver') || '';
                         const createdBy = button.data('created-by') || '';
                         const dateCreated = button.data('date-created') || '';
+                        const picture = button.data('picture') || '';
                         const modalId = button.data('modal-id');
 
                         // Call the viewAirconDetails function
@@ -2660,7 +2702,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             location, status, purchaseDate, warrantyExpiry, lastServiceDate,
                             maintenanceSchedule, supplierInfo, installationDate, energyEfficiency,
                             powerConsumption, notes, purchasePrice, depreciatedValue, receiver,
-                            createdBy, dateCreated
+                            createdBy, dateCreated, picture
                         );
 
                         // Hide the parent modal if modalId is specified
@@ -3052,6 +3094,115 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 tableContainer.parentNode.insertBefore(errorDiv, tableContainer.nextSibling);
                             }
                         });
+                }
+
+                // Image Preview Handler with Accumulation support
+                $(document).ready(function() {
+                    // Global file buffers for accumulation
+                    window.addFileBuffer = new DataTransfer();
+                    window.editFileBuffer = new DataTransfer();
+
+                    function renderPreviews(type, files) {
+                        const previewContainer = type === 'add' ? $('#picture_preview_container_add') : $('#picture_preview_container_edit');
+                        const previewWrapper = type === 'add' ? $('#picture_previews_add') : $('#picture_previews_edit');
+                        const input = type === 'add' ? document.getElementById('aircon_picture_add') : document.getElementById('aircon_picture_edit');
+                        const buffer = type === 'add' ? window.addFileBuffer : window.editFileBuffer;
+
+                        previewWrapper.empty();
+
+                        if (buffer.files.length > 0) {
+                            Array.from(buffer.files).forEach((file, index) => {
+                                const reader = new FileReader();
+                                reader.onload = function(event) {
+                                    const wrapper = $('<div>').addClass('position-relative d-inline-block');
+                                    const img = $('<img>').attr('src', event.target.result)
+                                        .css({
+                                            'width': '100px',
+                                            'height': '100px',
+                                            'object-fit': 'cover',
+                                            'border-radius': '5px',
+                                            'border': '1px solid #ddd'
+                                        });
+
+                                    const removeBtn = $('<button>')
+                                        .attr('type', 'button')
+                                        .addClass('btn btn-danger btn-sm position-absolute top-0 end-0 p-0')
+                                        .css({
+                                            'width': '20px',
+                                            'height': '20px',
+                                            'line-height': '15px',
+                                            'font-size': '12px'
+                                        })
+                                        .html('&times;')
+                                        .on('click', function() {
+                                            const newBuffer = new DataTransfer();
+                                            Array.from(buffer.files).forEach((f, i) => {
+                                                if (i !== index) newBuffer.items.add(f);
+                                            });
+                                            if (type === 'add') window.addFileBuffer = newBuffer;
+                                            else window.editFileBuffer = newBuffer;
+                                            input.files = (type === 'add' ? window.addFileBuffer : window.editFileBuffer).files;
+                                            renderPreviews(type);
+                                        });
+
+                                    wrapper.append(img).append(removeBtn);
+                                    previewWrapper.append(wrapper);
+                                };
+                                reader.readAsDataURL(file);
+                            });
+                            previewContainer.show();
+                        } else {
+                            previewContainer.hide();
+                        }
+                    }
+
+                    $('#aircon_picture_add').on('change', function(e) {
+                        const files = e.target.files;
+                        if (files && files.length > 0) {
+                            Array.from(files).forEach(file => {
+                                window.addFileBuffer.items.add(file);
+                            });
+                            // Sync input with buffer
+                            this.files = window.addFileBuffer.files;
+                            renderPreviews('add');
+                        }
+                    });
+
+                    $('#aircon_picture_edit').on('change', function(e) {
+                        const files = e.target.files;
+                        if (files && files.length > 0) {
+                            Array.from(files).forEach(file => {
+                                window.editFileBuffer.items.add(file);
+                            });
+                            // Sync input with buffer
+                            this.files = window.editFileBuffer.files;
+                            renderPreviews('edit');
+                        }
+                    });
+
+                    // Clear buffers when modals are opened
+                    $('#addInventoryModal').on('show.bs.modal', function() {
+                        clearImagePreview('add');
+                    });
+                    $('#editAirconModal').on('show.bs.modal', function() {
+                        // clearImagePreview('edit'); // Already called in openEditAirconModal
+                    });
+                });
+
+                function clearImagePreview(type) {
+                    if (type === 'add') {
+                        window.addFileBuffer = new DataTransfer();
+                        const input = document.getElementById('aircon_picture_add');
+                        if (input) input.value = '';
+                        $('#picture_previews_add').empty();
+                        $('#picture_preview_container_add').hide();
+                    } else if (type === 'edit') {
+                        window.editFileBuffer = new DataTransfer();
+                        const input = document.getElementById('aircon_picture_edit');
+                        if (input) input.value = '';
+                        $('#picture_previews_edit').empty();
+                        $('#picture_preview_container_edit').hide();
+                    }
                 }
 
                 // Function to change status from Pending to Received
@@ -3515,7 +3666,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 // Function to view aircon details
                 function viewAirconDetails(airconId, itemNumber, brand, model, type, capacity, serialNumber, location, status,
                     purchaseDate, warrantyExpiry, lastServiceDate, maintenanceSchedule, supplierInfo, installationDate,
-                    energyEfficiency, powerConsumption, notes, purchasePrice, depreciatedValue, receiver, createdBy, dateCreated) {
+                    energyEfficiency, powerConsumption, notes, purchasePrice, depreciatedValue, receiver, createdBy, dateCreated, picture) {
 
                     // Populate modal fields
                     document.getElementById('view_aircon_id').textContent = airconId || 'N/A';
@@ -3553,6 +3704,43 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     document.getElementById('view_receiver').textContent = receiver || 'N/A';
                     document.getElementById('view_created_by').textContent = createdBy || 'N/A';
                     document.getElementById('view_date_created').textContent = dateCreated ? formatDateTime(dateCreated) : 'N/A';
+
+                    // Update pictures gallery
+                    const gallery = document.getElementById('airconPicturesGallery');
+                    gallery.innerHTML = '<div class="spinner-border text-primary spinner-border-sm" role="status"><span class="visually-hidden">Loading images...</span></div>';
+
+                    fetch('../actions/get_aircon_images.php?aircon_id=' + airconId)
+                        .then(response => response.json())
+                        .then(data => {
+                            gallery.innerHTML = '';
+                            if (data.success && data.images.length > 0) {
+                                data.images.forEach(imgUrl => {
+                                    const imgContainer = document.createElement('div');
+                                    imgContainer.style.position = 'relative';
+
+                                    const img = document.createElement('img');
+                                    img.src = '../' + imgUrl;
+                                    img.alt = 'Aircon Picture';
+                                    img.className = 'img-thumbnail';
+                                    img.style.width = '150px';
+                                    img.style.height = '150px';
+                                    img.style.objectFit = 'cover';
+                                    img.style.cursor = 'pointer';
+
+                                    // Open in new tab on click
+                                    img.onclick = () => window.open('../' + imgUrl, '_blank');
+
+                                    imgContainer.appendChild(img);
+                                    gallery.appendChild(imgContainer);
+                                });
+                            } else {
+                                gallery.innerHTML = '<p class="text-muted italic">No pictures available for this unit.</p>';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching images:', error);
+                            gallery.innerHTML = '<p class="text-danger">Error loading images.</p>';
+                        });
 
                     // Show modal
                     const modal = new bootstrap.Modal(document.getElementById('viewAirconModal'));
@@ -3709,6 +3897,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         $status_class = 'info';
                     } elseif ($row['status'] == 'Decommissioned') {
                         $status_class = 'danger';
+                    } elseif ($row['status'] == 'Replace') {
+                        $status_class = 'danger';
                     }
 
                     echo '<tr>';
@@ -3760,7 +3950,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         . json_encode($row['depreciated_value'] ?? '0') . ', '
                         . json_encode($row['receiver'] ?? '') . ', '
                         . json_encode($row['created_by'] ?? '') . ', '
-                        . json_encode($row['date_created'] ?? '')
+                        . json_encode($row['date_created'] ?? '') . ', '
+                        . json_encode($row['picture'] ?? '')
                         . ')\'><i class="fas fa-eye"></i></button> ';
                     echo '<button class="btn btn-sm btn-info" title="Edit" onclick=\'openEditAirconModal('
                         . (int)$row['aircon_id'] . ', '
@@ -3783,7 +3974,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         . json_encode($row['power_consumption'] ?? '') . ', '
                         . json_encode($row['notes']) . ', '
                         . json_encode($row['purchase_price'] ?? '0') . ', '
-                        . json_encode($row['depreciated_value'] ?? '0')
+                        . json_encode($row['depreciated_value'] ?? '0') . ', '
+                        . json_encode($row['picture'] ?? '')
                         . ')\'><i class="fas fa-edit"></i></button> ';
 
                     echo '</td></tr>';
@@ -3815,7 +4007,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             function openEditAirconModal(
                 aircon_id, item_name, category, brand, model, type, capacity, serial_number, location, status,
                 purchase_date, warranty_expiry, last_service_date, maintenance_schedule, supplier_id,
-                installation_date, energy_efficient, power_consumption, notes, purchase_price, depreciated_value
+                installation_date, energy_efficient, power_consumption, notes, purchase_price, depreciated_value, picture
             ) {
                 // Format dates for input fields (YYYY-MM-DD)
                 const formatDate = (dateString) => {
@@ -3849,6 +4041,72 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 document.getElementById('edit_purchase_price').value = purchase_price || '';
                 document.getElementById('edit_depreciated_value').value = depreciated_value || '';
 
+                // Reset previews and buffers
+                clearImagePreview('edit');
+
+                // Fetch and show existing pictures
+                const existingGallery = document.getElementById('existing_pictures_gallery');
+                const existingContainer = document.getElementById('existing_pictures_container');
+                existingGallery.innerHTML = '<div class="spinner-border text-primary spinner-border-sm" role="status"></div>';
+                existingContainer.style.display = 'block';
+
+                fetch('../actions/get_aircon_images.php?aircon_id=' + aircon_id)
+                    .then(response => response.json())
+                    .then(data => {
+                        existingGallery.innerHTML = '';
+                        if (data.success && data.images.length > 0) {
+                            data.images.forEach(imgUrl => {
+                                const wrapper = document.createElement('div');
+                                wrapper.style.position = 'relative';
+                                wrapper.className = 'position-relative';
+
+                                const img = document.createElement('img');
+                                img.src = '../' + imgUrl;
+                                img.className = 'img-thumbnail';
+                                img.style.width = '80px';
+                                img.style.height = '80px';
+                                img.style.objectFit = 'cover';
+
+                                const delBtn = document.createElement('button');
+                                delBtn.type = 'button';
+                                delBtn.className = 'btn btn-danger btn-sm position-absolute top-0 end-0 p-0';
+                                delBtn.style.width = '20px';
+                                delBtn.style.height = '20px';
+                                delBtn.style.lineHeight = '18px';
+                                delBtn.innerHTML = '&times;';
+                                delBtn.title = 'Remove Image';
+                                delBtn.onclick = () => {
+                                    if (confirm('Are you sure you want to delete this image?')) {
+                                        fetch('../actions/delete_aircon_image.php', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/x-www-form-urlencoded'
+                                                },
+                                                body: 'image_path=' + encodeURIComponent(imgUrl) + '&aircon_id=' + aircon_id
+                                            })
+                                            .then(r => r.json())
+                                            .then(res => {
+                                                if (res.success) {
+                                                    wrapper.remove();
+                                                    if (existingGallery.children.length === 0) {
+                                                        existingContainer.style.display = 'none';
+                                                    }
+                                                } else {
+                                                    alert('Error: ' + res.message);
+                                                }
+                                            });
+                                    }
+                                };
+
+                                wrapper.appendChild(img);
+                                wrapper.appendChild(delBtn);
+                                existingGallery.appendChild(wrapper);
+                            });
+                        } else {
+                            existingContainer.style.display = 'none';
+                        }
+                    });
+
                 // Show the modal
                 const modal = new bootstrap.Modal(document.getElementById('editAirconModal'));
                 modal.show();
@@ -3863,7 +4121,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         <h5 class="modal-title text-white">Edit Aircon Details</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <form action="../actions/edit_aircon.php" method="POST">
+                    <form action="../actions/edit_aircon.php" method="POST" enctype="multipart/form-data">
                         <input type="hidden" name="aircon_id" id="edit_aircon_id">
                         <div class="modal-body">
                             <!-- Basic Information -->
@@ -3933,9 +4191,18 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <label class="form-label">Status</label>
                                         <select name="status" id="edit_status" class="form-select">
                                             <option value="Working">Working</option>
+                                            <option value="Replace">Replace</option>
                                             <option value="Needs Repair">Needs Repair</option>
                                             <option value="Under Maintenance">Under Maintenance</option>
                                             <option value="Decommissioned">Decommissioned</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Campus</label>
+                                        <select name="campus" id="edit_campus" class="form-select">
+                                            <option value="">Select Campus</option>
+                                            <option value="TED">TED</option>
+                                            <option value="BED">BED</option>
                                         </select>
                                     </div>
                                     <div class="col-md-3">
@@ -3992,6 +4259,21 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <div class="col-md-3">
                                         <label class="form-label">Depreciated Value (₱)</label>
                                         <input type="number" step="0.01" name="depreciated_value" id="edit_depreciated_value" class="form-control" placeholder="0.00">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Update/Add Pictures (Multiple)</label>
+                                        <input type="file" name="pictures[]" id="aircon_picture_edit" class="form-control" accept="image/*" multiple>
+                                        <div id="existing_pictures_container" class="mt-2" style="display:none;">
+                                            <label class="small text-muted">Existing Pictures:</label>
+                                            <div id="existing_pictures_gallery" class="d-flex flex-wrap gap-2"></div>
+                                        </div>
+                                        <div id="picture_preview_container_edit" class="mt-2" style="display:none;">
+                                            <label class="small text-success">New Preview:</label>
+                                            <div id="picture_previews_edit" class="d-flex flex-wrap gap-2"></div>
+                                            <button type="button" class="btn btn-sm btn-danger mt-1 d-block" onclick="clearImagePreview('edit')">
+                                                <i class="fas fa-times"></i> Clear New
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

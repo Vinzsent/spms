@@ -30,6 +30,27 @@ $power_consumption    = !empty($_POST['power_consumption']) ? floatval($_POST['p
 $notes                = trim($_POST['notes'] ?? '');
 $purchase_price       = !empty($_POST['purchase_price']) ? floatval($_POST['purchase_price']) : null;
 $depreciated_value    = !empty($_POST['depreciated_value']) ? floatval($_POST['depreciated_value']) : null;
+$campus               = !empty($_POST['campus']) ? trim($_POST['campus']) : null;
+// Handle Multiple Pictures Upload
+$new_pictures = [];
+if (isset($_FILES['pictures']) && is_array($_FILES['pictures']['name'])) {
+    $upload_dir = '../uploads/aircons/';
+    if (!file_exists($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
+    }
+
+    foreach ($_FILES['pictures']['name'] as $key => $name) {
+        if ($_FILES['pictures']['error'][$key] == 0) {
+            $file_ext = pathinfo($name, PATHINFO_EXTENSION);
+            $filename = 'aircon_' . time() . '_' . uniqid() . '.' . $file_ext;
+            $target_file = $upload_dir . $filename;
+
+            if (move_uploaded_file($_FILES['pictures']['tmp_name'][$key], $target_file)) {
+                $new_pictures[] = 'uploads/aircons/' . $filename;
+            }
+        }
+    }
+}
 
 // Basic validation
 if ($aircon_id <= 0) {
@@ -62,7 +83,7 @@ if ($check_stmt = $conn->prepare($check_sql)) {
     exit();
 }
 
-// Update the aircon record
+// Update the aircon record - picture column removed
 $update_sql = "UPDATE aircons 
                SET item_number = ?, 
                    category = ?,
@@ -84,6 +105,7 @@ $update_sql = "UPDATE aircons
                    notes = ?,
                    purchase_price = ?,
                    depreciated_value = ?,
+                   campus = ?,
                    date_updated = NOW()
                WHERE aircon_id = ?";
 
@@ -94,40 +116,49 @@ if (!$stmt) {
     exit();
 }
 
-// Bind parameters: strings, dates, integers, and floats
-// 21 parameters: item_number, category, brand, model, type, capacity, serial_number, location, status,
-// purchase_date, warranty_expiry, last_service_date, maintenance_schedule, supplier_id, installation_date,
-// energy_efficient, power_consumption, notes, purchase_price, depreciated_value, aircon_id
-// Types: s=string/date, i=integer, d=double/float
-$stmt->bind_param(
-    'sssssssssssssissdsddi',
-    $item_name,           
-    $category,            
-    $brand,               
-    $model,               
-    $type,                
-    $capacity,            
-    $serial_number,       
-    $location,            
-    $status,              
-    $purchase_date,       
-    $warranty_expiry,     
-    $last_service_date,   
+// Bind parameters - 22 parameters
+$types = 'sssssssssssssissdsddsi';
+$params = [
+    $item_name,
+    $category,
+    $brand,
+    $model,
+    $type,
+    $capacity,
+    $serial_number,
+    $location,
+    $status,
+    $purchase_date,
+    $warranty_expiry,
+    $last_service_date,
     $maintenance_schedule,
-    $supplier_id,         
-    $installation_date,   
-    $energy_efficient,    
-    $power_consumption,   
-    $notes,               
-    $purchase_price,      
-    $depreciated_value,   
-    $aircon_id            
-);
+    $supplier_id,
+    $installation_date,
+    $energy_efficient,
+    $power_consumption,
+    $notes,
+    $purchase_price,
+    $depreciated_value,
+    $campus,
+    $aircon_id
+];
+
+$stmt->bind_param($types, ...$params);
 
 if (!$stmt->execute()) {
     $_SESSION['error'] = 'Error updating aircon: ' . $stmt->error;
     header('Location: ../pages/aircon_list.php');
     exit();
+}
+
+// Insert additional pictures if any
+if (!empty($new_pictures)) {
+    $img_stmt = $conn->prepare("INSERT INTO aircon_images (aircon_id, image_path) VALUES (?, ?)");
+    foreach ($new_pictures as $path) {
+        $img_stmt->bind_param("is", $aircon_id, $path);
+        $img_stmt->execute();
+    }
+    $img_stmt->close();
 }
 $stmt->close();
 

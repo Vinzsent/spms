@@ -2,8 +2,8 @@
 session_start();
 include '../includes/db.php';
 
-  // Get user ID from session
-    $user_id = $_SESSION['user']['id'] ?? 1;
+// Get user ID from session
+$user_id = $_SESSION['user']['id'] ?? 1;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validate and sanitize input
@@ -28,7 +28,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $depreciated_value = !empty($_POST['depreciated_value']) ? floatval($_POST['depreciated_value']) : 0.00;
     $receiver = trim($_POST['receiver'] ?? 'Property Custodian');
     $supplier_id = !empty($_POST['supplier_id']) ? intval($_POST['supplier_id']) : null;
-    
+    $picture = '';
+    $additional_pictures = [];
+    $campus = !empty($_POST['campus']) ? trim($_POST['campus']) : null;
+
+    // Handle Multiple Pictures Upload
+    if (isset($_FILES['pictures']) && is_array($_FILES['pictures']['name'])) {
+        $upload_dir = '../uploads/aircons/';
+        if (!file_exists($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+
+        foreach ($_FILES['pictures']['name'] as $key => $name) {
+            if ($_FILES['pictures']['error'][$key] == 0) {
+                $file_tmp = $_FILES['pictures']['tmp_name'][$key];
+                $file_ext = pathinfo($name, PATHINFO_EXTENSION);
+                $filename = 'aircon_' . time() . '_' . uniqid() . '.' . $file_ext;
+                $target_file = $upload_dir . $filename;
+
+                if (move_uploaded_file($file_tmp, $target_file)) {
+                    $path = 'uploads/aircons/' . $filename;
+                    if (empty($picture)) {
+                        $picture = $path; // First image as main picture
+                    }
+                    $additional_pictures[] = $path;
+                }
+            }
+        }
+    }
 
     // Insert new aircon into database
     $sql = "INSERT INTO aircons ( 
@@ -54,21 +81,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         receiver, 
         supplier_id,
         created_by, 
-        date_created
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
-    
+        date_created,
+        campus
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
+
     $stmt = $conn->prepare($sql);
-    
+
     if (!$stmt) {
         $_SESSION['error'] = "Database error: " . $conn->error;
         header("Location: ../pages/aircon_list.php");
         exit();
     }
-    
-    // Bind parameters - 22 parameters total    
-    // Types: s=string, d=double, i=integer
+
+    // Bind parameters - 22 parameters
     $stmt->bind_param(
-        "sssssssssssssssdsddsii",
+        "sssssssssssssssdsddsiis",
         $item_name,
         $category,
         $brand,
@@ -90,20 +117,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $depreciated_value,
         $receiver,
         $supplier_id,
-        $user_id
+        $user_id,
+        $campus
     );
-    
+
     if ($stmt->execute()) {
         $aircon_id = $conn->insert_id;
-        $_SESSION['message'] = "Aircon unit '$model' ($brand $model) has been added successfully.";
-        
+
+        // Insert additional pictures if any
+        if (!empty($additional_pictures)) {
+            $img_stmt = $conn->prepare("INSERT INTO aircon_images (aircon_id, image_path) VALUES (?, ?)");
+            foreach ($additional_pictures as $path) {
+                $img_stmt->bind_param("is", $aircon_id, $path);
+                $img_stmt->execute();
+            }
+            $img_stmt->close();
+        }
+
+        $_SESSION['message'] = "Aircon unit '$model' has been added successfully with images.";
     } else {
         $_SESSION['error'] = "Error adding aircon: " . $stmt->error;
     }
-    
+
     $stmt->close();
     $conn->close();
-    
+
     header("Location: ../pages/aircon_list.php");
     exit();
 } else {
