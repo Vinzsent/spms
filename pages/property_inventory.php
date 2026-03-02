@@ -2310,7 +2310,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <div class="row g-3">
                                         <div class="col-md-6">
                                             <label class="form-label">Supplier</label>
-                                            <select class="form-select" name="supplier_id" id="ei_supplier_id" required>
+                                            <select class="form-select" name="supplier_id" id="ei_supplier_id">
                                                 <option value="">Select Supplier</option>
                                                 <?php
                                                 if ($suppliers_result) {
@@ -2320,6 +2320,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                         <option value="<?= $supplier['supplier_id'] ?>"><?= htmlspecialchars($supplier['supplier_name']) ?></option>
                                                 <?php endwhile;
                                                 } ?>
+                                                <option value="Others">Others</option>
                                             </select>
                                         </div>
                                         <div class="col-md-6">
