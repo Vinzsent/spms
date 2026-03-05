@@ -239,7 +239,7 @@ $existing_pos_result = $conn->query($existing_pos_sql);
         left: 0;
         top: 0;
         height: 100vh;
-        width: 280px;
+        width: 240px;
         background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
         color: var(--text-white);
         z-index: 1000;
@@ -268,6 +268,12 @@ $existing_pos_result = $conn->query($existing_pos_sql);
         padding: 20px 0;
     }
 
+    .sidebar-nav ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
     .nav-item {
         padding: 0;
         margin: 0;
@@ -276,11 +282,12 @@ $existing_pos_result = $conn->query($existing_pos_sql);
     .nav-link {
         display: flex;
         align-items: center;
-        padding: 15px 20px;
+        padding: 8px 15px;
         color: var(--text-white);
         text-decoration: none;
         transition: all 0.3s ease;
         border-left: 4px solid transparent;
+        font-size: 0.85rem;
     }
 
     .nav-link:hover {
@@ -309,7 +316,7 @@ $existing_pos_result = $conn->query($existing_pos_sql);
 
     /* Main Content */
     .main-content {
-        margin-left: 280px;
+        margin-left: 240px;
         padding: 20px;
         min-height: 100vh;
         background-color: var(--bg-light);
@@ -640,7 +647,7 @@ $existing_pos_result = $conn->query($existing_pos_sql);
             <li><a href="purchase_order_list.php" class="nav-link">
                     <i class="fas fa-file-invoice"></i> Purchase Order List
                 </a></li>
-            <li><a href="procurement_statistics.php" class="nav-link active">
+            <li><a href="procurement_statistics.php" class="nav-link">
                     <i class="fas fa-chart-line"></i> Procurement Statistics
                 </a></li>
             <li><a href="procurement.php" class="nav-link">
@@ -652,7 +659,7 @@ $existing_pos_result = $conn->query($existing_pos_sql);
             <li><a href="canvass_form_list.php" class="nav-link">
                     <i class="fas fa-list"></i> Canvass Form List
                 </a></li>
-            <li><a href="purchase_order.php" class="nav-link">
+            <li><a href="purchase_order.php" class="nav-link active">
                     <i class="fas fa-shopping-basket"></i> Purchase Order
                 </a></li>
             <li><a href="Inventory.php" class="nav-link">

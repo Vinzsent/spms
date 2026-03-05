@@ -6,13 +6,135 @@ $user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
 
 $dashboard_link = ($user_type == 'Admin') ? '../admin_dashboard.php' : '../dashboard.php';
 
+// Handle AJAX requests for pagination/search
+$isAjax = (isset($_GET['ajax']) && $_GET['ajax'] == 1);
 
-$result = $conn->query("SELECT * FROM supplier");
-if (!$result) {
-  error_log("SQL Error: " . $conn->error);
-  $_SESSION['error'] = "Unable to load suppliers at the moment. Please try again later.";
-  header("Location: ../dashboard.php");
-  exit();
+$records_per_page = 10;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) $page = 1;
+
+// Handle search
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$search_param = "%$search%";
+
+// Count for pagination (Filtered)
+if (!empty($search)) {
+  $count_stmt = $conn->prepare("SELECT COUNT(*) as count FROM supplier WHERE supplier_name LIKE ? OR contact_person LIKE ? OR email_address LIKE ?");
+  $count_stmt->bind_param("sss", $search_param, $search_param, $search_param);
+  $count_stmt->execute();
+  $total_filtered = $count_stmt->get_result()->fetch_assoc()['count'];
+} else {
+  $total_filtered = $conn->query("SELECT COUNT(*) as count FROM supplier")->fetch_assoc()['count'];
+}
+
+$total_pages = max(1, (int) ceil($total_filtered / $records_per_page));
+if ($page > $total_pages) $page = $total_pages;
+$offset = ($page - 1) * $records_per_page;
+
+if (!empty($search)) {
+  $stmt = $conn->prepare("SELECT * FROM supplier WHERE supplier_name LIKE ? OR contact_person LIKE ? OR email_address LIKE ? LIMIT ?, ?");
+  $stmt->bind_param("sssii", $search_param, $search_param, $search_param, $offset, $records_per_page);
+} else {
+  $stmt = $conn->prepare("SELECT * FROM supplier LIMIT ?, ?");
+  $stmt->bind_param("ii", $offset, $records_per_page);
+}
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Prepare table rows for AJAX or initial load
+ob_start();
+if ($result->num_rows > 0):
+  while ($row = $result->fetch_assoc()): ?>
+    <tr>
+      <td><strong><?= ucwords(strtoupper($row['supplier_name'])) ?></strong></td>
+      <td><?= ucwords(strtolower($row['contact_person'])) ?></td>
+      <td><i class="fas fa-phone text-muted me-1"></i><?= htmlspecialchars($row['contact_number']) ?></td>
+      <td><i class="fas fa-phone text-muted me-1"></i><?= htmlspecialchars($row['landline_number']) ?></td>
+      <td><i class="fas fa-envelope text-muted me-1"></i><?= htmlspecialchars($row['email_address']) ?></td>
+      <?php if (in_array(strtolower($user_type), ['admin', 'purchasing officer', 'purchasing staff', 'purchasingstaff'])): ?>
+        <td>
+          <button class="btn btn-info-modern btn-action btn-sm" data-bs-toggle="modal" data-bs-target="#viewModal" title="View Details"
+            <?php foreach ($row as $key => $value): ?>
+            data-<?= htmlspecialchars(str_replace('_', '-', $key)) ?>="<?= htmlspecialchars($value) ?>"
+            <?php endforeach; ?>>
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="btn btn-warning-modern btn-action btn-sm" data-bs-toggle="modal" data-bs-target="#editModal" title="Edit Supplier"
+            <?php foreach ($row as $key => $value): ?>
+            data-<?= htmlspecialchars(str_replace('_', '-', $key)) ?>="<?= htmlspecialchars($value) ?>"
+            <?php endforeach; ?>>
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn btn-danger-modern btn-action btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" title="Delete Supplier"
+            data-supplier-id="<?= htmlspecialchars($row['supplier_id']) ?>"
+            data-supplier-name="<?= htmlspecialchars($row['supplier_name']) ?>">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      <?php endif; ?>
+    </tr>
+  <?php endwhile;
+else: ?>
+  <tr>
+    <td colspan="<?= in_array(strtolower($user_type), ['admin', 'purchasing officer', 'purchasing staff', 'purchasingstaff']) ? 6 : 5 ?>" class="text-center py-4">
+      <div class="text-muted">No suppliers found matching your search.</div>
+    </td>
+  </tr>
+<?php endif;
+$table_rows = ob_get_clean();
+
+// Prepare Pagination HTML
+ob_start();
+if ($total_filtered > 0): ?>
+  <div class="pagination-wrapper d-flex justify-content-between align-items-center flex-wrap mt-3">
+    <div class="pagination-info mb-2 mb-sm-0">
+      Showing <?= ($total_filtered > 0) ? $offset + 1 : 0 ?> to <?= min($offset + $records_per_page, $total_filtered) ?> of <?= $total_filtered ?> entries
+    </div>
+    <nav aria-label="Supplier pagination">
+      <ul class="pagination-modern mb-0">
+        <li class="page-item-modern <?= $page <= 1 ? 'disabled' : '' ?>" onclick="<?= $page > 1 ? "loadSuppliers(".($page - 1).")" : "" ?>">
+          <a class="page-link-modern" href="javascript:void(0)">Previous</a>
+        </li>
+        <?php
+        // Simple "smart" pagination showing limited numbers
+        $start_page = max(1, $page - 2);
+        $end_page = min($total_pages, $page + 2);
+
+        if ($start_page > 1) {
+          echo '<li class="page-item-modern" onclick="loadSuppliers(1)"><a class="page-link-modern" href="javascript:void(0)">1</a></li>';
+          if ($start_page > 2) echo '<li class="page-item-modern disabled"><span class="page-link-modern">...</span></li>';
+        }
+
+        for ($i = $start_page; $i <= $end_page; $i++): ?>
+          <li class="page-item-modern <?= $page == $i ? 'active' : '' ?>" onclick="loadSuppliers(<?= $i ?>)">
+            <a class="page-link-modern" href="javascript:void(0)"><?= $i ?></a>
+          </li>
+        <?php endfor;
+
+        if ($end_page < $total_pages) {
+          if ($end_page < $total_pages - 1) echo '<li class="page-item-modern disabled"><span class="page-link-modern">...</span></li>';
+          echo '<li class="page-item-modern" onclick="loadSuppliers('.$total_pages.')"><a class="page-link-modern" href="javascript:void(0)">'.$total_pages.'</a></li>';
+        }
+        ?>
+        <li class="page-item-modern <?= $page >= $total_pages ? 'disabled' : '' ?>" onclick="<?= $page < $total_pages ? "loadSuppliers(".($page + 1).")" : "" ?>">
+          <a class="page-link-modern" href="javascript:void(0)">Next</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+<?php endif;
+$pagination_html = ob_get_clean();
+
+// Return JSON if AJAX
+if ($isAjax) {
+  header('Content-Type: application/json');
+  echo json_encode([
+    'success' => true,
+    'table_rows' => $table_rows,
+    'pagination' => $pagination_html,
+    'total_count' => $total_filtered
+  ]);
+  exit;
 }
 ?>
 <!DOCTYPE html>
@@ -34,12 +156,103 @@ if (!$result) {
       --light-bg: #f8fafc;
       --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
       --hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --active-green: #1a5f3c;
+
+      /* Sidebar specific colors from procurement_statistics.php */
+      --primary-green: #073b1d;
+      --dark-green: #073b1d;
+      --accent-orange: #EACA26;
     }
 
     body {
       background: var(--light-bg);
       min-height: 100vh;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Sidebar Styles from procurement_statistics.php */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100vh;
+      width: 240px;
+      background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
+      color: white;
+      z-index: 1000;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar-header {
+      padding: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-header h3 {
+      margin: 0;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: white;
+    }
+
+    .welcome-text {
+      font-size: 0.8rem;
+      opacity: 0.9;
+      margin-top: 5px;
+    }
+
+    .sidebar-nav {
+      padding: 10px 0;
+    }
+
+    .sidebar-nav ul {
+      list-style: none;
+      margin: 0;
+      padding-left: 0;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 8px 15px;
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+      font-size: 0.85rem;
+    }
+
+    .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+      border-left-color: var(--accent-orange);
+    }
+
+    .nav-link.active {
+      background-color: rgba(255, 255, 255, 0.15);
+      border-left-color: var(--accent-orange);
+      font-weight: 600;
+    }
+
+    .nav-link i {
+      margin-right: 10px;
+      width: 18px;
+      text-align: center;
+    }
+
+    .nav-link.logout {
+      color: #ef4444;
+      margin-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Main Content Layout Adjustments */
+    .main-content {
+      margin-left: 240px;
+      padding: 1.5rem;
+      min-height: 100vh;
     }
 
     .main-container {
@@ -47,15 +260,15 @@ if (!$result) {
       backdrop-filter: blur(10px);
       border-radius: 20px;
       box-shadow: var(--card-shadow);
-      margin-top: 120px;
-      margin-bottom: 40px;
+      margin-top: 0; /* Removed top margin */
+      margin-bottom: 2rem;
       overflow: hidden;
     }
 
     .page-header {
       background: linear-gradient(135deg, var(--primary-color));
       color: white;
-      padding: 2rem;
+      padding: 1.25rem 2rem;
       position: relative;
       overflow: hidden;
     }
@@ -72,7 +285,7 @@ if (!$result) {
     }
 
     .page-title {
-      font-size: 2.5rem;
+      font-size: 1.75rem;
       font-weight: 700;
       margin: 0;
       position: relative;
@@ -80,15 +293,15 @@ if (!$result) {
     }
 
     .page-subtitle {
-      font-size: 1.1rem;
+      font-size: 1rem;
       opacity: 0.9;
-      margin: 0.5rem 0 0 0;
+      margin: 0.25rem 0 0 0;
       position: relative;
       z-index: 1;
     }
 
     .content-section {
-      padding: 2rem;
+      padding: 1.25rem;
     }
 
     .action-buttons {
@@ -98,13 +311,14 @@ if (!$result) {
     }
 
     .btn-modern {
-      border-radius: 12px;
-      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      padding: 0.5rem 1.25rem;
       font-weight: 600;
       transition: all 0.3s ease;
       border: none;
       position: relative;
       overflow: hidden;
+      font-size: 0.9rem;
     }
 
     .btn-modern::before {
@@ -160,19 +374,20 @@ if (!$result) {
 
     .table-modern th {
       border: none;
-      padding: 1.25rem 1rem;
+      padding: 0.75rem 1rem;
       font-weight: 700;
       color: #374151;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
 
     .table-modern td {
       border: none;
-      padding: 1.25rem 1rem;
+      padding: 0.6rem 1rem;
       vertical-align: middle;
       border-bottom: 1px solid #f3f4f6;
+      font-size: 0.9rem;
     }
 
     .table-modern tbody tr {
@@ -270,15 +485,15 @@ if (!$result) {
 
     .stats-card {
       background: white;
-      border-radius: 16px;
-      padding: 1.5rem;
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
       box-shadow: var(--card-shadow);
-      margin-bottom: 2rem;
+      margin-bottom: 1.25rem;
       border-left: 4px solid var(--primary-color);
     }
 
     .stats-number {
-      font-size: 2rem;
+      font-size: 1.5rem;
       font-weight: 700;
       color: var(--primary-color);
     }
@@ -288,6 +503,97 @@ if (!$result) {
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      font-size: 0.75rem;
+    }
+
+    /* Modern Pagination Styles matching image */
+    .pagination-modern {
+      display: flex;
+      list-style: none;
+      padding: 0;
+      gap: 5px;
+    }
+
+    .page-item-modern {
+      cursor: pointer;
+    }
+
+    .page-link-modern {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 40px;
+      height: 40px;
+      padding: 0 12px;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      background: white;
+      color: #4b5563;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .page-item-modern.active .page-link-modern {
+      background: var(--active-green);
+      border-color: var(--active-green);
+      color: white;
+    }
+
+    .page-item-modern:not(.active):not(.disabled):hover .page-link-modern {
+      background: #f9fafb;
+      border-color: #d1d5db;
+      color: #111827;
+    }
+
+    .page-item-modern.disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .pagination-info {
+      color: #6b7280;
+      font-size: 0.95rem;
+    }
+
+    /* Search Bar in Header */
+    .header-search-container {
+      flex: 1;
+      max-width: 400px;
+      margin: 0 2rem;
+    }
+
+    .header-search-input {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 0.5rem 1rem 0.5rem 2.5rem;
+      color: white;
+      width: 100%;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+      font-size: 0.9rem;
+    }
+
+    .header-search-input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .header-search-input:focus {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.4);
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .search-icon-wrapper {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255, 255, 255, 0.7);
+      pointer-events: none;
     }
 
     @media (max-width: 768px) {
@@ -323,15 +629,67 @@ if (!$result) {
     </div>
   <?php endif; ?>
 
-  <?php include('../includes/navbar.php'); ?>
+  <!-- Sidebar from procurement_statistics.php -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h3>DARTS</h3>
+      <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
+    </div>
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="../dashboard.php" class="nav-link">
+            <i class="fas fa-chart-line"></i> Dashboard
+          </a></li>
+        <li><a href="suppliers.php" class="nav-link active">
+            <i class="fas fa-users"></i> Suppliers
+          </a></li>
+        <li><a href="received_items.php" class="nav-link">
+            <i class="fas fa-box-open"></i> Received Items
+          </a></li>
+        <li><a href="purchase_order_list.php" class="nav-link">
+            <i class="fas fa-file-invoice"></i> Purchase Order List
+          </a></li>
+        <li><a href="procurement_statistics.php" class="nav-link">
+            <i class="fas fa-chart-line"></i> Procurement Statistics
+          </a></li>
+        <li><a href="procurement.php" class="nav-link">
+            <i class="fas fa-shopping-cart"></i> Procurement Tables
+          </a></li>
+        <li><a href="canvass_form.php" class="nav-link">
+            <i class="fas fa-file-invoice"></i> Canvass Form
+          </a></li>
+        <li><a href="canvass_form_list.php" class="nav-link">
+            <i class="fas fa-list"></i> Canvass Form List
+          </a></li>
+        <li><a href="purchase_order.php" class="nav-link">
+            <i class="fas fa-shopping-basket"></i> Purchase Order
+          </a></li>
+        <li><a href="Inventory.php" class="nav-link">
+            <i class="fas fa-box"></i> Supply Inventory
+          </a></li>
+        <li><a href="property_inventory.php" class="nav-link">
+            <i class="fas fa-boxes"></i> Property Inventory
+          </a></li>
+        <li><a href="../logout.php" class="nav-link logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </a></li>
+      </ul>
+    </nav>
+  </div>
 
-  <div class="container">
+  <div class="main-content">
     <div class="main-container">
       <div class="page-header">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
           <div>
             <h1 class="page-title">Supplier Management</h1>
             <p class="page-subtitle">Manage your supplier database efficiently</p>
+          </div>
+          <div class="header-search-container position-relative">
+            <div class="search-icon-wrapper">
+              <i class="fas fa-search"></i>
+            </div>
+            <input type="text" id="supplierSearch" class="header-search-input" placeholder="Search supplier name, contact, or email..." onkeyup="handleSearch()" value="<?= htmlspecialchars($search) ?>">
           </div>
           <div class="action-buttons">
             <button class="btn btn-secondary-modern btn-modern" onclick="window.history.back()">
@@ -351,7 +709,7 @@ if (!$result) {
         <div class="row mb-4">
           <div class="col-md-4">
             <div class="stats-card">
-              <div class="stats-number"><?= $result->num_rows ?></div>
+              <div class="stats-number" id="totalSuppliersCount"><?= $total_filtered ?></div>
               <div class="stats-label">Total Suppliers</div>
             </div>
           </div>
@@ -388,40 +746,15 @@ if (!$result) {
                 <?php endif; ?>
               </tr>
             </thead>
-            <tbody>
-              <?php while ($row = $result->fetch_assoc()): ?>
-                <tr>
-                  <td><strong><?= ucwords(strtoupper($row['supplier_name'])) ?></strong></td>
-                  <td><?= ucwords(strtolower($row['contact_person'])) ?></td>
-                  <td><i class="fas fa-phone text-muted me-1"></i><?= htmlspecialchars($row['contact_number']) ?></td>
-                  <td><i class="fas fa-phone text-muted me-1"></i><?= htmlspecialchars($row['landline_number']) ?></td>
-                  <td><i class="fas fa-envelope text-muted me-1"></i><?= htmlspecialchars($row['email_address']) ?></td>
-                  <?php if (in_array(strtolower($user_type), ['admin', 'purchasing officer', 'purchasing staff', 'purchasingstaff'])): ?>
-                    <td>
-                      <button class="btn btn-info-modern btn-action btn-sm" data-bs-toggle="modal" data-bs-target="#viewModal" title="View Details"
-                        <?php foreach ($row as $key => $value): ?>
-                        data-<?= htmlspecialchars(str_replace('_', '-', $key)) ?>="<?= htmlspecialchars($value) ?>"
-                        <?php endforeach; ?>>
-                        <i class="fas fa-eye"></i>
-                      </button>
-                      <button class="btn btn-warning-modern btn-action btn-sm" data-bs-toggle="modal" data-bs-target="#editModal" title="Edit Supplier"
-                        <?php foreach ($row as $key => $value): ?>
-                        data-<?= htmlspecialchars(str_replace('_', '-', $key)) ?>="<?= htmlspecialchars($value) ?>"
-                        <?php endforeach; ?>>
-                        <i class="fas fa-edit"></i>
-                      </button>
-                      <button class="btn btn-danger-modern btn-action btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" title="Delete Supplier"
-                        data-supplier-id="<?= htmlspecialchars($row['supplier_id']) ?>"
-                        data-supplier-name="<?= htmlspecialchars($row['supplier_name']) ?>">
-                        <i class="fas fa-trash"></i>
-
-                      </button>
-                    </td>
-                  <?php endif; ?>
-                </tr>
-              <?php endwhile; ?>
+            <tbody id="supplierTableBody">
+              <?= $table_rows ?>
             </tbody>
           </table>
+        </div>
+
+        <!-- Pagination Container -->
+        <div id="paginationContainer">
+          <?= $pagination_html ?>
         </div>
       </div>
     </div>
@@ -505,6 +838,65 @@ if (!$result) {
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    let searchTimeout;
+
+    function handleSearch() {
+      clearTimeout(searchTimeout);
+      const searchValue = document.getElementById('supplierSearch').value;
+      searchTimeout = setTimeout(function() {
+        loadSuppliers(1, searchValue);
+      }, 300);
+    }
+
+    function loadSuppliers(page = 1, searchTerm = null) {
+      if (searchTerm === null) {
+        searchTerm = document.getElementById('supplierSearch').value;
+      }
+
+      const tbody = document.getElementById('supplierTableBody');
+      const pagination = document.getElementById('paginationContainer');
+      const totalCountDisplay = document.getElementById('totalSuppliersCount');
+
+      // Show loading state
+      tbody.style.opacity = '0.5';
+
+      const url = new URL(window.location.href);
+      url.searchParams.set('ajax', '1');
+      url.searchParams.set('page', page);
+      if (searchTerm) {
+        url.searchParams.set('search', searchTerm);
+      } else {
+        url.searchParams.delete('search');
+      }
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            tbody.innerHTML = data.table_rows;
+            pagination.innerHTML = data.pagination;
+            if (totalCountDisplay) totalCountDisplay.textContent = data.total_count;
+
+            tbody.style.opacity = '1';
+
+            // Update Browser URL
+            const browserUrl = new URL(window.location.href);
+            browserUrl.searchParams.set('page', page);
+            if (searchTerm) {
+              browserUrl.searchParams.set('search', searchTerm);
+            } else {
+              browserUrl.searchParams.delete('search');
+            }
+            window.history.pushState({}, '', browserUrl);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          tbody.style.opacity = '1';
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">Error loading suppliers. Please try again.</td></tr>';
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('add') === '1') {

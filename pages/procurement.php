@@ -203,7 +203,7 @@ if (isset($_SESSION['error'])) {
         left: 0;
         top: 0;
         height: 100vh;
-        width: 280px;
+        width: 240px;
         background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
         color: var(--text-white);
         z-index: 1000;
@@ -240,11 +240,12 @@ if (isset($_SESSION['error'])) {
     .nav-link {
         display: flex;
         align-items: center;
-        padding: 15px 20px;
+        padding: 8px 15px;
         color: var(--text-white);
         text-decoration: none;
         transition: all 0.3s ease;
         border-left: 4px solid transparent;
+        font-size: 0.85rem;
     }
 
     .nav-link:hover {
@@ -273,7 +274,7 @@ if (isset($_SESSION['error'])) {
 
     /* Main Content */
     .main-content {
-        margin-left: 280px;
+        margin-left: 240px;
         padding: 20px;
         min-height: 100vh;
         background-color: var(--bg-light);
@@ -564,7 +565,7 @@ if (isset($_SESSION['error'])) {
         left: 0;
         top: 0;
         height: 100vh;
-        width: 280px;
+        width: 240px;
         background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
         color: var(--text-white);
         z-index: 1000;
@@ -634,7 +635,7 @@ if (isset($_SESSION['error'])) {
 
     /* Main Content */
     .main-content {
-        margin-left: 280px;
+        margin-left: 240px;
         padding: 20px;
         min-height: 100vh;
         background-color: var(--bg-light);
@@ -780,7 +781,7 @@ if (isset($_SESSION['error'])) {
         .sidebar {
             transform: translateX(-100%);
             transition: transform 0.3s ease;
-            width: 280px;
+            width: 240px;
         }
 
         .sidebar.show {
@@ -1048,7 +1049,7 @@ if (isset($_SESSION['error'])) {
     </div>
 
     <nav class="sidebar-nav">
-        <ul>
+        <ul style="list-style-type: none; padding: 0; margin: 0;">
             <li><a href="../dashboard.php" class="nav-link">
                     <i class="fas fa-chart-line"></i> Dashboard
                 </a></li>
@@ -1061,10 +1062,10 @@ if (isset($_SESSION['error'])) {
             <li><a href="purchase_order_list.php" class="nav-link">
                     <i class="fas fa-file-invoice"></i> Purchase Order List
                 </a></li>
-            <li><a href="procurement_statistics.php" class="nav-link active">
+            <li><a href="procurement_statistics.php" class="nav-link">
                     <i class="fas fa-chart-line"></i> Procurement Statistics
                 </a></li>
-            <li><a href="procurement.php" class="nav-link">
+            <li><a href="procurement.php" class="nav-link active">
                     <i class="fas fa-shopping-cart"></i> Procurement Tables
                 </a></li>
             <li><a href="canvass_form.php" class="nav-link">

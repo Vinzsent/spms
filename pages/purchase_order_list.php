@@ -57,7 +57,7 @@ $po_result = $conn->query($po_query);
         left: 0;
         top: 0;
         height: 100vh;
-        width: 280px;
+        width: 240px;
         background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
         color: var(--text-white);
         z-index: 1000;
@@ -86,6 +86,12 @@ $po_result = $conn->query($po_query);
         padding: 20px 0;
     }
 
+    .sidebar-nav ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
     .nav-item {
         padding: 0;
         margin: 0;
@@ -94,11 +100,12 @@ $po_result = $conn->query($po_query);
     .nav-link {
         display: flex;
         align-items: center;
-        padding: 15px 20px;
+        padding: 8px 15px;
         color: var(--text-white);
         text-decoration: none;
         transition: all 0.3s ease;
         border-left: 4px solid transparent;
+        font-size: 0.85rem;
     }
 
     .nav-link:hover {
@@ -127,7 +134,7 @@ $po_result = $conn->query($po_query);
 
     /* Main Content */
     .main-content {
-        margin-left: 280px;
+        margin-left: 240px;
         padding: 20px;
         min-height: 100vh;
         background-color: var(--bg-light);
@@ -386,10 +393,10 @@ $po_result = $conn->query($po_query);
                 </a></li>
             <li><a href="suppliers.php" class="nav-link">
                     <i class="fas fa-users"></i> Supplier List
+                </a></li>
             <li><a href="received_items.php" class="nav-link">
                     <i class="fas fa-box-open"></i> Received Items
                 </a></li>
-            </a></li>
             <li><a href="purchase_order_list.php" class="nav-link active">
                     <i class="fas fa-file-invoice"></i> Purchase Order List
                 </a></li>

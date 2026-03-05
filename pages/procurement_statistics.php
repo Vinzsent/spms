@@ -185,9 +185,9 @@ while ($row = $category_inventory_result->fetch_assoc()) {
     }
 
     .sidebar-nav ul {
-        list-style: none;
+        list-style-type: none;
+        padding: 0;
         margin: 0;
-        padding-left: 0;
     }
 
     .nav-link {

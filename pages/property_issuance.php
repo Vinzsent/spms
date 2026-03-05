@@ -67,7 +67,7 @@ if (isset($_SESSION['error'])) {
         left: 0;
         top: 0;
         height: 100vh;
-        width: 280px;
+        width: 240px;
         background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
         color: var(--text-white);
         z-index: 1000;
@@ -104,11 +104,12 @@ if (isset($_SESSION['error'])) {
     .nav-link {
         display: flex;
         align-items: center;
-        padding: 15px 20px;
+        padding: 8px 15px;
         color: var(--text-white);
         text-decoration: none;
         transition: all 0.3s ease;
         border-left: 4px solid transparent;
+        font-size: 0.85rem;
     }
 
     .nav-link:hover {
@@ -137,7 +138,7 @@ if (isset($_SESSION['error'])) {
 
     /* Main Content */
     .main-content {
-        margin-left: 280px;
+        margin-left: 240px;
         padding: 20px;
         min-height: 100vh;
         background-color: var(--bg-light);
@@ -595,51 +596,51 @@ if (isset($_SESSION['error'])) {
         <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
     </div>
 
-     <nav class="sidebar-nav">
-            <ul class="nav-item">
-                <li><a href="<?= $dashboard_link ?>" class="nav-link">
-                        <i class="fas fa-chart-line"></i> Dashboard
-                    </a></li>
-                <li><a href="property_inventory.php" class="nav-link">
-                        <i class="fas fa-boxes"></i> Property Inventory
-                    </a></li>
-                <li><a href="rooms_inventory.php" class="nav-link">
-                        <i class="fas fa-door-open"></i> Rooms Inventory
-                    </a></li>
-                    <li>
-                        <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
-                            <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
-                        </a>
-                        <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
-                            <li>
-                                <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
-                            </li>
-                            <li>
-                                <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
-                            </li>
-                        </ul>
-                    </li>
-                <li><a href="aircon_list.php" class="nav-link">
-                        <i class="fas fa-snowflake"></i> Aircons
-                    </a></li>
-                <li><a href="office_inventory.php" class="nav-link">
-                        <i class="fas fa-building"></i> Office Inventory Form
-                    </a></li>
-                <li><a href="property_issuance.php" class="nav-link active">
-                        <i class="fas fa-hand-holding"></i> Property Issuance
-                    </a></li>
-                <li><a href="equipment_transfer_request.php" class="nav-link">
-                        <i class="fas fa-exchange-alt"></i> Transfer Request
-                    </a></li>
-                <li><a href="borrowers_forms.php" class="nav-link">
-                        <i class="fas fa-hand-holding"></i> Borrower Forms
-                    </a></li>
-                <li><a href="../logout.php" class="nav-link logout">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a></li>
+    <nav class="sidebar-nav">
+        <ul class="nav-item">
+            <li><a href="<?= $dashboard_link ?>" class="nav-link">
+                    <i class="fas fa-chart-line"></i> Dashboard
                 </a></li>
-            </ul>
-        </nav>
+            <li><a href="property_inventory.php" class="nav-link">
+                    <i class="fas fa-boxes"></i> Property Inventory
+                </a></li>
+            <li><a href="rooms_inventory.php" class="nav-link">
+                    <i class="fas fa-door-open"></i> Rooms Inventory
+                </a></li>
+            <li>
+                <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
+                    <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
+                </a>
+                <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
+                    <li>
+                        <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
+                    </li>
+                    <li>
+                        <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
+                    </li>
+                </ul>
+            </li>
+            <li><a href="aircon_list.php" class="nav-link">
+                    <i class="fas fa-snowflake"></i> Aircons
+                </a></li>
+            <li><a href="office_inventory.php" class="nav-link">
+                    <i class="fas fa-building"></i> Office Inventory Form
+                </a></li>
+            <li><a href="property_issuance.php" class="nav-link active">
+                    <i class="fas fa-hand-holding"></i> Property Issuance
+                </a></li>
+            <li><a href="equipment_transfer_request.php" class="nav-link">
+                    <i class="fas fa-exchange-alt"></i> Transfer Request
+                </a></li>
+            <li><a href="borrowers_forms.php" class="nav-link">
+                    <i class="fas fa-hand-holding"></i> Borrower Forms
+                </a></li>
+            <li><a href="../logout.php" class="nav-link logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a></li>
+            </a></li>
+        </ul>
+    </nav>
 </div>
 
 <!-- Main Content -->
@@ -691,8 +692,8 @@ if (isset($_SESSION['error'])) {
                         <div class="form-group">
                             <label for="transferTime">Time:</label>
                             <?php date_default_timezone_set('Asia/Manila'); ?>
-                            <input type="time" id="transferTime" name="transfer_time" class="form-control" 
-                                   value="<?= date('H:i') ?>" required>
+                            <input type="time" id="transferTime" name="transfer_time" class="form-control"
+                                value="<?= date('H:i') ?>" required>
                         </div>
                     </div>
                 </div>
@@ -700,7 +701,7 @@ if (isset($_SESSION['error'])) {
                 <!-- Items Section -->
                 <div class="items-section">
                     <h3 class="section-title">Items to Transfer</h3>
-                    
+
                     <div class="row-management">
                         <button type="button" class="btn-add-row" onclick="addItemRow()">
                             <i class="fas fa-plus"></i> Add Row
@@ -729,9 +730,9 @@ if (isset($_SESSION['error'])) {
                                         <option value="">Select Item</option>
                                         <?php if ($inventory_result && $inventory_result->num_rows > 0): ?>
                                             <?php while ($item = $inventory_result->fetch_assoc()): ?>
-                                                <option value="<?= $item['inventory_id'] ?>" 
-                                                        data-description="<?= htmlspecialchars($item['description'] ?? $item['item_name']) ?>"
-                                                        data-stock="<?= $item['current_stock'] ?>">
+                                                <option value="<?= $item['inventory_id'] ?>"
+                                                    data-description="<?= htmlspecialchars($item['description'] ?? $item['item_name']) ?>"
+                                                    data-stock="<?= $item['current_stock'] ?>">
                                                     <?= htmlspecialchars($item['item_name']) ?> (Stock: <?= $item['current_stock'] ?>)
                                                 </option>
                                             <?php endwhile; ?>
@@ -820,14 +821,70 @@ if (isset($_SESSION['error'])) {
             </thead>
             <tbody id="print-table-body">
                 <!-- Rows will be populated by JavaScript -->
-                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
             </tbody>
         </table>
 
@@ -865,23 +922,23 @@ if (isset($_SESSION['error'])) {
     function addItemRow() {
         const tbody = document.getElementById('itemsTableBody');
         const row = document.createElement('tr');
-        
+
         row.innerHTML = `
             <td><input type="number" name="items[${rowCount}][quantity]" min="1" value="1" required></td>
             <td>
                 <select name="items[${rowCount}][item_id]" class="item-select" required onchange="updateItemDescription(this, ${rowCount})">
                     <option value="">Select Item</option>
-                    <?php 
+                    <?php
                     if ($inventory_result) {
                         $inventory_result->data_seek(0);
-                        while ($item = $inventory_result->fetch_assoc()): 
+                        while ($item = $inventory_result->fetch_assoc()):
                     ?>
                         <option value="<?= $item['inventory_id'] ?>" 
                                 data-description="<?= htmlspecialchars($item['description'] ?? $item['item_name']) ?>"
                                 data-stock="<?= $item['current_stock'] ?>">
                             <?= htmlspecialchars($item['item_name']) ?> (Stock: <?= $item['current_stock'] ?>)
                         </option>
-                    <?php 
+                    <?php
                         endwhile;
                     }
                     ?>
@@ -892,7 +949,7 @@ if (isset($_SESSION['error'])) {
             <td><input type="text" name="items[${rowCount}][transferring_code]" placeholder="Transfer code"></td>
             <td><input type="text" name="items[${rowCount}][receiving_code]" placeholder="Receive code"></td>
         `;
-        
+
         tbody.appendChild(row);
         rowCount++;
     }
@@ -911,7 +968,7 @@ if (isset($_SESSION['error'])) {
         const selectedOption = selectElement.options[selectElement.selectedIndex];
         const description = selectedOption.getAttribute('data-description') || '';
         const descriptionInput = selectElement.closest('tr').querySelector(`input[name="items[${rowIndex}][description]"]`);
-        
+
         if (descriptionInput) {
             descriptionInput.value = description;
         }
@@ -921,7 +978,7 @@ if (isset($_SESSION['error'])) {
     function clearForm() {
         if (confirm('Are you sure you want to clear all form data?')) {
             document.getElementById('issuanceForm').reset();
-            
+
             // Reset table to single row
             const tbody = document.getElementById('itemsTableBody');
             tbody.innerHTML = `
@@ -930,17 +987,17 @@ if (isset($_SESSION['error'])) {
                     <td>
                         <select name="items[0][item_id]" class="item-select" required onchange="updateItemDescription(this, 0)">
                             <option value="">Select Item</option>
-                            <?php 
+                            <?php
                             if ($inventory_result) {
                                 $inventory_result->data_seek(0);
-                                while ($item = $inventory_result->fetch_assoc()): 
+                                while ($item = $inventory_result->fetch_assoc()):
                             ?>
                                 <option value="<?= $item['inventory_id'] ?>" 
                                         data-description="<?= htmlspecialchars($item['description'] ?? $item['item_name']) ?>"
                                         data-stock="<?= $item['current_stock'] ?>">
                                     <?= htmlspecialchars($item['item_name']) ?> (Stock: <?= $item['current_stock'] ?>)
                                 </option>
-                            <?php 
+                            <?php
                                 endwhile;
                             }
                             ?>
@@ -965,19 +1022,19 @@ if (isset($_SESSION['error'])) {
     document.getElementById('issuanceForm').addEventListener('submit', function(e) {
         const items = document.querySelectorAll('.item-select');
         let hasItems = false;
-        
+
         items.forEach(item => {
             if (item.value) {
                 hasItems = true;
             }
         });
-        
+
         if (!hasItems) {
             e.preventDefault();
             alert('Please select at least one item to transfer.');
             return false;
         }
-        
+
         // Check if quantities don't exceed available stock
         let stockError = false;
         items.forEach((item, index) => {
@@ -986,14 +1043,14 @@ if (isset($_SESSION['error'])) {
                 const availableStock = parseInt(selectedOption.getAttribute('data-stock'));
                 const quantityInput = item.closest('tr').querySelector('input[type="number"]');
                 const requestedQuantity = parseInt(quantityInput.value);
-                
+
                 if (requestedQuantity > availableStock) {
                     stockError = true;
                     alert(`Requested quantity (${requestedQuantity}) exceeds available stock (${availableStock}) for ${selectedOption.text}`);
                 }
             }
         });
-        
+
         if (stockError) {
             e.preventDefault();
             return false;
@@ -1004,7 +1061,7 @@ if (isset($_SESSION['error'])) {
     <?php if ($session_message): ?>
         alert('<?= addslashes($session_message) ?>');
     <?php endif; ?>
-    
+
     <?php if ($session_error): ?>
         alert('Error: <?= addslashes($session_error) ?>');
     <?php endif; ?>

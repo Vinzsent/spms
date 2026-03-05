@@ -75,7 +75,7 @@ $result = $conn->query($query);
     }
 
     .main-content {
-        margin-left: 280px;
+        margin-left: 240px;
         padding: 20px;
         min-height: 100vh;
     }
@@ -172,7 +172,7 @@ $result = $conn->query($query);
         left: 0;
         top: 0;
         height: 100vh;
-        width: 280px;
+        width: 240px;
         background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
         color: var(--text-white);
         z-index: 1000;
@@ -191,11 +191,12 @@ $result = $conn->query($query);
     .nav-link {
         display: flex;
         align-items: center;
-        padding: 15px 20px;
+        padding: 8px 15px;
         color: var(--text-white);
         text-decoration: none;
         transition: 0.3s;
         border-left: 4px solid transparent;
+        font-size: 0.85rem;
     }
 
     .nav-link:hover {
