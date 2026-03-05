@@ -99,7 +99,7 @@ if (isset($_SESSION['error'])) {
         top: 0;
         left: 0;
         height: 100vh;
-        width: 280px;
+        width: 240px;
         background: linear-gradient(135deg, var(--primary-color), #0d4a2a);
         color: var(--text-light);
         z-index: 1000;
@@ -137,12 +137,13 @@ if (isset($_SESSION['error'])) {
     .nav-link {
         display: flex;
         align-items: center;
-        padding: 0.75rem 1.5rem;
+        padding: 8px 15px;
         color: var(--text-light);
         text-decoration: none;
         transition: all 0.3s ease;
         border-radius: 0;
         position: relative;
+        font-size: 0.85rem;
     }
 
     .nav-link:hover {
@@ -175,7 +176,7 @@ if (isset($_SESSION['error'])) {
 
     /* Main Content */
     .main-content {
-        margin-left: 280px;
+        margin-left: 240px;
         min-height: 100vh;
         background: var(--light-bg);
     }

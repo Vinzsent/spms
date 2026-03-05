@@ -47,7 +47,7 @@ if (isset($_SESSION['error'])) {
         left: 0;
         top: 0;
         height: 100vh;
-        width: 280px;
+        width: 240px;
         background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
         color: var(--text-white);
         z-index: 1000;
@@ -84,11 +84,12 @@ if (isset($_SESSION['error'])) {
     .nav-link {
         display: flex;
         align-items: center;
-        padding: 15px 20px;
+        padding: 8px 15px;
         color: var(--text-white);
         text-decoration: none;
         transition: all 0.3s ease;
         border-left: 4px solid transparent;
+        font-size: 0.85rem;
     }
 
     .nav-link:hover {
@@ -117,7 +118,7 @@ if (isset($_SESSION['error'])) {
 
     /* Main Content */
     .main-content {
-        margin-left: 280px;
+        margin-left: 240px;
         padding: 20px;
         min-height: 100vh;
         background-color: var(--bg-light);
@@ -571,51 +572,51 @@ if (isset($_SESSION['error'])) {
         <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
     </div>
 
-     <nav class="sidebar-nav">
-            <ul class="nav-item">
-                <li><a href="<?= $dashboard_link ?>" class="nav-link">
-                        <i class="fas fa-chart-line"></i> Dashboard
-                    </a></li>
-                <li><a href="property_inventory.php" class="nav-link">
-                        <i class="fas fa-boxes"></i> Property Inventory
-                    </a></li>
-                <li><a href="rooms_inventory.php" class="nav-link">
-                        <i class="fas fa-door-open"></i> Rooms Inventory
-                    </a></li>
-                    <li>
-                        <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
-                            <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
-                        </a>
-                        <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
-                            <li>
-                                <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
-                            </li>
-                            <li>
-                                <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
-                            </li>
-                        </ul>
-                    </li>
-                <li><a href="aircon_list.php" class="nav-link">
-                        <i class="fas fa-snowflake"></i> Aircons
-                    </a></li>
-                <li><a href="office_inventory.php" class="nav-link active">
-                        <i class="fas fa-building"></i> Office Inventory Form
-                    </a></li>
-                <li><a href="property_issuance.php" class="nav-link">
-                        <i class="fas fa-hand-holding"></i> Property Issuance
-                    </a></li>
-                <li><a href="equipment_transfer_request.php" class="nav-link">
-                        <i class="fas fa-exchange-alt"></i> Transfer Request
-                    </a></li>
-                <li><a href="borrowers_forms.php" class="nav-link">
-                        <i class="fas fa-hand-holding"></i> Borrower Forms
-                    </a></li>
-                <li><a href="../logout.php" class="nav-link logout">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a></li>
+    <nav class="sidebar-nav">
+        <ul class="nav-item">
+            <li><a href="<?= $dashboard_link ?>" class="nav-link">
+                    <i class="fas fa-chart-line"></i> Dashboard
                 </a></li>
-            </ul>
-        </nav>
+            <li><a href="property_inventory.php" class="nav-link">
+                    <i class="fas fa-boxes"></i> Property Inventory
+                </a></li>
+            <li><a href="rooms_inventory.php" class="nav-link">
+                    <i class="fas fa-door-open"></i> Rooms Inventory
+                </a></li>
+            <li>
+                <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
+                    <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
+                </a>
+                <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
+                    <li>
+                        <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
+                    </li>
+                    <li>
+                        <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
+                    </li>
+                </ul>
+            </li>
+            <li><a href="aircon_list.php" class="nav-link">
+                    <i class="fas fa-snowflake"></i> Aircons
+                </a></li>
+            <li><a href="office_inventory.php" class="nav-link active">
+                    <i class="fas fa-building"></i> Office Inventory Form
+                </a></li>
+            <li><a href="property_issuance.php" class="nav-link">
+                    <i class="fas fa-hand-holding"></i> Property Issuance
+                </a></li>
+            <li><a href="equipment_transfer_request.php" class="nav-link">
+                    <i class="fas fa-exchange-alt"></i> Transfer Request
+                </a></li>
+            <li><a href="borrowers_forms.php" class="nav-link">
+                    <i class="fas fa-hand-holding"></i> Borrower Forms
+                </a></li>
+            <li><a href="../logout.php" class="nav-link logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a></li>
+            </a></li>
+        </ul>
+    </nav>
 </div>
 
 <!-- Main Content -->
@@ -657,7 +658,7 @@ if (isset($_SESSION['error'])) {
             <form id="officeInventoryForm" action="../actions/save_office_inventory.php" method="POST">
                 <!-- Form Title -->
                 <h2 class="form-title">Office Inventory Form</h2>
-                
+
                 <!-- Semester Information -->
                 <div class="semester-info">
                     <div style="display: flex; gap: 30px; justify-content: center; align-items: center; margin-bottom: 15px;">
@@ -806,7 +807,7 @@ if (isset($_SESSION['error'])) {
     function addInventoryRow() {
         const tbody = document.getElementById('inventoryTableBody');
         const row = document.createElement('tr');
-        
+
         row.innerHTML = `
             <td><input type="text" name="items[${rowCount}][category]" placeholder="Category"></td>
             <td><input type="text" name="items[${rowCount}][description]" placeholder="Description"></td>
@@ -828,7 +829,7 @@ if (isset($_SESSION['error'])) {
             </td>
             <td><input type="text" name="items[${rowCount}][remarks]" placeholder="Remarks"></td>
         `;
-        
+
         tbody.appendChild(row);
         rowCount++;
     }
@@ -846,7 +847,7 @@ if (isset($_SESSION['error'])) {
     function clearForm() {
         if (confirm('Are you sure you want to clear all form data?')) {
             document.getElementById('officeInventoryForm').reset();
-            
+
             // Reset table to single row
             const tbody = document.getElementById('inventoryTableBody');
             tbody.innerHTML = `
@@ -887,7 +888,7 @@ if (isset($_SESSION['error'])) {
         const office = document.getElementById('office').value;
         const accountablePerson = document.getElementById('accountable_person').value;
         const inventoryDate = document.getElementById('inventory_date').value;
-        
+
         if (!building || !office || !accountablePerson || !inventoryDate) {
             e.preventDefault();
             alert('Please fill in all required fields (Building, Office, Accountable Person, and Date of Inventory).');
@@ -899,7 +900,7 @@ if (isset($_SESSION['error'])) {
     <?php if ($session_message): ?>
         alert('<?= addslashes($session_message) ?>');
     <?php endif; ?>
-    
+
     <?php if ($session_error): ?>
         alert('Error: <?= addslashes($session_error) ?>');
     <?php endif; ?>
