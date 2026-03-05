@@ -39,6 +39,7 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -47,7 +48,7 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
 
 <body>
 
- <style>
+    <style>
         html {
             scroll-behavior: smooth;
         }
@@ -110,7 +111,7 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
             left: 0;
             top: 0;
             height: 100vh;
-            width: 280px;
+            width: 240px;
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
             color: var(--text-white);
             z-index: 1000;
@@ -147,11 +148,12 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 15px 20px;
+            padding: 8px 15px;
             color: var(--text-white);
             text-decoration: none;
             transition: all 0.3s ease;
             border-left: 4px solid transparent;
+            font-size: 0.85rem;
         }
 
         .nav-link:hover {
@@ -180,7 +182,7 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
 
         /* Main Content */
         .main-content {
-            margin-left: 280px;
+            margin-left: 240px;
             padding: 20px;
             min-height: 100vh;
             background-color: var(--bg-light);
@@ -759,7 +761,7 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
                         <div class="budget-indicator-text">
                             <h4>REMAINING BUDGET</h4>
                         </div>
-                        <?php 
+                        <?php
                         $overall_budget = isset($budget_data['bsba']['budget']) ? floatval($budget_data['bsba']['budget']) : 0;
                         $spent = 0; // This would be calculated from actual spending data
                         $remaining = $overall_budget - $spent;
@@ -787,7 +789,7 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
                         <div class="budget-indicator-text">
                             <h4>REMAINING BUDGET</h4>
                         </div>
-                        <?php 
+                        <?php
                         $overall_budget_cela = isset($budget_data['cela']['budget']) ? floatval($budget_data['cela']['budget']) : 0;
                         $spent_cela = 0; // This would be calculated from actual spending data
                         $remaining_cela = $overall_budget_cela - $spent_cela;
@@ -815,7 +817,7 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
                         <div class="budget-indicator-text">
                             <h4>REMAINING BUDGET</h4>
                         </div>
-                        <?php 
+                        <?php
                         $overall_budget_cje = isset($budget_data['cje']['budget']) ? floatval($budget_data['cje']['budget']) : 0;
                         $spent_cje = 0; // This would be calculated from actual spending data
                         $remaining_cje = $overall_budget_cje - $spent_cje;
@@ -843,7 +845,7 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
                         <div class="budget-indicator-text">
                             <h4>REMAINING BUDGET</h4>
                         </div>
-                        <?php 
+                        <?php
                         $overall_budget_hm = isset($budget_data['hm']['budget']) ? floatval($budget_data['hm']['budget']) : 0;
                         $spent_hm = 0; // This would be calculated from actual spending data
                         $remaining_hm = $overall_budget_hm - $spent_hm;
@@ -871,7 +873,7 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
                         <div class="budget-indicator-text">
                             <h4>REMAINING BUDGET</h4>
                         </div>
-                        <?php 
+                        <?php
                         $overall_budget_ite = isset($budget_data['ite']['budget']) ? floatval($budget_data['ite']['budget']) : 0;
                         $spent_ite = 0; // This would be calculated from actual spending data
                         $remaining_ite = $overall_budget_ite - $spent_ite;
@@ -982,10 +984,10 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             // Initialize Bootstrap tooltips and popovers
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
 
@@ -1000,17 +1002,17 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
             const addBudgetModal = new bootstrap.Modal(document.getElementById('addBudgetModal'));
             const editBudgetModal = new bootstrap.Modal(document.getElementById('editBudgetModal'));
 
-            cards.forEach(function (card) {
-                card.addEventListener('click', function () {
+            cards.forEach(function(card) {
+                card.addEventListener('click', function() {
                     const target = this.getAttribute('data-course');
                     if (!target) return;
 
-                    cards.forEach(function (c) {
+                    cards.forEach(function(c) {
                         c.classList.remove('active');
                     });
                     this.classList.add('active');
 
-                    panes.forEach(function (pane) {
+                    panes.forEach(function(pane) {
                         if (pane.getAttribute('data-course') === target) {
                             pane.classList.add('active');
                         } else {
@@ -1020,8 +1022,8 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
                 });
             });
 
-            addButtons.forEach(function (btn) {
-                btn.addEventListener('click', function () {
+            addButtons.forEach(function(btn) {
+                btn.addEventListener('click', function() {
                     const course = this.getAttribute('data-course') || '';
                     if (budgetCourseInput && courseIdDisplay) {
                         budgetCourseInput.value = course;
@@ -1033,8 +1035,8 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
             });
 
             // Add event listeners for edit buttons
-            editButtons.forEach(function (btn) {
-                btn.addEventListener('click', function () {
+            editButtons.forEach(function(btn) {
+                btn.addEventListener('click', function() {
                     const course = this.getAttribute('data-course') || '';
                     if (budgetCourseInput && courseIdDisplay) {
                         budgetCourseInput.value = course;
@@ -1048,4 +1050,5 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
     </script>
 
 </body>
+
 </html>

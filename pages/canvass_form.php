@@ -75,7 +75,7 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         left: 0;
         top: 0;
         height: 100vh;
-        width: 280px;
+        width: 240px;
         background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
         color: var(--text-white);
         z-index: 1000;
@@ -104,6 +104,12 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         padding: 20px 0;
     }
 
+    .sidebar-nav ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
     .nav-item {
         padding: 0;
         margin: 0;
@@ -112,11 +118,12 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
     .nav-link {
         display: flex;
         align-items: center;
-        padding: 15px 20px;
+        padding: 8px 15px;
         color: var(--text-white);
         text-decoration: none;
         transition: all 0.3s ease;
         border-left: 4px solid transparent;
+        font-size: 0.85rem;
     }
 
     .nav-link:hover {
@@ -145,7 +152,7 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
 
     /* Main Content */
     .main-content {
-        margin-left: 280px;
+        margin-left: 240px;
         padding: 20px;
         min-height: 100vh;
         background-color: var(--bg-light);
@@ -491,13 +498,13 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             <li><a href="purchase_order_list.php" class="nav-link">
                     <i class="fas fa-file-invoice"></i> Purchase Order List
                 </a></li>
-            <li><a href="procurement_statistics.php" class="nav-link active">
+            <li><a href="procurement_statistics.php" class="nav-link">
                     <i class="fas fa-chart-line"></i> Procurement Statistics
                 </a></li>
             <li><a href="procurement.php" class="nav-link">
                     <i class="fas fa-shopping-cart"></i> Procurement Tables
                 </a></li>
-            <li><a href="canvass_form.php" class="nav-link">
+            <li><a href="canvass_form.php" class="nav-link active">
                     <i class="fas fa-file-invoice"></i> Canvass Form
                 </a></li>
             <li><a href="canvass_form_list.php" class="nav-link">

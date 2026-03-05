@@ -283,6 +283,12 @@ if ($categories_result && $categories_result->num_rows > 0) {
             padding: 10px 0;
         }
 
+        .sidebar-nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
         .nav-item {
             padding: 0;
             margin: 0;
@@ -291,7 +297,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 10px 15px;
+            padding: 8px 15px;
             color: var(--text-white);
             text-decoration: none;
             transition: all 0.3s ease;
@@ -506,7 +512,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
         }
 
         /* Form Controls */
-        .form-select, .form-control {
+        .form-select,
+        .form-control {
             padding: 5px 10px;
             font-size: 0.85rem;
             border-radius: 4px;
@@ -529,7 +536,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
         }
 
         /* Table Optimization */
-        .table > :not(caption) > * > * {
+        .table> :not(caption)>*>* {
             padding: 8px 10px;
             font-size: 0.8rem;
         }
@@ -630,7 +637,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
         }
 
         .pagination .page-item.active .page-link {
-            background-color: #8b5cf6; /* Purple from image */
+            background-color: #8b5cf6;
+            /* Purple from image */
             border-color: #8b5cf6;
             color: #fff !important;
         }

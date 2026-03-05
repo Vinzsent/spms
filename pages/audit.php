@@ -47,7 +47,7 @@ $dashboard_link = ($user_type == 'Admin') ? '../dashboard.php' : '../dashboard.p
             left: 0;
             top: 0;
             height: 100vh;
-            width: 280px;
+            width: 240px;
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
             color: var(--text-white);
             z-index: 1000;
@@ -76,6 +76,12 @@ $dashboard_link = ($user_type == 'Admin') ? '../dashboard.php' : '../dashboard.p
             padding: 20px 0;
         }
 
+        .sidebar-nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
         .nav-item {
             padding: 0;
             margin: 0;
@@ -85,11 +91,12 @@ $dashboard_link = ($user_type == 'Admin') ? '../dashboard.php' : '../dashboard.p
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 15px 20px;
+            padding: 8px 15px;
             color: var(--text-white);
             text-decoration: none;
             transition: all 0.3s ease;
             border-left: 4px solid transparent;
+            font-size: 0.85rem;
         }
 
         .nav-link:hover {
@@ -112,7 +119,7 @@ $dashboard_link = ($user_type == 'Admin') ? '../dashboard.php' : '../dashboard.p
 
         /* Main Content */
         .main-content {
-            margin-left: 280px;
+            margin-left: 240px;
             padding: 20px;
             min-height: 100vh;
             background-color: var(--bg-light);

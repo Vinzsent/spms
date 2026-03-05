@@ -59,7 +59,7 @@ if (isset($_SESSION['error'])) {
         left: 0;
         top: 0;
         height: 100vh;
-        width: 280px;
+        width: 240px;
         background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
         color: var(--text-white);
         z-index: 1000;
@@ -96,11 +96,12 @@ if (isset($_SESSION['error'])) {
     .nav-link {
         display: flex;
         align-items: center;
-        padding: 15px 20px;
+        padding: 8px 15px;
         color: var(--text-white);
         text-decoration: none;
         transition: all 0.3s ease;
         border-left: 4px solid transparent;
+        font-size: 0.85rem;
     }
 
     .nav-link:hover {
@@ -129,7 +130,7 @@ if (isset($_SESSION['error'])) {
 
     /* Main Content */
     .main-content {
-        margin-left: 280px;
+        margin-left: 240px;
         padding: 20px;
         min-height: 100vh;
         background-color: var(--bg-light);
@@ -588,51 +589,51 @@ if (isset($_SESSION['error'])) {
         <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
     </div>
 
-     <nav class="sidebar-nav">
-            <ul class="nav-item">
-                <li><a href="<?= $dashboard_link ?>" class="nav-link">
-                        <i class="fas fa-chart-line"></i> Dashboard
-                    </a></li>
-                <li><a href="property_inventory.php" class="nav-link">
-                        <i class="fas fa-boxes"></i> Property Inventory
-                    </a></li>
-                <li><a href="rooms_inventory.php" class="nav-link">
-                        <i class="fas fa-door-open"></i> Rooms Inventory
-                    </a></li>
-                    <li>
-                        <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
-                            <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
-                        </a>
-                        <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
-                            <li>
-                                <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
-                            </li>
-                            <li>
-                                <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
-                            </li>
-                        </ul>
-                    </li>
-                <li><a href="aircon_list.php" class="nav-link">
-                        <i class="fas fa-snowflake"></i> Aircons
-                    </a></li>
-                <li><a href="office_inventory.php" class="nav-link">
-                        <i class="fas fa-building"></i> Office Inventory Form
-                    </a></li>
-                <li><a href="property_issuance.php" class="nav-link">
-                        <i class="fas fa-hand-holding"></i> Property Issuance
-                    </a></li>
-                <li><a href="equipment_transfer_request.php" class="nav-link active">
-                        <i class="fas fa-exchange-alt"></i> Transfer Request
-                    </a></li>
-                <li><a href="borrowers_forms.php" class="nav-link">
-                        <i class="fas fa-hand-holding"></i> Borrower Forms
-                    </a></li>
-                <li><a href="../logout.php" class="nav-link logout">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a></li>
+    <nav class="sidebar-nav">
+        <ul class="nav-item">
+            <li><a href="<?= $dashboard_link ?>" class="nav-link">
+                    <i class="fas fa-chart-line"></i> Dashboard
                 </a></li>
-            </ul>
-        </nav>
+            <li><a href="property_inventory.php" class="nav-link">
+                    <i class="fas fa-boxes"></i> Property Inventory
+                </a></li>
+            <li><a href="rooms_inventory.php" class="nav-link">
+                    <i class="fas fa-door-open"></i> Rooms Inventory
+                </a></li>
+            <li>
+                <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
+                    <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
+                </a>
+                <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
+                    <li>
+                        <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
+                    </li>
+                    <li>
+                        <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
+                    </li>
+                </ul>
+            </li>
+            <li><a href="aircon_list.php" class="nav-link">
+                    <i class="fas fa-snowflake"></i> Aircons
+                </a></li>
+            <li><a href="office_inventory.php" class="nav-link">
+                    <i class="fas fa-building"></i> Office Inventory Form
+                </a></li>
+            <li><a href="property_issuance.php" class="nav-link">
+                    <i class="fas fa-hand-holding"></i> Property Issuance
+                </a></li>
+            <li><a href="equipment_transfer_request.php" class="nav-link active">
+                    <i class="fas fa-exchange-alt"></i> Transfer Request
+                </a></li>
+            <li><a href="borrowers_forms.php" class="nav-link">
+                    <i class="fas fa-hand-holding"></i> Borrower Forms
+                </a></li>
+            <li><a href="../logout.php" class="nav-link logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a></li>
+            </a></li>
+        </ul>
+    </nav>
 </div>
 
 <!-- Main Content -->
@@ -823,7 +824,7 @@ if (isset($_SESSION['error'])) {
         const form = document.getElementById('transferForm');
         const requiredFields = form.querySelectorAll('[required]');
         let isValid = true;
-        
+
         requiredFields.forEach(field => {
             if (!field.value.trim()) {
                 isValid = false;
@@ -832,45 +833,45 @@ if (isset($_SESSION['error'])) {
                 field.style.borderColor = '';
             }
         });
-        
+
         // Additional validation for temporary transfer return date
         const temporaryTransfer = document.getElementById('temporary');
         const returnDateInput = document.getElementById('returnDate');
-        
+
         if (temporaryTransfer.checked && !returnDateInput.value) {
             isValid = false;
             returnDateInput.style.borderColor = 'red';
         }
-        
+
         if (!isValid) {
             alert('Please fill in all required fields before printing.');
             return;
         }
-        
+
         window.print();
     }
 
     // Form validation
     document.getElementById('transferForm').addEventListener('submit', function(e) {
         const transferTypes = document.querySelectorAll('input[name="transfer_type[]"]:checked');
-        
+
         if (transferTypes.length === 0) {
             e.preventDefault();
             alert('Please select at least one transfer type (Permanent or Temporary).');
             return;
         }
-        
+
         // Prevent selecting both permanent and temporary
         if (transferTypes.length > 1) {
             e.preventDefault();
             alert('Please select only one transfer type.');
             return;
         }
-        
+
         // Validate return date for temporary transfers
         const temporaryTransfer = document.getElementById('temporary');
         const returnDateInput = document.getElementById('returnDate');
-        
+
         if (temporaryTransfer.checked && !returnDateInput.value) {
             e.preventDefault();
             alert('Please specify the Date of Return for temporary transfer.');
@@ -889,11 +890,11 @@ if (isset($_SESSION['error'])) {
                         other.checked = false;
                     }
                 });
-                
+
                 // Show/hide Date of Return field based on temporary transfer selection
                 const returnDateRow = document.getElementById('returnDateRow');
                 const returnDateInput = document.getElementById('returnDate');
-                
+
                 if (this.value === 'temporary') {
                     // Show Date of Return field for temporary transfer
                     returnDateRow.style.display = 'block';

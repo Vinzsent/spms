@@ -183,7 +183,7 @@ $logs_result = $conn->query($sql);
             left: 0;
             top: 0;
             height: 100vh;
-            width: 280px;
+            width: 240px;
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
             color: var(--text-white);
             z-index: 1000;
@@ -220,11 +220,12 @@ $logs_result = $conn->query($sql);
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 15px 20px;
+            padding: 8px 15px;
             color: var(--text-white);
             text-decoration: none;
             transition: all 0.3s ease;
             border-left: 4px solid transparent;
+            font-size: 0.85rem;
         }
 
         .nav-link:hover {
@@ -253,7 +254,7 @@ $logs_result = $conn->query($sql);
 
         /* Main Content */
         .main-content {
-            margin-left: 280px;
+            margin-left: 240px;
             padding: 20px;
             min-height: 100vh;
             background-color: var(--bg-light);
@@ -666,7 +667,7 @@ $logs_result = $conn->query($sql);
             <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
         </div>
 
-         <nav class="sidebar-nav">
+        <nav class="sidebar-nav">
             <ul class="nav-item">
                 <li><a href="<?= $dashboard_link ?>" class="nav-link">
                         <i class="fas fa-chart-line"></i> Dashboard
@@ -677,19 +678,19 @@ $logs_result = $conn->query($sql);
                 <li><a href="rooms_inventory.php" class="nav-link">
                         <i class="fas fa-door-open"></i> Rooms Inventory
                     </a></li>
-                    <li>
-                        <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
-                            <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
-                        </a>
-                        <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
-                            <li>
-                                <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
-                            </li>
-                            <li>
-                                <a href="bulb_release_logs.php" class="nav-link active">Bulb Release Logs</a>
-                            </li>
-                        </ul>
-                    </li>
+                <li>
+                    <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
+                        <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
+                    </a>
+                    <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
+                        <li>
+                            <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
+                        </li>
+                        <li>
+                            <a href="bulb_release_logs.php" class="nav-link active">Bulb Release Logs</a>
+                        </li>
+                    </ul>
+                </li>
                 <li><a href="aircon_list.php" class="nav-link">
                         <i class="fas fa-snowflake"></i> Aircons
                     </a></li>
@@ -809,14 +810,14 @@ $logs_result = $conn->query($sql);
                                     <tr>
                                         <td data-label="Area Location"><?= htmlspecialchars($row['area_location'] ?? 'N/A') ?></td>
                                         <td data-label="Date Installed"><?php
-                                            $rawDateInstalled = $row['date_installed'] ?? null;
-                                            if (!empty($rawDateInstalled) && $rawDateInstalled !== '0000-00-00' && $rawDateInstalled !== '0000-00-00 00:00:00') {
-                                                $formattedDateInstalled = date('M.j Y', strtotime($rawDateInstalled));
-                                                echo htmlspecialchars($formattedDateInstalled);
-                                            } else {
-                                                echo 'N/A';
-                                            }
-                                        ?></td>
+                                                                        $rawDateInstalled = $row['date_installed'] ?? null;
+                                                                        if (!empty($rawDateInstalled) && $rawDateInstalled !== '0000-00-00' && $rawDateInstalled !== '0000-00-00 00:00:00') {
+                                                                            $formattedDateInstalled = date('M.j Y', strtotime($rawDateInstalled));
+                                                                            echo htmlspecialchars($formattedDateInstalled);
+                                                                        } else {
+                                                                            echo 'N/A';
+                                                                        }
+                                                                        ?></td>
                                         <td data-label="Quantity"><?= htmlspecialchars($row['quantity'] ?? 'N/A') ?></td>
                                         <td data-label="Remarks"><?= htmlspecialchars($row['remarks'] ?? 'N/A') ?></td>
                                         <td data-label="Actions" class="actions">
@@ -1038,9 +1039,9 @@ $logs_result = $conn->query($sql);
                     window.location = url.toString();
                 }
             </script>
-<?php endif; ?>
-<?php
-if (!$isAjax) {
-    include '../includes/footer.php';
-}
-?>
+        <?php endif; ?>
+        <?php
+        if (!$isAjax) {
+            include '../includes/footer.php';
+        }
+        ?>

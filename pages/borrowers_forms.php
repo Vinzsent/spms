@@ -171,7 +171,7 @@ if (isset($_SESSION['error'])) {
             left: 0;
             top: 0;
             height: 100vh;
-            width: 280px;
+            width: 240px;
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
             color: var(--text-white);
             z-index: 1000;
@@ -208,11 +208,12 @@ if (isset($_SESSION['error'])) {
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 15px 20px;
+            padding: 8px 15px;
             color: var(--text-white);
             text-decoration: none;
             transition: all 0.3s ease;
             border-left: 4px solid transparent;
+            font-size: 0.85rem;
         }
 
         .nav-link:hover {
@@ -241,7 +242,7 @@ if (isset($_SESSION['error'])) {
 
         /* Main Content */
         .main-content {
-            margin-left: 280px;
+            margin-left: 240px;
             padding: 20px;
             min-height: 100vh;
             background-color: var(--bg-light);
@@ -615,7 +616,7 @@ if (isset($_SESSION['error'])) {
             <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
         </div>
 
- <nav class="sidebar-nav">
+        <nav class="sidebar-nav">
             <ul class="nav-item">
                 <li><a href="<?= $dashboard_link ?>" class="nav-link">
                         <i class="fas fa-chart-line"></i> Dashboard
@@ -626,19 +627,19 @@ if (isset($_SESSION['error'])) {
                 <li><a href="rooms_inventory.php" class="nav-link">
                         <i class="fas fa-door-open"></i> Rooms Inventory
                     </a></li>
-                    <li>
-                        <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
-                            <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
-                        </a>
-                        <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
-                            <li>
-                                <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
-                            </li>
-                            <li>
-                                <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
-                            </li>
-                        </ul>
-                    </li>
+                <li>
+                    <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
+                        <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
+                    </a>
+                    <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
+                        <li>
+                            <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
+                        </li>
+                        <li>
+                            <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
+                        </li>
+                    </ul>
+                </li>
                 <li><a href="aircon_list.php" class="nav-link">
                         <i class="fas fa-snowflake"></i> Aircons
                     </a></li>
@@ -1015,7 +1016,7 @@ if (isset($_SESSION['error'])) {
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                            
+
                             <div class="pt-4">
                                 <?php if (!empty($sy_recv_raw)): ?>
                                     <a href="borrowers_forms.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv' => true])) ?>" class="btn btn-outline-light">Reset</a>
@@ -1023,9 +1024,9 @@ if (isset($_SESSION['error'])) {
                             </div>
                         </form>
                         <button class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
-                        <i class="fas fa-plus"></i> Add Item</button>
+                            <i class="fas fa-plus"></i> Add Item</button>
                     </div>
-                    
+
                     <div class="table-responsive">
                         <table class="table table-hover mb-0 table-striped">
                             <thead class="table-dark">

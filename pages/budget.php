@@ -59,13 +59,15 @@ if (strpos(strtolower($user_type), 'immediate head') !== false) {
 }
 
 // Calculate spending for each course (placeholder - would need actual spending calculation)
-function calculateSpent($course, $conn) {
+function calculateSpent($course, $conn)
+{
     // This would typically sum up actual purchases/expenses for the course
     // For now, returning 0 as placeholder
     return 0;
 }
 
-function getCourseLogoPath($course_name, $course_id) {
+function getCourseLogoPath($course_name, $course_id)
+{
     $name = strtolower($course_name);
     $id = strtolower($course_id);
     $candidates = [];
@@ -110,20 +112,21 @@ function getCourseLogoPath($course_name, $course_id) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?></title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../assets/css/dark-mode.css">
-    
+
     <style>
         :root {
             --primary-green: #073b1d;
@@ -151,7 +154,7 @@ function getCourseLogoPath($course_name, $course_id) {
             left: 0;
             top: 0;
             height: 100vh;
-            width: 280px;
+            width: 240px;
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
             color: var(--text-white);
             z-index: 1000;
@@ -188,11 +191,12 @@ function getCourseLogoPath($course_name, $course_id) {
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 15px 20px;
+            padding: 8px 15px;
             color: var(--text-white);
             text-decoration: none;
             transition: all 0.3s ease;
             border-left: 4px solid transparent;
+            font-size: 0.85rem;
         }
 
         .nav-link:hover {
@@ -221,7 +225,7 @@ function getCourseLogoPath($course_name, $course_id) {
 
         /* Main Content */
         .main-content {
-            margin-left: 280px;
+            margin-left: 240px;
             padding: 20px;
             min-height: 100vh;
             background-color: var(--bg-light);
@@ -544,7 +548,7 @@ function getCourseLogoPath($course_name, $course_id) {
                     </a></li>
                 <li><a href="notifications.php" class="nav-link">
                         <i class="fas fa-bell"></i> notifications
-                    </a></li>    
+                    </a></li>
                 <li><a href="../logout.php" class="nav-link logout">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a></li>
@@ -558,7 +562,7 @@ function getCourseLogoPath($course_name, $course_id) {
             <p>View budget information for all courses in the system</p>
         </div>
 
-        
+
 
         <!-- Budget Overview for All Courses -->
         <?php if (strpos(strtolower($user_type), 'immediate head') !== false && $user_course): ?>
@@ -566,280 +570,284 @@ function getCourseLogoPath($course_name, $course_id) {
             <?php
             $course_data = null;
             $budget_info = $budget_data[$user_course] ?? null;
-            
+
             // Find course info from courses array
             $course_data = $courses[$user_course] ?? null;
-            
+
             if ($course_data && $budget_info):
                 $budget_max = floatval($budget_info['budget_max']);
                 $spent = calculateSpent($user_course, $conn);
                 $remaining = $budget_max - $spent;
                 $percentage = $budget_max > 0 ? round(($remaining / $budget_max) * 100) : 0;
             ?>
-            
-            
+
+
+                <div class="budget-card">
+                    <div class="budget-card-header">
+                        <h3><?= htmlspecialchars($course_data['course_id']) ?> - Budget Overview</h3>
+                        <?php $logoPath = getCourseLogoPath($course_data['course_name'] ?? '', $course_data['course_id'] ?? '');
+                        if ($logoPath): ?>
+                            <img class="course-logo" src="<?= $logoPath ?>" alt="<?= htmlspecialchars($course_data['course_name'] ?? '') ?> Logo">
+                        <?php endif; ?>
+                    </div>
+                    <div class="budget-card-body">
+                        <div class="course-badge"><?= htmlspecialchars($course_data['course_name']) ?></div>
+
+                        <div class="budget-overview">
+                            <div class="budget-circle-container">
+                                <div class="budget-circle" style="--percent: <?= $percentage ?>;">
+                                    <span><?= $percentage ?>%</span>
+                                </div>
+                                <div class="budget-percentage-label">Remaining Budget</div>
+                            </div>
+
+                            <div class="budget-details">
+                                <?php $logoPathDetails = getCourseLogoPath($course_data['course_name'] ?? '', $course_data['course_id'] ?? '');
+                                if ($logoPathDetails): ?>
+                                    <img class="course-details-logo" src="<?= $logoPathDetails ?>" alt="<?= htmlspecialchars($course_data['course_name'] ?? '') ?> Logo">
+                                <?php endif; ?>
+                                <div class="budget-detail-item">
+                                    <span class="budget-detail-label">Course Code:</span>
+                                    <span class="budget-detail-value"><?= htmlspecialchars($course_data['course_id']) ?></span>
+                                </div>
+                                <div class="budget-detail-item">
+                                    <span class="budget-detail-label">Course Name:</span>
+                                    <span class="budget-detail-value"><?= htmlspecialchars($course_data['course_name']) ?></span>
+                                </div>
+                                <div class="budget-detail-item">
+                                    <span class="budget-detail-label">Total Budget:</span>
+                                    <span class="budget-detail-value">₱<?= number_format($budget_max, 2) ?></span>
+                                </div>
+                                <div class="budget-detail-item">
+                                    <span class="budget-detail-label">Spent Amount:</span>
+                                    <span class="budget-detail-value negative">₱<?= number_format($spent, 2) ?></span>
+                                </div>
+                                <div class="budget-detail-item">
+                                    <span class="budget-detail-label">Remaining Budget:</span>
+                                    <span class="budget-detail-value <?= $remaining >= 0 ? 'positive' : 'negative' ?>">
+                                        ₱<?= number_format($remaining, 2) ?>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-icon budget">
+                                    <i class="fas fa-piggy-bank"></i>
+                                </div>
+                                <div class="stat-value">₱<?= number_format($budget_max, 0) ?></div>
+                                <div class="stat-label">Total Budget</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon spent">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <div class="stat-value">₱<?= number_format($spent, 0) ?></div>
+                                <div class="stat-label">Spent Amount</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon remaining">
+                                    <i class="fas fa-wallet"></i>
+                                </div>
+                                <div class="stat-value">₱<?= number_format($remaining, 0) ?></div>
+                                <div class="stat-label">Remaining</div>
+                            </div>
+                        </div>
+
+                        <?php if ($remaining < 0): ?>
+                            <div class="alert-card">
+                                <h5><i class="fas fa-exclamation-triangle me-2"></i>Budget Exceeded!</h5>
+                                <p class="mb-0">Your course has exceeded the allocated budget by ₱<?= number_format(abs($remaining), 2) ?>. Please review expenses and consider budget reallocation.</p>
+                            </div>
+                        <?php elseif ($percentage < 20): ?>
+                            <div class="alert-card warning">
+                                <h5><i class="fas fa-exclamation-triangle me-2"></i>Low Budget Warning</h5>
+                                <p class="mb-0">Your course has only <?= $percentage ?>% of the budget remaining. Consider planning upcoming expenses carefully.</p>
+                            </div>
+                        <?php else: ?>
+                            <div class="alert-card success">
+                                <h5><i class="fas fa-check-circle me-2"></i>Budget Status Healthy</h5>
+                                <p class="mb-0">Your course budget is well managed with <?= $percentage ?>% remaining. Keep up the good financial planning!</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div class="no-access">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <h3>Course Budget Not Found</h3>
+                    <p>Your course budget information could not be found in the system. Please contact the MIS administrator.</p>
+                </div>
+            <?php endif; ?>
+
+        <?php else: ?>
+            <div class="alert-card">
+                <h5><i class="fas fa-info-circle me-2"></i>Budget Overview</h5>
+                <p class="mb-0">View budget information for all courses in the system.</p>
+            </div>
+
+            <?php
+            $total_budget = 0;
+            $total_spent = 0;
+            $total_remaining = 0;
+            foreach ($courses as $course_key => $course) {
+                $budget_info = $budget_data[$course_key] ?? null;
+                if ($budget_info) {
+                    $budget = floatval($budget_info['budget_max']);
+                    $spent = calculateSpent($course_key, $conn);
+                    $remaining = $budget - $spent;
+                    $total_budget += $budget;
+                    $total_spent += $spent;
+                    $total_remaining += $remaining;
+                }
+            }
+            ?>
+
             <div class="budget-card">
                 <div class="budget-card-header">
-                    <h3><?= htmlspecialchars($course_data['course_id']) ?> - Budget Overview</h3>
-                    <?php $logoPath = getCourseLogoPath($course_data['course_name'] ?? '', $course_data['course_id'] ?? ''); if ($logoPath): ?>
-                        <img class="course-logo" src="<?= $logoPath ?>" alt="<?= htmlspecialchars($course_data['course_name'] ?? '') ?> Logo">
-                    <?php endif; ?>
+                    <h3>Overall Budget Summary</h3>
                 </div>
                 <div class="budget-card-body">
-                    <div class="course-badge"><?= htmlspecialchars($course_data['course_name']) ?></div>
-                    
-                    <div class="budget-overview">
-                        <div class="budget-circle-container">
-                            <div class="budget-circle" style="--percent: <?= $percentage ?>;">
-                                <span><?= $percentage ?>%</span>
-                            </div>
-                            <div class="budget-percentage-label">Remaining Budget</div>
-                        </div>
-                        
-                        <div class="budget-details">
-                            <?php $logoPathDetails = getCourseLogoPath($course_data['course_name'] ?? '', $course_data['course_id'] ?? ''); if ($logoPathDetails): ?>
-                                <img class="course-details-logo" src="<?= $logoPathDetails ?>" alt="<?= htmlspecialchars($course_data['course_name'] ?? '') ?> Logo">
-                            <?php endif; ?>
-                            <div class="budget-detail-item">
-                                <span class="budget-detail-label">Course Code:</span>
-                                <span class="budget-detail-value"><?= htmlspecialchars($course_data['course_id']) ?></span>
-                            </div>
-                            <div class="budget-detail-item">
-                                <span class="budget-detail-label">Course Name:</span>
-                                <span class="budget-detail-value"><?= htmlspecialchars($course_data['course_name']) ?></span>
-                            </div>
-                            <div class="budget-detail-item">
-                                <span class="budget-detail-label">Total Budget:</span>
-                                <span class="budget-detail-value">₱<?= number_format($budget_max, 2) ?></span>
-                            </div>
-                            <div class="budget-detail-item">
-                                <span class="budget-detail-label">Spent Amount:</span>
-                                <span class="budget-detail-value negative">₱<?= number_format($spent, 2) ?></span>
-                            </div>
-                            <div class="budget-detail-item">
-                                <span class="budget-detail-label">Remaining Budget:</span>
-                                <span class="budget-detail-value <?= $remaining >= 0 ? 'positive' : 'negative' ?>">
-                                    ₱<?= number_format($remaining, 2) ?>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="stats-grid">
                         <div class="stat-item">
-                            <div class="stat-icon budget">
-                                <i class="fas fa-piggy-bank"></i>
+                            <div class="stat-icon spent">
+                                <i class="fas fa-money-bill-wave"></i>
                             </div>
-                            <div class="stat-value">₱<?= number_format($budget_max, 0) ?></div>
+                            <div class="stat-value">₱<?= number_format($total_budget, 0) ?></div>
                             <div class="stat-label">Total Budget</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-icon spent">
-                                <i class="fas fa-shopping-cart"></i>
+                            <div class="stat-icon remaining">
+                                <i class="fas fa-chart-line"></i>
                             </div>
-                            <div class="stat-value">₱<?= number_format($spent, 0) ?></div>
-                            <div class="stat-label">Spent Amount</div>
+                            <div class="stat-value">₱<?= number_format($total_spent, 0) ?></div>
+                            <div class="stat-label">Total Spent</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-icon remaining">
                                 <i class="fas fa-wallet"></i>
                             </div>
-                            <div class="stat-value">₱<?= number_format($remaining, 0) ?></div>
-                            <div class="stat-label">Remaining</div>
+                            <div class="stat-value">₱<?= number_format($total_remaining, 0) ?></div>
+                            <div class="stat-label">Total Remaining</div>
                         </div>
-                    </div>
-
-                    <?php if ($remaining < 0): ?>
-                    <div class="alert-card">
-                        <h5><i class="fas fa-exclamation-triangle me-2"></i>Budget Exceeded!</h5>
-                        <p class="mb-0">Your course has exceeded the allocated budget by ₱<?= number_format(abs($remaining), 2) ?>. Please review expenses and consider budget reallocation.</p>
-                    </div>
-                    <?php elseif ($percentage < 20): ?>
-                    <div class="alert-card warning">
-                        <h5><i class="fas fa-exclamation-triangle me-2"></i>Low Budget Warning</h5>
-                        <p class="mb-0">Your course has only <?= $percentage ?>% of the budget remaining. Consider planning upcoming expenses carefully.</p>
-                    </div>
-                    <?php else: ?>
-                    <div class="alert-card success">
-                        <h5><i class="fas fa-check-circle me-2"></i>Budget Status Healthy</h5>
-                        <p class="mb-0">Your course budget is well managed with <?= $percentage ?>% remaining. Keep up the good financial planning!</p>
-                    </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-            <?php else: ?>
-            <div class="no-access">
-                <i class="fas fa-exclamation-circle"></i>
-                <h3>Course Budget Not Found</h3>
-                <p>Your course budget information could not be found in the system. Please contact the MIS administrator.</p>
-            </div>
-            <?php endif; ?>
-            
-        <?php else: ?>
-        <div class="alert-card">
-            <h5><i class="fas fa-info-circle me-2"></i>Budget Overview</h5>
-            <p class="mb-0">View budget information for all courses in the system.</p>
-        </div>
-        
-        <?php
-        $total_budget = 0;
-        $total_spent = 0;
-        $total_remaining = 0;
-        foreach ($courses as $course_key => $course) {
-            $budget_info = $budget_data[$course_key] ?? null;
-            if ($budget_info) {
-                $budget = floatval($budget_info['budget_max']);
-                $spent = calculateSpent($course_key, $conn);
-                $remaining = $budget - $spent;
-                $total_budget += $budget;
-                $total_spent += $spent;
-                $total_remaining += $remaining;
-            }
-        }
-        ?>
-
-        <div class="budget-card">
-            <div class="budget-card-header">
-                <h3>Overall Budget Summary</h3>
-            </div>
-            <div class="budget-card-body">
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-icon spent">
-                            <i class="fas fa-money-bill-wave"></i>
-                        </div>
-                        <div class="stat-value">₱<?= number_format($total_budget, 0) ?></div>
-                        <div class="stat-label">Total Budget</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-icon remaining">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <div class="stat-value">₱<?= number_format($total_spent, 0) ?></div>
-                        <div class="stat-label">Total Spent</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-icon remaining">
-                            <i class="fas fa-wallet"></i>
-                        </div>
-                        <div class="stat-value">₱<?= number_format($total_remaining, 0) ?></div>
-                        <div class="stat-label">Total Remaining</div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <?php foreach ($courses as $course_key => $course): ?>
+
+            <?php foreach ($courses as $course_key => $course): ?>
+                <?php
+                $budget_info = $budget_data[$course_key] ?? null;
+                if ($budget_info) {
+                    $budget = floatval($budget_info['budget_max']);
+                    $budget_max = floatval($budget_info['budget_max']);
+                    $spent = calculateSpent($course_key, $conn);
+                    $remaining = $budget - $spent;
+                    $percentage = $budget > 0 ? round(($remaining / $budget) * 100) : 0;
+                ?>
+
+                    <div class="budget-card">
+                        <div class="budget-card-header">
+                            <h3><?= htmlspecialchars($course['course_id']) ?> - Budget Overview</h3>
+                            <?php $logoPath = getCourseLogoPath($course['course_name'] ?? '', $course['course_id'] ?? '');
+                            if ($logoPath): ?>
+                                <img class="course-logo" src="<?= $logoPath ?>" alt="<?= htmlspecialchars($course['course_name'] ?? '') ?> Logo">
+                            <?php endif; ?>
+                        </div>
+                        <div class="budget-card-body">
+                            <div class="course-badge"><?= htmlspecialchars($course['course_name']) ?></div>
+
+                            <div class="budget-overview">
+                                <div class="budget-circle-container">
+                                    <div class="budget-circle" style="--percent: <?= $percentage ?>;">
+                                        <span><?= $percentage ?>%</span>
+                                    </div>
+                                    <div class="budget-percentage-label">Remaining Budget</div>
+                                </div>
+
+                                <div class="budget-details">
+                                    <?php $logoPathDetails = getCourseLogoPath($course['course_name'] ?? '', $course['course_id'] ?? '');
+                                    if ($logoPathDetails): ?>
+                                        <img class="course-details-logo" src="<?= $logoPathDetails ?>" alt="<?= htmlspecialchars($course['course_name'] ?? '') ?> Logo">
+                                    <?php endif; ?>
+                                    <div class="budget-detail-item">
+                                        <span class="budget-detail-label">Course Code:</span>
+                                        <span class="budget-detail-value"><?= htmlspecialchars($course['course_id']) ?></span>
+                                    </div>
+                                    <div class="budget-detail-item">
+                                        <span class="budget-detail-label">Course Name:</span>
+                                        <span class="budget-detail-value"><?= htmlspecialchars($course['course_name']) ?></span>
+                                    </div>
+                                    <div class="budget-detail-item">
+                                        <span class="budget-detail-label">Total Budget:</span>
+                                        <span class="budget-detail-value">₱<?= number_format($budget_max, 2) ?></span>
+                                    </div>
+                                    <div class="budget-detail-item">
+                                        <span class="budget-detail-label">Spent Amount:</span>
+                                        <span class="budget-detail-value negative">₱<?= number_format($spent, 2) ?></span>
+                                    </div>
+                                    <div class="budget-detail-item">
+                                        <span class="budget-detail-label">Remaining Budget:</span>
+                                        <span class="budget-detail-value <?= $remaining >= 0 ? 'positive' : 'negative' ?>">
+                                            ₱<?= number_format($remaining, 2) ?>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="stat-icon budget">
+                                        <i class="fas fa-piggy-bank"></i>
+                                    </div>
+                                    <div class="stat-value">₱<?= number_format($budget_max, 0) ?></div>
+                                    <div class="stat-label">Total Budget</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-icon spent">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </div>
+                                    <div class="stat-value">₱<?= number_format($spent, 0) ?></div>
+                                    <div class="stat-label">Spent Amount</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-icon remaining">
+                                        <i class="fas fa-wallet"></i>
+                                    </div>
+                                    <div class="stat-value">₱<?= number_format($remaining, 0) ?></div>
+                                    <div class="stat-label">Remaining</div>
+                                </div>
+                            </div>
+
+                            <?php if ($remaining < 0): ?>
+                                <div class="alert-card">
+                                    <h5><i class="fas fa-exclamation-triangle me-2"></i>Budget Exceeded!</h5>
+                                    <p class="mb-0">This course has exceeded the allocated budget by ₱<?= number_format(abs($remaining), 2) ?>. Please review expenses and consider budget reallocation.</p>
+                                </div>
+                            <?php elseif ($percentage < 20): ?>
+                                <div class="alert-card warning">
+                                    <h5><i class="fas fa-exclamation-triangle me-2"></i>Low Budget Warning</h5>
+                                    <p class="mb-0">This course has only <?= $percentage ?>% of the budget remaining. Consider planning upcoming expenses carefully.</p>
+                                </div>
+                            <?php else: ?>
+                                <div class="alert-card success">
+                                    <h5><i class="fas fa-check-circle me-2"></i>Budget Status Healthy</h5>
+                                    <p class="mb-0">This course budget is well managed with <?= $percentage ?>% remaining.</p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
             <?php
-            $budget_info = $budget_data[$course_key] ?? null;
-            if ($budget_info) {
-                $budget = floatval($budget_info['budget_max']);
-                $budget_max = floatval($budget_info['budget_max']);
-                $spent = calculateSpent($course_key, $conn);
-                $remaining = $budget - $spent;
-                $percentage = $budget > 0 ? round(($remaining / $budget) * 100) : 0;
+                }
+            endforeach;
             ?>
-        
-        <div class="budget-card">
-            <div class="budget-card-header">
-                <h3><?= htmlspecialchars($course['course_id']) ?> - Budget Overview</h3>
-                <?php $logoPath = getCourseLogoPath($course['course_name'] ?? '', $course['course_id'] ?? ''); if ($logoPath): ?>
-                    <img class="course-logo" src="<?= $logoPath ?>" alt="<?= htmlspecialchars($course['course_name'] ?? '') ?> Logo">
-                <?php endif; ?>
-            </div>
-            <div class="budget-card-body">
-                <div class="course-badge"><?= htmlspecialchars($course['course_name']) ?></div>
-                
-                <div class="budget-overview">
-                    <div class="budget-circle-container">
-                        <div class="budget-circle" style="--percent: <?= $percentage ?>;">
-                            <span><?= $percentage ?>%</span>
-                        </div>
-                        <div class="budget-percentage-label">Remaining Budget</div>
-                    </div>
-                    
-                    <div class="budget-details">
-                        <?php $logoPathDetails = getCourseLogoPath($course['course_name'] ?? '', $course['course_id'] ?? ''); if ($logoPathDetails): ?>
-                            <img class="course-details-logo" src="<?= $logoPathDetails ?>" alt="<?= htmlspecialchars($course['course_name'] ?? '') ?> Logo">
-                        <?php endif; ?>
-                        <div class="budget-detail-item">
-                            <span class="budget-detail-label">Course Code:</span>
-                            <span class="budget-detail-value"><?= htmlspecialchars($course['course_id']) ?></span>
-                        </div>
-                        <div class="budget-detail-item">
-                            <span class="budget-detail-label">Course Name:</span>
-                            <span class="budget-detail-value"><?= htmlspecialchars($course['course_name']) ?></span>
-                        </div>
-                        <div class="budget-detail-item">
-                            <span class="budget-detail-label">Total Budget:</span>
-                            <span class="budget-detail-value">₱<?= number_format($budget_max, 2) ?></span>
-                        </div>
-                        <div class="budget-detail-item">
-                            <span class="budget-detail-label">Spent Amount:</span>
-                            <span class="budget-detail-value negative">₱<?= number_format($spent, 2) ?></span>
-                        </div>
-                        <div class="budget-detail-item">
-                            <span class="budget-detail-label">Remaining Budget:</span>
-                            <span class="budget-detail-value <?= $remaining >= 0 ? 'positive' : 'negative' ?>">
-                                ₱<?= number_format($remaining, 2) ?>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-icon budget">
-                            <i class="fas fa-piggy-bank"></i>
-                        </div>
-                        <div class="stat-value">₱<?= number_format($budget_max, 0) ?></div>
-                        <div class="stat-label">Total Budget</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-icon spent">
-                            <i class="fas fa-shopping-cart"></i>
-                        </div>
-                        <div class="stat-value">₱<?= number_format($spent, 0) ?></div>
-                        <div class="stat-label">Spent Amount</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-icon remaining">
-                            <i class="fas fa-wallet"></i>
-                        </div>
-                        <div class="stat-value">₱<?= number_format($remaining, 0) ?></div>
-                        <div class="stat-label">Remaining</div>
-                    </div>
-                </div>
-
-                <?php if ($remaining < 0): ?>
-                <div class="alert-card">
-                    <h5><i class="fas fa-exclamation-triangle me-2"></i>Budget Exceeded!</h5>
-                    <p class="mb-0">This course has exceeded the allocated budget by ₱<?= number_format(abs($remaining), 2) ?>. Please review expenses and consider budget reallocation.</p>
-                </div>
-                <?php elseif ($percentage < 20): ?>
-                <div class="alert-card warning">
-                    <h5><i class="fas fa-exclamation-triangle me-2"></i>Low Budget Warning</h5>
-                    <p class="mb-0">This course has only <?= $percentage ?>% of the budget remaining. Consider planning upcoming expenses carefully.</p>
-                </div>
-                <?php else: ?>
-                <div class="alert-card success">
-                    <h5><i class="fas fa-check-circle me-2"></i>Budget Status Healthy</h5>
-                    <p class="mb-0">This course budget is well managed with <?= $percentage ?>% remaining.</p>
-                </div>
-                <?php endif; ?>
-            </div>
-        </div>
-        
-        <?php 
-        }
-        endforeach; 
-        ?>
         <?php endif; ?>
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script>
         // Mobile sidebar toggle
         function toggleSidebar() {
@@ -870,4 +878,5 @@ function getCourseLogoPath($course_name, $course_id) {
         });
     </script>
 </body>
+
 </html>
