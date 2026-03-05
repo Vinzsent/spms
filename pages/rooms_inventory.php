@@ -149,7 +149,7 @@ if (!empty($roomsByFloor)) {
             left: 0;
             top: 0;
             height: 100vh;
-            width: 280px;
+            width: 240px;
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
             color: var(--text-white);
             z-index: 1000;
@@ -157,25 +157,25 @@ if (!empty($roomsByFloor)) {
         }
 
         .sidebar-header {
-            padding: 20px;
+            padding: 15px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-header h3 {
             margin: 0;
             font-weight: 700;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             color: var(--text-white);
         }
 
         .welcome-text {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             opacity: 0.9;
             margin-top: 5px;
         }
 
         .sidebar-nav {
-            padding: 20px 0;
+            padding: 10px 0;
         }
 
         .sidebar-nav ul {
@@ -185,7 +185,7 @@ if (!empty($roomsByFloor)) {
         }
 
         .sidebar-nav ul ul {
-            padding-left: 1.5rem;
+            padding-left: 1rem;
         }
 
         .collapse {
@@ -208,41 +208,42 @@ if (!empty($roomsByFloor)) {
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 15px 20px;
+            padding: 10px 15px;
             color: var(--text-white);
             text-decoration: none;
             transition: all 0.3s ease;
             border-left: 4px solid transparent;
+            font-size: 0.9rem;
         }
 
         .nav-link:hover {
             background-color: rgba(255, 255, 255, 0.1);
             color: var(--text-white);
-            border-left-color: var(--accent-yellow);
+            border-left-color: var(--accent-orange);
         }
 
         .nav-link.active {
             background-color: rgba(255, 255, 255, 0.15);
-            border-left-color: var(--accent-yellow);
+            border-left-color: var(--accent-orange);
             font-weight: 600;
         }
 
         .nav-link i {
-            margin-right: 12px;
-            width: 20px;
+            margin-right: 10px;
+            width: 18px;
             text-align: center;
         }
 
         .nav-link.logout {
             color: var(--accent-red);
-            margin-top: 20px;
+            margin-top: 10px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         /* Main Content */
         .main-content {
-            margin-left: 280px;
-            padding: 20px;
+            margin-left: 240px;
+            padding: 15px;
             min-height: 100vh;
             background-color: var(--bg-light);
         }
@@ -250,16 +251,16 @@ if (!empty($roomsByFloor)) {
         .content-header {
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
             color: var(--text-white);
-            padding: 30px;
-            border-radius: 10px;
-            margin-bottom: 30px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .content-header h1 {
             margin: 0;
             font-weight: 700;
-            font-size: 2.2rem;
+            font-size: 1.5rem;
         }
 
         /* Stats Cards */
@@ -630,22 +631,23 @@ if (!empty($roomsByFloor)) {
         .floor-tabs {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 15px;
         }
 
         .floor-tab {
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            border-radius: 25px;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 20px;
             background: #ffffff;
             border: 1px solid var(--border-light);
             color: var(--text-dark);
             text-decoration: none;
             font-weight: 600;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            font-size: 0.85rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             transition: all 0.2s ease;
         }
 
@@ -663,23 +665,23 @@ if (!empty($roomsByFloor)) {
         .floor-header {
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
             color: var(--text-white);
-            padding: 15px 25px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 1.3rem;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
             font-weight: 600;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
         }
 
         .rooms-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
         .rooms-pagination {
-            margin-top: 15px;
+            margin-top: 10px;
             display: flex;
             justify-content: center;
         }
@@ -687,20 +689,20 @@ if (!empty($roomsByFloor)) {
         .rooms-pagination ul {
             list-style: none;
             display: flex;
-            gap: 6px;
+            gap: 4px;
             padding: 0;
             margin: 0;
         }
 
         .rooms-pagination li a {
             display: block;
-            padding: 6px 12px;
-            border-radius: 20px;
+            padding: 4px 10px;
+            border-radius: 4px;
             background: #ffffff;
             border: 1px solid var(--border-light);
             text-decoration: none;
             color: var(--text-dark);
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 500;
         }
 
@@ -717,42 +719,42 @@ if (!empty($roomsByFloor)) {
 
         .room-card {
             background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
             border-left: 4px solid var(--accent-orange);
         }
 
         .room-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
         }
 
         .room-header {
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
             color: white;
-            padding: 12px 15px;
-            border-radius: 6px;
-            margin: -20px -20px 15px -20px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin: -12px -12px 10px -12px;
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1rem;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 5px;
         }
 
         .room-building {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             opacity: 0.9;
-            margin-top: 3px;
+            margin-top: 1px;
         }
 
         .room-actions {
             display: flex;
-            gap: 8px;
-            margin-top: 8px;
+            gap: 5px;
+            margin-top: 5px;
             width: 100%;
             justify-content: center;
         }
@@ -761,16 +763,16 @@ if (!empty($roomsByFloor)) {
             background: linear-gradient(135deg, var(--accent-blue) 0%, #357abd 100%);
             color: white;
             border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 3px;
         }
 
         .btn-edit-room:hover {
@@ -787,22 +789,22 @@ if (!empty($roomsByFloor)) {
             background: linear-gradient(135deg, var(--accent-red) 0%, #c0392b 100%);
             color: white;
             border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 3px;
         }
 
         .btn-delete-room:hover {
             background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .btn-delete-room:active {
@@ -832,9 +834,9 @@ if (!empty($roomsByFloor)) {
         .inventory-item {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
+            padding: 4px 0;
             border-bottom: 1px solid #f0f0f0;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
 
         .inventory-item:last-child {
@@ -849,10 +851,11 @@ if (!empty($roomsByFloor)) {
         .item-quantity {
             background: var(--accent-orange);
             color: white;
-            padding: 2px 10px;
-            border-radius: 12px;
+            padding: 1px 8px;
+            border-radius: 10px;
             font-weight: 600;
-            min-width: 30px;
+            font-size: 0.75rem;
+            min-width: 25px;
             text-align: center;
         }
 
@@ -864,24 +867,30 @@ if (!empty($roomsByFloor)) {
             background: linear-gradient(135deg, var(--accent-orange) 0%, #e55a2b 100%);
             color: white;
             border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
+            padding: 6px 15px;
+            border-radius: 6px;
             font-weight: 600;
+            font-size: 0.85rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .btn-add-room:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
         }
 
         .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+        }
+
+        .page-header h2 {
+            font-size: 1.25rem;
+            margin: 0;
         }
 
         /* Modal Styling */
@@ -900,14 +909,14 @@ if (!empty($roomsByFloor)) {
 
         .modal-content-custom {
             background-color: var(--text-white);
-            margin: 3% auto;
-            padding: 2rem;
-            border-radius: 12px;
-            max-width: 700px;
+            margin: 2% auto;
+            padding: 1.25rem;
+            border-radius: 8px;
+            max-width: 600px;
             width: 90%;
             color: var(--text-dark);
             border: 1px solid var(--border-light);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
             animation: slideUp 0.4s ease-out;
             position: relative;
         }
@@ -916,8 +925,8 @@ if (!empty($roomsByFloor)) {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
             border-bottom: 2px solid var(--border-light);
         }
 
@@ -925,7 +934,7 @@ if (!empty($roomsByFloor)) {
             margin: 0;
             color: var(--primary-green);
             font-weight: 600;
-            font-size: 1.3rem;
+            font-size: 1.1rem;
         }
 
         .modal-header-custom .btn-close {
@@ -1037,28 +1046,28 @@ if (!empty($roomsByFloor)) {
     <main class="main-content">
         <div class="content-header">
             <h1><i class="fas fa-door-open"></i> Rooms Inventory</h1>
-            <p style="margin: 10px 0 0 0; opacity: 0.9;">Main Campus</p>
+            <p style="margin: 5px 0 0 0; opacity: 0.9;">Main Campus</p>
         </div>
 
         <!-- Success/Error Messages -->
         <?php if (isset($_SESSION['message'])): ?>
-            <div class="alert alert-success" role="alert" style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px;">
+            <div class="alert alert-success" role="alert" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; font-size: 0.85rem;">
                 <div style="display: flex; align-items: center; flex: 1;">
                     <i class="fas fa-check-circle" style="margin-right: 10px;"></i>
                     <span><?= htmlspecialchars($_SESSION['message']) ?></span>
                 </div>
-                <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: white; opacity: 0.8;">&times;</button>
+                <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'" style="background: none; border: none; font-size: 1.1rem; cursor: pointer; color: white; opacity: 0.8;">&times;</button>
             </div>
             <?php unset($_SESSION['message']); ?>
         <?php endif; ?>
 
         <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-danger" role="alert" style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px;">
+            <div class="alert alert-danger" role="alert" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; font-size: 0.85rem;">
                 <div style="display: flex; align-items: center; flex: 1;">
                     <i class="fas fa-exclamation-circle" style="margin-right: 10px;"></i>
                     <span><?= htmlspecialchars($_SESSION['error']) ?></span>
                 </div>
-                <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: white; opacity: 0.8;">&times;</button>
+                <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'" style="background: none; border: none; font-size: 1.1rem; cursor: pointer; color: white; opacity: 0.8;">&times;</button>
             </div>
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>

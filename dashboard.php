@@ -30,25 +30,25 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
   }
 
   .dashboard-container {
-    padding: 2rem 0;
-    margin-top: 80px;
+    padding: 1.5rem 0;
+    margin-top: 65px;
   }
 
   .dashboard-header {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
     color: var(--text-light);
   }
 
   .dashboard-header h1 {
-    font-size: 2.5rem;
+    font-size: 1.75rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 
   .dashboard-header p {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     opacity: 0.9;
     max-width: 600px;
     margin: 0 auto;
@@ -56,9 +56,9 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
 
   .menu-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 1.5rem;
-    max-width: 1400px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    max-width: 1300px;
     margin: 0 auto;
     padding: 0 1rem;
   }
@@ -66,7 +66,7 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
   .menu-card {
     background: rgba(255, 255, 255, 0.95);
     border-radius: var(--border-radius);
-    padding: 2rem;
+    padding: 1.25rem;
     box-shadow: var(--card-shadow);
     transition: var(--transition);
     border: none;
@@ -97,43 +97,44 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
   }
 
   .menu-card .card-icon {
-    width: 60px;
-    height: 60px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1.5rem;
-    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
     color: white;
   }
 
   .menu-card .card-title {
-    font-size: 1.4rem;
+    font-size: 1.15rem;
     font-weight: 600;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     color: var(--text-dark);
-    line-height: 1.3;
+    line-height: 1.2;
   }
 
   .menu-card .card-description {
     color: #666;
-    margin-bottom: 1.5rem;
-    line-height: 1.6;
-    font-size: 0.95rem;
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+    font-size: 0.85rem;
   }
 
   .menu-card .card-button {
     background: #EACA26;
     color: black;
     border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 25px;
+    padding: 0.5rem 1.25rem;
+    border-radius: 20px;
     font-weight: 500;
+    font-size: 0.85rem;
     text-decoration: none;
     display: inline-block;
     transition: var(--transition);
-    box-shadow: 0 4px 15px rgba(7, 59, 29, 0.3);
+    box-shadow: 0 4px 10px rgba(7, 59, 29, 0.2);
   }
 
   .menu-card .card-button:hover {
@@ -184,10 +185,10 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
 
   .modal-content-custom {
     background: white;
-    margin: 5% auto;
-    padding: 2.5rem;
+    margin: 3% auto;
+    padding: 1.5rem;
     border-radius: var(--border-radius);
-    max-width: 500px;
+    max-width: 450px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     border: none;
     position: relative;
@@ -196,13 +197,15 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
   .modal-content-custom h4 {
     color: var(--primary-color);
     font-weight: 600;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
   }
 
   .modal-content-custom .form-control {
     border: 2px solid #e9ecef;
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
     transition: var(--transition);
   }
 
@@ -227,36 +230,36 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
 
   /* Request Type Modal Styles */
   .request-type-modal {
-    max-width: 600px;
-    padding: 2rem;
+    max-width: 500px;
+    padding: 1.5rem;
   }
 
   .request-type-icon {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 2rem;
-    margin: 0 auto 1.5rem;
+    font-size: 1.5rem;
+    margin: 0 auto 1rem;
   }
 
   .request-type-options {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
   }
 
   .request-option {
     display: flex;
     align-items: center;
-    padding: 1.5rem;
+    padding: 1rem;
     border: 2px solid #e9ecef;
-    border-radius: 12px;
+    border-radius: 10px;
     cursor: pointer;
     transition: var(--transition);
     background: #f8f9fa;
@@ -298,16 +301,16 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
   }
 
   .option-icon {
-    width: 60px;
-    height: 60px;
+    width: 45px;
+    height: 45px;
     background: linear-gradient(135deg, #6c757d, #495057);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 1.5rem;
-    margin-right: 1rem;
+    font-size: 1.2rem;
+    margin-right: 0.75rem;
     transition: var(--transition);
     flex-shrink: 0;
   }

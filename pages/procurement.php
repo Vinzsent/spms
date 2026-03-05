@@ -1048,34 +1048,40 @@ if (isset($_SESSION['error'])) {
     </div>
 
     <nav class="sidebar-nav">
-        <ul class="nav-item">
+        <ul>
             <li><a href="../dashboard.php" class="nav-link">
                     <i class="fas fa-chart-line"></i> Dashboard
                 </a></li>
             <li><a href="suppliers.php" class="nav-link">
-                    <i class="fas fa-users"></i> Supplier List
+                    <i class="fas fa-users"></i> Suppliers
                 </a></li>
-            <li><a href="procurement_statistics.php" class="nav-link">
-                    <i class="fas fa-chart-line"></i> Procurement Statistics
-                </a></li>
-            <li><a href="procurement.php" class="nav-link active">
-                    <i class="fas fa-shopping-cart"></i> Procurement Tables
-                </a></li>
-            <li><a href="canvas_form.php" class="nav-link">
-                    <i class="fas fa-clipboard-list"></i> Canvass Form
-                </a></li>
-            <li><a href="canvass_form_list.php" class="nav-link">
-                    <i class="fas fa-list"></i> Canvass List
-                </a></li>
-            <li><a href="purchase_order.php" class="nav-link">
-                    <i class="fas fa-shopping-basket"></i> Purchase Order
+            <li><a href="received_items.php" class="nav-link">
+                    <i class="fas fa-box-open"></i> Received Items
                 </a></li>
             <li><a href="purchase_order_list.php" class="nav-link">
                     <i class="fas fa-file-invoice"></i> Purchase Order List
                 </a></li>
-            <!--<li><a href="transaction_list.php" class="nav-link">
-                    <i class="fas fa-exchange-alt"></i> Transactions
-                </a></li>-->
+            <li><a href="procurement_statistics.php" class="nav-link active">
+                    <i class="fas fa-chart-line"></i> Procurement Statistics
+                </a></li>
+            <li><a href="procurement.php" class="nav-link">
+                    <i class="fas fa-shopping-cart"></i> Procurement Tables
+                </a></li>
+            <li><a href="canvass_form.php" class="nav-link">
+                    <i class="fas fa-file-invoice"></i> Canvass Form
+                </a></li>
+            <li><a href="canvass_form_list.php" class="nav-link">
+                    <i class="fas fa-list"></i> Canvass Form List
+                </a></li>
+            <li><a href="purchase_order.php" class="nav-link">
+                    <i class="fas fa-shopping-basket"></i> Purchase Order
+                </a></li>
+            <li><a href="Inventory.php" class="nav-link">
+                    <i class="fas fa-box"></i> Supply Inventory
+                </a></li>
+            <li><a href="property_inventory.php" class="nav-link">
+                    <i class="fas fa-boxes"></i> Property Inventory
+                </a></li>
             <li><a href="../logout.php" class="nav-link logout">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a></li>

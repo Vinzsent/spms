@@ -138,6 +138,7 @@ while ($row = $category_inventory_result->fetch_assoc()) {
         --text-white: #ffffff;
         --text-dark: #073b1d;
         --bg-light: #f8f9fa;
+        --border-light: #dee2e6;
     }
 
     body {
@@ -145,12 +146,89 @@ while ($row = $category_inventory_result->fetch_assoc()) {
         background-color: var(--bg-light);
         margin: 0;
         padding: 0;
+        font-size: 0.9rem;
     }
 
-    /* Main Content - No Sidebar */
+    /* Sidebar Styles */
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        width: 240px;
+        background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
+        color: var(--text-white);
+        z-index: 1000;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar-header {
+        padding: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-header h3 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--text-white);
+    }
+
+    .welcome-text {
+        font-size: 0.8rem;
+        opacity: 0.9;
+        margin-top: 5px;
+    }
+
+    .sidebar-nav {
+        padding: 10px 0;
+    }
+
+    .sidebar-nav ul {
+        list-style: none;
+        margin: 0;
+        padding-left: 0;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 8px 15px;
+        color: var(--text-white);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+        font-size: 0.85rem;
+    }
+
+    .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: var(--text-white);
+        border-left-color: var(--accent-orange);
+    }
+
+    .nav-link.active {
+        background-color: rgba(255, 255, 255, 0.15);
+        border-left-color: var(--accent-orange);
+        font-weight: 600;
+    }
+
+    .nav-link i {
+        margin-right: 10px;
+        width: 18px;
+        text-align: center;
+    }
+
+    .nav-link.logout {
+        color: var(--accent-red);
+        margin-top: 10px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Main Content */
     .main-content {
-        margin-left: 0;
-        padding: 20px;
+        margin-left: 240px;
+        padding: 15px;
         min-height: 100vh;
         background-color: var(--bg-light);
     }
@@ -158,9 +236,9 @@ while ($row = $category_inventory_result->fetch_assoc()) {
     .content-header {
         background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
         color: var(--text-white);
-        padding: 30px;
-        border-radius: 10px;
-        margin-bottom: 30px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         display: flex;
         justify-content: space-between;
@@ -170,18 +248,25 @@ while ($row = $category_inventory_result->fetch_assoc()) {
     .content-header h1 {
         margin: 0;
         font-weight: 700;
-        font-size: 2.2rem;
+        font-size: 1.5rem;
+    }
+
+    .content-header p {
+        margin-bottom: 0;
+        font-size: 0.85rem;
+        opacity: 0.9;
     }
 
     .back-btn {
         background-color: var(--accent-orange);
         border: none;
         color: var(--text-white);
-        padding: 10px 20px;
-        border-radius: 5px;
+        padding: 6px 15px;
+        border-radius: 4px;
         font-weight: 600;
         text-decoration: none;
         transition: all 0.3s ease;
+        font-size: 0.85rem;
     }
 
     .back-btn:hover {
@@ -193,53 +278,36 @@ while ($row = $category_inventory_result->fetch_assoc()) {
     /* Stats Cards */
     .stats-container {
         display: flex;
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
         gap: 12px;
         margin-bottom: 20px;
-        overflow-x: auto;
-        padding-bottom: 10px;
-    }
-    
-    .stats-container::-webkit-scrollbar {
-        height: 6px;
-    }
-    
-    .stats-container::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-    
-    .stats-container::-webkit-scrollbar-thumb {
-        background: #888;
-        border-radius: 10px;
     }
 
     .stat-card {
         background: white;
         border-radius: 8px;
-        padding: 12px 15px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         text-align: center;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
-        min-width: 150px;
-        flex: 0 0 auto;
-        width: calc(16.666% - 11px); /* 6 cards with 12px gap */
+        flex: 1 1 calc(16.666% - 10px);
+        min-width: 140px;
     }
 
     .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .stat-icon {
-        width: 36px;
-        height: 36px;
-        margin: 0 auto 8px;
+        width: 32px;
+        height: 32px;
+        margin: 0 auto 5px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 18px;
+        font-size: 14px;
         color: white;
     }
 
@@ -268,74 +336,76 @@ while ($row = $category_inventory_result->fetch_assoc()) {
     }
 
     .stat-number {
-        font-size: 20px;
+        font-size: 1.25rem;
         font-weight: 700;
         color: #333;
-        margin-bottom: 4px;
+        margin-bottom: 2px;
     }
 
     .stat-label {
-        font-size: 12px;
+        font-size: 0.75rem;
         color: #666;
         margin-bottom: 0;
-        line-height: 1.2;
+        line-height: 1.1;
     }
 
     /* Chart Containers */
     .charts-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-        gap: 30px;
-        margin-bottom: 30px;
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
     }
 
     .chart-container {
         background: white;
-        border-radius: 10px;
-        padding: 25px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     }
 
     .chart-container h3 {
-        margin: 0 0 20px 0;
+        margin: 0 0 15px 0;
         color: var(--primary-green);
         font-weight: 600;
-        font-size: 1.3rem;
-        border-bottom: 3px solid var(--accent-orange);
-        padding-bottom: 10px;
+        font-size: 1rem;
+        border-bottom: 2px solid var(--accent-orange);
+        padding-bottom: 5px;
     }
 
     .chart-wrapper {
         position: relative;
-        height: 350px;
+        height: 280px;
     }
 
     .chart-wrapper.small {
-        height: 250px;
+        height: 200px;
     }
 
     /* Table Styles */
     .table-container {
         background: white;
-        border-radius: 10px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         overflow: hidden;
-        margin-bottom: 30px;
+        margin-bottom: 20px;
     }
 
     .table-header {
         background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
         color: var(--text-white);
-        padding: 20px;
+        padding: 12px 15px;
     }
 
     .table-header h3 {
         margin: 0;
         font-weight: 600;
+        font-size: 1rem;
     }
 
     .table {
         margin-bottom: 0;
+        font-size: 0.8rem;
     }
 
     .table thead th {
@@ -343,6 +413,12 @@ while ($row = $category_inventory_result->fetch_assoc()) {
         color: var(--text-dark);
         font-weight: 600;
         border-bottom: 2px solid var(--accent-orange);
+        padding: 8px 12px;
+    }
+
+    .table tbody td {
+        padding: 8px 12px;
+        vertical-align: middle;
     }
 
     .table tbody tr:hover {
@@ -357,34 +433,77 @@ while ($row = $category_inventory_result->fetch_assoc()) {
     }
 
     @media (max-width: 768px) {
-        .main-content {
-            padding: 15px;
+        .sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
         }
 
-        .content-header {
-            padding: 20px;
-            flex-direction: column;
-            gap: 15px;
+        .main-content {
+            margin-left: 0;
+            padding: 10px;
         }
 
         .content-header h1 {
-            font-size: 1.6rem;
+            font-size: 1.25rem;
         }
 
-        .stats-container {
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-        }
-
-        .stat-number {
-            font-size: 2rem;
+        .stat-card {
+            flex: 1 1 calc(50% - 10px);
         }
 
         .chart-wrapper {
-            height: 300px;
+            height: 250px;
         }
     }
 </style>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h3>DARTS</h3>
+        <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
+    </div>
+    <nav class="sidebar-nav">
+        <ul>
+            <li><a href="../dashboard.php" class="nav-link">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a></li>
+            <li><a href="suppliers.php" class="nav-link">
+                    <i class="fas fa-users"></i> Suppliers
+                </a></li>
+            <li><a href="received_items.php" class="nav-link">
+                    <i class="fas fa-box-open"></i> Received Items
+                </a></li>
+            <li><a href="purchase_order_list.php" class="nav-link">
+                    <i class="fas fa-file-invoice"></i> Purchase Order List
+                </a></li>
+            <li><a href="procurement_statistics.php" class="nav-link active">
+                    <i class="fas fa-chart-line"></i> Procurement Statistics
+                </a></li>
+            <li><a href="procurement.php" class="nav-link">
+                    <i class="fas fa-shopping-cart"></i> Procurement Tables
+                </a></li>
+            <li><a href="canvass_form.php" class="nav-link">
+                    <i class="fas fa-file-invoice"></i> Canvass Form
+                </a></li>
+            <li><a href="canvass_form_list.php" class="nav-link">
+                    <i class="fas fa-list"></i> Canvass Form List
+                </a></li>
+            <li><a href="purchase_order.php" class="nav-link">
+                    <i class="fas fa-shopping-basket"></i> Purchase Order
+                </a></li>
+            <li><a href="Inventory.php" class="nav-link">
+                    <i class="fas fa-box"></i> Supply Inventory
+                </a></li>
+            <li><a href="property_inventory.php" class="nav-link">
+                    <i class="fas fa-boxes"></i> Property Inventory
+                </a></li>
+            <li><a href="../logout.php" class="nav-link logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a></li>
+        </ul>
+    </nav>
+</div>
 
 <!-- Main Content -->
 <div class="main-content">
@@ -659,8 +778,7 @@ while ($row = $category_inventory_result->fetch_assoc()) {
         type: 'line',
         data: {
             labels: [
-                <?php foreach ($monthly_data as $data): ?>
-                    '<?= date('M Y', strtotime($data['month'] . '-01')) ?>',
+                <?php foreach ($monthly_data as $data): ?> '<?= date('M Y', strtotime($data['month'] . '-01')) ?>',
                 <?php endforeach; ?>
             ],
             datasets: [{
@@ -739,11 +857,10 @@ while ($row = $category_inventory_result->fetch_assoc()) {
     // 5. Category Distribution Chart
     const categoryCtx = document.getElementById('categoryChart').getContext('2d');
     new Chart(categoryCtx, {
-        type: 'horizontalBar',
+        type: 'bar',
         data: {
             labels: [
-                <?php foreach ($category_inventory as $cat): ?>
-                    '<?= addslashes($cat['category']) ?>',
+                <?php foreach ($category_inventory as $cat): ?> '<?= addslashes($cat['category']) ?>',
                 <?php endforeach; ?>
             ],
             datasets: [{
@@ -783,8 +900,7 @@ while ($row = $category_inventory_result->fetch_assoc()) {
         type: 'pie',
         data: {
             labels: [
-                <?php foreach ($inventory_status as $status): ?>
-                    '<?= $status['status'] ?? 'Unknown' ?>',
+                <?php foreach ($inventory_status as $status): ?> '<?= $status['status'] ?? 'Unknown' ?>',
                 <?php endforeach; ?>
             ],
             datasets: [{
@@ -815,8 +931,7 @@ while ($row = $category_inventory_result->fetch_assoc()) {
         type: 'pie',
         data: {
             labels: [
-                <?php foreach ($property_status as $status): ?>
-                    '<?= $status['status'] ?? 'Unknown' ?>',
+                <?php foreach ($property_status as $status): ?> '<?= $status['status'] ?? 'Unknown' ?>',
                 <?php endforeach; ?>
             ],
             datasets: [{

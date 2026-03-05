@@ -101,20 +101,20 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
 
 <?php include('../includes/navbar.php'); ?>
 
-<div class="container" style="margin-top: 120px;">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container" style="margin-top: 80px; padding-bottom: 2rem;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <h3 class="text-center mb-1">
-                <i class="fas fa-bell me-2"></i>My Notifications
+            <h3 class="mb-1" style="font-size: 1.5rem; font-weight: 700;">
+                <i class="fas fa-bell me-2 text-success"></i>My Notifications
             </h3>
-            <p class="text-muted mb-0">Manage and view all your notifications</p>
+            <p class="text-muted mb-0" style="font-size: 0.9rem;">Manage and view all your notifications</p>
         </div>
         <div>
-            <a href="../dashboard.php"><button class="btn btn-secondary me-2" style="background-color: #fd7e14; color: white;">
+            <a href="../dashboard.php"><button class="btn btn-sm btn-secondary me-1" style="background-color: #fd7e14; color: white; border: none;">
                 <i class="fas fa-arrow-left"></i> Back
             </button></a> 
             <form method="POST" style="display: inline;">
-                <button type="submit" name="mark_all_read" class="btn btn-success" onclick="return confirm('Mark all notifications as read?')">
+                <button type="submit" name="mark_all_read" class="btn btn-sm btn-success" onclick="return confirm('Mark all notifications as read?')">
                     <i class="fas fa-check-double me-1"></i>Mark All Read
                 </button>
             </form>
@@ -122,48 +122,48 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
     </div>
 
     <!-- Statistics Cards -->
-    <div class="row mb-4">
+    <div class="row g-2 mb-3">
         <div class="col-md-3">
             <div class="card bg-primary text-white">
-                <div class="card-body text-center">
-                    <h4 class="card-title"><?= $total_notifications ?></h4>
-                    <p class="card-text">Total Notifications</p>
+                <div class="card-body text-center p-2">
+                    <h5 class="card-title mb-0" style="font-size: 1.25rem;"><?= $total_notifications ?></h5>
+                    <p class="card-text small mb-0">Total Notifications</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card bg-warning text-dark">
-                <div class="card-body text-center">
-                    <h4 class="card-title"><?= $unread_count ?></h4>
-                    <p class="card-text">Unread</p>
+                <div class="card-body text-center p-2">
+                    <h5 class="card-title mb-0" style="font-size: 1.25rem;"><?= $unread_count ?></h5>
+                    <p class="card-text small mb-0">Unread</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card bg-success text-white">
-                <div class="card-body text-center">
-                    <h4 class="card-title"><?= $total_notifications - $unread_count ?></h4>
-                    <p class="card-text">Read</p>
+                <div class="card-body text-center p-2">
+                    <h5 class="card-title mb-0" style="font-size: 1.25rem;"><?= $total_notifications - $unread_count ?></h5>
+                    <p class="card-text small mb-0">Read</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card bg-info text-white">
-                <div class="card-body text-center">
-                    <h4 class="card-title"><?= $total_pages ?></h4>
-                    <p class="card-text">Pages</p>
+                <div class="card-body text-center p-2">
+                    <h5 class="card-title mb-0" style="font-size: 1.25rem;"><?= $total_pages ?></h5>
+                    <p class="card-text small mb-0">Pages</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Filters -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="GET" class="row g-3">
+    <div class="card mb-3">
+        <div class="card-body p-2 px-3">
+            <form method="GET" class="row g-2 align-items-end">
                 <div class="col-md-3">
-                    <label for="type" class="form-label">Filter by Type</label>
-                    <select class="form-select" id="type" name="type">
+                    <label for="type" class="form-label mb-1" style="font-size: 0.8rem; font-weight: 600;">Filter by Type</label>
+                    <select class="form-select form-select-sm" id="type" name="type" style="font-size: 0.85rem;">
                         <option value="">All Types</option>
                         <option value="request" <?= $filter_type === 'request' ? 'selected' : '' ?>>Request</option>
                         <option value="approved" <?= $filter_type === 'approved' ? 'selected' : '' ?>>Approved</option>
@@ -172,23 +172,20 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label for="read" class="form-label">Filter by Status</label>
-                    <select class="form-select" id="read" name="read">
+                    <label for="read" class="form-label mb-1" style="font-size: 0.8rem; font-weight: 600;">Filter by Status</label>
+                    <select class="form-select form-select-sm" id="read" name="read" style="font-size: 0.85rem;">
                         <option value="">All</option>
                         <option value="0" <?= $filter_read === '0' ? 'selected' : '' ?>>Unread</option>
                         <option value="1" <?= $filter_read === '1' ? 'selected' : '' ?>>Read</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">&nbsp;</label>
-                    <div>
-                        <button type="submit" class="btn btn-primary me-2">
-                            <i class="fas fa-filter me-1"></i>Filter
-                        </button>
-                        <a href="notifications.php" class="btn btn-outline-secondary">
-                            <i class="fas fa-times me-1"></i>Clear
-                        </a>
-                    </div>
+                <div class="col-md-6 text-end">
+                    <button type="submit" class="btn btn-sm btn-primary px-3">
+                        <i class="fas fa-filter me-1"></i>Filter
+                    </button>
+                    <a href="notifications.php" class="btn btn-sm btn-outline-secondary px-3">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </a>
                 </div>
             </form>
         </div>
@@ -196,13 +193,13 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
 
     <!-- Notifications List -->
     <div class="card">
-        <div class="card-header" style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">
-            <h5 class="mb-0">
+        <div class="card-header" style="background: linear-gradient(135deg, #073b1d, #0d4a2a); color: white;">
+            <h6 class="mb-0">
                 <i class="fas fa-bell me-2"></i>Notifications
                 <?php if ($filter_type || $filter_read !== ''): ?>
-                    <span class="badge bg-light text-dark ms-2">Filtered</span>
+                    <span class="badge bg-light text-dark ms-2" style="font-size: 0.7rem;">Filtered</span>
                 <?php endif; ?>
-            </h5>
+            </h6>
         </div>
         <div class="card-body p-0">
             <?php if ($result->num_rows > 0): ?>
@@ -210,12 +207,12 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
                     <table class="table table-bordered table-striped mb-0">
                         <thead>
                             <tr>
-                                <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Type</th>
-                                <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Title</th>
-                                <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Message</th>
-                                <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Date</th>
-                                <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Status</th>
-                                <th style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d); color: white;">Actions</th>
+                                <th style="background: linear-gradient(135deg, #073b1d, #0d4a2a); color: white;">Type</th>
+                                <th style="background: linear-gradient(135deg, #073b1d, #0d4a2a); color: white;">Title</th>
+                                <th style="background: linear-gradient(135deg, #073b1d, #0d4a2a); color: white;">Message</th>
+                                <th style="background: linear-gradient(135deg, #073b1d, #0d4a2a); color: white;">Date</th>
+                                <th style="background: linear-gradient(135deg, #073b1d, #0d4a2a); color: white;">Status</th>
+                                <th style="background: linear-gradient(135deg, #073b1d, #0d4a2a); color: white;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -362,15 +359,16 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
 <style>
 .card {
     border: none;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 8px;
 }
 
 .card-header {
-    background: linear-gradient(135deg, #1a5f3c, #2d7a4d);
+    background: linear-gradient(135deg, #073b1d, #0d4a2a);
     color: white;
-    border-radius: 10px 10px 0 0 !important;
+    border-radius: 8px 8px 0 0 !important;
     border: none;
+    padding: 10px 15px;
 }
 
 .table {
@@ -382,13 +380,15 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
     font-weight: 600;
     text-align: center;
     vertical-align: middle;
-    padding: 12px 8px;
+    padding: 8px 10px;
+    font-size: 0.85rem;
 }
 
 .table td {
     vertical-align: middle;
-    padding: 12px 8px;
+    padding: 8px 10px;
     border: 1px solid #dee2e6;
+    font-size: 0.8rem;
 }
 
 .table-bordered {
@@ -396,24 +396,25 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: rgba(0, 0, 0, 0.03);
 }
 
 /* Unread notification styling */
 .unread-notification {
-    background-color: rgba(255, 193, 7, 0.1) !important;
+    background-color: rgba(234, 202, 38, 0.1) !important;
+    border-left: 4px solid var(--accent-orange);
 }
 
 .unread-notification:hover {
-    background-color: rgba(255, 193, 7, 0.15) !important;
+    background-color: rgba(234, 202, 38, 0.15) !important;
 }
 
 /* Notification type badges */
 .notification-type-badge {
-    font-size: 0.75rem;
-    padding: 0.4rem 0.8rem;
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
     font-weight: 600;
-    border-radius: 15px;
+    border-radius: 12px;
 }
 
 /* Notification title styling */
@@ -478,25 +479,26 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
 
 /* Date styling */
 .notification-date {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: #495057;
     text-align: center;
     display: block;
+    line-height: 1.2;
 }
 
 /* Status badge styling */
 .notification-status-badge {
-    font-size: 0.75rem;
-    padding: 0.4rem 0.8rem;
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
     font-weight: 600;
-    border-radius: 15px;
+    border-radius: 12px;
 }
 
 /* Button styling */
 .btn-sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.8rem;
-    margin: 0 2px;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    margin: 0 1px;
 }
 
 .btn-group .btn {
@@ -505,13 +507,15 @@ $unread_count = $unread_stmt->get_result()->fetch_assoc()['unread'];
 
 /* Pagination styling */
 .pagination .page-link {
-    color: #1a5f3c;
+    color: #073b1d;
     border-color: #dee2e6;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
 }
 
 .pagination .page-item.active .page-link {
-    background-color: #1a5f3c;
-    border-color: #1a5f3c;
+    background-color: #073b1d;
+    border-color: #073b1d;
 }
 
 .pagination .page-link:hover {

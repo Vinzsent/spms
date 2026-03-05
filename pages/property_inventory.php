@@ -341,7 +341,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             left: 0;
             top: 0;
             height: 100vh;
-            width: 280px;
+            width: 240px;
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
             color: var(--text-white);
             z-index: 1000;
@@ -349,25 +349,25 @@ if ($categories_result && $categories_result->num_rows > 0) {
         }
 
         .sidebar-header {
-            padding: 20px;
+            padding: 15px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-header h3 {
             margin: 0;
             font-weight: 700;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             color: var(--text-white);
         }
 
         .welcome-text {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             opacity: 0.9;
             margin-top: 5px;
         }
 
         .sidebar-nav {
-            padding: 20px 0;
+            padding: 10px 0;
         }
 
         .nav-item {
@@ -378,11 +378,12 @@ if ($categories_result && $categories_result->num_rows > 0) {
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 15px 20px;
+            padding: 10px 15px;
             color: var(--text-white);
             text-decoration: none;
             transition: all 0.3s ease;
             border-left: 4px solid transparent;
+            font-size: 0.9rem;
         }
 
         .nav-link:hover {
@@ -398,21 +399,21 @@ if ($categories_result && $categories_result->num_rows > 0) {
         }
 
         .nav-link i {
-            margin-right: 12px;
-            width: 20px;
+            margin-right: 10px;
+            width: 18px;
             text-align: center;
         }
 
         .nav-link.logout {
             color: var(--accent-red);
-            margin-top: 20px;
+            margin-top: 10px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         /* Main Content */
         .main-content {
-            margin-left: 280px;
-            padding: 20px;
+            margin-left: 240px;
+            padding: 15px;
             min-height: 100vh;
             background-color: var(--bg-light);
         }
@@ -420,48 +421,54 @@ if ($categories_result && $categories_result->num_rows > 0) {
         .content-header {
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
             color: var(--text-white);
-            padding: 30px;
-            border-radius: 10px;
-            margin-bottom: 30px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .content-header h1 {
             margin: 0;
             font-weight: 700;
-            font-size: 2.2rem;
+            font-size: 1.5rem;
+        }
+
+        .content-header p {
+            margin-bottom: 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
         }
 
         /* Stats Cards */
         .stats-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
         .stat-card {
             background: var(--text-white);
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
             text-align: center;
             transition: transform 0.3s ease;
         }
 
         .stat-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
         }
 
         .stat-icon {
-            width: 60px;
-            height: 60px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 15px;
-            font-size: 1.5rem;
+            margin: 0 auto 10px;
+            font-size: 1.1rem;
             color: var(--text-white);
         }
 
@@ -482,15 +489,15 @@ if ($categories_result && $categories_result->num_rows > 0) {
         }
 
         .stat-number {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-dark);
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
 
         .stat-label {
             color: #666;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 500;
         }
 
@@ -498,27 +505,36 @@ if ($categories_result && $categories_result->num_rows > 0) {
         .alert-card {
             background: linear-gradient(135deg, var(--accent-red) 0%, #c0392b 100%);
             color: var(--text-white);
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
         }
 
         .alert-card.warning {
             background: linear-gradient(135deg, var(--accent-yellow) 0%, #e67e22 100%);
         }
 
+        .alert-card h5 {
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .alert-card p {
+            font-size: 0.85rem;
+        }
+
         /* Session Alert Styles */
         .alert {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             margin-left: 0;
             margin-right: 0;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 100%;
-            overflow: hidden;
+            padding: 10px 15px;
+            font-size: 0.85rem;
         }
 
         .alert-success {
@@ -587,16 +603,16 @@ if ($categories_result && $categories_result->num_rows > 0) {
         /* Table Styles */
         .table-container {
             background: var(--text-white);
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
             overflow: hidden;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .table-header {
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
             color: var(--text-white);
-            padding: 20px;
+            padding: 12px 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -605,15 +621,17 @@ if ($categories_result && $categories_result->num_rows > 0) {
         .table-header h3 {
             margin: 0;
             font-weight: 600;
+            font-size: 1.1rem;
         }
 
         .btn-add {
             background-color: var(--accent-orange);
             border: none;
             color: var(--text-white);
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 6px 12px;
+            border-radius: 4px;
             font-weight: 600;
+            font-size: 0.85rem;
             transition: all 0.3s ease;
         }
 
@@ -874,10 +892,94 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 margin-right: 30px;
             }
 
-            .alert .flex-grow-1 {
-                max-width: 100%;
-                margin-right: 30px;
-            }
+        /* Form Controls */
+        .form-select, .form-control {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            margin-bottom: 2px;
+        }
+
+        .btn {
+            padding: 5px 12px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+        }
+
+        .btn-sm {
+            padding: 3px 8px;
+            font-size: 0.75rem;
+        }
+
+        /* Modal Compactness */
+        .modal-header {
+            padding: 10px 15px;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+        }
+
+        .modal-body {
+            padding: 15px;
+            font-size: 0.85rem;
+        }
+
+        .modal-footer {
+            padding: 8px 15px;
+        }
+
+        /* Compact Table General */
+        .table > :not(caption) > * > * {
+            padding: 8px 10px;
+        }
+
+        /* Pagination Redesign to match image */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .pagination {
+            margin: 0;
+            gap: 2px;
+        }
+
+        .pagination .page-item .page-link {
+            border: 1px solid #dee2e6;
+            color: #495057;
+            background-color: #fff;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #8b5cf6; /* Purple from image */
+            border-color: #8b5cf6;
+            color: #fff !important;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            background-color: #fff;
+            color: #ced4da;
+            border-color: #dee2e6;
+            cursor: not-allowed;
+        }
+
+        .pagination .page-link:hover:not(.active):not(.disabled) {
+            background-color: #f8f9fa;
+            color: #8b5cf6;
+            border-color: #dee2e6;
         }
     </style>
 
@@ -1038,17 +1140,17 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
         <!-- Inventory Table -->
         <div class="table-container" id="inventory-items">
-            <div class="table-header">
-                <h3> Property Items</h3>
-                <div class="d-flex align-items-end gap-2">
-                    <form method="GET" class="d-flex align-items-end gap-2 mb-0">
+            <div class="table-header p-2">
+                <h3>Property Items</h3>
+                <div class="d-flex align-items-end gap-1">
+                    <form method="GET" class="d-flex align-items-end gap-1 mb-0">
                         <div class="search-input">
                             <label for="search" class="form-label mb-0 text-white">Search Item</label>
-                            <input type="text" id="search" name="search" class="form-control" placeholder="Search by item name..." value="<?= htmlspecialchars($search_term) ?>">
+                            <input type="text" id="search" name="search" class="form-control form-control-sm" placeholder="Search by item name..." value="<?= htmlspecialchars($search_term) ?>">
                         </div>
                         <div>
                             <label for="sy_inv" class="form-label mb-0 text-white">School Year</label>
-                            <select id="sy_inv" name="sy_inv" class="form-select">
+                            <select id="sy_inv" name="sy_inv" class="form-select form-select-sm">
                                 <option value="">All</option>
                                 <?php foreach ($sy_years as $sy): ?>
                                     <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_inv_raw === $sy) ? 'selected' : '' ?>>
@@ -1057,23 +1159,23 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="pt-4">
-                            <button type="submit" class="btn btn-search">
-                                <i class="fas fa-search"></i> Search
+                        <div class="pt-3">
+                            <button type="submit" class="btn btn-sm btn-search">
+                                <i class="fas fa-search"></i>
                             </button>
                             <?php if (!empty($search_term) || !empty($sy_inv_raw)): ?>
-                                <a href="property_inventory.php" class="btn btn-outline-light ms-2">
-                                    <i class="fas fa-times"></i> Clear
+                                <a href="property_inventory.php" class="btn btn-sm btn-outline-light ms-1">
+                                    <i class="fas fa-times"></i>
                                 </a>
                             <?php endif; ?>
                         </div>
                     </form>
-                    <a href="../actions/export_property_inventory.php?search=<?= urlencode($search_term) ?>&sy_inv=<?= urlencode($sy_inv_raw) ?>" class="btn btn-success text-white" title="Export to Excel">
-                        <i class="fas fa-file-excel"></i> Export
+                    <a href="../actions/export_property_inventory.php?search=<?= urlencode($search_term) ?>&sy_inv=<?= urlencode($sy_inv_raw) ?>" class="btn btn-sm btn-success text-white" title="Export to Excel">
+                        <i class="fas fa-file-excel"></i>
                     </a>
                     <?php if (strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasing staff' && strtolower($user_type) != 'purchasingstaff'): ?>
-                        <button class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
-                            <i class="fas fa-plus"></i> Add Item
+                        <button class="btn btn-sm btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                            <i class="fas fa-plus"></i> Add
                         </button>
                     <?php endif; ?>
                 </div>
@@ -1164,16 +1266,16 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 .table th:nth-child(1),
                 .table td:nth-child(1) {
                     /* Item Name */
-                    width: 15%;
-                    min-width: 150px;
+                    width: 12%;
+                    min-width: 120px;
                 }
 
                 .table th:nth-child(2),
                 .table td:nth-child(2) {
                     /* Description */
-                    width: 20%;
-                    min-width: 200px;
-                    max-width: 300px;
+                    width: 18%;
+                    min-width: 150px;
+                    max-width: 250px;
                     word-wrap: break-word;
                     white-space: normal;
                     overflow-wrap: break-word;
@@ -1182,84 +1284,86 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 .table th:nth-child(3),
                 .table td:nth-child(3) {
                     /* Current Stock */
-                    width: 8%;
-                    min-width: 80px;
+                    width: 7%;
+                    min-width: 60px;
                 }
 
                 .table th:nth-child(4),
                 .table td:nth-child(4) {
                     /* Unit */
-                    width: 7%;
-                    min-width: 70px;
+                    width: 6%;
+                    min-width: 50px;
                 }
 
                 .table th:nth-child(5),
                 .table td:nth-child(5) {
                     /* Brand */
-                    width: 10%;
-                    min-width: 100px;
+                    width: 9%;
+                    min-width: 80px;
                 }
 
                 .table th:nth-child(6),
                 .table td:nth-child(6) {
                     /* Color */
-                    width: 8%;
-                    min-width: 80px;
+                    width: 7%;
+                    min-width: 60px;
                 }
 
                 .table th:nth-child(7),
                 .table td:nth-child(7) {
                     /* Size */
-                    width: 7%;
-                    min-width: 70px;
+                    width: 6%;
+                    min-width: 50px;
                 }
 
                 .table th:nth-child(8),
                 .table td:nth-child(8) {
                     /* Type */
-                    width: 8%;
-                    min-width: 80px;
+                    width: 7%;
+                    min-width: 60px;
                 }
 
                 .table th:nth-child(9),
                 .table td:nth-child(9) {
                     /* Status */
-                    width: 8%;
-                    min-width: 80px;
+                    width: 7%;
+                    min-width: 60px;
                 }
 
                 .table th:nth-child(10),
                 .table td:nth-child(10) {
                     /* Date Created */
-                    width: 10%;
-                    min-width: 100px;
+                    width: 9%;
+                    min-width: 80px;
                 }
 
                 .table th:nth-child(11),
                 .table td:nth-child(11) {
                     /* Actions */
-                    width: 12%;
-                    min-width: 120px;
+                    width: 10%;
+                    min-width: 100px;
                     white-space: nowrap;
                 }
 
                 /* Reduce text size for table data and rows */
                 .table tbody tr td {
-                    font-size: 0.875rem;
+                    font-size: 0.8rem;
+                    padding: 6px 8px;
                 }
 
                 .table tbody tr {
-                    font-size: 0.875rem;
+                    font-size: 0.8rem;
                 }
 
                 .table thead th {
-                    font-size: 0.875rem;
+                    font-size: 0.8rem;
+                    padding: 8px;
                 }
 
                 /* Reduce button sizes to match smaller text */
                 .table tbody tr td .btn-sm {
-                    font-size: 0.75rem;
-                    padding: 0.25rem 0.5rem;
+                    font-size: 0.7rem;
+                    padding: 0.2rem 0.4rem;
                 }
 
                 .table tbody tr td .btn-sm i {
@@ -1579,55 +1683,62 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     </table>
                 </div>
 
-                <?php if ($total_pages > 1 && strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasing staff' && strtolower($user_type) != 'purchasingstaff'): ?>
-                    <nav>
-                        <ul class="pagination justify-content-center mt-3" id="paginationContainer">
-                            <?php
-                            $neighborRange = 2;
-                            $start = max(1, (int)$page - $neighborRange);
-                            $end = min((int)$total_pages, (int)$page + $neighborRange);
-                            ?>
+                <?php if (strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasing staff' && strtolower($user_type) != 'purchasingstaff'): ?>
+                    <div class="pagination-container px-3">
+                        <div class="pagination-info">
+                            Showing <?= ($total_records > 0) ? $offset + 1 : 0 ?> to <?= min($offset + $records_per_page, $total_records) ?> of <?= $total_records ?> entries
+                        </div>
+                        <?php if ($total_pages > 1): ?>
+                            <nav>
+                                <ul class="pagination pagination-sm" id="paginationContainer">
+                                    <?php
+                                    $neighborRange = 2;
+                                    $start = max(1, (int)$page - $neighborRange);
+                                    $end = min((int)$total_pages, (int)$page + $neighborRange);
+                                    ?>
 
-                            <!-- Prev -->
-                            <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="#" onclick="loadInventory(<?= max(1, ($page - 1)) ?>); return false;">&laquo;</a>
-                            </li>
+                                    <!-- Prev -->
+                                    <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="#" onclick="loadInventory(<?= max(1, ($page - 1)) ?>); return false;">Previous</a>
+                                    </li>
 
-                            <!-- First page -->
-                            <li class="page-item <?= (1 === (int)$page) ? 'active' : '' ?>">
-                                <a class="page-link" href="#" onclick="loadInventory(1); return false;">1</a>
-                            </li>
+                                    <!-- First page -->
+                                    <li class="page-item <?= (1 === (int)$page) ? 'active' : '' ?>">
+                                        <a class="page-link" href="#" onclick="loadInventory(1); return false;">1</a>
+                                    </li>
 
-                            <!-- Leading ellipsis -->
-                            <?php if ($start > 2): ?>
-                                <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
-                            <?php endif; ?>
+                                    <!-- Leading ellipsis -->
+                                    <?php if ($start > 2): ?>
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    <?php endif; ?>
 
-                            <!-- Middle pages around current (excluding first/last) -->
-                            <?php for ($i = $start; $i <= $end; $i++): if ($i === 1 || $i === (int)$total_pages) continue; ?>
-                                <li class="page-item <?= ($i === (int)$page) ? 'active' : '' ?>">
-                                    <a class="page-link" href="#" onclick="loadInventory(<?= $i ?>); return false;"><?= $i ?></a>
-                                </li>
-                            <?php endfor; ?>
+                                    <!-- Middle pages around current (excluding first/last) -->
+                                    <?php for ($i = $start; $i <= $end; $i++): if ($i === 1 || $i === (int)$total_pages) continue; ?>
+                                        <li class="page-item <?= ($i === (int)$page) ? 'active' : '' ?>">
+                                            <a class="page-link" href="#" onclick="loadInventory(<?= $i ?>); return false;"><?= $i ?></a>
+                                        </li>
+                                    <?php endfor; ?>
 
-                            <!-- Trailing ellipsis -->
-                            <?php if ($end < ((int)$total_pages - 1)): ?>
-                                <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
-                            <?php endif; ?>
+                                    <!-- Trailing ellipsis -->
+                                    <?php if ($end < ((int)$total_pages - 1)): ?>
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    <?php endif; ?>
 
-                            <!-- Last page -->
-                            <?php if ($total_pages > 1): ?>
-                                <li class="page-item <?= (((int)$total_pages === (int)$page) ? 'active' : '') ?>">
-                                    <a class="page-link" href="#" onclick="loadInventory(<?= (int)$total_pages ?>); return false;"><?= (int)$total_pages ?></a>
-                                </li>
-                            <?php endif; ?>
+                                    <!-- Last page -->
+                                    <?php if ($total_pages > 1): ?>
+                                        <li class="page-item <?= (((int)$total_pages === (int)$page) ? 'active' : '') ?>">
+                                            <a class="page-link" href="#" onclick="loadInventory(<?= (int)$total_pages ?>); return false;"><?= (int)$total_pages ?></a>
+                                        </li>
+                                    <?php endif; ?>
 
-                            <!-- Next -->
-                            <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="#" onclick="loadInventory(<?= min((int)$total_pages, ($page + 1)) ?>); return false;">&raquo;</a>
-                            </li>
-                        </ul>
-                    </nav>
+                                    <!-- Next -->
+                                    <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="#" onclick="loadInventory(<?= min((int)$total_pages, ($page + 1)) ?>); return false;">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        <?php endif; ?>
+                    </div>
                 <?php endif; ?>
 
 
@@ -1635,13 +1746,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
                 <!-- Stock Movement Logs -->
                 <div class="table-container" id="stock-movements">
-                    <div class="table-header">
+                    <div class="table-header p-2">
                         <h3>Recent Stock Movements</h3>
-                        <div class="d-flex align-items-end gap-2">
-                            <form method="GET" class="d-flex align-items-end gap-2 mb-0">
+                        <div class="d-flex align-items-end gap-1">
+                            <form method="GET" class="d-flex align-items-end gap-1 mb-0">
                                 <div>
                                     <label for="sy_logs" class="form-label mb-0 text-white">School Year</label>
-                                    <select id="sy_logs" name="sy_logs" class="form-select" onchange="loadStockMovements(1)">
+                                    <select id="sy_logs" name="sy_logs" class="form-select form-select-sm" onchange="loadStockMovements(1)">
                                         <option value="">All</option>
                                         <?php foreach ($sy_years as $sy): ?>
                                             <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_logs_raw === $sy) ? 'selected' : '' ?>>
@@ -1652,14 +1763,14 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 </div>
                                 <div class="search-input">
                                     <label for="logs_search" class="form-label mb-0 text-white">Search</label>
-                                    <input type="text" id="logs_search" class="form-control" placeholder="Search item or date..." onkeyup="loadStockMovements(1)">
+                                    <input type="text" id="logs_search" class="form-control form-control-sm" placeholder="Search..." onkeyup="loadStockMovements(1)">
                                 </div>
-                                <div class="pt-4">
+                                <div class="pt-3">
                                     <?php if (!empty($sy_logs_raw)): ?>
-                                        <a href="property_inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_logs' => true])) ?>" class="btn btn-outline-light">Reset</a>
+                                        <a href="property_inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_logs' => true])) ?>" class="btn btn-sm btn-outline-light"><i class="fas fa-undo"></i></a>
                                     <?php endif; ?>
-                                    <button type="button" class="btn btn-success" title="Export to Excel" onclick="exportPropertyStockMovements()">
-                                        <i class="fas fa-file-excel"></i> Export
+                                    <button type="button" class="btn btn-sm btn-success" title="Export to Excel" onclick="exportPropertyStockMovements()">
+                                        <i class="fas fa-file-excel"></i>
                                     </button>
                                 </div>
                             </form>
@@ -1733,7 +1844,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
                     <?php if ($logs_total_pages > 1 && strtolower($user_type ?? '') != 'purchasing officer' && strtolower($user_type ?? '') != 'purchasing staff' && strtolower($user_type ?? '') != 'purchasingstaff'): ?>
                         <nav>
-                            <ul class="pagination justify-content-center mt-3">
+                            <ul class="pagination pagination-sm justify-content-center mt-2 mb-2">
                                 <?php
                                 $logsNeighborRange = 2;
                                 $logsStart = max(1, (int)$logs_page - $logsNeighborRange);
@@ -2028,7 +2139,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <div class="row g-3">
                                         <div class="col-md-6">
                                             <label class="form-label">Supplier <span class="text-danger">*</span></label>
-                                            <select name="supplier_id" class="form-select" required>
+                                            <select name="supplier_id" class="form-select">
                                                 <option value="">Select Supplier</option>
                                                 <?php
                                                 if ($suppliers_result) {
@@ -3171,49 +3282,54 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '</tbody></table></div>';
 
             // Output pagination (compact with ellipses)
-            if ($total_pages > 1 && strtolower($user_type ?? '') != 'purchasing officer' && strtolower($user_type ?? '') != 'purchasing staff' && strtolower($user_type ?? '') != 'purchasingstaff') {
-                echo '<nav><ul class="pagination justify-content-center mt-3" id="paginationContainer">';
-
-                // Previous button
-                echo '<li class="page-item ' . (($page <= 1) ? 'disabled' : '') . '">';
-                echo '<a class="page-link" href="#" onclick="loadInventory(' . max(1, ($page - 1)) . '); return false;">&laquo;</a></li>';
-
-                $neighborRange = 2; // how many pages to show on each side of current
-                $start = max(1, (int)$page - $neighborRange);
-                $end = min((int)$total_pages, (int)$page + $neighborRange);
-
-                // Always show first page
-                echo '<li class="page-item ' . ((1 === (int)$page) ? 'active' : '') . '">';
-                echo '<a class="page-link" href="#" onclick="loadInventory(1); return false;">1</a></li>';
-
-                // Leading ellipsis
-                if ($start > 2) {
-                    echo '<li class="page-item disabled"><span class="page-link">&hellip;</span></li>';
-                }
-
-                // Middle pages (around current), excluding first and last
-                for ($i = $start; $i <= $end; $i++) {
-                    if ($i === 1 || $i === (int)$total_pages) continue;
-                    echo '<li class="page-item ' . (($i === (int)$page) ? 'active' : '') . '">';
-                    echo '<a class="page-link" href="#" onclick="loadInventory(' . $i . '); return false;">' . $i . '</a></li>';
-                }
-
-                // Trailing ellipsis
-                if ($end < ((int)$total_pages - 1)) {
-                    echo '<li class="page-item disabled"><span class="page-link">&hellip;</span></li>';
-                }
-
-                // Always show last page (if more than one)
+            if (strtolower($user_type ?? '') != 'purchasing officer' && strtolower($user_type ?? '') != 'purchasing staff' && strtolower($user_type ?? '') != 'purchasingstaff') {
+                echo '<div class="pagination-container px-3">';
+                echo '<div class="pagination-info">Showing ' . (($total_records > 0) ? $offset + 1 : 0) . ' to ' . min($offset + $records_per_page, $total_records) . ' of ' . $total_records . ' entries</div>';
                 if ($total_pages > 1) {
-                    echo '<li class="page-item ' . (((int)$total_pages === (int)$page) ? 'active' : '') . '">';
-                    echo '<a class="page-link" href="#" onclick="loadInventory(' . (int)$total_pages . '); return false;">' . (int)$total_pages . '</a></li>';
+                    echo '<nav><ul class="pagination pagination-sm" id="paginationContainer">';
+
+                    // Previous button
+                    echo '<li class="page-item ' . (($page <= 1) ? 'disabled' : '') . '">';
+                    echo '<a class="page-link" href="#" onclick="loadInventory(' . max(1, ($page - 1)) . '); return false;">Previous</a></li>';
+
+                    $neighborRange = 2; // how many pages to show on each side of current
+                    $start = max(1, (int)$page - $neighborRange);
+                    $end = min((int)$total_pages, (int)$page + $neighborRange);
+
+                    // Always show first page
+                    echo '<li class="page-item ' . ((1 === (int)$page) ? 'active' : '') . '">';
+                    echo '<a class="page-link" href="#" onclick="loadInventory(1); return false;">1</a></li>';
+
+                    // Leading ellipsis
+                    if ($start > 2) {
+                        echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                    }
+
+                    // Middle pages (around current), excluding first and last
+                    for ($i = $start; $i <= $end; $i++) {
+                        if ($i === 1 || $i === (int)$total_pages) continue;
+                        echo '<li class="page-item ' . (($i === (int)$page) ? 'active' : '') . '">';
+                        echo '<a class="page-link" href="#" onclick="loadInventory(' . $i . '); return false;">' . $i . '</a></li>';
+                    }
+
+                    // Trailing ellipsis
+                    if ($end < ((int)$total_pages - 1)) {
+                        echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                    }
+
+                    // Always show last page (if more than one)
+                    if ($total_pages > 1) {
+                        echo '<li class="page-item ' . (((int)$total_pages === (int)$page) ? 'active' : '') . '">';
+                        echo '<a class="page-link" href="#" onclick="loadInventory(' . (int)$total_pages . '); return false;">' . (int)$total_pages . '</a></li>';
+                    }
+
+                    // Next button
+                    echo '<li class="page-item ' . (($page >= $total_pages) ? 'disabled' : '') . '">';
+                    echo '<a class="page-link" href="#" onclick="loadInventory(' . min((int)$total_pages, ($page + 1)) . '); return false;">Next</a></li>';
+
+                    echo '</ul></nav>';
                 }
-
-                // Next button
-                echo '<li class="page-item ' . (($page >= $total_pages) ? 'disabled' : '') . '">';
-                echo '<a class="page-link" href="#" onclick="loadInventory(' . min((int)$total_pages, ($page + 1)) . '); return false;">&raquo;</a></li>';
-
-                echo '</ul></nav>';
+                echo '</div>';
             }
             exit;
         }

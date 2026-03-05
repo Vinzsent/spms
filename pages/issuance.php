@@ -128,7 +128,7 @@ body {
     top: 0;
     left: 0;
     height: 100vh;
-    width: 280px;
+    width: 240px;
     background: linear-gradient(135deg, var(--primary-color), #0d4a2a);
     color: var(--text-light);
     z-index: 1000;
@@ -137,75 +137,70 @@ body {
 }
 
 .sidebar-header {
-    padding: 2rem 1.5rem 1rem;
+    padding: 1.25rem 1rem 0.75rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sidebar-brand {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--text-light);
     text-decoration: none;
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
 }
 
 .sidebar-user {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     opacity: 0.9;
 }
 
 .sidebar-nav {
-    padding: 1rem 0;
+    padding: 0.5rem 0;
 }
 
 .nav-item {
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.15rem;
 }
 
 .nav-link {
     display: flex;
     align-items: center;
-    padding: 0.75rem 1.5rem;
+    padding: 0.6rem 1.25rem;
     color: var(--text-light);
     text-decoration: none;
     transition: all 0.3s ease;
     border-radius: 0;
     position: relative;
+    font-size: 0.9rem;
 }
 
 .nav-link:hover {
     background: rgba(255, 255, 255, 0.1);
     color: var(--text-light);
-    transform: translateX(5px);
+    transform: translateX(3px);
 }
 
 .nav-link.active {
     background: rgba(255, 255, 255, 0.2);
-    border-left: 4px solid var(--secondary-color);
+    border-left: 3px solid var(--secondary-color);
     font-weight: 600;
 }
 
 .nav-link i {
-    width: 20px;
-    margin-right: 0.75rem;
-    font-size: 1.1rem;
+    width: 18px;
+    margin-right: 0.6rem;
+    font-size: 1rem;
 }
 
 .nav-link.logout {
     color: var(--secondary-color);
-    margin-top: 2rem;
-}
-
-.nav-link.logout:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-light);
-    transform: translateX(5px);
+    margin-top: 1.5rem;
 }
 
 /* Main Content */
 .main-content {
-    margin-left: 280px;
+    margin-left: 240px;
     min-height: 100vh;
     background: var(--light-bg);
 }
@@ -214,31 +209,31 @@ body {
 .page-header {
     background: linear-gradient(135deg, var(--primary-color), #0d4a2a);
     color: var(--text-light);
-    padding: 2rem 2rem 1.5rem;
-    margin-bottom: 2rem;
+    padding: 1.25rem 1.5rem 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .page-title {
-    font-size: 2.5rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
 }
 
 .page-subtitle {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     opacity: 0.9;
     margin-bottom: 0;
 }
 
 /* Stats Cards */
 .stats-container {
-    padding: 0 2rem 2rem;
+    padding: 0 1.5rem 1.5rem;
 }
 
 .stats-card {
     background: var(--text-light);
     border-radius: var(--border-radius);
-    padding: 1.5rem;
+    padding: 1.25rem;
     box-shadow: var(--shadow);
     border: none;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -246,42 +241,42 @@ body {
 }
 
 .stats-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .stats-icon {
-    width: 60px;
-    height: 60px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
 }
 
 .stats-number {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
 }
 
 .stats-label {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #6c757d;
     font-weight: 500;
 }
 
 /* Content Section */
 .content-section {
-    padding: 0 2rem 2rem;
+    padding: 0 1.5rem 1.5rem;
 }
 
 .section-header {
     background: linear-gradient(135deg, var(--primary-color), #0d4a2a);
     color: var(--text-light);
-    padding: 1.5rem 2rem;
+    padding: 1rem 1.5rem;
     border-radius: var(--border-radius) var(--border-radius) 0 0;
     display: flex;
     justify-content: space-between;
@@ -289,7 +284,7 @@ body {
 }
 
 .section-title {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 600;
     margin: 0;
 }
@@ -309,17 +304,19 @@ body {
 .table-modern thead th {
     background: #f8f9fa;
     border: none;
-    padding: 1rem;
+    padding: 0.75rem;
     font-weight: 600;
+    font-size: 0.85rem;
     color: var(--text-dark);
     border-bottom: 2px solid var(--border-color);
 }
 
 .table-modern tbody td {
-    padding: 1rem;
+    padding: 0.75rem;
     border: none;
     border-bottom: 1px solid var(--border-color);
     vertical-align: middle;
+    font-size: 0.8rem;
 }
 
 .table-modern tbody tr:hover {
@@ -328,9 +325,9 @@ body {
 
 /* Status Badges */
 .status-badge {
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -367,13 +364,13 @@ body {
 }
 /* Action Buttons */
 .btn-action {
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    font-size: 0.8rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
     font-weight: 500;
     border: none;
     transition: all 0.3s ease;
-    margin: 0.25rem;
+    margin: 0.15rem;
 }
 
 .btn-action:hover {
@@ -411,26 +408,29 @@ body {
     background: linear-gradient(135deg, var(--primary-color), #0d4a2a);
     color: var(--text-light);
     border-bottom: none;
+    padding: 0.75rem 1.25rem;
 }
 
 .modal-modern .modal-title {
     font-weight: 600;
+    font-size: 1.1rem;
 }
 
 .modal-modern .modal-body {
-    padding: 2rem;
+    padding: 1.25rem;
 }
 
 .modal-modern .modal-footer {
     border-top: none;
-    padding: 1rem 2rem 2rem;
+    padding: 0.75rem 1.25rem 1.25rem;
 }
 
 /* Form Styles */
 .form-control-modern {
     border: 2px solid var(--border-color);
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
     transition: all 0.3s ease;
 }
 
@@ -442,7 +442,8 @@ body {
 .form-label-modern {
     font-weight: 600;
     color: var(--text-dark);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
+    font-size: 0.85rem;
 }
 
 /* Responsive Design */
@@ -499,30 +500,30 @@ body {
 /* Additional styles for timeline and info cards */
 .info-card {
     background: #f8f9fa;
-    border-radius: 10px;
-    padding: 1.5rem;
-    border-left: 4px solid #28a745;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 1rem;
+    border-left: 3px solid #28a745;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .info-title {
     color: #28a745;
     font-weight: 600;
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
 }
 
 .info-content {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
 }
 
 .info-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 0;
+    padding: 0.35rem 0;
     border-bottom: 1px solid #e9ecef;
 }
 
@@ -533,56 +534,59 @@ body {
 .info-label {
     font-weight: 600;
     color: #495057;
-    min-width: 140px;
+    min-width: 120px;
+    font-size: 0.85rem;
 }
 
 .info-value {
     color: #212529;
     text-align: right;
     flex: 1;
+    font-size: 0.85rem;
 }
 
 .status-timeline {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
 }
 
 .timeline-item {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem;
+    gap: 0.75rem;
+    padding: 0.75rem;
     background: #f8f9fa;
-    border-radius: 8px;
-    border-left: 4px solid #dee2e6;
+    border-radius: 6px;
+    border-left: 3px solid #dee2e6;
 }
 
 .timeline-item.completed {
     border-left-color: #28a745;
-    background: rgba(40, 167, 69, 0.1);
+    background: rgba(40, 167, 69, 0.08);
 }
 
 .timeline-icon {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 1rem;
+    font-size: 0.85rem;
 }
 
 .timeline-content h6 {
     margin: 0;
     font-weight: 600;
     color: #495057;
+    font-size: 0.9rem;
 }
 
 .timeline-content p {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: #6c757d;
 }
 
@@ -735,12 +739,12 @@ body {
                 <i class="fas fa-clipboard-list me-2"></i>
                 Supply Requests List
             </h2>
-            <div class="d-flex flex-wrap gap-2 align-items-center">
-                <div class="input-group input-group-sm" style="min-width: 260px;">
+            <div class="d-flex flex-wrap gap-1 align-items-center">
+                <div class="input-group input-group-sm" style="min-width: 240px;">
                     <span class="input-group-text"><i class="fas fa-search"></i></span>
-                    <input type="text" id="searchInput" class="form-control form-control-modern" placeholder="Search all columns...">
+                    <input type="text" id="searchInput" class="form-control form-control-modern py-1" placeholder="Search all columns...">
                 </div>
-                <select id="statusFilter" class="form-select form-control-modern form-select-sm" style="max-width: 220px;">
+                <select id="statusFilter" class="form-select form-control-modern py-1 px-2" style="max-width: 180px; font-size: 0.85rem;">
                     <option value="all">All Statuses</option>
                     <option value="pending">Pending</option>
                     <option value="noted">Noted</option>
@@ -752,7 +756,7 @@ body {
                 <button id="clearFilters" class="btn btn-sm btn-secondary"><i class="fas fa-times me-1"></i>Clear</button>
             </div>
         </div>
-        
+
         <div class="table-container">
             <?php if ($total_requests > 0): ?>
                 <div class="table-responsive">
@@ -833,7 +837,7 @@ body {
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <button class="btn btn-info-modern btn-action" 
+                                            <button class="btn btn-info-modern btn-action btn-sm" 
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#viewRequestModal"
                                                     data-request-id="<?= $row['request_id'] ?>"
@@ -865,7 +869,7 @@ body {
                                                     data-approved-date="<?= htmlspecialchars($row['approved_date'] ?? '') ?>">
                                                 <i class="fas fa-eye me-1"></i>View
                                             </button>
-                                            <button class="btn btn-action" style="background-color: #fd7e14; color: white;"
+                                            <button class="btn btn-action btn-sm" style="background-color: #fd7e14; color: white;"
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#updateStatusModal"
                                                     data-request-id="<?= $row['request_id'] ?>"
@@ -1026,11 +1030,11 @@ body {
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times me-1"></i>Close
                 </button>
 
-                <button type="button" class="btn btn-primary issued-redirect-btn d-none">
+                <button type="button" class="btn btn-sm btn-primary issued-redirect-btn d-none">
                     <i class="fas fa-save me-1"></i>Issued
                 </button>
             </div>
@@ -1077,10 +1081,10 @@ body {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
                         <i class="fas fa-times me-1"></i>Cancel
                     </button>
-                    <button type="submit" class="btn btn-primary-modern" id="updateStatusBtn">
+                    <button type="submit" class="btn btn-sm btn-primary-modern" id="updateStatusBtn">
                         <i class="fas fa-save me-1"></i>Update Status
                     </button>
                 </div>
@@ -1210,8 +1214,8 @@ body {
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary-modern" id="smSubmitBtn"><i class="fas fa-save me-1"></i>Record Stock & Issue Item</button>
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-sm btn-primary-modern" id="smSubmitBtn"><i class="fas fa-save me-1"></i>Record Stock & Issue Item</button>
         </div>
       </form>
     </div>

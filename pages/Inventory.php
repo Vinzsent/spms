@@ -245,6 +245,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             background-color: var(--bg-light);
             margin: 0;
             padding: 0;
+            font-size: 0.9rem;
         }
 
         /* Sidebar Styles */
@@ -253,7 +254,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             left: 0;
             top: 0;
             height: 100vh;
-            width: 280px;
+            width: 240px;
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
             color: var(--text-white);
             z-index: 1000;
@@ -261,25 +262,25 @@ if ($categories_result && $categories_result->num_rows > 0) {
         }
 
         .sidebar-header {
-            padding: 20px;
+            padding: 15px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-header h3 {
             margin: 0;
             font-weight: 700;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             color: var(--text-white);
         }
 
         .welcome-text {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             opacity: 0.9;
             margin-top: 5px;
         }
 
         .sidebar-nav {
-            padding: 20px 0;
+            padding: 10px 0;
         }
 
         .nav-item {
@@ -290,11 +291,12 @@ if ($categories_result && $categories_result->num_rows > 0) {
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 15px 20px;
+            padding: 10px 15px;
             color: var(--text-white);
             text-decoration: none;
             transition: all 0.3s ease;
             border-left: 4px solid transparent;
+            font-size: 0.85rem;
         }
 
         .nav-link:hover {
@@ -310,21 +312,21 @@ if ($categories_result && $categories_result->num_rows > 0) {
         }
 
         .nav-link i {
-            margin-right: 12px;
-            width: 20px;
+            margin-right: 10px;
+            width: 18px;
             text-align: center;
         }
 
         .nav-link.logout {
             color: var(--accent-red);
-            margin-top: 20px;
+            margin-top: 10px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         /* Main Content */
         .main-content {
-            margin-left: 280px;
-            padding: 20px;
+            margin-left: 240px;
+            padding: 15px;
             min-height: 100vh;
             background-color: var(--bg-light);
         }
@@ -332,54 +334,60 @@ if ($categories_result && $categories_result->num_rows > 0) {
         .content-header {
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
             color: var(--text-white);
-            padding: 30px;
-            border-radius: 10px;
-            margin-bottom: 30px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .content-header h1 {
             margin: 0;
             font-weight: 700;
-            font-size: 2.2rem;
+            font-size: 1.5rem;
+        }
+
+        .content-header p {
+            margin-bottom: 0;
+            font-size: 0.85rem;
+            opacity: 0.9;
         }
 
         /* Stats Cards */
         .stats-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
         .stat-card {
             background: var(--text-white);
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             text-align: center;
             transition: transform 0.3s ease;
         }
 
         .stat-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
         }
 
         .stat-card.clickable:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             cursor: pointer;
         }
 
         .stat-icon {
-            width: 60px;
-            height: 60px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 15px;
-            font-size: 1.5rem;
+            margin: 0 auto 10px;
+            font-size: 1.1rem;
             color: var(--text-white);
         }
 
@@ -400,15 +408,15 @@ if ($categories_result && $categories_result->num_rows > 0) {
         }
 
         .stat-number {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-dark);
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
 
         .stat-label {
             color: #666;
-            font-size: 0.9rem;
+            font-size: 0.75rem;
             font-weight: 500;
         }
 
@@ -416,105 +424,52 @@ if ($categories_result && $categories_result->num_rows > 0) {
         .alert-card {
             background: linear-gradient(135deg, var(--accent-red) 0%, #c0392b 100%);
             color: var(--text-white);
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
         }
 
         .alert-card.warning {
             background: linear-gradient(135deg, var(--accent-yellow) 0%, #e67e22 100%);
         }
 
+        .alert-card h5 {
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .alert-card p {
+            font-size: 0.8rem;
+            margin-bottom: 0;
+        }
+
         /* Session Alert Styles */
         .alert {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             margin-left: 0;
             margin-right: 0;
             border: none;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             width: 100%;
-            max-width: 100%;
-            overflow: hidden;
-        }
-
-        .alert-success {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            border-left: 4px solid #155724;
-        }
-
-        .alert-danger {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-            color: white;
-            border-left: 4px solid #721c24;
-        }
-
-        .alert .btn-close {
-            filter: brightness(0) invert(1);
-            opacity: 0.8;
-        }
-
-        .alert .btn-close:hover {
-            opacity: 1;
-        }
-
-        .alert .flex-grow-1 {
-            min-width: 0;
-            word-break: break-word;
-            overflow-wrap: break-word;
-            hyphens: auto;
-            max-width: calc(100% - 60px);
-            padding-right: 10px;
-        }
-
-        /* Ensure alerts have proper spacing from sidebar on larger screens */
-        @media (min-width: 769px) {
-            .alert {
-                margin-left: 0;
-                margin-right: 0;
-                padding-left: 20px;
-                padding-right: 20px;
-            }
-
-            .alert .flex-grow-1 {
-                max-width: calc(100% - 80px);
-                padding-right: 15px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .alert {
-                font-size: 0.9rem;
-                padding: 12px 15px;
-            }
-
-            .alert .d-flex {
-                flex-direction: column;
-                align-items: flex-start !important;
-            }
-
-            .alert .btn-close {
-                align-self: flex-end;
-                margin-top: -10px;
-                margin-right: -10px;
-            }
+            padding: 10px 15px;
+            font-size: 0.85rem;
         }
 
         /* Table Styles */
         .table-container {
             background: var(--text-white);
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
             overflow: hidden;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .table-header {
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
             color: var(--text-white);
-            padding: 20px;
+            padding: 12px 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -523,15 +478,17 @@ if ($categories_result && $categories_result->num_rows > 0) {
         .table-header h3 {
             margin: 0;
             font-weight: 600;
+            font-size: 1.1rem;
         }
 
         .btn-add {
             background-color: var(--accent-orange);
             border: none;
             color: var(--text-white);
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 6px 12px;
+            border-radius: 4px;
             font-weight: 600;
+            font-size: 0.85rem;
             transition: all 0.3s ease;
         }
 
@@ -542,134 +499,49 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
         /* Stock Level Indicators */
         .stock-level {
-            padding: 4px 8px;
+            padding: 3px 6px;
             border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* Form Controls */
+        .form-select, .form-control {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+        }
+
+        .form-label {
+            font-size: 0.75rem;
+            margin-bottom: 2px;
+        }
+
+        .btn {
+            padding: 5px 12px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+        }
+
+        .btn-sm {
+            padding: 3px 8px;
+            font-size: 0.75rem;
+        }
+
+        /* Table Optimization */
+        .table > :not(caption) > * > * {
+            padding: 8px 10px;
             font-size: 0.8rem;
-            font-weight: 600;
         }
 
-        .stock-level.critical {
-            background-color: var(--accent-red);
-            color: var(--text-white);
-        }
-
-        .stock-level.low {
-            background-color: var(--accent-yellow);
-            color: var(--text-dark);
-        }
-
-        .stock-level.normal {
-            background-color: var(--accent-blue);
-            color: var(--text-white);
-        }
-
-        .stock-level.out {
-            background-color: #6c757d;
-            color: var(--text-white);
-        }
-
-        /* Movement Button Styles */
-        .movement-btn {
-            transition: all 0.3s ease;
-            border-width: 2px;
-            font-weight: 600;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .movement-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .movement-btn.active {
-            transform: scale(1.05);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-            border-width: 3px;
-        }
-
-        .movement-btn.active::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.2);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                opacity: 0.3;
-            }
-
-            50% {
-                opacity: 0.6;
-            }
-
-            100% {
-                opacity: 0.3;
-            }
-        }
-
-        .movement-btn.btn-outline-success {
-            border-color: #198754;
-            color: #198754;
-            background-color: rgba(25, 135, 84, 0.1);
-        }
-
-        .movement-btn.btn-outline-warning {
-            border-color: #ffc107;
-            color: #856404;
-            background-color: rgba(255, 193, 7, 0.1);
+        .badge {
+            font-size: 0.7rem;
+            padding: 3px 6px;
         }
 
         /* Search Input Styles */
         .search-input {
-            min-width: 200px;
-        }
-
-        .search-input input {
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-
-        .search-input input:focus {
-            border-color: var(--accent-orange);
-            box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
-        }
-
-        /* Loading indicator for search input */
-        .search-input input.loading {
-            background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>');
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            background-size: 16px 16px;
-            animation: spin 1s linear infinite;
-            padding-right: 35px;
-        }
-
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .btn-search {
-            background-color: var(--accent-blue);
-            border-color: var(--accent-blue);
-            color: white;
-        }
-
-        .btn-search:hover {
-            background-color: #357abd;
-            border-color: #357abd;
-            color: white;
+            min-width: 180px;
         }
 
         /* Responsive */
@@ -694,24 +566,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
             .alert {
                 margin-left: 10px;
                 margin-right: 10px;
-                font-size: 0.9rem;
-                padding: 12px 15px;
-            }
-
-            .alert .d-flex {
-                flex-direction: column;
-                align-items: flex-start !important;
-            }
-
-            .alert .btn-close {
-                align-self: flex-end;
-                margin-top: -10px;
-                margin-right: -10px;
-            }
-
-            .alert .flex-grow-1 {
-                max-width: 100%;
-                margin-right: 30px;
             }
         }
 
@@ -725,15 +579,15 @@ if ($categories_result && $categories_result->num_rows > 0) {
         }
 
         .half-split .half {
-            width: 2rem;
-            /* adjust width as you like */
+            width: 1.5rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             line-height: 1;
             cursor: pointer;
             user-select: none;
-            padding: 0.25rem 0;
+            padding: 0.2rem 0;
+            font-size: 0.7rem;
         }
 
         .half-split .plus {
@@ -750,8 +604,48 @@ if ($categories_result && $categories_result->num_rows > 0) {
             border-left: 1px solid rgba(0, 0, 0, .125);
         }
 
-        .half-split .half:hover {
-            filter: brightness(0.95);
+        /* Pagination Redesign to match image */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .pagination {
+            margin: 0;
+            gap: 2px;
+        }
+
+        .pagination .page-item .page-link {
+            border: 1px solid #dee2e6;
+            color: #495057;
+            background-color: #fff;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #8b5cf6; /* Purple from image */
+            border-color: #8b5cf6;
+            color: #fff !important;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            background-color: #fff;
+            color: #ced4da;
+            border-color: #dee2e6;
+            cursor: not-allowed;
+        }
+
+        .pagination .page-link:hover:not(.active):not(.disabled) {
+            background-color: #f8f9fa;
+            color: #8b5cf6;
+            border-color: #dee2e6;
         }
     </style>
 
@@ -803,7 +697,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             <h1>Inventory Management</h1>
             <p>Track supplies, monitor stock levels, and manage inventory movements</p>
             <?php if (strtolower($user_type) == 'purchasing officer' || strtolower($user_type) == 'admin' || strtolower($user_type) == 'purchasing staff' || strtolower($user_type) == 'purchasingstaff'): ?>
-                <button class="btn" style="background-color: var(--accent-orange);" onclick="window.location.href='received_items.php'">Back to received page</button>
+                <button class="btn btn-sm" style="background-color: var(--accent-orange);" onclick="window.location.href='received_items.php'">Back to received page</button>
             <?php endif; ?>
         </div>
 
@@ -880,22 +774,21 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
         <!-- Inventory Table -->
         <div class="table-container">
-            <div class="table-header">
+            <div class="table-header p-2 px-3">
                 <h3>Inventory Items</h3>
-                <div class="d-flex align-items-end gap-2">
+                <div class="d-flex align-items-end gap-1">
                     <!-- ANCHOR: AJAX-based inventory search and filter form -->
-                    <div class="d-flex align-items-end gap-2 mb-0">
+                    <div class="d-flex align-items-end gap-1 mb-0">
                         <div class="search-input">
                             <label for="search" class="form-label mb-0 text-white">Search Item</label>
-                            <input type="text" id="search" name="search" class="form-control" placeholder="Search by item name..." value="<?= htmlspecialchars($search_term) ?>" onkeyup="handleInventorySearch()">
+                            <input type="text" id="search" name="search" class="form-control form-control-sm" placeholder="Search item..." value="<?= htmlspecialchars($search_term) ?>" onkeyup="handleInventorySearch()">
                         </div>
                         <div>
                             <label for="sy_inv" class="form-label mb-0 text-white">
-                                <i class="fas fa-calendar-alt me-1"></i> School Year
-                                <small class="d-block" style="font-size: 0.75rem; opacity: 0.85;">July - June period</small>
+                                <i class="fas fa-calendar-alt me-1"></i> SY
                             </label>
-                            <select id="sy_inv" name="sy_inv" class="form-select" title="Filter by school year (July to June)" onchange="filterInventoryItems()">
-                                <option value="">All School Years</option>
+                            <select id="sy_inv" name="sy_inv" class="form-select form-select-sm" title="Filter by school year" onchange="filterInventoryItems()">
+                                <option value="">All</option>
                                 <?php foreach ($sy_years as $sy): ?>
                                     <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_inv_raw === $sy) ? 'selected' : '' ?>>
                                         SY <?= htmlspecialchars($sy) ?>
@@ -903,23 +796,23 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="pt-4">
-                            <button type="button" class="btn btn-search" onclick="filterInventoryItems()" title="Apply filters">
-                                <i class="fas fa-search"></i> Search
+                        <div class="pt-3">
+                            <button type="button" class="btn btn-sm btn-search" onclick="filterInventoryItems()" title="Search">
+                                <i class="fas fa-search"></i>
                             </button>
-                            <button type="button" class="btn btn-outline-light ms-2" onclick="clearInventoryFilters()" title="Clear filters">
-                                <i class="fas fa-times"></i> Clear
+                            <button type="button" class="btn btn-sm btn-outline-light ms-1" onclick="clearInventoryFilters()" title="Clear">
+                                <i class="fas fa-times"></i>
                             </button>
                             <?php if (strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasing staff' && strtolower($user_type) != 'purchasingstaff'): ?>
-                                <a href="../actions/export_inventory.php" class="btn btn-success ms-2" title="Export to Excel">
-                                    <i class="fas fa-file-excel"></i> Export
+                                <a href="../actions/export_inventory.php" class="btn btn-sm btn-success ms-1" title="Export to Excel">
+                                    <i class="fas fa-file-excel"></i>
                                 </a>
                             <?php endif; ?>
                         </div>
                     </div>
                     <?php if (strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasing staff' && strtolower($user_type) != 'purchasingstaff'): ?>
-                        <button title="Add Item" class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
-                            <i class="fas fa-plus"></i> Add Item
+                        <button title="Add Item" class="btn btn-sm btn-add text-dark ms-1" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                            <i class="fas fa-plus"></i> Add
                         </button>
                     <?php endif; ?>
                 </div>
@@ -1152,60 +1045,50 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
                 <?php if (strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasing staff' && strtolower($user_type) != 'purchasingstaff'): ?>
                     <!-- ANCHOR: AJAX-based pagination for Inventory Items -->
-                    <div id="inventory-pagination" class="mt-3">
-                        <?php if ($total_pages > 1): ?>
-                            <nav>
-                                <ul class="pagination justify-content-center" id="paginationContainer">
-                                    <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
-                                        <a class="page-link" href="#" onclick="loadInventoryItems(<?= $page - 1 ?>, document.getElementById('search').value, document.getElementById('sy_inv').value); return false;">&laquo;</a>
-                                    </li>
-                                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                        <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
-                                            <a class="page-link" href="#" onclick="loadInventoryItems(<?= $i ?>, document.getElementById('search').value, document.getElementById('sy_inv').value); return false;"><?= $i ?></a>
+                    <div id="inventory-pagination" class="mt-2 px-3">
+                        <div class="pagination-container">
+                            <div class="pagination-info">
+                                Showing <?= ($total_records > 0) ? $offset + 1 : 0 ?> to <?= min($offset + $records_per_page, $total_records) ?> of <?= $total_records ?> entries
+                            </div>
+                            <?php if ($total_pages > 1): ?>
+                                <nav>
+                                    <ul class="pagination pagination-sm" id="paginationContainer">
+                                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                                            <a class="page-link" href="#" onclick="loadInventoryItems(<?= $page - 1 ?>, document.getElementById('search').value, document.getElementById('sy_inv').value); return false;">Previous</a>
                                         </li>
-                                    <?php endfor; ?>
-                                    <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
-                                        <a class="page-link" href="#" onclick="loadInventoryItems(<?= $page + 1 ?>, document.getElementById('search').value, document.getElementById('sy_inv').value); return false;">&raquo;</a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        <?php endif; ?>
+                                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                                            <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                                <a class="page-link" href="#" onclick="loadInventoryItems(<?= $i ?>, document.getElementById('search').value, document.getElementById('sy_inv').value); return false;"><?= $i ?></a>
+                                            </li>
+                                        <?php endfor; ?>
+                                        <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                                            <a class="page-link" href="#" onclick="loadInventoryItems(<?= $page + 1 ?>, document.getElementById('search').value, document.getElementById('sy_inv').value); return false;">Next</a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 <?php endif; ?>
 
                 <!-- Stock Movement Logs -->
                 <div class="table-container" id="stock-movements">
-                    <div class="table-header">
+                    <div class="table-header p-2 px-3">
                         <h3>Recent Stock Movements</h3>
-                        <div class="d-flex align-items-end gap-2">
+                        <div class="d-flex align-items-end gap-1">
                             <!-- ANCHOR: Item search bar -->
-                            <div class="d-flex align-items-end gap-2 mb-0">
+                            <div class="d-flex align-items-end gap-1 mb-0">
                                 <div>
-                                    <label for="item_search" class="form-label mb-0 text-white">
-                                        <i class="fas fa-search me-1"></i> Search Item
-                                        <small class="d-block" style="font-size: 0.75rem; opacity: 0.85;">Search by item name</small>
-                                    </label>
-                                    <div class="input-group">
-                                        <input type="text" id="item_search" name="item_search" class="form-control"
-                                            placeholder="Type item name to search..."
-                                            title="Search stock movements by item name"
-                                            onkeyup="searchStockMovements()"
-                                            oninput="searchStockMovements()">
-                                        <button type="button" class="btn btn-outline-light" onclick="clearItemSearch()" title="Clear search">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </div>
+                                    <label for="item_search" class="form-label mb-0 text-white">Search Item</label>
+                                    <input type="text" id="item_search" name="item_search" class="form-control form-control-sm" placeholder="Item name..." onkeyup="searchStockMovements()">
                                 </div>
                             </div>
                             <!-- ANCHOR: AJAX-based school year filter form -->
-                            <div class="d-flex align-items-end gap-2 mb-0">
+                            <div class="d-flex align-items-end gap-1 mb-0">
                                 <div>
-                                    <label for="sy_logs" class="form-label mb-0 text-white">
-                                        <i class="fas fa-calendar-alt me-1"></i> Filter by School Year
-                                        <small class="d-block" style="font-size: 0.75rem; opacity: 0.85;">July to June</small>
-                                    </label>
-                                    <select id="sy_logs" name="sy_logs" class="form-select" title="Select a school year period (July to June)" onchange="filterStockMovements()">
-                                        <option value="">All School Years</option>
+                                    <label for="sy_logs" class="form-label mb-0 text-white">SY</label>
+                                    <select id="sy_logs" name="sy_logs" class="form-select form-select-sm" onchange="filterStockMovements()">
+                                        <option value="">All</option>
                                         <?php foreach ($sy_years as $sy): ?>
                                             <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_logs_raw === $sy) ? 'selected' : '' ?>>
                                                 SY <?= htmlspecialchars($sy) ?>
@@ -1213,17 +1096,11 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
-                                <div class="pt-4">
-                                    <button type="button" class="btn btn-light" onclick="filterStockMovements()" title="Apply filter">
-                                        <i class="fas fa-filter"></i> Filter
-                                    </button>
-                                    <button type="button" class="btn btn-outline-light" onclick="clearStockMovementFilter()" title="Clear filter">
-                                        <i class="fas fa-times"></i> Clear
-                                    </button>
+                                <div class="pt-3">
+                                    <button type="button" class="btn btn-sm btn-light" onclick="filterStockMovements()" title="Filter"><i class="fas fa-filter"></i></button>
+                                    <button type="button" class="btn btn-sm btn-outline-light ms-1" onclick="clearStockMovementFilter()" title="Clear"><i class="fas fa-times"></i></button>
                                     <?php if (strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasing staff' && strtolower($user_type) != 'purchasingstaff'): ?>
-                                        <button type="button" class="btn btn-success ms-2" title="Export to Excel" onclick="exportStockMovements()">
-                                            <i class="fas fa-file-excel"></i> Export
-                                        </button>
+                                        <button type="button" class="btn btn-sm btn-success ms-1" onclick="exportStockMovements()" title="Export"><i class="fas fa-file-excel"></i></button>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -1286,10 +1163,10 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
                     <?php if (strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasing staff' && strtolower($user_type) != 'purchasingstaff'): ?>
                         <!-- ANCHOR: AJAX-based pagination for Stock Movements -->
-                        <div id="stock-movements-pagination" class="mt-3">
+                        <div id="stock-movements-pagination" class="mt-2">
                             <?php if ($total_logs_pages > 1): ?>
                                 <nav>
-                                    <ul class="pagination justify-content-center">
+                                    <ul class="pagination pagination-sm justify-content-center">
                                         <li class="page-item <?= ($logs_page <= 1) ? 'disabled' : '' ?>">
                                             <a class="page-link" href="#" onclick="loadStockMovements(<?= max(1, $logs_page - 1) ?>, document.getElementById('sy_logs').value, document.getElementById('item_search').value); return false;" aria-label="Previous">
                                                 <span aria-hidden="true">&laquo;</span>
@@ -1343,16 +1220,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
                 <!-- Acquired Supplies -->
                 <div class="table-container">
-                    <div class="table-header">
+                    <div class="table-header p-2 px-3">
                         <h3>Acquired Supplies</h3>
-                        <form method="GET" class="d-flex align-items-end gap-2">
+                        <form method="GET" class="d-flex align-items-end gap-1">
                             <div>
-                                <label for="sy_recv" class="form-label mb-0 text-white">
-                                    <i class="fas fa-calendar-alt me-1"></i> Filter by School Year
-                                    <small class="d-block" style="font-size: 0.75rem; opacity: 0.85;">July to June</small>
-                                </label>
-                                <select id="sy_recv" name="sy_recv" class="form-select" title="Select a school year period (July to June)">
-                                    <option value="">All School Years</option>
+                                <label for="sy_recv" class="form-label mb-0 text-white">SY</label>
+                                <select id="sy_recv" name="sy_recv" class="form-select form-select-sm">
+                                    <option value="">All</option>
                                     <?php foreach ($sy_years as $sy): ?>
                                         <option value="<?= htmlspecialchars($sy) ?>" <?= ($sy_recv_raw === $sy) ? 'selected' : '' ?>>
                                             SY <?= htmlspecialchars($sy) ?>
@@ -1360,14 +1234,10 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                            <div class="pt-4">
-                                <button type="submit" class="btn btn-light" title="Apply filter">
-                                    <i class="fas fa-filter"></i> Filter
-                                </button>
+                            <div class="pt-3">
+                                <button type="submit" class="btn btn-sm btn-light" title="Filter"><i class="fas fa-filter"></i></button>
                                 <?php if (!empty($sy_recv_raw)): ?>
-                                    <a href="Inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv' => true])) ?>" class="btn btn-outline-light" title="Clear filter">
-                                        <i class="fas fa-times"></i> Clear
-                                    </a>
+                                    <a href="Inventory.php?<?= http_build_query(array_diff_key($_GET, ['sy_recv' => true])) ?>" class="btn btn-sm btn-outline-light ms-1" title="Clear"><i class="fas fa-times"></i></a>
                                 <?php endif; ?>
                             </div>
                         </form>
@@ -2925,17 +2795,22 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
             // Buffer the pagination
             ob_start();
-            if ($total_pages > 1) {
-                echo '<nav><ul class="pagination justify-content-center" id="paginationContainer">';
-                echo '<li class="page-item ' . (($page <= 1) ? 'disabled' : '') . '">';
-                echo '<a class="page-link" href="#" onclick="loadInventoryItems(' . ($page - 1) . ', document.getElementById(\'search\').value, document.getElementById(\'sy_inv\').value); return false;">&laquo;</a></li>';
-                for ($i = 1; $i <= $total_pages; $i++) {
-                    echo '<li class="page-item ' . (($i == $page) ? 'active' : '') . '">';
-                    echo '<a class="page-link" href="#" onclick="loadInventoryItems(' . $i . ', document.getElementById(\'search\').value, document.getElementById(\'sy_inv\').value); return false;">' . $i . '</a></li>';
+            if (strtolower($user_type ?? '') != 'purchasing officer' && strtolower($user_type ?? '') != 'purchasing staff' && strtolower($user_type ?? '') != 'purchasingstaff') {
+                echo '<div class="pagination-container px-3">';
+                echo '<div class="pagination-info">Showing ' . (($total_records > 0) ? $offset + 1 : 0) . ' to ' . min($offset + $records_per_page, $total_records) . ' of ' . $total_records . ' entries</div>';
+                if ($total_pages > 1) {
+                    echo '<nav><ul class="pagination pagination-sm" id="paginationContainer">';
+                    echo '<li class="page-item ' . (($page <= 1) ? 'disabled' : '') . '">';
+                    echo '<a class="page-link" href="#" onclick="loadInventoryItems(' . ($page - 1) . ', document.getElementById(\'search\').value, document.getElementById(\'sy_inv\').value); return false;">Previous</a></li>';
+                    for ($i = 1; $i <= $total_pages; $i++) {
+                        echo '<li class="page-item ' . (($i == $page) ? 'active' : '') . '">';
+                        echo '<a class="page-link" href="#" onclick="loadInventoryItems(' . $i . ', document.getElementById(\'search\').value, document.getElementById(\'sy_inv\').value); return false;">' . $i . '</a></li>';
+                    }
+                    echo '<li class="page-item ' . (($page >= $total_pages) ? 'disabled' : '') . '">';
+                    echo '<a class="page-link" href="#" onclick="loadInventoryItems(' . ($page + 1) . ', document.getElementById(\'search\').value, document.getElementById(\'sy_inv\').value); return false;">Next</a></li>';
+                    echo '</ul></nav>';
                 }
-                echo '<li class="page-item ' . (($page >= $total_pages) ? 'disabled' : '') . '">';
-                echo '<a class="page-link" href="#" onclick="loadInventoryItems(' . ($page + 1) . ', document.getElementById(\'search\').value, document.getElementById(\'sy_inv\').value); return false;">&raquo;</a></li>';
-                echo '</ul></nav>';
+                echo '</div>';
             }
             $pagination = ob_get_clean();
 

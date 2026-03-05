@@ -1,5 +1,16 @@
 <?php
 
+// Prevent browser caching
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
+// Clear OPcache and stat cache to ensure we see the latest code snippet updates
+clearstatcache();
+if (function_exists('opcache_invalidate')) {
+    opcache_invalidate(__FILE__, true);
+}
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -223,8 +234,14 @@ $result = $conn->query($query);
     </div>
     <nav class="sidebar-nav">
         <a href="../dashboard.php" class="nav-link"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="suppliers.php" class="nav-link"><i class="fas fa-users"></i> Supplier List</a>
         <a href="received_items.php" class="nav-link active"><i class="fas fa-box-open"></i> Received Items</a>
         <a href="purchase_order_list.php" class="nav-link"><i class="fas fa-file-invoice"></i> Purchase Order List</a>
+        <a href="procurement_statistics.php" class="nav-link"><i class="fas fa-chart-line"></i> Procurement Statistics</a>
+        <a href="procurement.php" class="nav-link"><i class="fas fa-shopping-cart"></i> Procurement Tables</a>
+        <a href="canvass_form.php" class="nav-link"><i class="fas fa-file-invoice"></i> Canvass Form</a>
+        <a href="canvass_form_list.php" class="nav-link"><i class="fas fa-list"></i> Canvass Form List</a>
+        <a href="purchase_order.php" class="nav-link"><i class="fas fa-shopping-basket"></i> Purchase Order</a>
         <a href="Inventory.php" class="nav-link"><i class="fas fa-box"></i> Supply Inventory</a>
         <a href="property_inventory.php" class="nav-link"><i class="fas fa-box"></i> Property Inventory</a>
         <a href="../logout.php" class="nav-link" style="color: var(--accent-red); margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);"><i class="fas fa-sign-out-alt"></i> Logout</a>
