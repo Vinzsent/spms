@@ -193,7 +193,7 @@ if ($isAjax) {
             left: 0;
             top: 0;
             height: 100vh;
-            width: 280px;
+            width: 240px;
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
             color: var(--text-white);
             z-index: 1000;
@@ -222,6 +222,12 @@ if ($isAjax) {
             padding: 20px 0;
         }
 
+        .sidebar-nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
         .nav-item {
             padding: 0;
             margin: 0;
@@ -230,11 +236,12 @@ if ($isAjax) {
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 15px 20px;
+            padding: 8px 15px;
             color: var(--text-white);
             text-decoration: none;
             transition: all 0.3s ease;
             border-left: 4px solid transparent;
+            font-size: 0.85rem;
         }
 
         .nav-link:hover {
@@ -263,7 +270,7 @@ if ($isAjax) {
 
         /* Main Content */
         .main-content {
-            margin-left: 280px;
+            margin-left: 240px;
             padding: 20px;
             min-height: 100vh;
             background-color: var(--bg-light);
