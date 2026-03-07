@@ -92,7 +92,7 @@ if ($total_filtered > 0): ?>
     </div>
     <nav aria-label="Supplier pagination">
       <ul class="pagination-modern mb-0">
-        <li class="page-item-modern <?= $page <= 1 ? 'disabled' : '' ?>" onclick="<?= $page > 1 ? "loadSuppliers(".($page - 1).")" : "" ?>">
+        <li class="page-item-modern <?= $page <= 1 ? 'disabled' : '' ?>" onclick="<?= $page > 1 ? "loadSuppliers(" . ($page - 1) . ")" : "" ?>">
           <a class="page-link-modern" href="javascript:void(0)">Previous</a>
         </li>
         <?php
@@ -113,10 +113,10 @@ if ($total_filtered > 0): ?>
 
         if ($end_page < $total_pages) {
           if ($end_page < $total_pages - 1) echo '<li class="page-item-modern disabled"><span class="page-link-modern">...</span></li>';
-          echo '<li class="page-item-modern" onclick="loadSuppliers('.$total_pages.')"><a class="page-link-modern" href="javascript:void(0)">'.$total_pages.'</a></li>';
+          echo '<li class="page-item-modern" onclick="loadSuppliers(' . $total_pages . ')"><a class="page-link-modern" href="javascript:void(0)">' . $total_pages . '</a></li>';
         }
         ?>
-        <li class="page-item-modern <?= $page >= $total_pages ? 'disabled' : '' ?>" onclick="<?= $page < $total_pages ? "loadSuppliers(".($page + 1).")" : "" ?>">
+        <li class="page-item-modern <?= $page >= $total_pages ? 'disabled' : '' ?>" onclick="<?= $page < $total_pages ? "loadSuppliers(" . ($page + 1) . ")" : "" ?>">
           <a class="page-link-modern" href="javascript:void(0)">Next</a>
         </li>
       </ul>
@@ -260,7 +260,8 @@ if ($isAjax) {
       backdrop-filter: blur(10px);
       border-radius: 20px;
       box-shadow: var(--card-shadow);
-      margin-top: 0; /* Removed top margin */
+      margin-top: 0;
+      /* Removed top margin */
       margin-bottom: 2rem;
       overflow: hidden;
     }
@@ -905,7 +906,7 @@ if ($isAjax) {
         addModal.show();
 
         addModalEl.addEventListener('hidden.bs.modal', function() {
-          window.location.href = 'canvas_form.php';
+          window.location.href = 'canvass_form.php';
         });
       }
     });

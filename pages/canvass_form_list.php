@@ -448,7 +448,7 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         <div class="list-header">
             <h2 class="list-title">All Canvass Records</h2>
             <div class="table-actions">
-                <a href="canvas_form.php" class="btn btn-primary">
+                <a href="canvass_form.php" class="btn btn-primary">
                     <i class="fas fa-plus"></i> New Canvass
                 </a>
                 <button id="selectForPrintBtn" class="btn btn-info" onclick="toggleSelectMode()">
@@ -539,7 +539,7 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
                 <i class="fas fa-clipboard-list"></i>
                 <h3>No Canvass Records Found</h3>
                 <p>Start by creating your first canvass form.</p>
-                <a href="canvas_form.php" class="btn btn-primary text-dark">
+                <a href="canvass_form.php" class="btn btn-primary text-dark">
                     <i class="fas fa-plus"></i> Create New Canvass
                 </a>
             </div>
@@ -1142,7 +1142,7 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
 
     // Edit canvass
     function editCanvass(canvassId) {
-        window.location.href = `canvas_form.php?edit=${canvassId}`;
+        window.location.href = `canvass_form.php?edit=${canvassId}`;
     }
 
     // Delete canvass

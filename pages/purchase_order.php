@@ -426,6 +426,55 @@ $existing_pos_result = $conn->query($existing_pos_sql);
         border-bottom-color: var(--primary-green);
     }
 
+    /* Searchable Select Container */
+    .searchable-select-container {
+        position: relative;
+        flex: 1;
+    }
+
+    .search-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        max-height: 250px;
+        overflow-y: auto;
+        border: 1px solid #eee;
+        margin-top: 5px;
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.95);
+    }
+
+    .search-item {
+        padding: 12px 15px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid #f8f9fa;
+        color: var(--text-dark);
+        font-size: 0.95rem;
+    }
+
+    .search-item:last-child {
+        border-bottom: none;
+    }
+
+    .search-item:hover,
+    .search-item.active {
+        background-color: var(--primary-green);
+        color: white;
+    }
+
+    .search-item .supplier-address {
+        display: block;
+        font-size: 0.8rem;
+        opacity: 0.8;
+        margin-top: 2px;
+    }
+
     /* Table Styles */
     .po-table {
         width: 100%;
@@ -704,9 +753,11 @@ $existing_pos_result = $conn->query($existing_pos_sql);
         <div class="po-details">
             <div class="po-details-row">
                 <span class="po-details-label">TO:</span>
-                <select class="po-details-input" id="supplierName" onchange="updateSupplierAddress()">
-                    <option value="">Select Supplier</option>
-                </select>
+                <div class="searchable-select-container">
+                    <input type="text" class="po-details-input" id="supplierNameInput" placeholder="Search or Type Supplier Name..." autocomplete="off">
+                    <input type="hidden" id="supplierName" value="<?= $edit_mode && $po_data ? htmlspecialchars($po_data['supplier_name']) : '' ?>">
+                    <div id="supplierDropdown" class="search-dropdown" style="display: none;"></div>
+                </div>
             </div>
             <div class="po-details-row">
                 <span class="po-details-label">ADDRESS:</span>
@@ -828,6 +879,7 @@ $existing_pos_result = $conn->query($existing_pos_sql);
             document.getElementById('poNumber').value = '';
             document.getElementById('poDate').value = '<?= date('Y-m-d') ?>';
             document.getElementById('supplierName').value = '';
+            document.getElementById('supplierNameInput').value = '';
             document.getElementById('supplierAddress').value = '';
 
             const inputs = document.querySelectorAll('#itemsTable input');
@@ -976,6 +1028,7 @@ $existing_pos_result = $conn->query($existing_pos_sql);
                     document.getElementById('poNumber').value = data.po_number;
                     document.getElementById('poDate').value = data.po_date;
                     document.getElementById('supplierName').value = data.supplier_name;
+                    document.getElementById('supplierNameInput').value = data.supplier_name;
                     document.getElementById('supplierAddress').value = data.supplier_address || '';
 
                     // Fill payment details
@@ -1076,21 +1129,13 @@ $existing_pos_result = $conn->query($existing_pos_sql);
             .then(data => {
                 if (data.success) {
                     suppliersData = data.suppliers;
-                    const select = document.getElementById('supplierName');
-                    // Keep the default option
-                    select.innerHTML = '<option value="">Select Supplier</option>';
+                    initSupplierSearch();
 
-                    data.suppliers.forEach(supplier => {
-                        const option = document.createElement('option');
-                        option.value = supplier.name;
-                        option.textContent = supplier.name;
-                        select.appendChild(option);
-                    });
-
-                    // Pre-select if in edit mode (server-side value)
-                    const preselectedValue = "<?= $edit_mode && $po_data ? htmlspecialchars($po_data['supplier_name']) : '' ?>";
+                    // Pre-fill if in edit mode
+                    const preselectedValue = document.getElementById('supplierName').value;
                     if (preselectedValue) {
-                        select.value = preselectedValue;
+                        document.getElementById('supplierNameInput').value = preselectedValue;
+                        updateSupplierAddress();
                     }
                 } else {
                     console.error('Failed to load suppliers:', data.message);
@@ -1101,18 +1146,115 @@ $existing_pos_result = $conn->query($existing_pos_sql);
             });
     }
 
+    // Initialize Supplier Search
+    function initSupplierSearch() {
+        const input = document.getElementById('supplierNameInput');
+        const dropdown = document.getElementById('supplierDropdown');
+        const hiddenInput = document.getElementById('supplierName');
+        let currentFocus = -1;
+
+        input.addEventListener('input', function() {
+            const val = this.value;
+            dropdown.innerHTML = '';
+            currentFocus = -1;
+
+            if (!val) {
+                dropdown.style.display = 'none';
+                hiddenInput.value = '';
+                updateSupplierAddress();
+                return;
+            }
+
+            const matches = suppliersData.filter(s =>
+                s.name.toLowerCase().includes(val.toLowerCase())
+            );
+
+            if (matches.length > 0) {
+                matches.forEach((match, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'search-item';
+                    div.innerHTML = `
+                        <strong>${match.name}</strong>
+                        <span class="supplier-address">${match.address}</span>
+                    `;
+                    div.addEventListener('click', () => {
+                        input.value = match.name;
+                        hiddenInput.value = match.name;
+                        dropdown.style.display = 'none';
+                        updateSupplierAddress();
+                    });
+                    dropdown.appendChild(div);
+                });
+                dropdown.style.display = 'block';
+            } else {
+                dropdown.style.display = 'none';
+                // Allow typing new supplier
+                hiddenInput.value = val;
+            }
+        });
+
+        // Add keyboard navigation
+        input.addEventListener('keydown', function(e) {
+            const items = dropdown.getElementsByClassName('search-item');
+            if (e.keyCode == 40) { // Down
+                currentFocus++;
+                addActive(items);
+            } else if (e.keyCode == 38) { // Up
+                currentFocus--;
+                addActive(items);
+            } else if (e.keyCode == 13) { // Enter
+                e.preventDefault();
+                if (currentFocus > -1 && items[currentFocus]) {
+                    items[currentFocus].click();
+                }
+            } else if (e.keyCode == 27) { // Escape
+                dropdown.style.display = 'none';
+            }
+        });
+
+        function addActive(items) {
+            if (!items) return false;
+            removeActive(items);
+            if (currentFocus >= items.length) currentFocus = 0;
+            if (currentFocus < 0) currentFocus = (items.length - 1);
+            items[currentFocus].classList.add('active');
+            items[currentFocus].scrollIntoView({
+                block: 'nearest'
+            });
+        }
+
+        function removeActive(items) {
+            for (let i = 0; i < items.length; i++) {
+                items[i].classList.remove('active');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target !== input && e.target !== dropdown) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        // Sync hidden input with manual typing if no match selected
+        input.addEventListener('blur', function() {
+            setTimeout(() => {
+                hiddenInput.value = this.value;
+                updateSupplierAddress();
+            }, 200);
+        });
+    }
+
     // Update Supplier Address
     function updateSupplierAddress() {
-        const select = document.getElementById('supplierName');
-        const selectedName = select.value;
+        const selectedName = document.getElementById('supplierName').value || document.getElementById('supplierNameInput').value;
         const addressInput = document.getElementById('supplierAddress');
 
         const supplier = suppliersData.find(s => s.name === selectedName);
         if (supplier) {
             addressInput.value = supplier.address;
-        } else {
-            addressInput.value = '';
         }
+        // Don't clear if user is typing a new one manually
     }
 
     // Initialize

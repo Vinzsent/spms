@@ -8,7 +8,7 @@ try {
     // Fetch active suppliers
     $sql = "SELECT supplier_id, supplier_name, address, city, province, zip_code 
             FROM supplier 
-            WHERE status = 'Active' 
+            WHERE status = 'Active'
             ORDER BY supplier_name ASC";
 
     $result = $conn->query($sql);
