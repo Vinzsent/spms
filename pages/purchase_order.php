@@ -810,17 +810,17 @@ $existing_pos_result = $conn->query($existing_pos_sql);
         <!-- Signature Section -->
         <div class="signature-section">
             <div class="signature-box">
-                <div class="signature-line">Marilou Suarez</div>
+                <div class="signature-line">Marilou L. Suarez</div>
                 <div class="signature-title">Prepared By:</div>
                 <div class="signature-subtitle">Purchasing Officer</div>
             </div>
             <div class="signature-box">
-                <div class="signature-line"></div>
+                <div class="signature-line">Lyca E. Monterola</div>
                 <div class="signature-title">Checked By:</div>
                 <div class="signature-subtitle">Finance Officer</div>
             </div>
             <div class="signature-box">
-                <div class="signature-line"></div>
+                <div class="signature-line">Dr. Delia C. Advincula</div>
                 <div class="signature-title">Approved By:</div>
                 <div class="signature-subtitle">VP for Finance and Administration</div>
             </div>
@@ -1075,7 +1075,18 @@ $existing_pos_result = $conn->query($existing_pos_sql);
 
     function loadCanvassItems() {
         fetch('../api/get_canvass_items.php')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    return response.text().then(text => {
+                        throw new Error('Expected JSON but received: ' + text.substring(0, 100));
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     canvassItems = data.items;
@@ -1084,7 +1095,7 @@ $existing_pos_result = $conn->query($existing_pos_sql);
                 }
             })
             .catch(error => {
-                console.error('Error loading canvass items:', error);
+                console.error('Error loading canvass items:', error.message);
             });
     }
 
@@ -1125,7 +1136,18 @@ $existing_pos_result = $conn->query($existing_pos_sql);
     function loadSuppliers() {
         console.log('Loading suppliers...');
         fetch('../api/get_suppliers.php')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    return response.text().then(text => {
+                        throw new Error('Expected JSON but received: ' + text.substring(0, 100));
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     suppliersData = data.suppliers;
@@ -1139,10 +1161,12 @@ $existing_pos_result = $conn->query($existing_pos_sql);
                     }
                 } else {
                     console.error('Failed to load suppliers:', data.message);
+                    alert('Error loading suppliers: ' + data.message);
                 }
             })
             .catch(error => {
-                console.error('Error loading suppliers:', error);
+                console.error('Error loading suppliers:', error.message);
+                alert('Error loading suppliers: ' + error.message);
             });
     }
 

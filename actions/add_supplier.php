@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $province                 = trim($_POST['province'] ?? '');
         $zip_code                 = trim($_POST['zip_code'] ?? '');
         $country                  = trim($_POST['country'] ?? '');
-        $landline_number          = trim($_POST['landline_number'] ?? '');
+        $tax_identification_number = trim($_POST['tax_identification_number'] ?? '');
 
         $created_by = $_SESSION['user']['id'] ?? null;
         $date_created = date('Y-m-d H:i:s');
@@ -42,9 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         error_log("Business Type: " . $_POST['business_type']);
         error_log("Product Category: " . $_POST['category']);
 
-        // Validation
-        if (empty($business_type) || empty($category)) {
-            throw new Exception("Business type and product category are required.");
+        // Validation - Supplier Name is still good to have but user said "must not be required"
+        // I'll keep it as a soft check or just allow empty if they really want
+        if (empty($supplier_name)) {
+            $supplier_name = "Unnamed Supplier " . date('YmdHis');
         }
 
         // Prepare and execute SQL statement
@@ -52,9 +53,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             INSERT INTO supplier (
                 supplier_name, contact_person, landline_number, contact_number, email_address,
                 fax_number, website, address, city, province, zip_code, country,
-                business_type, category, payment_terms,
+                business_type, category, tax_identification_number, payment_terms,
                 date_registered, status, created_by, date_created, notes
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         if (!$stmt) {
@@ -62,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $stmt->bind_param(
-            "ssssssssssssssssssss", // 20 strings
+            "sssssssssssssssssssss", // 21 strings
             $supplier_name,
             $contact_person,
             $landline_number,
@@ -77,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $country,
             $business_type,
             $category,
+            $tax_identification_number,
             $payment_terms,
             $date_registered,
             $status,

@@ -22,17 +22,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $landline_number = trim($_POST['landline_number']);
     $date_registered = trim($_POST['date_registered']);
     $status = trim($_POST['status']);
+    $tax_identification_number = trim($_POST['tax_identification_number'] ?? '');
     $notes = trim($_POST['notes']);
 
     // Prepare SQL query using bind_param to prevent SQL injection
     $stmt = $conn->prepare("UPDATE supplier SET 
         supplier_name=?, contact_person=?, contact_number=?, email_address=?, fax_number=?, website=?, address=?, 
         city=?, province=?, zip_code=?, country=?, business_type=?, category=?, payment_terms=?, 
-        landline_number=?, date_registered=?, status=?, notes=? 
+        landline_number=?, date_registered=?, status=?, tax_identification_number=?, notes=? 
         WHERE supplier_id=?");
 
     $stmt->bind_param(
-        "ssssssssssssssssssi",
+        "sssssssssssssssssssi",
         $supplier_name,
         $contact_person,
         $contact_number,
@@ -50,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $landline_number,
         $date_registered,
         $status,
+        $tax_identification_number,
         $notes,
         $id
     );

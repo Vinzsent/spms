@@ -52,24 +52,31 @@ if ($result->num_rows > 0):
       <td><i class="fas fa-phone text-muted me-1"></i><?= htmlspecialchars($row['landline_number']) ?></td>
       <td><i class="fas fa-envelope text-muted me-1"></i><?= htmlspecialchars($row['email_address']) ?></td>
       <?php if (in_array(strtolower($user_type), ['admin', 'purchasing officer', 'purchasing staff', 'purchasingstaff'])): ?>
-        <td>
-          <button class="btn btn-info-modern btn-action btn-sm" data-bs-toggle="modal" data-bs-target="#viewModal" title="View Details"
-            <?php foreach ($row as $key => $value): ?>
-            data-<?= htmlspecialchars(str_replace('_', '-', $key)) ?>="<?= htmlspecialchars($value) ?>"
-            <?php endforeach; ?>>
-            <i class="fas fa-eye"></i>
-          </button>
-          <button class="btn btn-warning-modern btn-action btn-sm" data-bs-toggle="modal" data-bs-target="#editModal" title="Edit Supplier"
-            <?php foreach ($row as $key => $value): ?>
-            data-<?= htmlspecialchars(str_replace('_', '-', $key)) ?>="<?= htmlspecialchars($value) ?>"
-            <?php endforeach; ?>>
-            <i class="fas fa-edit"></i>
-          </button>
-          <button class="btn btn-danger-modern btn-action btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" title="Delete Supplier"
-            data-supplier-id="<?= htmlspecialchars($row['supplier_id']) ?>"
-            data-supplier-name="<?= htmlspecialchars($row['supplier_name']) ?>">
-            <i class="fas fa-trash"></i>
-          </button>
+        <td class="action-cell">
+          <div class="action-dropdown" onclick="toggleActionDropdown(event, this)">
+            <button class="btn btn-sm btn-action-trigger" title="More Actions">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <div class="action-dropdown-menu">
+              <a href="#" class="action-dropdown-item" data-bs-toggle="modal" data-bs-target="#viewModal"
+                <?php foreach ($row as $key => $value): ?>
+                data-<?= htmlspecialchars(str_replace('_', '-', $key)) ?>="<?= htmlspecialchars($value) ?>"
+                <?php endforeach; ?>>
+                <i class="fas fa-eye text-info me-2"></i> View Details
+              </a>
+              <a href="#" class="action-dropdown-item" data-bs-toggle="modal" data-bs-target="#editModal"
+                <?php foreach ($row as $key => $value): ?>
+                data-<?= htmlspecialchars(str_replace('_', '-', $key)) ?>="<?= htmlspecialchars($value) ?>"
+                <?php endforeach; ?>>
+                <i class="fas fa-edit text-warning me-2"></i> Edit Supplier
+              </a>
+              <a href="#" class="action-dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                data-supplier-id="<?= htmlspecialchars($row['supplier_id']) ?>"
+                data-supplier-name="<?= htmlspecialchars($row['supplier_name']) ?>">
+                <i class="fas fa-trash me-2"></i> Delete
+              </a>
+            </div>
+          </div>
         </td>
       <?php endif; ?>
     </tr>
@@ -263,7 +270,7 @@ if ($isAjax) {
       margin-top: 0;
       /* Removed top margin */
       margin-bottom: 2rem;
-      overflow: hidden;
+      /* overflow: hidden removed to prevent dropdown clipping */
     }
 
     .page-header {
@@ -364,7 +371,6 @@ if ($isAjax) {
     .table-modern {
       background: white;
       border-radius: 16px;
-      overflow: hidden;
       box-shadow: var(--card-shadow);
       border: none;
     }
@@ -445,6 +451,87 @@ if ($isAjax) {
       transform: translateY(-1px);
       box-shadow: 0 4px 15px rgba(14, 165, 233, 0.5);
       color: white;
+    }
+
+    /* Action Dropdown Menu Styling */
+    .action-cell {
+      position: relative;
+    }
+
+    .action-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .btn-action-trigger {
+      background: transparent;
+      border: none;
+      color: #6b7280;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .btn-action-trigger:hover,
+    .action-dropdown.active .btn-action-trigger {
+      background: rgba(0, 0, 0, 0.05);
+      color: #111827;
+    }
+
+    .action-dropdown-menu {
+      position: absolute;
+      right: 0;
+      top: 100%;
+      min-width: 180px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      border: 1px solid #f3f4f6;
+      padding: 0.5rem;
+      z-index: 9999;
+      visibility: hidden;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-origin: top right;
+    }
+
+    .action-dropdown.active .action-dropdown-menu {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(4px);
+    }
+
+    .action-dropdown-item {
+      display: flex;
+      align-items: center;
+      padding: 0.6rem 1rem;
+      color: #374151;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .action-dropdown-item i {
+      width: 16px;
+      text-align: center;
+    }
+
+    .action-dropdown-item:hover {
+      background-color: #f9fafb;
+      color: #111827;
+    }
+
+    .action-dropdown-item.text-danger:hover {
+      background-color: #fef2f2;
+      color: #dc2626 !important;
     }
 
     .alert-modern {
@@ -597,6 +684,13 @@ if ($isAjax) {
       pointer-events: none;
     }
 
+    .table-responsive {
+      overflow: visible;
+      min-height: 250px;
+      padding-bottom: 150px;
+      /* Space for the last dropdown */
+    }
+
     @media (max-width: 768px) {
       .page-title {
         font-size: 2rem;
@@ -614,21 +708,6 @@ if ($isAjax) {
 </head>
 
 <body>
-
-  <?php if (isset($_SESSION['message'])): ?>
-    <div class="alert alert-success-modern alert-modern">
-      <i class="fas fa-check-circle me-2"></i>
-      <?= htmlspecialchars($_SESSION['message']);
-      unset($_SESSION['message']); ?>
-    </div>
-  <?php endif; ?>
-  <?php if (isset($_SESSION['error'])): ?>
-    <div class="alert alert-danger-modern alert-modern">
-      <i class="fas fa-exclamation-triangle me-2"></i>
-      <?= htmlspecialchars($_SESSION['error']);
-      unset($_SESSION['error']); ?>
-    </div>
-  <?php endif; ?>
 
   <!-- Sidebar from procurement_statistics.php -->
   <div class="sidebar">
@@ -679,6 +758,23 @@ if ($isAjax) {
   </div>
 
   <div class="main-content">
+    <?php if (isset($_SESSION['message'])): ?>
+      <div class="alert alert-success-modern alert-modern alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <?= htmlspecialchars($_SESSION['message']);
+        unset($_SESSION['message']); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <?php endif; ?>
+    <?php if (isset($_SESSION['error'])): ?>
+      <div class="alert alert-danger-modern alert-modern alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <?= htmlspecialchars($_SESSION['error']);
+        unset($_SESSION['error']); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <?php endif; ?>
+
     <div class="main-container">
       <div class="page-header">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
@@ -781,7 +877,7 @@ if ($isAjax) {
   <div class="modal fade modal-modern" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <div class="modal-header bg-info">
+        <div class="modal-header bg-success">
           <h5 class="modal-title" id="viewModalLabel">
             <i class="fas fa-eye me-2"></i>View Supplier Details
           </h5>
@@ -790,15 +886,15 @@ if ($isAjax) {
         <div class="modal-body">
           <?php include '../modals/view_supplier.php'; ?>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary-modern btn-modern" data-bs-dismiss="modal">Close</button>
+        <div class="modal-footer border-top-0">
+          <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
   </div>
 
   <div class="modal fade modal-modern" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-    <form class="modal-dialog modal-lg" action="../actions/edit_supplier.php" method="POST">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="editModalLabel">
@@ -809,13 +905,8 @@ if ($isAjax) {
         <div class="modal-body">
           <?php include '../modals/edit_supplier.php'; ?>
         </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary-modern btn-modern w-100">
-            <i class="fas fa-save me-2"></i>Save Changes
-          </button>
-        </div>
       </div>
-    </form>
+    </div>
   </div>
 
   <div class="modal fade modal-modern" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -897,6 +988,31 @@ if ($isAjax) {
           tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">Error loading suppliers. Please try again.</td></tr>';
         });
     }
+
+
+    // Action Dropdown Logic
+    function toggleActionDropdown(event, container) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      // Close all other dropdowns first
+      document.querySelectorAll('.action-dropdown.active').forEach(dropdown => {
+        if (dropdown !== container) {
+          dropdown.classList.remove('active');
+        }
+      });
+
+      container.classList.toggle('active');
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+      if (!event.target.closest('.action-dropdown')) {
+        document.querySelectorAll('.action-dropdown.active').forEach(dropdown => {
+          dropdown.classList.remove('active');
+        });
+      }
+    });
 
     document.addEventListener('DOMContentLoaded', function() {
       const urlParams = new URLSearchParams(window.location.search);

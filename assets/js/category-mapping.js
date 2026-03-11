@@ -19,6 +19,7 @@ function fetchBusinessTypes() {
       return categoryMap;
     });
 }
+
 function populateCategoryOptions(businessType, categorySelectId = 'product-category', selectedCategory = '') {
   const categorySelect = document.getElementById(categorySelectId);
   if (!categorySelect) return;

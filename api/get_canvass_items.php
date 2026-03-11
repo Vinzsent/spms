@@ -1,10 +1,13 @@
 <?php
+header('Content-Type: application/json');
 require_once '../includes/db.php';
 require_once '../includes/auth.php';
 
-header('Content-Type: application/json');
-
 try {
+    if ($conn->connect_error) {
+        throw new Exception("Database connection failed: " . $conn->connect_error);
+    }
+
     // Get all item details including supplier info
     $sql = "SELECT ci.item_description, ci.supplier_name, ci.quantity, ci.unit_cost 
             FROM canvass_items ci
@@ -44,6 +47,8 @@ try {
         'success' => false,
         'message' => 'Error: ' . $e->getMessage()
     ]);
+} finally {
+    if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
+        $conn->close();
+    }
 }
-
-$conn->close();

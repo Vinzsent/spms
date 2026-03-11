@@ -1,113 +1,125 @@
 <!-- View Supplier Modal Structure -->
-<ul class="nav nav-tabs" id="viewSupplierTab" role="tablist">
-    <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="view-company-tab" data-bs-toggle="tab" data-bs-target="#view-company" type="button" role="tab">Company Info</button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="view-contact-tab" data-bs-toggle="tab" data-bs-target="#view-contact" type="button" role="tab">Contact</button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="view-business-tab" data-bs-toggle="tab" data-bs-target="#view-business" type="button" role="tab">Business</button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="view-extra-tab" data-bs-toggle="tab" data-bs-target="#view-extra" type="button" role="tab">Additional Info</button>
-    </li>
-</ul>
-
-<div class="tab-content pt-3" id="viewSupplierTabContent">
-    <!-- Company Info -->
-    <div class="tab-pane fade show active" id="view-company" role="tabpanel">
-        <div class="row g-2">
+<div class="view-supplier-container p-2">
+    <!-- Company Section -->
+    <div class="view-section mb-4">
+        <h6 class="view-section-title"><i class="fas fa-building me-2"></i> Company Information</h6>
+        <div class="row g-3">
             <div class="col-md-12">
-                <label class="form-label">Supplier Name</label>
-                <input type="text" class="form-control" id="view-supplier-name" readonly>
+                <label class="form-label text-muted small uppercase fw-bold">Supplier Name</label>
+                <div class="view-data" id="view-supplier-name"></div>
             </div>
             <div class="col-md-12">
-                <label class="form-label">Full Address</label>
-                <input type="text" class="form-control" id="view-address" readonly>
+                <label class="form-label text-muted small uppercase fw-bold">Full Address</label>
+                <div class="view-data" id="view-address"></div>
             </div>
             <div class="col-md-6">
-                <label class="form-label">Province</label>
-                <input type="text" class="form-control" id="view-province" readonly>
+                <label class="form-label text-muted small uppercase fw-bold">Province / City</label>
+                <div class="view-data"><span id="view-province"></span>, <span id="view-city"></span></div>
             </div>
-            <div class="col-md-6">
-                <label class="form-label">City / Municipality</label>
-                <input type="text" class="form-control" id="view-city" readonly>
+            <div class="col-md-3">
+                <label class="form-label text-muted small uppercase fw-bold">ZIP Code</label>
+                <div class="view-data" id="view-zip-code"></div>
             </div>
-            <div class="col-md-6">
-                <label class="form-label">ZIP Code</label>
-                <input type="text" class="form-control" id="view-zip-code" readonly>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Country</label>
-                <input type="text" class="form-control" id="view-country" readonly>
+            <div class="col-md-3">
+                <label class="form-label text-muted small uppercase fw-bold">Country</label>
+                <div class="view-data" id="view-country"></div>
             </div>
         </div>
     </div>
 
-    <!-- Contact Tab -->
-    <div class="tab-pane fade" id="view-contact" role="tabpanel">
-        <div class="row g-2">
+    <hr class="my-4 opacity-50">
+
+    <!-- Contact Section -->
+    <div class="view-section mb-4">
+        <h6 class="view-section-title"><i class="fas fa-address-book me-2"></i> Contact Details</h6>
+        <div class="row g-3">
             <div class="col-md-12">
-                <label class="form-label">Contact Person</label>
-                <input type="text" class="form-control" id="view-contact-person" readonly>
+                <label class="form-label text-muted small uppercase fw-bold">Contact Person</label>
+                <div class="view-data" id="view-contact-person"></div>
             </div>
             <div class="col-md-6">
-                <label class="form-label">Mobile No.</label>
-                <input type="text" class="form-control" id="view-contact-number" readonly>
+                <label class="form-label text-muted small uppercase fw-bold">Mobile No.</label>
+                <div class="view-data" id="view-contact-number"></div>
             </div>
             <div class="col-md-6">
-                <label class="form-label">Telephone No.</label>
-                <input type="text" class="form-control" id="view-landline-number" readonly>
+                <label class="form-label text-muted small uppercase fw-bold">Telephone No.</label>
+                <div class="view-data" id="view-landline-number"></div>
             </div>
-            <div class="col-md-4">
-                <label class="form-label">Email Address</label>
-                <input type="email" class="form-control" id="view-email-address" readonly>
+            <div class="col-md-6">
+                <label class="form-label text-muted small uppercase fw-bold">Email Address</label>
+                <div class="view-data" id="view-email-address"></div>
             </div>
-            <div class="col-md-4">
-                <label class="form-label">Fax Number</label>
-                <input type="text" class="form-control" id="view-fax-number" readonly>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Website</label>
-                <input type="text" class="form-control" id="view-website" readonly>
+            <div class="col-md-6">
+                <label class="form-label text-muted small uppercase fw-bold">Website / Fax</label>
+                <div class="view-data"><span id="view-website"></span> <span id="view-fax-number" class="ms-2"></span></div>
             </div>
         </div>
     </div>
 
-    <!-- Business Tab -->
-    <div class="tab-pane fade" id="view-business" role="tabpanel">
-        <div class="row g-2">
-            <div class="col-md-6">
-                <label class="form-label">Business Type</label>
-                <input type="text" class="form-control" id="view-business-type" readonly>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Category</label>
-                <input type="text" class="form-control" id="view-category" readonly>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Payment Terms</label>
-                <input type="text" class="form-control" id="view-payment-terms" readonly>
-            </div>
-        </div>
-    </div>
+    <hr class="my-4 opacity-50">
 
-    <!-- Additional Info -->
-    <div class="tab-pane fade" id="view-extra" role="tabpanel">
-        <div class="row g-2">
+    <!-- Business Section -->
+    <div class="view-section mb-4">
+        <h6 class="view-section-title"><i class="fas fa-briefcase me-2"></i> Business & Status</h6>
+        <div class="row g-3">
             <div class="col-md-6">
-                <label class="form-label">Date Registered</label>
-                <input type="text" class="form-control" id="view-date-registered" readonly>
+                <label class="form-label text-muted small uppercase fw-bold">Business Type</label>
+                <div class="view-data" id="view-business-type"></div>
             </div>
             <div class="col-md-6">
-                <label class="form-label">Status</label>
-                <input type="text" class="form-control" id="view-status" readonly>
+                <label class="form-label text-muted small uppercase fw-bold">Category</label>
+                <div class="view-data" id="view-category"></div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label text-muted small uppercase fw-bold">TIN Number</label>
+                <div class="view-data fw-bold text-dark" id="view-tin"></div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label text-muted small uppercase fw-bold">Payment Terms</label>
+                <div class="view-data" id="view-payment-terms"></div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label text-muted small uppercase fw-bold">Date Registered</label>
+                <div class="view-data" id="view-date-registered"></div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label text-muted small uppercase fw-bold">Status</label>
+                <div id="view-status-badge"></div>
             </div>
             <div class="col-12">
-                <label class="form-label">Notes</label>
-                <textarea class="form-control" id="view-notes" rows="3" readonly></textarea>
+                <label class="form-label text-muted small uppercase fw-bold">Notes</label>
+                <div class="view-data bg-light p-3 rounded" id="view-notes" style="min-height: 60px;"></div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .view-section-title {
+        color: #1a5f3c;
+        font-weight: 700;
+        margin-bottom: 20px;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .view-data {
+        font-size: 0.95rem;
+        color: #1e293b;
+        min-height: 24px;
+        padding: 5px 0;
+    }
+
+    .form-label.small {
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        margin-bottom: 2px;
+    }
+
+    #view-status-badge .badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+</style>

@@ -1,14 +1,17 @@
 <?php
+header('Content-Type: application/json');
 require_once '../includes/db.php';
 require_once '../includes/auth.php';
 
-header('Content-Type: application/json');
-
 try {
-    // Fetch active suppliers
+    if ($conn->connect_error) {
+        throw new Exception("Database connection failed: " . $conn->connect_error);
+    }
+
+    // Fetch active suppliers - match 'ACTIVE' (case-insensitive in SQL mostly, but let's be precise if needed)
     $sql = "SELECT supplier_id, supplier_name, address, city, province, zip_code 
             FROM supplier 
-            WHERE status = 'Active'
+            WHERE status IN ('Active', 'ACTIVE')
             ORDER BY supplier_name ASC";
 
     $result = $conn->query($sql);
@@ -47,6 +50,8 @@ try {
         'success' => false,
         'message' => 'Error: ' . $e->getMessage()
     ]);
+} finally {
+    if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
+        $conn->close();
+    }
 }
-
-$conn->close();
