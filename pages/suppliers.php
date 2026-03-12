@@ -726,9 +726,6 @@ if ($isAjax) {
         <li><a href="received_items.php" class="nav-link">
             <i class="fas fa-box-open"></i> Received Items
           </a></li>
-        <li><a href="purchase_order_list.php" class="nav-link">
-            <i class="fas fa-file-invoice"></i> Purchase Order List
-          </a></li>
         <li><a href="procurement_statistics.php" class="nav-link">
             <i class="fas fa-chart-line"></i> Procurement Statistics
           </a></li>
@@ -743,6 +740,9 @@ if ($isAjax) {
           </a></li>
         <li><a href="purchase_order.php" class="nav-link">
             <i class="fas fa-shopping-basket"></i> Purchase Order
+          </a></li>
+        <li><a href="purchase_order_list.php" class="nav-link">
+            <i class="fas fa-file-invoice"></i> Purchase Order List
           </a></li>
         <li><a href="Inventory.php" class="nav-link">
             <i class="fas fa-box"></i> Supply Inventory
@@ -1022,7 +1022,8 @@ if ($isAjax) {
         addModal.show();
 
         addModalEl.addEventListener('hidden.bs.modal', function() {
-          window.location.href = 'canvass_form.php';
+          const returnUrl = urlParams.get('return') || 'canvass_form.php';
+          window.location.href = returnUrl;
         });
       }
     });

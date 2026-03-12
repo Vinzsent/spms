@@ -397,9 +397,6 @@ $po_result = $conn->query($po_query);
             <li><a href="received_items.php" class="nav-link">
                     <i class="fas fa-box-open"></i> Received Items
                 </a></li>
-            <li><a href="purchase_order_list.php" class="nav-link active">
-                    <i class="fas fa-file-invoice"></i> Purchase Order List
-                </a></li>
             <li><a href="procurement_statistics.php" class="nav-link"><i class="fas fa-chart-line"></i> Procurement Statistics
                 </a></li>
             <li><a href="procurement.php" class="nav-link">
@@ -413,6 +410,9 @@ $po_result = $conn->query($po_query);
                 </a></li>
             <li><a href="purchase_order.php" class="nav-link">
                     <i class="fas fa-shopping-basket"></i> Purchase Order
+                </a></li>
+            <li><a href="purchase_order_list.php" class="nav-link active">
+                    <i class="fas fa-file-invoice"></i> Purchase Order List
                 </a></li>
             <li><a href="Inventory.php" class="nav-link">
                     <i class="fas fa-box"></i> Supply Inventory

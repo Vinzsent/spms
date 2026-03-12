@@ -210,1484 +210,1461 @@ function loadPurchaseOrder($po_id, $conn)
 // Get existing POs for dropdown
 $existing_pos_sql = "SELECT po_id, po_number, supplier_name, po_date, status FROM purchase_orders ORDER BY created_at DESC LIMIT 20";
 $existing_pos_result = $conn->query($existing_pos_sql);
+
+// Fetch suppliers from database for the searchable dropdown
+$suppliers_query = "SELECT supplier_id, supplier_name, address, city, province, zip_code FROM supplier ORDER BY supplier_name ASC";
+$suppliers_result = $conn->query($suppliers_query);
+$suppliers_array = [];
+if ($suppliers_result && $suppliers_result->num_rows > 0) {
+    while ($supplier = $suppliers_result->fetch_assoc()) {
+        // Construct full address for auto-fill
+        $fullAddress = $supplier['address'];
+        if ($supplier['city']) $fullAddress .= ', ' . $supplier['city'];
+        if ($supplier['province']) $fullAddress .= ', ' . $supplier['province'];
+        if ($supplier['zip_code']) $fullAddress .= ' ' . $supplier['zip_code'];
+        $supplier['full_address'] = trim($fullAddress, ', ');
+        $suppliers_array[] = $supplier;
+    }
+}
 ?>
+<!DOCTYPE html>
+<html lang="en">
 
-<style>
-    :root {
-        --primary-green: #073b1d;
-        --dark-green: #073b1d;
-        --light-green: #2d8aad;
-        --accent-orange: #EACA26;
-        --accent-blue: #4a90e2;
-        --accent-green-approved: #28a745;
-        --accent-red: #e74c3c;
-        --text-white: #ffffff;
-        --text-dark: #073b1d;
-        --bg-light: #f8f9fa;
-    }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Order</title>
+    <link rel="stylesheet" href="assets/css/dark-mode.css">
+</head>
 
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: var(--bg-light);
-        margin: 0;
-        padding: 0;
-    }
+<body>
 
-    /* Sidebar Styles */
-    .sidebar {
-        position: fixed;
-        left: 0;
-        top: 0;
-        height: 100vh;
-        width: 240px;
-        background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
-        color: var(--text-white);
-        z-index: 1000;
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    }
 
-    .sidebar-header {
-        padding: 20px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
 
-    .sidebar-header h4 {
-        margin: 0;
-        font-weight: 700;
-        font-size: 1.5rem;
-        color: var(--text-white);
-    }
+    <style>
+        :root {
+            --primary-green: #073b1d;
+            --dark-green: #073b1d;
+            --light-green: #2d8aad;
+            --accent-orange: #EACA26;
+            --accent-blue: #4a90e2;
+            --accent-green-approved: #28a745;
+            --accent-red: #e74c3c;
+            --text-white: #ffffff;
+            --text-dark: #073b1d;
+            --bg-light: #f8f9fa;
+        }
 
-    .welcome-text {
-        font-size: 0.9rem;
-        opacity: 0.9;
-        margin-top: 5px;
-    }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            margin: 0;
+            padding: 0;
+        }
 
-    .sidebar-nav {
-        padding: 20px 0;
-    }
-
-    .sidebar-nav ul {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .nav-item {
-        padding: 0;
-        margin: 0;
-    }
-
-    .nav-link {
-        display: flex;
-        align-items: center;
-        padding: 8px 15px;
-        color: var(--text-white);
-        text-decoration: none;
-        transition: all 0.3s ease;
-        border-left: 4px solid transparent;
-        font-size: 0.85rem;
-    }
-
-    .nav-link:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: var(--text-white);
-        border-left-color: var(--accent-orange);
-    }
-
-    .nav-link.active {
-        background-color: rgba(255, 255, 255, 0.15);
-        border-left-color: var(--accent-orange);
-        font-weight: 600;
-    }
-
-    .nav-link i {
-        margin-right: 12px;
-        width: 20px;
-        text-align: center;
-    }
-
-    .nav-link.logout {
-        color: var(--accent-red);
-        margin-top: 20px;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    /* Main Content */
-    .main-content {
-        margin-left: 240px;
-        padding: 20px;
-        min-height: 100vh;
-        background-color: var(--bg-light);
-    }
-
-    .content-header {
-        background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
-        color: var(--text-white);
-        padding: 30px;
-        border-radius: 10px;
-        margin-bottom: 30px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .content-header h1 {
-        margin: 0;
-        font-weight: 700;
-        font-size: 2.2rem;
-    }
-
-    /* Purchase Order Form */
-    .po-container {
-        background: var(--text-white);
-        border-radius: 10px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        margin-bottom: 2rem;
-        padding: 40px;
-    }
-
-    .po-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 30px;
-        border-bottom: 2px solid var(--primary-green);
-        padding-bottom: 20px;
-    }
-
-    .po-title {
-        color: var(--primary-green);
-        font-size: 2rem;
-        font-weight: 700;
-        margin: 0;
-    }
-
-    .po-info {
-        text-align: right;
-    }
-
-    .po-info-item {
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-    }
-
-    .po-info-label {
-        font-weight: 600;
-        margin-right: 10px;
-        color: var(--text-dark);
-        min-width: 80px;
-    }
-
-    .po-info-input {
-        border: none;
-        border-bottom: 1px solid #ccc;
-        padding: 5px 10px;
-        font-size: 1rem;
-        min-width: 150px;
-        background: transparent;
-    }
-
-    .po-info-input:focus {
-        outline: none;
-        border-bottom-color: var(--primary-green);
-    }
-
-    .po-details {
-        margin-bottom: 30px;
-    }
-
-    .po-details-row {
-        display: flex;
-        margin-bottom: 15px;
-        align-items: center;
-    }
-
-    .po-details-label {
-        font-weight: 600;
-        color: var(--text-dark);
-        min-width: 100px;
-        margin-right: 15px;
-    }
-
-    .po-details-input {
-        border: none;
-        border-bottom: 1px solid #ccc;
-        padding: 8px 10px;
-        font-size: 1rem;
-        flex: 1;
-        background: transparent;
-    }
-
-    .po-details-input:focus {
-        outline: none;
-        border-bottom-color: var(--primary-green);
-    }
-
-    /* Searchable Select Container */
-    .searchable-select-container {
-        position: relative;
-        flex: 1;
-    }
-
-    .search-dropdown {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-        max-height: 250px;
-        overflow-y: auto;
-        border: 1px solid #eee;
-        margin-top: 5px;
-        backdrop-filter: blur(10px);
-        background: rgba(255, 255, 255, 0.95);
-    }
-
-    .search-item {
-        padding: 12px 15px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        border-bottom: 1px solid #f8f9fa;
-        color: var(--text-dark);
-        font-size: 0.95rem;
-    }
-
-    .search-item:last-child {
-        border-bottom: none;
-    }
-
-    .search-item:hover,
-    .search-item.active {
-        background-color: var(--primary-green);
-        color: white;
-    }
-
-    .search-item .supplier-address {
-        display: block;
-        font-size: 0.8rem;
-        opacity: 0.8;
-        margin-top: 2px;
-    }
-
-    /* Table Styles */
-    .po-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 30px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .po-table th {
-        background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
-        color: var(--text-white);
-        padding: 15px 10px;
-        text-align: center;
-        font-weight: 600;
-        border: 1px solid var(--primary-green);
-    }
-
-    .po-table td {
-        padding: 12px 10px;
-        border: 1px solid #ddd;
-        text-align: center;
-        vertical-align: middle;
-    }
-
-    .po-table tbody tr:nth-child(even) {
-        background-color: #f8f9fa;
-    }
-
-    .po-table tbody tr:hover {
-        background-color: rgba(7, 59, 29, 0.05);
-    }
-
-    .po-table input {
-        border: none;
-        background: transparent;
-        width: 100%;
-        text-align: center;
-        padding: 5px;
-    }
-
-    .po-table input:focus {
-        outline: 1px solid var(--primary-green);
-        background: white;
-    }
-
-    /* Payment Section */
-    .payment-section {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 40px;
-        padding: 20px;
-        background: #f8f9fa;
-        border-radius: 8px;
-    }
-
-    .payment-item {
-        display: flex;
-        align-items: center;
-    }
-
-    .payment-label {
-        font-weight: 600;
-        margin-right: 10px;
-        color: var(--text-dark);
-    }
-
-    .payment-input {
-        border: none;
-        border-bottom: 1px solid #ccc;
-        padding: 5px 10px;
-        font-size: 1rem;
-        background: transparent;
-        min-width: 150px;
-    }
-
-    .payment-input:focus {
-        outline: none;
-        border-bottom-color: var(--primary-green);
-    }
-
-    /* Signature Section */
-    .signature-section {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 40px;
-        margin-top: 50px;
-    }
-
-    .signature-box {
-        text-align: center;
-    }
-
-    .signature-line {
-        border-bottom: 1px solid #333;
-        height: 60px;
-        margin-bottom: 10px;
-        position: relative;
-    }
-
-    .signature-title {
-        font-weight: 600;
-        color: var(--text-dark);
-        margin-bottom: 5px;
-    }
-
-    .signature-subtitle {
-        font-size: 0.9rem;
-        color: #666;
-    }
-
-    /* Action Buttons */
-    .action-buttons {
-        display: flex;
-        gap: 15px;
-        margin-top: 30px;
-        justify-content: flex-end;
-    }
-
-    .btn-po {
-        padding: 12px 24px;
-        border: none;
-        border-radius: 5px;
-        font-weight: 600;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .btn-primary {
-        background-color: var(--primary-green);
-        color: var(--text-white);
-    }
-
-    .btn-primary:hover {
-        background-color: var(--dark-green);
-        transform: translateY(-2px);
-    }
-
-    .btn-secondary {
-        background-color: #6c757d;
-        color: var(--text-white);
-    }
-
-    .btn-secondary:hover {
-        background-color: #5a6268;
-        transform: translateY(-2px);
-    }
-
-    .btn-success {
-        background-color: var(--accent-green-approved);
-        color: var(--text-white);
-    }
-
-    .btn-success:hover {
-        background-color: #1e7e34;
-        transform: translateY(-2px);
-    }
-
-    /* Mobile Responsiveness */
-    @media (max-width: 768px) {
+        /* Sidebar Styles */
         .sidebar {
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 240px;
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
+            color: var(--text-white);
+            z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        .sidebar.show {
-            transform: translateX(0);
-        }
-
-        .main-content {
-            margin-left: 0;
-            padding: 15px;
-        }
-
-        .po-container {
+        .sidebar-header {
             padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .po-header {
-            flex-direction: column;
+        .sidebar-header h4 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--text-white);
+        }
+
+        .welcome-text {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .sidebar-nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            color: var(--text-white);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            font-size: 0.85rem;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-white);
+            border-left-color: var(--accent-orange);
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-left-color: var(--accent-orange);
+            font-weight: 600;
+        }
+
+        .nav-link i {
+            margin-right: 12px;
+            width: 20px;
             text-align: center;
         }
 
-        .po-info {
-            text-align: left;
+        .nav-link.logout {
+            color: var(--accent-red);
             margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .signature-section {
-            grid-template-columns: 1fr;
-            gap: 30px;
+        /* Main Content */
+        .main-content {
+            margin-left: 240px;
+            padding: 20px;
+            min-height: 100vh;
+            background-color: var(--bg-light);
         }
 
+        .content-header {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
+            color: var(--text-white);
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-header h1 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 2.2rem;
+        }
+
+        /* Purchase Order Form */
+        .po-container {
+            background: var(--text-white);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            padding: 40px;
+        }
+
+        .po-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--primary-green);
+            padding-bottom: 20px;
+        }
+
+        .po-title {
+            color: var(--primary-green);
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .po-info {
+            text-align: right;
+        }
+
+        .po-info-item {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .po-info-label {
+            font-weight: 600;
+            margin-right: 10px;
+            color: var(--text-dark);
+            min-width: 80px;
+        }
+
+        .po-info-input {
+            border: none;
+            border-bottom: 1px solid #ccc;
+            padding: 5px 10px;
+            font-size: 1rem;
+            min-width: 150px;
+            background: transparent;
+        }
+
+        .po-info-input:focus {
+            outline: none;
+            border-bottom-color: var(--primary-green);
+        }
+
+        .po-details {
+            margin-bottom: 30px;
+        }
+
+        .po-details-row {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .po-details-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            min-width: 100px;
+            margin-right: 15px;
+        }
+
+        .po-details-input {
+            border: none;
+            border-bottom: 1px solid #ccc;
+            padding: 8px 10px;
+            font-size: 1rem;
+            flex: 1;
+            background: transparent;
+        }
+
+        .po-details-input:focus {
+            outline: none;
+            border-bottom-color: var(--primary-green);
+        }
+
+        /* Searchable Dropdown Styles */
+        .supplier-dropdown-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .supplier-input {
+            width: 100%;
+            padding: 8px 10px;
+            border: none !important;
+            border-bottom: 1px solid #ccc !important;
+            background: transparent !important;
+            font-size: 1rem;
+        }
+
+        .supplier-input:focus {
+            outline: none !important;
+            border-bottom-color: var(--primary-green) !important;
+        }
+
+        .supplier-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 250px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            z-index: 1001;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            display: none;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .supplier-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: var(--text-dark);
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .supplier-item:hover {
+            background: rgba(7, 59, 29, 0.1);
+        }
+
+        .add-supplier-item {
+            display: block;
+            padding: 12px;
+            background: var(--primary-green);
+            color: white !important;
+            text-decoration: none;
+            font-weight: 600;
+            text-align: center;
+            position: sticky;
+            bottom: 0;
+        }
+
+        .add-supplier-item:hover {
+            background: var(--dark-green);
+            color: var(--accent-orange) !important;
+        }
+
+        /* Table Styles */
+        .po-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .po-table th {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
+            color: var(--text-white);
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid var(--primary-green);
+        }
+
+        .po-table td {
+            padding: 12px 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .po-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .po-table tbody tr:hover {
+            background-color: rgba(7, 59, 29, 0.05);
+        }
+
+        .po-table input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: center;
+            padding: 5px;
+        }
+
+        .po-table input:focus {
+            outline: 1px solid var(--primary-green);
+            background: white;
+        }
+
+        /* Payment Section */
         .payment-section {
-            flex-direction: column;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .payment-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .payment-label {
+            font-weight: 600;
+            margin-right: 10px;
+            color: var(--text-dark);
+        }
+
+        .payment-input {
+            border: none;
+            border-bottom: 1px solid #ccc;
+            padding: 5px 10px;
+            font-size: 1rem;
+            background: transparent;
+            min-width: 150px;
+        }
+
+        .payment-input:focus {
+            outline: none;
+            border-bottom-color: var(--primary-green);
+        }
+
+        /* Signature Section */
+        .signature-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .signature-box {
+            text-align: center;
+        }
+
+        .signature-line {
+            border-bottom: 1px solid #333;
+            height: 60px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .signature-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .signature-subtitle {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
             gap: 15px;
+            margin-top: 30px;
+            justify-content: flex-end;
         }
-    }
-</style>
 
-<!-- Sidebar -->
-<div class="sidebar">
-    <div class="sidebar-header">
-        <h4>DARTS</h4>
-        <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
-    </div>
-
-    <nav class="sidebar-nav">
-        <ul>
-            <li><a href="../dashboard.php" class="nav-link">
-                    <i class="fas fa-chart-line"></i> Dashboard
-                </a></li>
-            <li><a href="suppliers.php" class="nav-link">
-                    <i class="fas fa-users"></i> Suppliers
-                </a></li>
-            <li><a href="received_items.php" class="nav-link">
-                    <i class="fas fa-box-open"></i> Received Items
-                </a></li>
-            <li><a href="purchase_order_list.php" class="nav-link">
-                    <i class="fas fa-file-invoice"></i> Purchase Order List
-                </a></li>
-            <li><a href="procurement_statistics.php" class="nav-link">
-                    <i class="fas fa-chart-line"></i> Procurement Statistics
-                </a></li>
-            <li><a href="procurement.php" class="nav-link">
-                    <i class="fas fa-shopping-cart"></i> Procurement Tables
-                </a></li>
-            <li><a href="canvass_form.php" class="nav-link">
-                    <i class="fas fa-file-invoice"></i> Canvass Form
-                </a></li>
-            <li><a href="canvass_form_list.php" class="nav-link">
-                    <i class="fas fa-list"></i> Canvass Form List
-                </a></li>
-            <li><a href="purchase_order.php" class="nav-link active">
-                    <i class="fas fa-shopping-basket"></i> Purchase Order
-                </a></li>
-            <li><a href="Inventory.php" class="nav-link">
-                    <i class="fas fa-box"></i> Supply Inventory
-                </a></li>
-            <li><a href="property_inventory.php" class="nav-link">
-                    <i class="fas fa-boxes"></i> Property Inventory
-                </a></li>
-            <li><a href="../logout.php" class="nav-link logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a></li>
-        </ul>
-    </nav>
-</div>
-
-<!-- Main Content -->
-<div class="main-content">
-    <div class="content-header page-title">
-        <h1>Purchase Order</h1>
-        <p>Create and manage purchase orders for procurement</p>
-    </div>
-
-    <!-- Purchase Order Form -->
-    <div class="po-container">
-        <div class="po-header">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <h2 class="po-title" style="margin-bottom: 10px;">PURCHASE ORDER</h2>
-            </div>
-            <div class="po-info">
-                <div class="po-info-item">
-                    <span class="po-info-label">PO No.:</span>
-                    <input type="text" class="po-info-input" id="poNumber" placeholder="Enter PO Number" value="<?= $edit_mode && $po_data ? htmlspecialchars($po_data['po_number']) : '' ?>">
-                </div>
-                <div class="po-info-item">
-                    <span class="po-info-label">Date:</span>
-                    <input type="date" class="po-info-input" id="poDate" value="<?= $edit_mode && $po_data ? $po_data['po_date'] : date('Y-m-d') ?>">
-                </div>
-            </div>
-        </div>
-        <a href="purchase_order_list.php" class="btn view-button mb-3 text-dark" style="background-color: var(--accent-orange); color: white; text-decoration: none; padding: 8px 16px; border-radius: 5px; display: inline-block; font-size: 14px;"><i class="fas fa-eye"></i> View Purchase Order List</a>
-
-        <div class="po-details">
-            <div class="po-details-row">
-                <span class="po-details-label">TO:</span>
-                <div class="searchable-select-container">
-                    <input type="text" class="po-details-input" id="supplierNameInput" placeholder="Search or Type Supplier Name..." autocomplete="off">
-                    <input type="hidden" id="supplierName" value="<?= $edit_mode && $po_data ? htmlspecialchars($po_data['supplier_name']) : '' ?>">
-                    <div id="supplierDropdown" class="search-dropdown" style="display: none;"></div>
-                </div>
-            </div>
-            <div class="po-details-row">
-                <span class="po-details-label">ADDRESS:</span>
-                <input type="text" class="po-details-input" id="supplierAddress" placeholder="Enter Supplier Address" value="<?= $edit_mode && $po_data ? htmlspecialchars($po_data['supplier_address']) : '' ?>">
-            </div>
-        </div>
-
-        <!-- Items Table -->
-        <table class="po-table" id="itemsTable">
-            <thead>
-                <tr>
-                    <th style="width: 8%;">NO</th>
-                    <th style="width: 40%;">ITEM DESCRIPTION</th>
-                    <th style="width: 15%;">QUANTITY</th>
-                    <th style="width: 17%;">UNIT COST</th>
-                    <th style="width: 20%;">AMOUNT</th>
-                </tr>
-            </thead>
-            <tbody id="itemsTableBody">
-                <!-- Dynamic rows will be added here -->
-                <tr style="background-color: var(--primary-green); color: white; font-weight: bold;">
-                    <td colspan="4" style="text-align: right; padding-right: 20px;">TOTAL AMOUNT:</td>
-                    <td id="totalAmount">₱0.00</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <!-- Row Management Buttons -->
-        <div class="row-management" style="margin: 20px 0; text-align: center;">
-            <button type="button" class="btn-po btn-success" onclick="addPORow()">
-                <i class="fas fa-plus"></i> Add Row
-            </button>
-            <button type="button" class="btn-po btn-danger" style="background-color: var(--accent-red); color: white;" onclick="removeLastPORow()">
-                <i class="fas fa-minus"></i> Remove Row
-            </button>
-        </div>
-
-        <!-- Payment Section -->
-        <div class="payment-section">
-            <div class="payment-item">
-                <span class="payment-label">Payment Thru: Check</span>
-                <input type="text" class="payment-input" placeholder="Enter Check Details Here">
-            </div>
-            <div class="payment-item">
-                <span class="payment-label">Cash:</span>
-                <input type="text" class="payment-input" placeholder="PHP 0.00">
-            </div>
-        </div>
-
-        <!-- Signature Section -->
-        <div class="signature-section">
-            <div class="signature-box">
-                <div class="signature-line">Marilou L. Suarez</div>
-                <div class="signature-title">Prepared By:</div>
-                <div class="signature-subtitle">Purchasing Officer</div>
-            </div>
-            <div class="signature-box">
-                <div class="signature-line">Lyca E. Monterola</div>
-                <div class="signature-title">Checked By:</div>
-                <div class="signature-subtitle">Finance Officer</div>
-            </div>
-            <div class="signature-box">
-                <div class="signature-line">Dr. Delia C. Advincula</div>
-                <div class="signature-title">Approved By:</div>
-                <div class="signature-subtitle">VP for Finance and Administration</div>
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-            <button type="button" class="btn-po btn-secondary" onclick="clearForm()">
-                <i class="fas fa-undo"></i> Clear
-            </button>
-            <button type="button" class="btn-po btn-success" onclick="printPO()">
-                <i class="fas fa-print"></i> Print
-            </button>
-            <button type="button" class="btn-po btn-primary" onclick="savePO()">
-                <i class="fas fa-save"></i> Save
-            </button>
-        </div>
-    </div>
-
-
-</div>
-
-<script>
-    // Calculate row total when quantity or unit cost changes
-    function calculateRowTotal(input) {
-        const row = input.closest('tr');
-        const quantity = parseFloat(row.cells[2].querySelector('input').value) || 0;
-        const unitCost = parseFloat(row.cells[3].querySelector('input').value) || 0;
-        const amount = quantity * unitCost;
-
-        row.cells[4].textContent = '₱' + amount.toFixed(2);
-
-        calculateGrandTotal();
-    }
-
-    // Calculate grand total
-    function calculateGrandTotal() {
-        const rows = document.querySelectorAll('#itemsTable tbody tr:not(:last-child)');
-        let total = 0;
-
-        rows.forEach(row => {
-            const amountText = row.cells[4].textContent.replace('₱', '').replace(',', '');
-            const amount = parseFloat(amountText) || 0;
-            total += amount;
-        });
-
-        document.getElementById('totalAmount').textContent = '₱' + total.toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-    }
-
-    // Clear form
-    function clearForm() {
-        if (confirm('Are you sure you want to clear all data?')) {
-            document.getElementById('poNumber').value = '';
-            document.getElementById('poDate').value = '<?= date('Y-m-d') ?>';
-            document.getElementById('supplierName').value = '';
-            document.getElementById('supplierNameInput').value = '';
-            document.getElementById('supplierAddress').value = '';
-
-            const inputs = document.querySelectorAll('#itemsTable input');
-            inputs.forEach(input => input.value = '');
-
-            const amountCells = document.querySelectorAll('.amount-cell');
-            amountCells.forEach(cell => cell.textContent = '₱0.00');
-
-            document.getElementById('totalAmount').textContent = '₱0.00';
+        .btn-po {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
-    }
 
-    // Print PO
-    function printPO() {
-        // Hide completely empty rows to save space during print
-        const rows = Array.from(document.querySelectorAll('#itemsTable tbody tr:not(:last-child)'));
-        const modifiedRows = [];
+        .btn-primary {
+            background-color: var(--primary-green);
+            color: var(--text-white);
+        }
 
-        rows.forEach(row => {
-            const description = row.cells[1].querySelector('input')?.value.trim() || '';
-            const qty = row.cells[2].querySelector('input')?.value.trim() || '';
-            const unitCost = row.cells[3].querySelector('input')?.value.trim() || '';
-            const amount = row.cells[4].textContent.replace('₱', '').trim();
-            const total = parseFloat(amount) || 0;
+        .btn-primary:hover {
+            background-color: var(--dark-green);
+            transform: translateY(-2px);
+        }
 
-            if (!description && !qty && !unitCost && total === 0) {
-                row.classList.add('print-hide');
-                modifiedRows.push(row);
+        .btn-secondary {
+            background-color: #6c757d;
+            color: var(--text-white);
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: var(--accent-green-approved);
+            color: var(--text-white);
+        }
+
+        .btn-success:hover {
+            background-color: #1e7e34;
+            transform: translateY(-2px);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
             }
-        });
 
-        const restore = () => {
-            modifiedRows.forEach(r => r.classList.remove('print-hide'));
-        };
+            .sidebar.show {
+                transform: translateX(0);
+            }
 
-        // Ensure restoration after printing
-        const afterPrint = () => {
-            restore();
-            window.removeEventListener('afterprint', afterPrint);
-        };
-        window.addEventListener('afterprint', afterPrint);
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
 
-        window.print();
-    }
+            .po-container {
+                padding: 20px;
+            }
 
-    // Save PO
-    function savePO() {
-        const poNumber = document.getElementById('poNumber').value;
-        const poDate = document.getElementById('poDate').value;
-        const supplierName = document.getElementById('supplierName').value;
-        const supplierAddress = document.getElementById('supplierAddress').value;
-        const paymentDetails = document.querySelector('.payment-input[placeholder="Enter Check Details Here"]').value;
-        const cashAmount = document.querySelector('.payment-input[placeholder="PHP 0.00"]').value;
+            .po-header {
+                flex-direction: column;
+                text-align: center;
+            }
 
-        if (!poNumber || !poDate || !supplierName) {
-            alert('Please fill in all required fields (PO Number, Date, and Supplier Name)');
-            return;
+            .po-info {
+                text-align: left;
+                margin-top: 20px;
+            }
+
+            .signature-section {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .payment-section {
+                flex-direction: column;
+                gap: 15px;
+            }
         }
+    </style>
 
-        const items = [];
-        const rows = document.querySelectorAll('#itemsTable tbody tr:not(:last-child)');
-        rows.forEach((row, index) => {
-            const descriptionElement = row.cells[1].querySelector('select') || row.cells[1].querySelector('input');
-            const description = descriptionElement ? descriptionElement.value : '';
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h4>DARTS</h4>
+            <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="../dashboard.php" class="nav-link">
+                        <i class="fas fa-chart-line"></i> Dashboard
+                    </a></li>
+                <li><a href="suppliers.php" class="nav-link">
+                        <i class="fas fa-users"></i> Suppliers
+                    </a></li>
+                <li><a href="received_items.php" class="nav-link">
+                        <i class="fas fa-box-open"></i> Received Items
+                    </a></li>
+                <li><a href="procurement_statistics.php" class="nav-link">
+                        <i class="fas fa-chart-line"></i> Procurement Statistics
+                    </a></li>
+                <li><a href="procurement.php" class="nav-link">
+                        <i class="fas fa-shopping-cart"></i> Procurement Tables
+                    </a></li>
+                <li><a href="canvass_form.php" class="nav-link">
+                        <i class="fas fa-file-invoice"></i> Canvass Form
+                    </a></li>
+                <li><a href="canvass_form_list.php" class="nav-link">
+                        <i class="fas fa-list"></i> Canvass Form List
+                    </a></li>
+                <li><a href="purchase_order.php" class="nav-link active">
+                        <i class="fas fa-shopping-basket"></i> Purchase Order
+                    </a></li>
+                <li><a href="purchase_order_list.php" class="nav-link">
+                        <i class="fas fa-file-invoice"></i> Purchase Order List
+                    </a></li>
+                <li><a href="Inventory.php" class="nav-link">
+                        <i class="fas fa-box"></i> Supply Inventory
+                    </a></li>
+                <li><a href="property_inventory.php" class="nav-link">
+                        <i class="fas fa-boxes"></i> Property Inventory
+                    </a></li>
+                <li><a href="../logout.php" class="nav-link logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="content-header page-title">
+            <h1>Purchase Order</h1>
+            <p>Create and manage purchase orders for procurement</p>
+        </div>
+
+        <!-- Purchase Order Form -->
+        <div class="po-container">
+            <div class="po-header">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h2 class="po-title" style="margin-bottom: 10px;">PURCHASE ORDER</h2>
+                </div>
+                <div class="po-info">
+                    <div class="po-info-item">
+                        <span class="po-info-label">PO No.:</span>
+                        <input type="text" class="po-info-input" id="poNumber" placeholder="Enter PO Number" value="<?= $edit_mode && $po_data ? htmlspecialchars($po_data['po_number']) : '' ?>">
+                    </div>
+                    <div class="po-info-item">
+                        <span class="po-info-label">Date:</span>
+                        <input type="date" class="po-info-input" id="poDate" value="<?= $edit_mode && $po_data ? $po_data['po_date'] : date('Y-m-d') ?>">
+                    </div>
+                </div>
+            </div>
+            <a href="purchase_order_list.php" class="btn view-button mb-3 text-dark" style="background-color: var(--accent-orange); color: white; text-decoration: none; padding: 8px 16px; border-radius: 5px; display: inline-block; font-size: 14px;"><i class="fas fa-eye"></i> View Purchase Order List</a>
+
+            <div class="po-details">
+                <div class="po-details-row">
+                    <span class="po-details-label">TO:</span>
+                    <div class="supplier-dropdown-container">
+                        <input type="text" class="supplier-input" id="supplierNameInput" placeholder="Select or Search Supplier"
+                            onfocus="showSupplierDropdown(this)"
+                            oninput="filterSuppliers(this)"
+                            onblur="hideSupplierDropdown(this)"
+                            value="<?= $edit_mode && $po_data ? htmlspecialchars($po_data['supplier_name']) : '' ?>"
+                            autocomplete="off">
+                        <input type="hidden" id="supplierName" value="<?= $edit_mode && $po_data ? htmlspecialchars($po_data['supplier_name']) : '' ?>">
+                        <div id="supplierDropdown" class="supplier-list">
+                            <?php foreach ($suppliers_array as $supplier): ?>
+                                <div class="supplier-item" onmousedown="selectSupplier(this, '<?= htmlspecialchars(addslashes($supplier['supplier_name'])) ?>', '<?= htmlspecialchars(addslashes($supplier['full_address'])) ?>')">
+                                    <?= htmlspecialchars($supplier['supplier_name']) ?>
+                                </div>
+                            <?php endforeach; ?>
+                            <a href="suppliers.php?add=1&return=purchase_order.php" class="add-supplier-item">
+                                <i class="fas fa-plus"></i> Add New Supplier
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="po-details-row">
+                    <span class="po-details-label">ADDRESS:</span>
+                    <input type="text" class="po-details-input" id="supplierAddress" placeholder="Enter Supplier Address" value="<?= $edit_mode && $po_data ? htmlspecialchars($po_data['supplier_address']) : '' ?>">
+                </div>
+            </div>
+
+            <!-- Items Table -->
+            <table class="po-table" id="itemsTable">
+                <thead>
+                    <tr>
+                        <th style="width: 8%;">NO</th>
+                        <th style="width: 40%;">ITEM DESCRIPTION</th>
+                        <th style="width: 15%;">QUANTITY</th>
+                        <th style="width: 17%;">UNIT COST</th>
+                        <th style="width: 20%;">AMOUNT</th>
+                    </tr>
+                </thead>
+                <tbody id="itemsTableBody">
+                    <!-- Dynamic rows will be added here -->
+                    <tr style="background-color: var(--primary-green); color: white; font-weight: bold;">
+                        <td colspan="4" style="text-align: right; padding-right: 20px;">TOTAL AMOUNT:</td>
+                        <td id="totalAmount">₱0.00</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Row Management Buttons -->
+            <div class="row-management" style="margin: 20px 0; text-align: center;">
+                <button type="button" class="btn-po btn-success" onclick="addPORow()">
+                    <i class="fas fa-plus"></i> Add Row
+                </button>
+                <button type="button" class="btn-po btn-danger" style="background-color: var(--accent-red); color: white;" onclick="removeLastPORow()">
+                    <i class="fas fa-minus"></i> Remove Row
+                </button>
+            </div>
+
+            <!-- Payment Section -->
+            <div class="payment-section">
+                <div class="payment-item">
+                    <span class="payment-label">Payment Thru: Check</span>
+                    <input type="text" class="payment-input" placeholder="Enter Check Details Here">
+                </div>
+                <div class="payment-item">
+                    <span class="payment-label">Cash:</span>
+                    <input type="text" class="payment-input" placeholder="PHP 0.00">
+                </div>
+            </div>
+
+            <!-- Signature Section -->
+            <div class="signature-section">
+                <div class="signature-box">
+                    <div class="signature-line">Marilou L. Suarez</div>
+                    <div class="signature-title">Prepared By:</div>
+                    <div class="signature-subtitle">Purchasing Officer</div>
+                </div>
+                <div class="signature-box">
+                    <div class="signature-line">Lyca E. Monterola</div>
+                    <div class="signature-title">Checked By:</div>
+                    <div class="signature-subtitle">Finance Officer</div>
+                </div>
+                <div class="signature-box">
+                    <div class="signature-line">Dr. Delia C. Advincula</div>
+                    <div class="signature-title">Approved By:</div>
+                    <div class="signature-subtitle">VP for Finance and Administration</div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button type="button" class="btn-po btn-secondary" onclick="clearForm()">
+                    <i class="fas fa-undo"></i> Clear
+                </button>
+                <button type="button" class="btn-po btn-success" onclick="printPO()">
+                    <i class="fas fa-print"></i> Print
+                </button>
+                <button type="button" class="btn-po btn-primary" onclick="savePO()">
+                    <i class="fas fa-save"></i> Save
+                </button>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script>
+        // Calculate row total when quantity or unit cost changes
+        function calculateRowTotal(input) {
+            const row = input.closest('tr');
             const quantity = parseFloat(row.cells[2].querySelector('input').value) || 0;
-            const unit_cost = parseFloat(row.cells[3].querySelector('input').value) || 0;
+            const unitCost = parseFloat(row.cells[3].querySelector('input').value) || 0;
+            const amount = quantity * unitCost;
 
-            if (description && (quantity > 0 || unit_cost > 0)) {
-                items.push({
-                    description: description,
-                    quantity: quantity,
-                    unit_cost: unit_cost
-                });
+            row.cells[4].textContent = '₱' + amount.toFixed(2);
+
+            calculateGrandTotal();
+        }
+
+        // Calculate grand total
+        function calculateGrandTotal() {
+            const rows = document.querySelectorAll('#itemsTable tbody tr:not(:last-child)');
+            let total = 0;
+
+            rows.forEach(row => {
+                const amountText = row.cells[4].textContent.replace('₱', '').replace(',', '');
+                const amount = parseFloat(amountText) || 0;
+                total += amount;
+            });
+
+            document.getElementById('totalAmount').textContent = '₱' + total.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        // Clear form
+        function clearForm() {
+            if (confirm('Are you sure you want to clear all data?')) {
+                document.getElementById('poNumber').value = '';
+                document.getElementById('poDate').value = '<?= date('Y-m-d') ?>';
+                document.getElementById('supplierName').value = '';
+                document.getElementById('supplierNameInput').value = '';
+                document.getElementById('supplierAddress').value = '';
+
+                const inputs = document.querySelectorAll('#itemsTable input');
+                inputs.forEach(input => input.value = '');
+
+                const amountCells = document.querySelectorAll('.amount-cell');
+                amountCells.forEach(cell => cell.textContent = '₱0.00');
+
+                document.getElementById('totalAmount').textContent = '₱0.00';
             }
-        });
-
-        const data = {
-            po_number: poNumber,
-            po_date: poDate,
-            supplier_name: supplierName,
-            supplier_address: supplierAddress,
-            payment_method: 'Check',
-            payment_details: paymentDetails,
-            cash_amount: parseFloat(cashAmount.replace(/[^\d.-]/g, '')) || 0,
-            items: items
-        };
-
-        // Add po_id if in edit mode
-        const urlParams = new URLSearchParams(window.location.search);
-        const editId = urlParams.get('edit');
-        if (editId) {
-            data.po_id = editId;
         }
 
-        // Debug: Log the data being sent
-        console.log('Data being sent:', data);
-        console.log('JSON string:', JSON.stringify(data));
+        // Print PO
+        function printPO() {
+            // Hide completely empty rows to save space during print
+            const rows = Array.from(document.querySelectorAll('#itemsTable tbody tr:not(:last-child)'));
+            const modifiedRows = [];
 
-        // Show loading state
-        const saveBtn = document.querySelector('.btn-primary');
-        const originalText = saveBtn.innerHTML;
-        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-        saveBtn.disabled = true;
+            rows.forEach(row => {
+                const description = row.cells[1].querySelector('input')?.value.trim() || '';
+                const qty = row.cells[2].querySelector('input')?.value.trim() || '';
+                const unitCost = row.cells[3].querySelector('input')?.value.trim() || '';
+                const amount = row.cells[4].textContent.replace('₱', '').trim();
+                const total = parseFloat(amount) || 0;
 
-        fetch('../actions/save_purchase_order.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    alert('Purchase order saved successfully!\nPO Number: ' + (result.po_number || data.po_number));
-                    // Optionally refresh the existing PO dropdown
-                    location.reload();
-                } else {
-                    alert('Failed to save purchase order: ' + result.message);
+                if (!description && !qty && !unitCost && total === 0) {
+                    row.classList.add('print-hide');
+                    modifiedRows.push(row);
                 }
-            })
-            .catch(error => {
-                alert('Error saving purchase order: ' + error.message);
-            })
-            .finally(() => {
-                // Restore button state
-                saveBtn.innerHTML = originalText;
-                saveBtn.disabled = false;
             });
-    }
 
-    // Load existing PO
-    function loadExistingPO() {
-        const poId = document.getElementById('existingPOSelect').value;
+            const restore = () => {
+                modifiedRows.forEach(r => r.classList.remove('print-hide'));
+            };
 
-        if (!poId) {
-            alert('Please select a purchase order to load');
-            return;
+            // Ensure restoration after printing
+            const afterPrint = () => {
+                restore();
+                window.removeEventListener('afterprint', afterPrint);
+            };
+            window.addEventListener('afterprint', afterPrint);
+
+            window.print();
         }
 
-        fetch('../actions/load_purchase_order.php?po_id=' + poId)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Fill form fields
-                    document.getElementById('poNumber').value = data.po_number;
-                    document.getElementById('poDate').value = data.po_date;
-                    document.getElementById('supplierName').value = data.supplier_name;
-                    document.getElementById('supplierNameInput').value = data.supplier_name;
-                    document.getElementById('supplierAddress').value = data.supplier_address || '';
+        // Save PO
+        function savePO() {
+            const poNumber = document.getElementById('poNumber').value;
+            const poDate = document.getElementById('poDate').value;
+            const supplierName = document.getElementById('supplierName').value;
+            const supplierAddress = document.getElementById('supplierAddress').value;
+            const paymentDetails = document.querySelector('.payment-input[placeholder="Enter Check Details Here"]').value;
+            const cashAmount = document.querySelector('.payment-input[placeholder="PHP 0.00"]').value;
 
-                    // Fill payment details
-                    if (data.payment_details) {
-                        document.querySelector('.payment-input[placeholder="Enter Check Details Here"]').value = data.payment_details;
-                    }
-                    if (data.cash_amount > 0) {
-                        document.querySelector('.payment-input[placeholder="PHP 0.00"]').value = 'PHP ' + data.cash_amount.toFixed(2);
-                    }
-
-                    // Clear existing items
-                    const rows = document.querySelectorAll('#itemsTable tbody tr:not(:last-child)');
-                    rows.forEach(row => {
-                        row.cells[1].querySelector('input').value = '';
-                        row.cells[2].querySelector('input').value = '';
-                        row.cells[3].querySelector('input').value = '';
-                        row.cells[4].textContent = '₱0.00';
-                    });
-
-                    // Fill items
-                    data.items.forEach((item, index) => {
-                        if (index < rows.length) {
-                            const row = rows[index];
-                            row.cells[1].querySelector('input').value = item.item_description;
-                            row.cells[2].querySelector('input').value = item.quantity;
-                            row.cells[3].querySelector('input').value = item.unit_cost;
-                            row.cells[4].textContent = '₱' + item.line_total.toFixed(2);
-                        }
-                    });
-
-                    calculateGrandTotal();
-                    alert('Purchase order loaded successfully!');
-                } else {
-                    alert('Failed to load purchase order: ' + data.message);
-                }
-            })
-            .catch(error => {
-                alert('Error loading purchase order: ' + error.message);
-            });
-    }
-
-    // Load canvass items for dropdown
-    let canvassItems = [];
-
-    function loadCanvassItems() {
-        fetch('../api/get_canvass_items.php')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok: ' + response.statusText);
-                }
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    return response.text().then(text => {
-                        throw new Error('Expected JSON but received: ' + text.substring(0, 100));
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    canvassItems = data.items;
-                } else {
-                    console.error('Failed to load canvass items:', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error loading canvass items:', error.message);
-            });
-    }
-
-    // Add new row to the purchase order table
-    function addPORow() {
-        const tbody = document.getElementById('itemsTableBody');
-        const totalRow = tbody.lastElementChild; // Get the total row
-        const rowCount = tbody.querySelectorAll('tr:not(:last-child)').length + 1;
-
-        // Build options for the dropdown - extract unique descriptions from canvassItems
-        let optionsHtml = '<option value="">Choose item from canvass list</option>';
-        const uniqueDescriptions = [...new Set(canvassItems.map(item => item.description))];
-        uniqueDescriptions.forEach(description => {
-            optionsHtml += `<option value="${description}">${description}</option>`;
-        });
-
-        const newRow = document.createElement('tr');
-        newRow.innerHTML = `
-            <td>${rowCount}</td>
-            <td>
-                <select class="form-select form-select-sm" onchange="calculateRowTotal(this)">
-                    ${optionsHtml}
-                </select>
-            </td>
-            <td><input type="number" placeholder="0" onchange="calculateRowTotal(this)" min="0"></td>
-            <td><input type="number" placeholder="0.00" onchange="calculateRowTotal(this)" min="0" step="0.01"></td>
-            <td class="amount-cell">₱0.00</td>
-        `;
-
-        // Insert before the total row
-        tbody.insertBefore(newRow, totalRow);
-    }
-
-    // Suppliers Data
-    let suppliersData = [];
-
-    // Load Suppliers
-    function loadSuppliers() {
-        console.log('Loading suppliers...');
-        fetch('../api/get_suppliers.php')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok: ' + response.statusText);
-                }
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    return response.text().then(text => {
-                        throw new Error('Expected JSON but received: ' + text.substring(0, 100));
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    suppliersData = data.suppliers;
-                    initSupplierSearch();
-
-                    // Pre-fill if in edit mode
-                    const preselectedValue = document.getElementById('supplierName').value;
-                    if (preselectedValue) {
-                        document.getElementById('supplierNameInput').value = preselectedValue;
-                        updateSupplierAddress();
-                    }
-                } else {
-                    console.error('Failed to load suppliers:', data.message);
-                    alert('Error loading suppliers: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error loading suppliers:', error.message);
-                alert('Error loading suppliers: ' + error.message);
-            });
-    }
-
-    // Initialize Supplier Search
-    function initSupplierSearch() {
-        const input = document.getElementById('supplierNameInput');
-        const dropdown = document.getElementById('supplierDropdown');
-        const hiddenInput = document.getElementById('supplierName');
-        let currentFocus = -1;
-
-        input.addEventListener('input', function() {
-            const val = this.value;
-            dropdown.innerHTML = '';
-            currentFocus = -1;
-
-            if (!val) {
-                dropdown.style.display = 'none';
-                hiddenInput.value = '';
-                updateSupplierAddress();
+            if (!poNumber || !poDate || !supplierName) {
+                alert('Please fill in all required fields (PO Number, Date, and Supplier Name)');
                 return;
             }
 
-            const matches = suppliersData.filter(s =>
-                s.name.toLowerCase().includes(val.toLowerCase())
-            );
+            const items = [];
+            const rows = document.querySelectorAll('#itemsTable tbody tr:not(:last-child)');
+            rows.forEach((row, index) => {
+                const descriptionElement = row.cells[1].querySelector('select') || row.cells[1].querySelector('input');
+                const description = descriptionElement ? descriptionElement.value : '';
+                const quantity = parseFloat(row.cells[2].querySelector('input').value) || 0;
+                const unit_cost = parseFloat(row.cells[3].querySelector('input').value) || 0;
 
-            if (matches.length > 0) {
-                matches.forEach((match, index) => {
-                    const div = document.createElement('div');
-                    div.className = 'search-item';
-                    div.innerHTML = `
-                        <strong>${match.name}</strong>
-                        <span class="supplier-address">${match.address}</span>
-                    `;
-                    div.addEventListener('click', () => {
-                        input.value = match.name;
-                        hiddenInput.value = match.name;
-                        dropdown.style.display = 'none';
-                        updateSupplierAddress();
+                if (description && (quantity > 0 || unit_cost > 0)) {
+                    items.push({
+                        description: description,
+                        quantity: quantity,
+                        unit_cost: unit_cost
                     });
-                    dropdown.appendChild(div);
-                });
-                dropdown.style.display = 'block';
-            } else {
-                dropdown.style.display = 'none';
-                // Allow typing new supplier
-                hiddenInput.value = val;
-            }
-        });
-
-        // Add keyboard navigation
-        input.addEventListener('keydown', function(e) {
-            const items = dropdown.getElementsByClassName('search-item');
-            if (e.keyCode == 40) { // Down
-                currentFocus++;
-                addActive(items);
-            } else if (e.keyCode == 38) { // Up
-                currentFocus--;
-                addActive(items);
-            } else if (e.keyCode == 13) { // Enter
-                e.preventDefault();
-                if (currentFocus > -1 && items[currentFocus]) {
-                    items[currentFocus].click();
                 }
-            } else if (e.keyCode == 27) { // Escape
-                dropdown.style.display = 'none';
-            }
-        });
-
-        function addActive(items) {
-            if (!items) return false;
-            removeActive(items);
-            if (currentFocus >= items.length) currentFocus = 0;
-            if (currentFocus < 0) currentFocus = (items.length - 1);
-            items[currentFocus].classList.add('active');
-            items[currentFocus].scrollIntoView({
-                block: 'nearest'
             });
-        }
 
-        function removeActive(items) {
-            for (let i = 0; i < items.length; i++) {
-                items[i].classList.remove('active');
+            const data = {
+                po_number: poNumber,
+                po_date: poDate,
+                supplier_name: supplierName,
+                supplier_address: supplierAddress,
+                payment_method: 'Check',
+                payment_details: paymentDetails,
+                cash_amount: parseFloat(cashAmount.replace(/[^\d.-]/g, '')) || 0,
+                items: items
+            };
+
+            // Add po_id if in edit mode
+            const urlParams = new URLSearchParams(window.location.search);
+            const editId = urlParams.get('edit');
+            if (editId) {
+                data.po_id = editId;
             }
+
+            // Debug: Log the data being sent
+            console.log('Data being sent:', data);
+            console.log('JSON string:', JSON.stringify(data));
+
+            // Show loading state
+            const saveBtn = document.querySelector('.btn-primary');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            saveBtn.disabled = true;
+
+            fetch('../actions/save_purchase_order.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('Purchase order saved successfully!\nPO Number: ' + (result.po_number || data.po_number));
+                        // Optionally refresh the existing PO dropdown
+                        location.reload();
+                    } else {
+                        alert('Failed to save purchase order: ' + result.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error saving purchase order: ' + error.message);
+                })
+                .finally(() => {
+                    // Restore button state
+                    saveBtn.innerHTML = originalText;
+                    saveBtn.disabled = false;
+                });
         }
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (e.target !== input && e.target !== dropdown) {
-                dropdown.style.display = 'none';
+        // Load existing PO
+        function loadExistingPO() {
+            const poId = document.getElementById('existingPOSelect').value;
+
+            if (!poId) {
+                alert('Please select a purchase order to load');
+                return;
             }
-        });
 
-        // Sync hidden input with manual typing if no match selected
-        input.addEventListener('blur', function() {
-            setTimeout(() => {
-                hiddenInput.value = this.value;
-                updateSupplierAddress();
-            }, 200);
-        });
-    }
+            fetch('../actions/load_purchase_order.php?po_id=' + poId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Fill form fields
+                        document.getElementById('poNumber').value = data.po_number;
+                        document.getElementById('poDate').value = data.po_date;
+                        document.getElementById('supplierName').value = data.supplier_name;
+                        document.getElementById('supplierNameInput').value = data.supplier_name;
+                        document.getElementById('supplierAddress').value = data.supplier_address || '';
 
-    // Update Supplier Address
-    function updateSupplierAddress() {
-        const selectedName = document.getElementById('supplierName').value || document.getElementById('supplierNameInput').value;
-        const addressInput = document.getElementById('supplierAddress');
+                        // Fill payment details
+                        if (data.payment_details) {
+                            document.querySelector('.payment-input[placeholder="Enter Check Details Here"]').value = data.payment_details;
+                        }
+                        if (data.cash_amount > 0) {
+                            document.querySelector('.payment-input[placeholder="PHP 0.00"]').value = 'PHP ' + data.cash_amount.toFixed(2);
+                        }
 
-        const supplier = suppliersData.find(s => s.name === selectedName);
-        if (supplier) {
-            addressInput.value = supplier.address;
-        }
-        // Don't clear if user is typing a new one manually
-    }
+                        // Clear existing items
+                        const rows = document.querySelectorAll('#itemsTable tbody tr:not(:last-child)');
+                        rows.forEach(row => {
+                            row.cells[1].querySelector('input').value = '';
+                            row.cells[2].querySelector('input').value = '';
+                            row.cells[3].querySelector('input').value = '';
+                            row.cells[4].textContent = '₱0.00';
+                        });
 
-    // Initialize
-    document.addEventListener('DOMContentLoaded', function() {
-        loadSuppliers();
-        loadCanvassItems();
-    });
+                        // Fill items
+                        data.items.forEach((item, index) => {
+                            if (index < rows.length) {
+                                const row = rows[index];
+                                row.cells[1].querySelector('input').value = item.item_description;
+                                row.cells[2].querySelector('input').value = item.quantity;
+                                row.cells[3].querySelector('input').value = item.unit_cost;
+                                row.cells[4].textContent = '₱' + item.line_total.toFixed(2);
+                            }
+                        });
 
-    // Auto-fill item details based on description and selected supplier
-    function autoFillItemDetails(selectElement) {
-        const row = selectElement.closest('tr');
-        const description = selectElement.value;
-        const supplierName = document.getElementById('supplierName').value;
-
-        if (!description || !supplierName) return;
-
-        // Find match for item + supplier
-        const matchedItem = canvassItems.find(item =>
-            item.description === description && item.supplier === supplierName
-        );
-
-        const quantityInput = row.cells[2].querySelector('input');
-        const unitCostInput = row.cells[3].querySelector('input');
-
-        if (matchedItem) {
-            quantityInput.value = matchedItem.quantity;
-            unitCostInput.value = matchedItem.unit_cost;
-        } else {
-            // Optional: clear if no match found for this supplier, or keep empty
-            quantityInput.value = '';
-            unitCostInput.value = '';
+                        calculateGrandTotal();
+                        alert('Purchase order loaded successfully!');
+                    } else {
+                        alert('Failed to load purchase order: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error loading purchase order: ' + error.message);
+                });
         }
 
-        // Recalculate total immediately
-        calculateRowTotal(selectElement);
-    }
+        // Load canvass items for dropdown
+        let canvassItems = [];
 
-    // Add row with existing data for edit mode
-    function addPORowWithData(itemNumber, description, quantity, unitCost) {
-        const tbody = document.getElementById('itemsTableBody');
-        const totalRow = tbody.lastElementChild; // Get the total row
-
-        // Build options for the dropdown
-        let optionsHtml = '<option value="">Choose items that you canvass</option>';
-
-        // Check if the existing description is in canvass items
-        let foundInCanvass = false;
-        canvassItems.forEach(item => {
-            const selected = item.description === description ? 'selected' : '';
-            if (item.description === description) foundInCanvass = true;
-            optionsHtml += `<option value="${item.description}" ${selected}>${item.description}</option>`;
-        });
-
-        // If the existing description is not in canvass items, add it as a selected option
-        if (!foundInCanvass && description && description.trim() !== '') {
-            optionsHtml += `<option value="${description}" selected>${description}</option>`;
+        function loadCanvassItems() {
+            fetch('../api/get_canvass_items.php')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.statusText);
+                    }
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        return response.text().then(text => {
+                            throw new Error('Expected JSON but received: ' + text.substring(0, 100));
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        canvassItems = data.items;
+                    } else {
+                        console.error('Failed to load canvass items:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading canvass items:', error.message);
+                });
         }
 
-        const newRow = document.createElement('tr');
-        newRow.innerHTML = `
-            <td>${itemNumber}</td>
+        // Build a unique datalist id for each row
+        let datalistCounter = 0;
+
+        // Add new row to the purchase order table
+        function addPORow() {
+            const tbody = document.getElementById('itemsTableBody');
+            const totalRow = tbody.lastElementChild;
+            const rowCount = tbody.querySelectorAll('tr:not(:last-child)').length + 1;
+            const listId = 'canvass-list-' + (++datalistCounter);
+
+            // Build datalist options from canvass items
+            const uniqueDescriptions = [...new Set(canvassItems.map(item => item.description))];
+            let datalistHtml = `<datalist id="${listId}">`;
+            uniqueDescriptions.forEach(d => {
+                datalistHtml += `<option value="${d}"></option>`;
+            });
+            datalistHtml += '</datalist>';
+
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+            <td>${rowCount}</td>
             <td>
-                <select class="form-select form-select-sm" onchange="calculateRowTotal(this)">
-                    ${optionsHtml}
-                </select>
+                ${datalistHtml}
+                <input type="text" class="form-control form-control-sm" list="${listId}"
+                    placeholder="Type or choose from canvass list"
+                    oninput="onItemSelect(this)" onchange="onItemSelect(this)">
             </td>
-            <td><input type="number" placeholder="0" onchange="calculateRowTotal(this)" min="0"></td>
-            <td><input type="number" placeholder="0.00" onchange="calculateRowTotal(this)" min="0" step="0.01"></td>
+            <td><input type="number" placeholder="0" oninput="calculateRowTotal(this)" min="0"></td>
+            <td><input type="number" placeholder="0.00" oninput="calculateRowTotal(this)" min="0" step="0.01"></td>
             <td class="amount-cell">₱0.00</td>
         `;
 
-        // Insert before the total row
-        tbody.insertBefore(newRow, totalRow);
+            // Insert before the total row
+            tbody.insertBefore(newRow, totalRow);
+        }
 
-        // Populate the row with existing data
-        const quantityInput = newRow.cells[2].querySelector('input');
-        const unitCostInput = newRow.cells[3].querySelector('input');
+        // Searchable Dropdown Functions
+        function showSupplierDropdown(input) {
+            const list = input.nextElementSibling.nextElementSibling; // Skip hidden input
+            list.style.display = 'block';
+        }
 
-        quantityInput.value = quantity;
-        unitCostInput.value = unitCost;
+        function hideSupplierDropdown(input) {
+            const list = input.nextElementSibling.nextElementSibling;
+            // Use timeout to allow mousedown on items to fire first
+            setTimeout(() => {
+                list.style.display = 'none';
+            }, 200);
+        }
 
-        // Calculate and display total
-        const lineTotal = quantity * unitCost;
-        newRow.cells[4].textContent = '₱' + lineTotal.toFixed(2);
+        function filterSuppliers(input) {
+            const filter = input.value.toLowerCase();
+            const list = input.nextElementSibling.nextElementSibling;
+            const items = list.getElementsByClassName('supplier-item');
 
-        // Recalculate grand total
-        calculateGrandTotal();
-    }
+            for (let i = 0; i < items.length; i++) {
+                const txtValue = items[i].textContent || items[i].innerText;
+                if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                    items[i].style.display = "";
+                } else {
+                    items[i].style.display = "none";
+                }
+            }
+        }
 
-    // Remove last row from the purchase order table
-    function removeLastPORow() {
-        const tbody = document.getElementById('itemsTableBody');
-        const rows = tbody.querySelectorAll('tr:not(:last-child)'); // Exclude total row
+        function selectSupplier(item, name, address) {
+            const container = item.closest('.supplier-dropdown-container');
+            const input = container.querySelector('.supplier-input');
+            const hiddenInput = document.getElementById('supplierName');
+            const addressInput = document.getElementById('supplierAddress');
 
-        if (rows.length > 0) {
-            rows[rows.length - 1].remove();
-            // Update row numbers
-            updateRowNumbers();
+            input.value = name;
+            hiddenInput.value = name;
+            addressInput.value = address;
+
+            container.querySelector('.supplier-list').style.display = 'none';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSuppliers();
+            loadCanvassItems();
+        });
+
+        // Auto-fill item details based on description and selected supplier
+        function autoFillItemDetails(selectElement) {
+            const row = selectElement.closest('tr');
+            const description = selectElement.value;
+            const supplierName = document.getElementById('supplierName').value;
+
+            if (!description || !supplierName) return;
+
+            // Find match for item + supplier
+            const matchedItem = canvassItems.find(item =>
+                item.description === description && item.supplier === supplierName
+            );
+
+            const quantityInput = row.cells[2].querySelector('input');
+            const unitCostInput = row.cells[3].querySelector('input');
+
+            if (matchedItem) {
+                quantityInput.value = matchedItem.quantity;
+                unitCostInput.value = matchedItem.unit_cost;
+            } else {
+                // Optional: clear if no match found for this supplier, or keep empty
+                quantityInput.value = '';
+                unitCostInput.value = '';
+            }
+
+            // Recalculate total immediately
+            calculateRowTotal(selectElement);
+        }
+
+        // Add row with existing data for edit mode
+        function addPORowWithData(itemNumber, description, quantity, unitCost) {
+            const tbody = document.getElementById('itemsTableBody');
+            const totalRow = tbody.lastElementChild;
+            const listId = 'canvass-list-' + (++datalistCounter);
+
+            // Build datalist options from canvass items
+            const uniqueDescriptions = [...new Set(canvassItems.map(item => item.description))];
+            let datalistHtml = `<datalist id="${listId}">`;
+            uniqueDescriptions.forEach(d => {
+                datalistHtml += `<option value="${d}"></option>`;
+            });
+            datalistHtml += '</datalist>';
+
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+            <td>${itemNumber}</td>
+            <td>
+                ${datalistHtml}
+                <input type="text" class="form-control form-control-sm" list="${listId}"
+                    placeholder="Type or choose from canvass list"
+                    oninput="onItemSelect(this)" onchange="onItemSelect(this)">
+            </td>
+            <td><input type="number" placeholder="0" oninput="calculateRowTotal(this)" min="0"></td>
+            <td><input type="number" placeholder="0.00" oninput="calculateRowTotal(this)" min="0" step="0.01"></td>
+            <td class="amount-cell">₱0.00</td>
+        `;
+
+            // Insert before the total row
+            tbody.insertBefore(newRow, totalRow);
+
+            // Populate the description input and qty/cost
+            newRow.cells[1].querySelector('input[type="text"]').value = description;
+            const quantityInput = newRow.cells[2].querySelector('input');
+            const unitCostInput = newRow.cells[3].querySelector('input');
+
+            quantityInput.value = quantity;
+            unitCostInput.value = unitCost;
+
+            // Calculate and display total
+            const lineTotal = quantity * unitCost;
+            newRow.cells[4].textContent = '₱' + lineTotal.toFixed(2);
+
+            // Recalculate grand total
             calculateGrandTotal();
         }
-    }
 
-    // Update row numbers after adding/removing rows
-    function updateRowNumbers() {
-        const tbody = document.getElementById('itemsTableBody');
-        const rows = tbody.querySelectorAll('tr:not(:last-child)');
+        // Remove last row from the purchase order table
+        function removeLastPORow() {
+            const tbody = document.getElementById('itemsTableBody');
+            const rows = tbody.querySelectorAll('tr:not(:last-child)'); // Exclude total row
 
-        rows.forEach((row, index) => {
-            row.cells[0].textContent = index + 1;
-        });
-    }
-
-    // Initialize with one empty row or load existing data
-    document.addEventListener('DOMContentLoaded', function() {
-        // Load canvass items first
-        loadCanvassItems();
-
-        <?php if ($edit_mode && !empty($po_items)): ?>
-            // Wait for canvass items to load before adding existing PO items
-            setTimeout(() => {
-                <?php foreach ($po_items as $item): ?>
-                    addPORowWithData(
-                        <?= $item['item_number'] ?>,
-                        '<?= htmlspecialchars($item['item_description']) ?>',
-                        <?= $item['quantity'] ?>,
-                        <?= $item['unit_cost'] ?>
-                    );
-                <?php endforeach; ?>
-            }, 500);
-        <?php else: ?>
-            // Wait for canvass items to load before adding empty row
-            setTimeout(() => {
-                addPORow();
-            }, 500);
-        <?php endif; ?>
-    });
-
-    // Generate new PO number
-    function generateNewPONumber() {
-        fetch('../actions/generate_po_number.php')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('poNumber').value = data.po_number;
-                    // Clear form for new PO
-                    clearForm();
-                    document.getElementById('poNumber').value = data.po_number;
-                    document.getElementById('existingPOSelect').value = '';
-                } else {
-                    alert('Failed to generate PO number: ' + data.message);
-                }
-            })
-            .catch(error => {
-                alert('Error generating PO number: ' + error.message);
-            });
-    }
-    // Autofill item details and calculate total
-    function onItemSelect(select) {
-        const row = select.closest('tr');
-        const description = select.value;
-        const item = canvassItems.find(i => i.description === description);
-
-        if (item) {
-            row.cells[2].querySelector('input').value = item.quantity;
-            row.cells[3].querySelector('input').value = item.unit_cost;
-        } else if (description === '') {
-            // Clear if empty selection
-            row.cells[2].querySelector('input').value = '';
-            row.cells[3].querySelector('input').value = '';
+            if (rows.length > 0) {
+                rows[rows.length - 1].remove();
+                // Update row numbers
+                updateRowNumbers();
+                calculateGrandTotal();
+            }
         }
 
-        calculateRowTotal(select);
-    }
-</script>
+        // Update row numbers after adding/removing rows
+        function updateRowNumbers() {
+            const tbody = document.getElementById('itemsTableBody');
+            const rows = tbody.querySelectorAll('tr:not(:last-child)');
 
-<style media="print">
-    @page {
-        size: A4;
-        margin: 0.5in;
-    }
+            rows.forEach((row, index) => {
+                row.cells[0].textContent = index + 1;
+            });
+        }
 
-    .view-button {
-        display: none !important;
-    }
+        // Initialize with one empty row or load existing data
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load canvass items first
+            loadCanvassItems();
 
-    .page-title {
-        display: none !important;
-    }
+            <?php if ($edit_mode && !empty($po_items)): ?>
+                // Wait for canvass items to load before adding existing PO items
+                setTimeout(() => {
+                    <?php foreach ($po_items as $item): ?>
+                        addPORowWithData(
+                            <?= $item['item_number'] ?>,
+                            '<?= htmlspecialchars($item['item_description']) ?>',
+                            <?= $item['quantity'] ?>,
+                            <?= $item['unit_cost'] ?>
+                        );
+                    <?php endforeach; ?>
+                }, 500);
+            <?php else: ?>
+                // Wait for canvass items to load before adding empty row
+                setTimeout(() => {
+                    addPORow();
+                }, 500);
+            <?php endif; ?>
+        });
 
-    .sidebar,
-    .action-buttons,
-    .row-management {
-        display: none !important;
-    }
+        // Generate new PO number
+        function generateNewPONumber() {
+            fetch('../actions/generate_po_number.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('poNumber').value = data.po_number;
+                        // Clear form for new PO
+                        clearForm();
+                        document.getElementById('poNumber').value = data.po_number;
+                        document.getElementById('existingPOSelect').value = '';
+                    } else {
+                        alert('Failed to generate PO number: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error generating PO number: ' + error.message);
+                });
+        }
+        // Autofill item details, supplier info, and calculate total
+        function onItemSelect(select) {
+            const row = select.closest('tr');
+            const description = select.value;
+            const item = canvassItems.find(i => i.description === description);
 
-    .main-content {
-        margin-left: 0 !important;
-        padding: 0 !important;
-    }
+            if (item) {
+                // Fill quantity and unit cost
+                row.cells[2].querySelector('input').value = item.quantity;
+                row.cells[3].querySelector('input').value = item.unit_cost;
 
-    .po-container {
-        box-shadow: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        font-size: 10pt;
-        line-height: 1.2;
-    }
+                // Always update supplier (TO:) and Address based on selected item
+                const supplierNameInput = document.getElementById('supplierNameInput');
+                const supplierNameHidden = document.getElementById('supplierName');
+                const supplierAddressInput = document.getElementById('supplierAddress');
 
-    body {
-        background: white !important;
-        font-family: Arial, sans-serif;
-        font-size: 10pt;
-    }
+                if (item.supplier && supplierNameInput) {
+                    supplierNameInput.value = item.supplier;
+                    supplierNameHidden.value = item.supplier;
 
-    /* Header styling */
-    .po-header {
-        text-align: center;
-        margin-bottom: 15px;
-        border-bottom: 2px solid #000;
-        padding-bottom: 10px;
-    }
+                    // Find matching address from the rendered supplier dropdown items
+                    const allSupplierItems = document.querySelectorAll('#supplierDropdown .supplier-item');
+                    for (const el of allSupplierItems) {
+                        const onmd = el.getAttribute('onmousedown') || '';
+                        if (onmd.includes(item.supplier)) {
+                            const match = onmd.match(/selectSupplier\(this,\s*'[^']*',\s*'([^']*)'\)/);
+                            if (match && supplierAddressInput) {
+                                supplierAddressInput.value = match[1];
+                            }
+                            break;
+                        }
+                    }
+                }
+            } else if (description === '') {
+                // Clear row data if empty selection
+                row.cells[2].querySelector('input').value = '';
+                row.cells[3].querySelector('input').value = '';
+            }
 
-    .po-header h1 {
-        font-size: 14pt;
-        font-weight: bold;
-        margin: 0;
-        text-transform: uppercase;
-    }
+            calculateRowTotal(select);
+        }
+    </script>
 
-    .po-header .college-info {
-        font-size: 9pt;
-        margin: 2px 0;
-    }
+    <style media="print">
+        @page {
+            size: A4;
+            margin: 0.5in;
+        }
 
-    /* Form details section */
-    .po-details {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 15px;
-        font-size: 9pt;
-    }
+        .view-button {
+            display: none !important;
+        }
 
-    .po-details .left-details,
-    .po-details .right-details {
-        width: 48%;
-    }
+        .page-title {
+            display: none !important;
+        }
 
-    .po-details label {
-        font-weight: bold;
-        display: inline-block;
-        width: 80px;
-    }
+        .sidebar,
+        .action-buttons,
+        .row-management {
+            display: none !important;
+        }
 
-    .po-details input {
-        border: none;
-        border-bottom: 1px solid #000;
-        background: transparent;
-        font-size: 9pt;
-        padding: 2px;
-    }
+        .main-content {
+            margin-left: 0 !important;
+            padding: 0 !important;
+        }
 
-    /* Table styling */
-    .po-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 15px;
-        font-size: 9pt;
-    }
+        .po-container {
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            font-size: 10pt;
+            line-height: 1.2;
+        }
 
-    .po-table th,
-    .po-table td {
-        border: 1px solid #000;
-        padding: 4px;
-        text-align: left;
-        vertical-align: top;
-    }
+        body {
+            background: white !important;
+            font-family: Arial, sans-serif;
+            font-size: 10pt;
+        }
 
-    .po-table th {
-        background-color: #f0f0f0;
-        font-weight: bold;
-        text-align: center;
-        font-size: 8pt;
-        text-transform: uppercase;
-    }
+        /* Header styling */
+        .po-header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
 
-    .po-table .qty-col,
-    .po-table .unit-cost-col,
-    .po-table .amount-col {
-        text-align: right;
-        width: 12%;
-    }
+        .po-header h1 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 0;
+            text-transform: uppercase;
+        }
 
-    .po-table .item-col {
-        width: 40%;
-    }
+        .po-header .college-info {
+            font-size: 9pt;
+            margin: 2px 0;
+        }
 
-    .po-table .unit-col {
-        width: 12%;
-        text-align: center;
-    }
+        /* Form details section */
+        .po-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 9pt;
+        }
 
-    .po-table .no-col {
-        width: 8%;
-        text-align: center;
-    }
+        .po-details .left-details,
+        .po-details .right-details {
+            width: 48%;
+        }
 
-    .po-table input {
-        border: none;
-        background: transparent;
-        width: 100%;
-        font-size: 9pt;
-        padding: 2px;
-    }
+        .po-details label {
+            font-weight: bold;
+            display: inline-block;
+            width: 80px;
+        }
 
-    /* Total row styling */
-    .po-table .total-row {
-        background-color: #f0f0f0 !important;
-        font-weight: bold;
-    }
+        .po-details input {
+            border: none;
+            border-bottom: 1px solid #000;
+            background: transparent;
+            font-size: 9pt;
+            padding: 2px;
+        }
 
-    .po-table .total-row td {
-        text-align: right;
-        font-size: 10pt;
-    }
+        /* Table styling */
+        .po-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 9pt;
+        }
 
-    /* Signature section */
-    .signature-section {
-        margin-top: 20px;
-        display: flex;
-        justify-content: space-between;
-        font-size: 9pt;
-    }
+        .po-table th,
+        .po-table td {
+            border: 1px solid #000;
+            padding: 4px;
+            text-align: left;
+            vertical-align: top;
+        }
 
-    .signature-box {
-        width: 30%;
-        text-align: center;
-    }
+        .po-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            text-align: center;
+            font-size: 8pt;
+            text-transform: uppercase;
+        }
 
-    .signature-line {
-        border-top: 1px solid #000;
-        margin-top: 30px;
-        padding-top: 5px;
-        font-weight: bold;
-    }
+        .po-table .qty-col,
+        .po-table .unit-cost-col,
+        .po-table .amount-col {
+            text-align: right;
+            width: 12%;
+        }
 
-    .signature-title {
-        font-size: 8pt;
-        margin-top: 2px;
-    }
+        .po-table .item-col {
+            width: 40%;
+        }
 
-    /* Payment section */
-    .payment-section {
-        margin-top: 15px;
-        font-size: 9pt;
-        border: 1px solid #000;
-        padding: 8px;
-    }
+        .po-table .unit-col {
+            width: 12%;
+            text-align: center;
+        }
 
-    .payment-section h4 {
-        margin: 0 0 8px 0;
-        font-size: 10pt;
-        text-transform: uppercase;
-    }
+        .po-table .no-col {
+            width: 8%;
+            text-align: center;
+        }
 
-    .payment-details {
-        display: flex;
-        justify-content: space-between;
-    }
+        .po-table input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            font-size: 9pt;
+            padding: 2px;
+        }
 
-    .payment-details .payment-item {
-        margin-right: 20px;
-    }
+        /* Total row styling */
+        .po-table .total-row {
+            background-color: #f0f0f0 !important;
+            font-weight: bold;
+        }
 
-    .payment-details label {
-        font-weight: bold;
-        margin-right: 5px;
-    }
+        .po-table .total-row td {
+            text-align: right;
+            font-size: 10pt;
+        }
 
-    .payment-details input {
-        border: none;
-        border-bottom: 1px solid #000;
-        background: transparent;
-        font-size: 9pt;
-        padding: 2px;
-        width: 120px;
-    }
+        /* Signature section */
+        .signature-section {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 9pt;
+        }
 
-    /* Compact spacing for one-page fit */
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        margin: 5px 0;
-    }
+        .signature-box {
+            width: 30%;
+            text-align: center;
+        }
 
-    p {
-        margin: 3px 0;
-    }
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-top: 30px;
+            padding-top: 5px;
+            font-weight: bold;
+        }
 
-    .form-group {
-        margin-bottom: 8px;
-    }
+        .signature-title {
+            font-size: 8pt;
+            margin-top: 2px;
+        }
 
-    /* Hide empty rows in print */
-    .print-hide {
-        display: none !important;
-    }
-</style>
+        /* Payment section */
+        .payment-section {
+            margin-top: 15px;
+            font-size: 9pt;
+            border: 1px solid #000;
+            padding: 8px;
+        }
 
-<?php include '../includes/footer.php'; ?>
+        .payment-section h4 {
+            margin: 0 0 8px 0;
+            font-size: 10pt;
+            text-transform: uppercase;
+        }
+
+        .payment-details {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .payment-details .payment-item {
+            margin-right: 20px;
+        }
+
+        .payment-details label {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .payment-details input {
+            border: none;
+            border-bottom: 1px solid #000;
+            background: transparent;
+            font-size: 9pt;
+            padding: 2px;
+            width: 120px;
+        }
+
+        /* Compact spacing for one-page fit */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            margin: 5px 0;
+        }
+
+        p {
+            margin: 3px 0;
+        }
+
+        .form-group {
+            margin-bottom: 8px;
+        }
+
+        /* Hide empty rows in print */
+        .print-hide {
+            display: none !important;
+        }
+    </style>
+
+    <?php include '../includes/footer.php'; ?>
+</body>
+
+</html>

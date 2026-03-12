@@ -1059,9 +1059,6 @@ if (isset($_SESSION['error'])) {
             <li><a href="received_items.php" class="nav-link">
                     <i class="fas fa-box-open"></i> Received Items
                 </a></li>
-            <li><a href="purchase_order_list.php" class="nav-link">
-                    <i class="fas fa-file-invoice"></i> Purchase Order List
-                </a></li>
             <li><a href="procurement_statistics.php" class="nav-link">
                     <i class="fas fa-chart-line"></i> Procurement Statistics
                 </a></li>
@@ -1076,6 +1073,9 @@ if (isset($_SESSION['error'])) {
                 </a></li>
             <li><a href="purchase_order.php" class="nav-link">
                     <i class="fas fa-shopping-basket"></i> Purchase Order
+                </a></li>
+            <li><a href="purchase_order_list.php" class="nav-link">
+                    <i class="fas fa-file-invoice"></i> Purchase Order List
                 </a></li>
             <li><a href="Inventory.php" class="nav-link">
                     <i class="fas fa-box"></i> Supply Inventory
