@@ -29,7 +29,7 @@ $canvass_query = "
     FROM canvass c
     LEFT JOIN user u ON c.created_by = u.id
     LEFT JOIN canvass_items ci ON c.canvass_id = ci.canvass_id
-    WHERE c.hide_canvass = '0'
+    WHERE (c.hide_canvass = '0' OR c.hide_canvass IS NULL)
     GROUP BY c.canvass_id
     ORDER BY c.created_at DESC
 ";
@@ -43,6 +43,18 @@ $suppliers = [];
 if ($suppliers_result && $suppliers_result->num_rows > 0) {
     while ($row = $suppliers_result->fetch_assoc()) {
         $suppliers[] = $row['supplier_name'];
+    }
+}
+
+
+
+$canvass_items_query = "SELECT * FROM canvass_items";
+$canvass_items_result = $conn->query($canvass_items_query);
+
+$canvass_items = [];
+if ($canvass_items_result && $canvass_items_result->num_rows > 0) {
+    while ($row = $canvass_items_result->fetch_assoc()) {
+        $canvass_items[] = $row;
     }
 }
 ?>
@@ -405,9 +417,6 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             <li><a href="received_items.php" class="nav-link">
                     <i class="fas fa-box-open"></i> Received Items
                 </a></li>
-            <li><a href="purchase_order_list.php" class="nav-link">
-                    <i class="fas fa-file-invoice"></i> Purchase Order List
-                </a></li>
             <li><a href="procurement_statistics.php" class="nav-link">
                     <i class="fas fa-chart-line"></i> Procurement Statistics
                 </a></li>
@@ -422,6 +431,9 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
                 </a></li>
             <li><a href="purchase_order.php" class="nav-link">
                     <i class="fas fa-shopping-basket"></i> Purchase Order
+                </a></li>
+            <li><a href="purchase_order_list.php" class="nav-link">
+                    <i class="fas fa-file-invoice"></i> Purchase Order List
                 </a></li>
             <li><a href="Inventory.php" class="nav-link">
                     <i class="fas fa-box"></i> Supply Inventory
@@ -486,46 +498,46 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($canvass = $canvass_result->fetch_assoc()): ?>
-                        <tr data-canvass-id="<?= $canvass['canvass_id'] ?>">
+                    <?php while ($row = $canvass_result->fetch_assoc()): ?>
+                        <tr data-canvass-id="<?= $row['canvass_id'] ?>">
                             <td class="select-cell" style="display: none;">
                                 <input type="checkbox" class="row-checkbox">
                             </td>
                             <td>
-                                <strong><?= htmlspecialchars($canvass['supplier_name']) ?></strong>
+                                <strong><?= htmlspecialchars($row['supplier_name'] ?? '—') ?></strong>
                             </td>
                             <td>
-                                <?= date('M d, Y', strtotime($canvass['canvass_date'])) ?>
+                                <?= date('M d, Y', strtotime($row['canvass_date'])) ?>
                             </td>
                             <td>
-                                <?= htmlspecialchars($canvass['item_description'] ?? '') ?>
+                                <?= htmlspecialchars($row['item_description'] ?? '—') ?>
                             </td>
                             <td>
-                                <strong>₱<?= number_format($canvass['total_amount'], 2) ?></strong>
+                                <strong>₱<?= number_format($row['total_amount'], 2) ?></strong>
                             </td>
                             <td>
-                                <span class="badge badge-info" style="background-color: var(--primary-green); color: white; font-weight: bold; font-size: 14px; padding: 5px 10px; border-radius: 4px; text-transform: uppercase; text-shadow: none; box-shadow: none; transition: none; text-decoration: none; text-align: center; display: inline-block; margin: 0; line-height: 1.2; letter-spacing: normal; word-spacing: normal; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; box-sizing: border-box;"><?= $canvass['item_count'] ?> items</span>
+                                <span class="badge badge-info" style="background-color: var(--primary-green); color: white; font-weight: bold; font-size: 14px; padding: 5px 10px; border-radius: 4px; display: inline-block;"><?= $row['item_count'] ?> items</span>
                             </td>
                             <td>
-                                <span class="status-badge status-<?= strtolower($canvass['status']) ?>">
-                                    <?= htmlspecialchars($canvass['status']) ?>
+                                <span class="status-badge status-<?= strtolower($row['status'] ?? 'draft') ?>">
+                                    <?= htmlspecialchars($row['status'] ?? 'Draft') ?>
                                 </span>
                             </td>
                             <td>
-                                <?= htmlspecialchars($canvass['created_by_name'] ?? 'Unknown') ?>
+                                <?= htmlspecialchars($row['created_by_name'] ?? 'Unknown') ?>
                             </td>
                             <td>
-                                <?= date('M d, Y g:i A', strtotime($canvass['created_at'])) ?>
+                                <?= date('M d, Y g:i A', strtotime($row['created_at'])) ?>
                             </td>
                             <td>
                                 <div class="table-actions">
-                                    <button class="btn btn-info btn-sm" onclick="viewCanvass(<?= $canvass['canvass_id'] ?>)">
+                                    <button class="btn btn-info btn-sm" onclick="viewCanvass(<?= $row['canvass_id'] ?>)">
                                         <i class="fas fa-eye"></i> View
                                     </button>
-                                    <button class="btn btn-warning btn-sm" onclick="editCanvass(<?= $canvass['canvass_id'] ?>)">
+                                    <button class="btn btn-warning btn-sm" onclick="editCanvass(<?= $row['canvass_id'] ?>)">
                                         <i class="fas fa-edit"></i> Edit
                                     </button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteCanvass(<?= $canvass['canvass_id'] ?>)">
+                                    <button class="btn btn-danger btn-sm" onclick="deleteCanvass(<?= $row['canvass_id'] ?>)">
                                         <i class="fas fa-trash"></i> Delete
                                     </button>
                                 </div>
