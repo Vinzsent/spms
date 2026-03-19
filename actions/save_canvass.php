@@ -68,16 +68,9 @@ function saveCanvass($data, $conn, $user_id) {
         $canvass_date = $conn->real_escape_string($data['canvass_date']);
         $notes = $conn->real_escape_string($data['notes'] ?? '');
         
-        // Check if canvass number already exists (for new canvass)
+        // Allow multiple canvasses on the same date. 
+        // We no longer check if a canvass with this date already exists.
         $canvass_id = isset($data['canvass_id']) ? intval($data['canvass_id']) : null;
-        
-        if (!$canvass_id) {
-            $check_sql = "SELECT canvass_id FROM canvass WHERE canvass_date = '$canvass_date'";
-            $check_result = $conn->query($check_sql);
-            if ($check_result && $check_result->num_rows > 0) {
-                throw new Exception('Canvass Date already exists: ' . $canvass_date);
-            }
-        }
         
         if ($canvass_id) {
             // Update existing canvass
