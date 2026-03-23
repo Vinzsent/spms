@@ -3862,7 +3862,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     FROM aircons pi 
                     LEFT JOIN supplier s ON pi.supplier_id = s.supplier_id 
                     $inv_where_ajax
-                    ORDER BY pi.date_created DESC
+                    ORDER BY brand ASC
                     LIMIT $records_per_page OFFSET $offset";
             $result = $conn->query($sql);
 
