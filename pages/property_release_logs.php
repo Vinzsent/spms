@@ -780,7 +780,16 @@ $logs_result = $conn->query($sql);
             // Get total number of records
             $count_sql = "SELECT COUNT(*) as total FROM release_logs i $inv_where";
             $count_result = $conn->query($count_sql);
-            $total_records = $count_result->fetch_assoc()['total'];
+
+            $total_records = 0;
+            if ($count_result && $count_result->num_rows > 0) {
+                $count_row = $count_result->fetch_assoc();
+                $total_records = $count_row['total'] ?? 0;
+            } else if (!$count_result) {
+                // If query fails, don't crash the page
+                error_log("Property Logs Query Error: " . $conn->error);
+            }
+            
             $total_pages = ceil($total_records / $records_per_page);
 
             // Get inventory data with pagination (respect filters and join supplier)
