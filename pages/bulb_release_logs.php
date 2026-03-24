@@ -73,7 +73,7 @@ if ($sy_inv_start && $sy_inv_end) {
     $inv_where_conditions[] = "i.date_created >= '$start_esc' AND i.date_created <= '$end_esc'";
 }
 // Add campus filter if provided (expects values Old/New stored in campus column)
-if ($campus_raw === 'Old' || $campus_raw === 'New') {
+if (!empty($campus_raw)) {
     $campus_esc = $conn->real_escape_string($campus_raw);
     $inv_where_conditions[] = "TRIM(UPPER(i.remarks)) = '$campus_esc'";
 }
@@ -746,8 +746,8 @@ $logs_result = $conn->query($sql);
                             <label for="remarks" class="form-label mb-0 text-white">Remarks</label>
                             <select id="remarks" name="remarks" class="form-select">
                                 <option value="">Remarks</option>
-                                <option value="Old" <?= ($campus_raw === 'Old') ? 'selected' : '' ?>>Old</option>
-                                <option value="New" <?= ($campus_raw === 'New') ? 'selected' : '' ?>>New</option>
+                                <option value="Old" <?= ($campus_raw === 'OLD') ? 'selected' : '' ?>>Old</option>
+                                <option value="New" <?= ($campus_raw === 'NEW') ? 'selected' : '' ?>>New</option>
                             </select>
                         </div>
                         <div class="pt-4 d-flex align-items-center gap-2">
@@ -779,7 +779,17 @@ $logs_result = $conn->query($sql);
             // Get total number of records
             $count_sql = "SELECT COUNT(*) as total FROM bulb_release_logs i $inv_where";
             $count_result = $conn->query($count_sql);
-            $total_records = $count_result->fetch_assoc()['total'];
+            
+            $total_records = 0;
+            if ($count_result && $count_result->num_rows > 0) {
+                $count_row = $count_result->fetch_assoc();
+                $total_records = $count_row['total'] ?? 0;
+            } else if (!$count_result) {
+                // If query fails, it's likely a missing column like date_created
+                // Don't crash, but log or show error if needed
+                error_log("Bulb Logs Query Error: " . $conn->error);
+            }
+            
             $total_pages = ceil($total_records / $records_per_page);
 
             // Get inventory data with pagination (respect filters and join supplier)
