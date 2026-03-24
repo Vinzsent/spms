@@ -96,36 +96,36 @@ while ($row = $result->fetch_assoc()):
             </span>
         </td>
         <td><?= htmlspecialchars($row['username']) ?></td>
-        <td>
-            <button class="btn btn-warning"
-                onclick="openEditModal(
-                                    <?= $row['id'] ?>,
-                                    '<?= addslashes($row['title']) ?>',
-                                    '<?= addslashes($row['first_name']) ?>',
-                                    '<?= addslashes($row['middle_name']) ?>',
-                                    '<?= addslashes($row['last_name']) ?>',
-                                    '<?= addslashes($row['suffix']) ?>',
-                                    '<?= addslashes($row['academic_title']) ?>',
-                                    '<?= addslashes($row['user_type']) ?>',
-                                    '<?= addslashes($row['username']) ?>'
-                                  )">
-                <i class="fas fa-edit me-1"></i>Edit
-            </button>
-
-            <button class="btn btn-danger"
-                onclick="openDeleteModal(
-                                    <?= $row['id'] ?>,
-                                    '<?= addslashes($row['title']) ?>',
-                                    '<?= addslashes($row['first_name']) ?>',
-                                    '<?= addslashes($row['middle_name']) ?>',
-                                    '<?= addslashes($row['last_name']) ?>',
-                                    '<?= addslashes($row['suffix']) ?>',
-                                    '<?= addslashes($row['academic_title']) ?>',
-                                    '<?= addslashes($row['user_type']) ?>',
-                                    '<?= addslashes($row['username']) ?>'
-                                  )">
-                <i class="fas fa-trash me-1"></i>Delete
-            </button>
+        <td class="text-center">
+            <div class="dropdown">
+                <button class="btn btn-link btn-ellipsis" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                    <li>
+                        <a class="dropdown-item py-2" href="#" onclick="openEditModal(
+                                            <?= $row['id'] ?>,
+                                            '<?= addslashes($row['title'] ?? '') ?>',
+                                            '<?= addslashes($row['first_name']) ?>',
+                                            '<?= addslashes($row['middle_name'] ?? '') ?>',
+                                            '<?= addslashes($row['last_name']) ?>',
+                                            '<?= addslashes($row['suffix'] ?? '') ?>',
+                                            '<?= addslashes($row['academic_title'] ?? '') ?>',
+                                            '<?= addslashes($row['user_type']) ?>',
+                                            '<?= addslashes($row['username']) ?>'
+                                          ); return false;">
+                            <i class="fas fa-edit me-2 text-warning"></i>Edit
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item py-2 text-danger" href="#" onclick="openDeleteModal(
+                                            <?= $row['id'] ?>
+                                          ); return false;">
+                            <i class="fas fa-trash me-2"></i>Delete
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </td>
     </tr>
 <?php
@@ -466,6 +466,48 @@ if ($isAjax) {
             .info-cards {
                 grid-template-columns: 1fr;
             }
+        }
+
+        /* Dropdown Ellipsis Menu */
+        .btn-ellipsis {
+            color: #6c757d;
+            padding: 5px 10px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            border: none;
+            background: transparent;
+        }
+
+        .btn-ellipsis:hover, .btn-ellipsis:focus {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: var(--primary-green);
+            box-shadow: none;
+        }
+
+        .dropdown-menu {
+            border-radius: 10px;
+            padding: 0.5rem;
+            min-width: 150px;
+            z-index: 1100;
+        }
+
+        .dropdown-item {
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--bg-light);
+            transform: translateX(3px);
+            color: var(--primary-green);
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
         }
     </style>
 
