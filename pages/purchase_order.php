@@ -1351,10 +1351,10 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
                 setTimeout(() => {
                     <?php foreach ($po_items as $item): ?>
                         addPORowWithData(
-                            <?= $item['item_number'] ?>,
-                            '<?= htmlspecialchars($item['item_description']) ?>',
-                            <?= $item['quantity'] ?>,
-                            <?= $item['unit_cost'] ?>
+                            <?= floatval($item['item_number']) ?>,
+                            <?= json_encode($item['item_description']) ?>,
+                            <?= floatval($item['quantity']) ?>,
+                            <?= floatval($item['unit_cost']) ?>
                         );
                     <?php endforeach; ?>
                 }, 500);
