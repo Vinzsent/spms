@@ -1017,13 +1017,18 @@ if ($canvass_items_result && $canvass_items_result->num_rows > 0) {
                 <tr data-id="${item.canvass_item_id}">
                     <td class="supplier_name">${item.supplier_name}</td>
                     <td class="item_description">${item.item_description}</td>
-                    <td class="quantity">${item.quantity}</td>
+                    <td class="quantity">${parseFloat(item.quantity)}</td>
                     <td class="unit_cost">₱${parseFloat(item.unit_cost).toFixed(2)}</td>
                     <td class="total_cost">₱${parseFloat(item.total_cost).toFixed(2)}</td>
                     <td>
-                        <button class="btn btn-sm btn-primary" onclick="editItem(this)">
-                            <i class="fas fa-edit"></i>
-                        </button>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-primary" onclick="editItem(this)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteCanvassItem(${item.canvass_item_id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `;
@@ -1145,6 +1150,34 @@ if ($canvass_items_result && $canvass_items_result->num_rows > 0) {
                     viewCanvass(currentCanvassId);
                 } else {
                     alert('Error updating item: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+            });
+    }
+
+    function deleteCanvassItem(canvassItemId) {
+        if (!confirm('Are you sure you want to delete this item? This will also update the total amount of this canvass.')) {
+            return;
+        }
+
+        fetch('../actions/delete_canvass_item.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    canvass_item_id: canvassItemId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload modal to show updated values and totals
+                    viewCanvass(currentCanvassId);
+                } else {
+                    alert('Error deleting item: ' + data.message);
                 }
             })
             .catch(error => {
