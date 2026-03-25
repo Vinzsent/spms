@@ -790,7 +790,7 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
                         onblur="hideSupplierDropdown(this)">
                     <div class="supplier-list">
                         <?php foreach ($suppliers_array as $supplier): ?>
-                            <div class="supplier-item" onmousedown="selectSupplier(this, '<?= htmlspecialchars(addslashes($supplier['supplier_name'])) ?>')">
+                            <div class="supplier-item" onmousedown="selectSupplier(this, <?= htmlspecialchars(json_encode($supplier['supplier_name'])) ?>)">
                                 <?= htmlspecialchars($supplier['supplier_name']) ?>
                             </div>
                         <?php endforeach; ?>
@@ -825,7 +825,7 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
                         onblur="hideSupplierDropdown(this)">
                     <div class="supplier-list">
                         <?php foreach ($suppliers_array as $supplier): ?>
-                            <div class="supplier-item" onmousedown="selectSupplier(this, '<?= htmlspecialchars(addslashes($supplier['supplier_name'])) ?>')">
+                            <div class="supplier-item" onmousedown="selectSupplier(this, <?= htmlspecialchars(json_encode($supplier['supplier_name'])) ?>)">
                                 <?= htmlspecialchars($supplier['supplier_name']) ?>
                             </div>
                         <?php endforeach; ?>
@@ -922,10 +922,10 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             // Load existing canvass items
             <?php foreach ($canvass_items as $item): ?>
                 addRowWithData(
-                    '<?= htmlspecialchars($item['supplier_name']) ?>',
-                    '<?= htmlspecialchars($item['item_description']) ?>',
-                    <?= $item['quantity'] ?>,
-                    <?= $item['unit_cost'] ?>
+                    <?= json_encode($item['supplier_name']) ?>,
+                    <?= json_encode($item['item_description']) ?>,
+                    <?= floatval($item['quantity']) ?>,
+                    <?= floatval($item['unit_cost']) ?>
                 );
             <?php endforeach; ?>
         <?php else: ?>
