@@ -93,6 +93,11 @@ try {
                 $table_rows .= ')\'>';
                 $table_rows .= '<i class="fas fa-edit"></i>';
                 $table_rows .= '</button>';
+                // Add Delete button
+                $table_rows .= ' <button class="btn btn-sm btn-danger ms-1" title="Delete" onclick="deleteStockMovementLog(' . (int)$log['log_id'] . ', ' . htmlspecialchars(json_encode($log['item_name']), ENT_QUOTES, 'UTF-8') . ')">';
+                $table_rows .= '<i class="fas fa-trash"></i>';
+                $table_rows .= '</button>';
+                
                 $table_rows .= '</td>';
             }
             $table_rows .= '</tr>';
