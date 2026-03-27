@@ -1594,6 +1594,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
 
             <!-- Property Inventory Table -->
+
             <div class="table-responsive">
                 <div id="inventoryTable">
                     <table class="table table-hover mb-0">
@@ -1650,27 +1651,31 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <button class="btn btn-sm btn-outline-warning me-1" title="Stock Out" onclick="stockOut('<?= $row['inventory_id'] ?>')">
                                                     <i class="fas fa-minus"></i>
                                                 </button>
-                                                <button class="btn btn-sm btn-info" title="Edit"
+                                                <button class="btn btn-sm btn-info me-1" title="Edit"
                                                     onclick="openEditInventoryModal(
                                                     <?= (int)$row['inventory_id'] ?>,
-                                                    <?= json_encode($row['item_name']) ?>,
-                                                    <?= json_encode($row['category']) ?>,
-                                                    <?= json_encode($row['unit']) ?>,
+                                                    <?= htmlspecialchars(json_encode($row['item_name']), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['category']), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['unit']), ENT_QUOTES, 'UTF-8') ?>,
                                                     <?= (int)$row['current_stock'] ?>,
                                                     <?= (int)$row['reorder_level'] ?>,
                                                     <?= (int)$row['supplier_id'] ?>,
                                                     <?= (float)$row['unit_cost'] ?>,
-                                                    <?= json_encode($row['description'] ?? '') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['description'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
                                                     <?= (int)($row['quantity'] ?? 0) ?>,
-                                                    <?= json_encode($row['receiver'] ?? '') ?>,
-                                                    <?= json_encode($row['status'] ?? 'Active') ?>,
-                                                    <?= json_encode($row['received_notes'] ?? '') ?>,
-                                                    <?= json_encode($row['type'] ?? '') ?>,
-                                                    <?= json_encode($row['brand'] ?? '') ?>,
-                                                    <?= json_encode($row['size'] ?? '') ?>,
-                                                    <?= json_encode($row['color'] ?? '') ?>
+                                                    <?= htmlspecialchars(json_encode($row['receiver'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['status'] ?? 'Active'), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['received_notes'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['type'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['brand'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['size'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    
+                                                    <?= htmlspecialchars(json_encode($row['color'] ?? ''), ENT_QUOTES, 'UTF-8') ?>
                                                 )">
                                                     <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" title="Delete" onclick="deletePropertyItem(<?= (int)$row['inventory_id'] ?>, <?= htmlspecialchars(json_encode($row['item_name']), ENT_QUOTES, 'UTF-8') ?>)">
+                                                    <i class="fas fa-trash"></i>
                                                 </button>
                                             </td>
                                         <?php endif; ?>
@@ -1833,6 +1838,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                             <?= json_encode($log['notes'] ?? '') ?>
                                                         )'>
                                                         <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger ms-1" title="Delete" onclick="deleteStockMovementLog(<?= (int)$log['log_id'] ?>, <?= htmlspecialchars(json_encode($log['item_name']), ENT_QUOTES, 'UTF-8') ?>)">
+                                                        <i class="fas fa-trash"></i>
                                                     </button>
                                                 </td>
                                             <?php endif; ?>
@@ -2692,6 +2700,61 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     }, 100);
                 }
 
+                function deletePropertyItem(inventoryId, itemName) {
+                    if (confirm(`Are you sure you want to delete "${itemName}"? This action cannot be undone.`)) {
+                        fetch('../actions/delete_property.php', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    inventory_id: inventoryId
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    alert(data.message);
+                                    location.reload();
+                                } else {
+                                    alert('Error: ' + data.message);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('An error occurred while deleting the item.');
+                            });
+                    }
+                }
+
+                function deleteStockMovementLog(logId, itemName) {
+                    if (confirm(`Are you sure you want to delete the stock movement for "${itemName}"? This will reverse the stock changes and cannot be undone.`)) {
+                        fetch('../actions/delete_property_stock_movement.php', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    log_id: logId
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    alert(data.message);
+                                    // Refresh the page or the specific sections
+                                    location.reload();
+                                } else {
+                                    alert('Error: ' + data.message);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('An error occurred while deleting the stock movement record.');
+                            });
+                    }
+                }
+
                 function stockOut(inventoryId) {
                     document.getElementById('movement_inventory_id').value = inventoryId;
                     document.getElementById('movement_type').value = 'OUT';
@@ -3279,6 +3342,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             . json_encode($row['size'] ?? '') . ', '
                             . json_encode($row['color'] ?? '')
                             . ')\'><i class="fas fa-edit"></i></button>';
+                        echo '<button class="btn btn-sm btn-danger ms-1" title="Delete" onclick="deletePropertyItem(' . (int)$row['inventory_id'] . ', ' . htmlspecialchars(json_encode($row['item_name']), ENT_QUOTES, 'UTF-8') . ')"><i class="fas fa-trash"></i></button>';
                         echo '</td>';
                     }
                     echo '</tr>';
