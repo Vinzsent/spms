@@ -1170,7 +1170,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                         data-receiver="<?= htmlspecialchars($aircon['receiver'] ?? '', ENT_QUOTES) ?>"
                                                         data-created-by="<?= htmlspecialchars($aircon['created_by'] ?? '', ENT_QUOTES) ?>"
                                                         data-date-created="<?= htmlspecialchars($aircon['date_created'] ?? '', ENT_QUOTES) ?>">
-                                                        data-picture="<?= htmlspecialchars($aircon['picture'] ?? '', ENT_QUOTES) ?>">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
                                                 </td>
@@ -1699,6 +1698,10 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <?= json_encode($row['first_image'] ?? '') ?>
                                                 )">
                                                 <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger" title="Delete"
+                                                onclick='deleteAircon(<?= (int)$row['aircon_id'] ?>, <?= json_encode($row['brand'] ?? '') ?>)'>
+                                                <i class="fas fa-trash"></i>
                                             </button>
                                         </td>
                                     </tr>
@@ -3979,7 +3982,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         . json_encode($row['picture'] ?? '')
                         . ')\'><i class="fas fa-edit"></i></button> ';
 
-                    echo '</td></tr>';
+                    echo '<button class="btn btn-sm btn-danger" title="Delete" onclick=\'deleteAircon(' . (int)$row['aircon_id'] . ', ' . json_encode($row['brand'] ?? '') . ')\'><i class="fas fa-trash"></i></button></td></tr>';
                 }
             } else {
                 echo '<tr><td colspan="14" class="text-center py-4"><i class="fas fa-snowflake fa-3x text-muted mb-3"></i><p class="text-muted">No aircon units found</p></td></tr>';
@@ -4111,6 +4114,34 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 // Show the modal
                 const modal = new bootstrap.Modal(document.getElementById('editAirconModal'));
                 modal.show();
+            }
+
+
+            function deleteAircon(aircon_id, brand) {
+                if (confirm(`Are you sure you want to delete "${brand}"? This action cannot be undone.`)) {
+                    fetch('../actions/delete_aircon.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                aircon_id: aircon_id
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert(data.message);
+                                location.reload();
+                            } else {
+                                alert('Error: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while deleting the item.');
+                        });
+                }
             }
         </script>
 
