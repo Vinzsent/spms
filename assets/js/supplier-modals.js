@@ -31,9 +31,9 @@ document.addEventListener("DOMContentLoaded", function () {
   let phData = {};
 
   async function loadPhilippineData() {
-    const res = await fetch("../assets/data/ph_province_city_list.json");
+    const res = await fetch("../api/get_ph_locations.php");
     const data = await res.json();
-    phData = data.Philippines;
+    phData = data.Philippines || data;
   }
 
   function populateCountry(selectElement, selected = "Philippines") {
