@@ -876,7 +876,7 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         </div>
         <h3 class="card-title">Maintenance</h3>
         <p class="card-description">Schedule and record asset maintenance with complete service history and cost tracking.</p>
-        <a href="pages/maintenance.php" class="card-button">Access</a>
+        <a href="pages/under_construction.php" class="card-button">Access</a>
       </div>
       <!-- Audit Card -->
       <div class="menu-card card-warning">
@@ -894,7 +894,7 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         </div>
         <h3 class="card-title">Disposal</h3>
         <p class="card-description">Manage disposal of obsolete items with approval workflows and reason documentation.</p>
-        <a href="pages/supply_request.php" class="card-button">Access</a>
+        <a href="pages/under_construction.php" class="card-button">Access</a>
       </div>
       <!-- Reports Card -->
       <div class="menu-card card-dark">
@@ -903,7 +903,7 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         </div>
         <h3 class="card-title">Reports</h3>
         <p class="card-description">Generate comprehensive reports on requisitions, inventory, maintenance, and disposals.</p>
-        <a href="pages/supply_request.php" class="card-button">Access</a>
+        <a href="pages/under_construction.php" class="card-button">Access</a>
       </div>
       <!-- Notifications Card -->
       <div class="menu-card card-primary">
