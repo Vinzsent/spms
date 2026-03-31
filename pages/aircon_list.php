@@ -1675,27 +1675,27 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <button class="btn btn-sm btn-info" title="Edit"
                                                 onclick="openEditAirconModal(
                                                 <?= (int)$row['aircon_id'] ?>,
-                                                <?= json_encode($row['item_number'] ?? '') ?>,
-                                                <?= json_encode($row['category'] ?? '') ?>,
-                                                <?= json_encode($row['brand']) ?>,
-                                                <?= json_encode($row['model']) ?>,
-                                                <?= json_encode($row['type']) ?>,
-                                                <?= json_encode($row['capacity'] ?? '') ?>,
-                                                <?= json_encode($row['serial_number']) ?>,
-                                                <?= json_encode($row['location']) ?>,
-                                                <?= json_encode($row['status']) ?>,
-                                                <?= json_encode($row['purchase_date']) ?>,
-                                                <?= json_encode($row['warranty_expiry']) ?>,
-                                                <?= json_encode($row['last_service_date']) ?>,
-                                                <?= json_encode($row['maintenance_schedule']) ?>,
+                                                <?= htmlspecialchars(json_encode($row['item_number'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                <?= htmlspecialchars(json_encode($row['category'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                <?= htmlspecialchars(json_encode($row['brand'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                <?= htmlspecialchars(json_encode($row['model'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                <?= htmlspecialchars(json_encode($row['type'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                <?= htmlspecialchars(json_encode($row['capacity'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                <?= htmlspecialchars(json_encode($row['serial_number'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                <?= htmlspecialchars(json_encode($row['location'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                <?= htmlspecialchars(json_encode($row['status'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                <?= htmlspecialchars(json_encode($row['purchase_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                <?= htmlspecialchars(json_encode($row['warranty_expiry'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                <?= htmlspecialchars(json_encode($row['last_service_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                <?= htmlspecialchars(json_encode($row['maintenance_schedule'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
                                                 <?= (int)($row['supplier_id'] ?? 0) ?>,
-                                                <?= json_encode($row['installation_date']) ?>,
-                                                <?= json_encode($row['energy_efficiency_rating'] ?? '') ?>,
-                                                <?= json_encode($row['power_consumption'] ?? '') ?>,
-                                                <?= json_encode($row['notes']) ?>,
-                                                <?= json_encode($row['purchase_price'] ?? '0') ?>,
-                                                <?= json_encode($row['depreciated_value'] ?? '0') ?>,
-                                                <?= json_encode($row['first_image'] ?? '') ?>
+                                                <?= htmlspecialchars(json_encode($row['installation_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                <?= htmlspecialchars(json_encode($row['energy_efficiency_rating'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                <?= htmlspecialchars(json_encode($row['power_consumption'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                <?= htmlspecialchars(json_encode($row['notes'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                <?= htmlspecialchars(json_encode($row['purchase_price'] ?? '0'), ENT_QUOTES, 'UTF-8') ?>,
+                                                <?= htmlspecialchars(json_encode($row['depreciated_value'] ?? '0'), ENT_QUOTES, 'UTF-8') ?>,
+                                                <?= htmlspecialchars(json_encode($row['first_image'] ?? ''), ENT_QUOTES, 'UTF-8') ?>
                                                 )">
                                                 <i class="fas fa-edit"></i>
                                             </button>
@@ -3933,56 +3933,56 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '<td data-label="Actions" class="actions">';
                     echo '<button class="btn btn-sm btn-primary" title="View Details" onclick=\'viewAirconDetails('
                         . (int)$row['aircon_id'] . ', '
-                        . json_encode($row['item_number'] ?? '') . ', '
-                        . json_encode($row['brand'] ?? '') . ', '
-                        . json_encode($row['model'] ?? '') . ', '
-                        . json_encode($row['type'] ?? '') . ', '
-                        . json_encode($row['capacity'] ?? '') . ', '
-                        . json_encode($row['serial_number'] ?? '') . ', '
-                        . json_encode($row['location'] ?? '') . ', '
-                        . json_encode($row['status'] ?? '') . ', '
-                        . json_encode($row['purchase_date'] ?? '') . ', '
-                        . json_encode($row['warranty_expiry'] ?? '') . ', '
-                        . json_encode($row['last_service_date'] ?? '') . ', '
-                        . json_encode($row['maintenance_schedule'] ?? '') . ', '
-                        . json_encode($row['supplier_name'] ?? '') . ', '
-                        . json_encode($row['installation_date'] ?? '') . ', '
-                        . json_encode($row['energy_efficiency_rating'] ?? '') . ', '
-                        . json_encode($row['power_consumption'] ?? '') . ', '
-                        . json_encode($row['notes'] ?? '') . ', '
-                        . json_encode($row['purchase_price'] ?? '0') . ', '
-                        . json_encode($row['depreciated_value'] ?? '0') . ', '
-                        . json_encode($row['receiver'] ?? '') . ', '
-                        . json_encode($row['created_by'] ?? '') . ', '
-                        . json_encode($row['date_created'] ?? '') . ', '
-                        . json_encode($row['picture'] ?? '')
+                        . htmlspecialchars(json_encode($row['item_number'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['brand'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['model'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['type'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['capacity'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['serial_number'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['location'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['status'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['purchase_date'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['warranty_expiry'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['last_service_date'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['maintenance_schedule'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['supplier_name'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['installation_date'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['energy_efficiency_rating'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['power_consumption'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['notes'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['purchase_price'] ?? '0'), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['depreciated_value'] ?? '0'), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['receiver'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['created_by'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['date_created'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['picture'] ?? ''), ENT_QUOTES, 'UTF-8')
                         . ')\'><i class="fas fa-eye"></i></button> ';
                     echo '<button class="btn btn-sm btn-info" title="Edit" onclick=\'openEditAirconModal('
                         . (int)$row['aircon_id'] . ', '
-                        . json_encode($row['item_number'] ?? '') . ', '
-                        . json_encode($row['category'] ?? '') . ', '
-                        . json_encode($row['brand']) . ', '
-                        . json_encode($row['model']) . ', '
-                        . json_encode($row['type']) . ', '
-                        . json_encode($row['capacity'] ?? '') . ', '
-                        . json_encode($row['serial_number']) . ', '
-                        . json_encode($row['location']) . ', '
-                        . json_encode($row['status']) . ', '
-                        . json_encode($row['purchase_date']) . ', '
-                        . json_encode($row['warranty_expiry']) . ', '
-                        . json_encode($row['last_service_date']) . ', '
-                        . json_encode($row['maintenance_schedule']) . ', '
+                        . htmlspecialchars(json_encode($row['item_number'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['category'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['brand'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['model'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['type'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['capacity'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['serial_number'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['location'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['status'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['purchase_date'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['warranty_expiry'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['last_service_date'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['maintenance_schedule'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
                         . (int)($row['supplier_id'] ?? 0) . ', '
-                        . json_encode($row['installation_date']) . ', '
-                        . json_encode($row['energy_efficiency_rating'] ?? '') . ', '
-                        . json_encode($row['power_consumption'] ?? '') . ', '
-                        . json_encode($row['notes']) . ', '
-                        . json_encode($row['purchase_price'] ?? '0') . ', '
-                        . json_encode($row['depreciated_value'] ?? '0') . ', '
-                        . json_encode($row['picture'] ?? '')
+                        . htmlspecialchars(json_encode($row['installation_date'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['energy_efficiency_rating'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['power_consumption'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['notes'] ?? ''), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['purchase_price'] ?? '0'), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['depreciated_value'] ?? '0'), ENT_QUOTES, 'UTF-8') . ', '
+                        . htmlspecialchars(json_encode($row['picture'] ?? ''), ENT_QUOTES, 'UTF-8')
                         . ')\'><i class="fas fa-edit"></i></button> ';
 
-                    echo '<button class="btn btn-sm btn-danger" title="Delete" onclick=\'deleteAircon(' . (int)$row['aircon_id'] . ', ' . json_encode($row['brand'] ?? '') . ')\'><i class="fas fa-trash"></i></button></td></tr>';
+                    echo '<button class="btn btn-sm btn-danger" title="Delete" onclick=\'deleteAircon(' . (int)$row['aircon_id'] . ', ' . htmlspecialchars(json_encode($row['brand'] ?? ''), ENT_QUOTES, 'UTF-8') . ')\'><i class="fas fa-trash"></i></button></td></tr>';
                 }
             } else {
                 echo '<tr><td colspan="14" class="text-center py-4"><i class="fas fa-snowflake fa-3x text-muted mb-3"></i><p class="text-muted">No aircon units found</p></td></tr>';
