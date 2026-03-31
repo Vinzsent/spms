@@ -586,16 +586,29 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            text-align: center;
             padding: 15px;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
         .course-logo-card img {
             max-width: 100%;
-            max-height: 120px;
+            max-height: 90px;
             object-fit: contain;
             display: block;
+            margin-bottom: 10px;
+        }
+
+        .course-logo-card p {
+            margin: 0;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
         }
 
         .course-logo-card.active {
@@ -688,7 +701,31 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
 
         @media (max-width: 992px) {
             .course-logos-row {
-                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+                gap: 15px;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .course-logos-row {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .course-logo-card {
+                padding: 12px;
+            }
+            
+            .course-logo-card img {
+                max-height: 70px;
+                margin-bottom: 8px;
+            }
+            
+            .course-logo-card p {
+                font-size: 0.75rem;
+                line-height: 1.2;
             }
         }
     </style>
