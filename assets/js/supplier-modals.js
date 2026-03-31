@@ -31,9 +31,25 @@ document.addEventListener("DOMContentLoaded", function () {
   let phData = {};
 
   async function loadPhilippineData() {
-    const res = await fetch("../api/get_ph_locations.php");
-    const data = await res.json();
-    phData = data.Philippines || data;
+    try {
+      const res = await fetch("../api/get_ph_locations.php");
+      if (!res.ok) {
+        console.warn("Philippine data API returned status:", res.status);
+        phData = {};
+        return;
+      }
+      const text = await res.text();
+      if (!text || text.trim() === "") {
+        console.warn("Philippine data API returned empty response");
+        phData = {};
+        return;
+      }
+      const data = JSON.parse(text);
+      phData = data.Philippines || data;
+    } catch (err) {
+      console.error("Error loading Philippine data:", err);
+      phData = {};
+    }
   }
 
   function populateCountry(selectElement, selected = "Philippines") {
