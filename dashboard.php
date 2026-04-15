@@ -749,6 +749,25 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <a href="pages/property_inventory.php" class="card-button">Access</a>
       </div>
 
+      <!-- Reports Section for Property Custodian -->
+      <div class="menu-card card-dark">
+        <div class="card-icon">
+          <i class="fas fa-chart-bar"></i>
+        </div>
+        <h3 class="card-title">Property Reports</h3>
+        <p class="card-description">Generate comprehensive reports on property requisitions, inventory, and maintenance.</p>
+        <a href="pages/property_reports.php" class="card-button">Access</a>
+      </div>
+
+      <div class="menu-card card-dark">
+        <div class="card-icon">
+          <i class="fas fa-chart-area"></i>
+        </div>
+        <h3 class="card-title">Supply Reports</h3>
+        <p class="card-description">Generate comprehensive reports on supply requisitions, inventory, and usage.</p>
+        <a href="pages/supply_reports.php" class="card-button">Access</a>
+      </div>
+
     <?php elseif ($user_type === 'supplyincharge'): ?>
       <!-- Supply Requisition Card ONLY for School President -->
 
@@ -781,7 +800,23 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <p class="card-description">Track real-time stock levels with detailed logs. Get alerts for low inventory and manage supplies.</p>
         <a href="pages/Inventory.php" class="card-button">Access</a>
       </div>
-
+      <!-- Supply Reports Card -->
+      <div class="menu-card card-dark">
+        <div class="card-icon">
+          <i class="fas fa-chart-bar"></i>
+        </div>
+        <h3 class="card-title">Property Reports</h3>
+        <p class="card-description">Generate comprehensive reports on property inventory, maintenance, and disposals.</p>
+        <a href="pages/property_reports.php" class="card-button">Access</a>
+      </div>
+      <div class="menu-card card-dark">
+        <div class="card-icon">
+          <i class="fas fa-chart-area"></i>
+        </div>
+        <h3 class="card-title">Supply Reports</h3>
+        <p class="card-description">Generate comprehensive reports on supply requisitions, inventory, and usage.</p>
+        <a href="pages/supply_reports.php" class="card-button">Access</a>
+      </div>
     <?php else: ?>
       <!-- All other cards for non-Faculty users -->
       <!-- Supply Requisition Card -->
@@ -897,14 +932,33 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <a href="pages/under_construction.php" class="card-button">Access</a>
       </div>
       <!-- Reports Card -->
-      <div class="menu-card card-dark">
-        <div class="card-icon">
-          <i class="fas fa-chart-bar"></i>
+      <?php if ($user_type === 'admin'): ?>
+        <div class="menu-card card-dark">
+          <div class="card-icon">
+            <i class="fas fa-chart-bar"></i>
+          </div>
+          <h3 class="card-title">Property Reports</h3>
+          <p class="card-description">Generate comprehensive reports on property inventory, maintenance, and disposals.</p>
+          <a href="pages/property_reports.php" class="card-button">Access</a>
         </div>
-        <h3 class="card-title">Reports</h3>
-        <p class="card-description">Generate comprehensive reports on requisitions, inventory, maintenance, and disposals.</p>
-        <a href="pages/under_construction.php" class="card-button">Access</a>
-      </div>
+        <div class="menu-card card-dark">
+          <div class="card-icon">
+            <i class="fas fa-chart-area"></i>
+          </div>
+          <h3 class="card-title">Supply Reports</h3>
+          <p class="card-description">Generate comprehensive reports on supply requisitions, inventory, and usage.</p>
+          <a href="pages/supply_reports.php" class="card-button">Access</a>
+        </div>
+      <?php else: ?>
+        <div class="menu-card card-dark">
+          <div class="card-icon">
+            <i class="fas fa-chart-bar"></i>
+          </div>
+          <h3 class="card-title">Reports</h3>
+          <p class="card-description">Generate comprehensive reports on requisitions, inventory, maintenance, and disposals.</p>
+          <a href="pages/reports.php" class="card-button">Access</a>
+        </div>
+      <?php endif; ?>
       <!-- Notifications Card -->
       <div class="menu-card card-primary">
         <div class="card-icon">
