@@ -748,6 +748,9 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
                 <li><a href="assets.php" class="nav-link">
                         <i class="fas fa-boxes"></i> Assets
                     </a></li>
+                <li><a href="other_property_logs.php" class="nav-link">
+                        <i class="fas fa-box"></i> Other Property Logs
+                    </a></li>
                 <li><a href="../logout.php" class="nav-link logout">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a></li>
