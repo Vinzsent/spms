@@ -906,6 +906,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <li><a href="borrowers_forms.php" class="nav-link">
                         <i class="fas fa-hand-holding"></i> Borrower Forms
                     </a></li>
+                <li><a href="other_property_logs.php" class="nav-link">
+                        <i class="fas fa-box"></i> Other Property Logs
+                    </a></li>
                 <li><a href="../logout.php" class="nav-link logout">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a></li>
