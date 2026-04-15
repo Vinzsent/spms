@@ -909,6 +909,18 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <li><a href="other_property_logs.php" class="nav-link">
                         <i class="fas fa-box"></i> Other Property Logs
                     </a></li>
+            <?php 
+            $user_role_norm = str_replace([' ', '-'], '', strtolower($_SESSION['user_type'] ?? ''));
+            if (in_array($user_role_norm, ['propertycustodian', 'admin'])): ?>
+                <li><a href="property_reports.php" class="nav-link <?= ($pageTitle == 'Property Reports') ? 'active' : '' ?>">
+                        <i class="fas fa-chart-bar"></i> Property Reports
+                    </a></li>
+            <?php endif; ?>
+            <?php if (in_array($user_role_norm, ['supplyincharge', 'admin'])): ?>
+                <li><a href="supply_reports.php" class="nav-link <?= ($pageTitle == 'Supply Reports') ? 'active' : '' ?>">
+                        <i class="fas fa-chart-bar"></i> Supply Reports
+                    </a></li>
+            <?php endif; ?>
                 <li><a href="../logout.php" class="nav-link logout">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a></li>
@@ -1579,7 +1591,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     FROM aircons i 
                     LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
                     $inv_where
-                    ORDER BY i.date_created DESC
+                    ORDER BY i.installation_date DESC, i.date_created DESC
                     LIMIT $records_per_page OFFSET $offset";
             $result = $conn->query($sql);
             ?>
@@ -1600,9 +1612,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <th>Status</th>
                                 <th>Purchase Date</th>
                                 <th>Warranty Expiry</th>
-                                <th>Last Service Date</th>
                                 <th>Maintenance Schedule</th>
-                                <th>Installation Date</th>
+                                <th>Installation Date/ Release Date</th>
                                 <th>Notes</th>
                                 <th>Actions</th>
                             </tr>
@@ -1633,7 +1644,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         </td>
                                         <td data-label="Purchase Date"><?= !empty($row['purchase_date']) ? date('M d, Y', strtotime($row['purchase_date'])) : 'N/A' ?></td>
                                         <td data-label="Warranty Expiry"><?= !empty($row['warranty_expiry']) ? date('M d, Y', strtotime($row['warranty_expiry'])) : 'N/A' ?></td>
-                                        <td data-label="Last Service Date"><?= !empty($row['last_service_date']) ? date('M d, Y', strtotime($row['last_service_date'])) : 'N/A' ?></td>
                                         <td data-label="Maintenance Schedule">
                                             <button class="btn btn-sm btn-outline-info view-maintenance-btn"
                                                 data-aircon-id="<?= (int)$row['aircon_id'] ?>"
@@ -1912,7 +1922,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             </select>
                                         </div>
                                         <div class="col-md-3">
-                                            <label class="form-label">Installation Date</label>
+                                            <label class="form-label">Installation Date/ Release Date</label>
                                             <input type="date" name="installation_date" class="form-control">
                                         </div>
                                         <div class="col-md-3">
@@ -2060,7 +2070,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <p class="fw-bold mb-0" id="view_warranty_expiry">-</p>
                                             </div>
                                             <div class="mb-0">
-                                                <label class="text-muted small">Installation Date</label>
+                                                <label class="text-muted small">Installation Date/ Release Date</label>
                                                 <p class="fw-bold mb-0" id="view_installation_date">-</p>
                                             </div>
                                         </div>
@@ -3868,7 +3878,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     FROM aircons pi 
                     LEFT JOIN supplier s ON pi.supplier_id = s.supplier_id 
                     $inv_where_ajax
-                    ORDER BY location ASC
+                    ORDER BY pi.installation_date DESC, pi.date_created DESC
                     LIMIT $records_per_page OFFSET $offset";
             $result = $conn->query($sql);
 
@@ -3886,9 +3896,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '<th>Status</th>';
             echo '<th>Purchase Date</th>';
             echo '<th>Warranty Expiry</th>';
-            echo '<th>Last Service Date</th>';
             echo '<th>Maintenance Schedule</th>';
-            echo '<th>Installation Date</th>';
+            echo '<th>Installation Date/ Release Date</th>';
             echo '<th>Notes</th>';
             echo '<th>Actions</th>';
             echo '</tr>';
@@ -3918,7 +3927,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '<td data-label="Status"><span class="badge bg-' . $status_class . '">' . htmlspecialchars($row['status'] ?? 'N/A') . '</span></td>';
                     echo '<td data-label="Purchase Date">' . (!empty($row['purchase_date']) ? date('M d, Y', strtotime($row['purchase_date'])) : 'N/A') . '</td>';
                     echo '<td data-label="Warranty Expiry">' . (!empty($row['warranty_expiry']) ? date('M d, Y', strtotime($row['warranty_expiry'])) : 'N/A') . '</td>';
-                    echo '<td data-label="Last Service Date">' . (!empty($row['last_service_date']) ? date('M d, Y', strtotime($row['last_service_date'])) : 'N/A') . '</td>';
 
                     echo '<td data-label="Maintenance Schedule">
                             <button class="btn btn-sm btn-outline-primary view-maintenance-btn" 
@@ -3931,7 +3939,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             </button>
                         </td>';
 
-                    echo '<td data-label="Installation Date">' . (!empty($row['installation_date']) ? date('M d, Y', strtotime($row['installation_date'])) : 'N/A') . '</td>';
+                    echo '<td data-label="Installation Date/ Release Date">' . (!empty($row['installation_date']) ? date('M d, Y', strtotime($row['installation_date'])) : 'N/A') . '</td>';
                     echo '<td data-label="Notes">' . htmlspecialchars($row['notes'] ?? 'N/A') . '</td>';
                     echo '<td data-label="Actions" class="actions">';
                     echo '<button class="btn btn-sm btn-primary" title="View Details" onclick=\'viewAirconDetails('
@@ -4272,7 +4280,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         </select>
                                     </div>
                                     <div class="col-md-3">
-                                        <label class="form-label">Installation Date</label>
+                                        <label class="form-label">Installation Date/ Release Date</label>
                                         <input type="date" name="installation_date" id="edit_installation_date" class="form-control">
                                     </div>
                                     <div class="col-md-3">
