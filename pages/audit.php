@@ -264,6 +264,21 @@ $dashboard_link = ($user_type == 'Admin') ? '../dashboard.php' : '../dashboard.p
                 <li><a href="notifications.php" class="nav-link">
                         <i class="fas fa-bell"></i> Notifications
                     </a></li>
+                <li><a href="other_property_logs.php" class="nav-link">
+                        <i class="fas fa-box"></i> Other Property Logs
+                    </a></li>
+            <?php 
+            $user_role_norm = str_replace([' ', '-'], '', strtolower($_SESSION['user_type'] ?? ''));
+            if (in_array($user_role_norm, ['propertycustodian', 'admin'])): ?>
+                <li><a href="property_reports.php" class="nav-link <?= ($pageTitle == 'Property Reports') ? 'active' : '' ?>">
+                        <i class="fas fa-chart-bar"></i> Property Reports
+                    </a></li>
+            <?php endif; ?>
+            <?php if (in_array($user_role_norm, ['supplyincharge', 'admin'])): ?>
+                <li><a href="supply_reports.php" class="nav-link <?= ($pageTitle == 'Supply Reports') ? 'active' : '' ?>">
+                        <i class="fas fa-chart-bar"></i> Supply Reports
+                    </a></li>
+            <?php endif; ?>
                 <li><a href="../logout.php" class="nav-link logout" style="color: var(--accent-red); margin-top: 20px;">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a></li>
