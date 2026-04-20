@@ -909,18 +909,21 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 <li><a href="other_property_logs.php" class="nav-link">
                         <i class="fas fa-box"></i> Other Property Logs
                     </a></li>
-            <?php 
-            $user_role_norm = str_replace([' ', '-'], '', strtolower($_SESSION['user_type'] ?? ''));
-            if (in_array($user_role_norm, ['propertycustodian', 'admin'])): ?>
-                <li><a href="property_reports.php" class="nav-link <?= ($pageTitle == 'Property Reports') ? 'active' : '' ?>">
-                        <i class="fas fa-chart-bar"></i> Property Reports
+                <?php
+                $user_role_norm = str_replace([' ', '-'], '', strtolower($_SESSION['user_type'] ?? ''));
+                if (in_array($user_role_norm, ['propertycustodian', 'admin'])): ?>
+                <li><a href="canvass_form_list.php" class="nav-link <?= ($pageTitle == 'Canvass List') ? 'active' : '' ?>">
+                        <i class="fas fa-list"></i> Canvass Form List
                     </a></li>
-            <?php endif; ?>
-            <?php if (in_array($user_role_norm, ['supplyincharge', 'admin'])): ?>
-                <li><a href="supply_reports.php" class="nav-link <?= ($pageTitle == 'Supply Reports') ? 'active' : '' ?>">
-                        <i class="fas fa-chart-bar"></i> Supply Reports
-                    </a></li>
-            <?php endif; ?>
+                    <li><a href="property_reports.php" class="nav-link <?= ($pageTitle == 'Property Reports') ? 'active' : '' ?>">
+                            <i class="fas fa-chart-bar"></i> Property Reports
+                        </a></li>
+                <?php endif; ?>
+                <?php if (in_array($user_role_norm, ['supplyincharge', 'admin'])): ?>
+                    <li><a href="supply_reports.php" class="nav-link <?= ($pageTitle == 'Supply Reports') ? 'active' : '' ?>">
+                            <i class="fas fa-chart-bar"></i> Supply Reports
+                        </a></li>
+                <?php endif; ?>
                 <li><a href="../logout.php" class="nav-link logout">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a></li>
@@ -1896,7 +1899,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label">Warranty Expiry</label>
-                                            <input type="date" name="warranty_expiry" class="form-control">
+                                            <input type="text" name="warranty_expiry" class="form-control">
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label">Last Service Date</label>
@@ -2455,9 +2458,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <a id="exportMaintCsv" class="btn btn-outline-primary btn-sm" href="#" target="_blank">
                                         <i class="fas fa-file-csv"></i> Export CSV
                                     </a>
-                                    <a id="exportMaintXls" class="btn btn-outline-success btn-sm" href="#" target="_blank">
-                                        <i class="fas fa-file-excel"></i> Export Excel
-                                    </a>
                                     <button type="button" class="btn btn-success btn-sm" id="addMaintenanceBtn">
                                         <i class="fas fa-plus"></i> Add Maintenance Record
                                     </button>
@@ -2785,8 +2785,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     alert('✅ ' + response.message);
                                     $('#maintenanceFormModal').modal('hide');
                                     loadMaintenanceRecords(currentAirconId);
-                                    // Reload page to update last service date
-                                    setTimeout(() => location.reload(), 1000);
+                                    // Note: Removed page reload here so the main modal stays open.
                                 } else {
                                     alert('❌ ' + response.message);
                                 }
@@ -2998,8 +2997,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 if (response.success) {
                                     alert('✅ ' + response.message);
                                     loadMaintenanceRecords(currentAirconId);
-                                    // Reload page to update last service date
-                                    setTimeout(() => location.reload(), 1000);
+                                    // Note: Removed page reload here so the main modal stays open.
                                 } else {
                                     alert('❌ ' + response.message);
                                 }
