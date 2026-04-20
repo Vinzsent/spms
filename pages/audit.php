@@ -270,6 +270,9 @@ $dashboard_link = ($user_type == 'Admin') ? '../dashboard.php' : '../dashboard.p
             <?php 
             $user_role_norm = str_replace([' ', '-'], '', strtolower($_SESSION['user_type'] ?? ''));
             if (in_array($user_role_norm, ['propertycustodian', 'admin'])): ?>
+                <li><a href="canvass_form_list.php" class="nav-link <?= ($pageTitle == 'Canvass List') ? 'active' : '' ?>">
+                        <i class="fas fa-list"></i> Canvass Form List
+                    </a></li>
                 <li><a href="property_reports.php" class="nav-link <?= ($pageTitle == 'Property Reports') ? 'active' : '' ?>">
                         <i class="fas fa-chart-bar"></i> Property Reports
                     </a></li>
