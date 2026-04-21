@@ -239,4 +239,74 @@ if ($report_type === 'issuance') {
     <?php
     echo ob_get_clean();
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 4. OFFICE REQUISITIONS REPORT
+// ═══════════════════════════════════════════════════════════════════════════
+if ($report_type === 'offices') {
+    $office     = $_GET['office'] ?? '';
+    $date_start = $_GET['off_ds'] ?? '';
+    $date_end   = $_GET['off_de'] ?? '';
+
+    $w = ["sr.request_type = 'office_supply'"];
+
+    if (!empty($office)) {
+        $w[] = "sr.department_unit = '" . safe($conn, $office) . "'";
+    }
+
+    if (!empty($date_start)) $w[] = "sr.date_requested >= '" . safe($conn, $date_start) . " 00:00:00'";
+    if (!empty($date_end))   $w[] = "sr.date_requested <= '" . safe($conn, $date_end) . " 23:59:59'";
+
+    $where = "WHERE " . implode(' AND ', $w);
+    $sql   = "SELECT sr.* FROM supply_request sr $where ORDER BY sr.date_requested DESC";
+    $res   = $conn->query($sql);
+
+    $grand_total = 0;
+    ob_start(); ?>
+    <h3 class="section-title"><i class="fas fa-building me-2"></i>Office Requisitions Summary</h3>
+    <table class="table table-bordered report-table w-100">
+        <thead>
+            <tr>
+                <th>Date Requested</th>
+                <th>Office / Dept</th>
+                <th>Item Name</th>
+                <th>Description</th>
+                <th>Qty</th>
+                <th>Unit Cost</th>
+                <th>Total Cost</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php if ($res && $res->num_rows > 0):
+            while ($row = $res->fetch_assoc()):
+                $total = (float)($row['total_cost'] ?? 0);
+                $grand_total += $total;
+                $st = $row['status'] ?? 'Pending';
+                $badge = ($st === 'Issued' || $st === 'Completed') ? 'badge-in' : 'badge-adj';
+            ?>
+            <tr>
+                <td><?= date('M d, Y', strtotime($row['date_requested'])) ?></td>
+                <td><?= htmlspecialchars($row['department_unit'] ?? '—') ?></td>
+                <td class="fw-bold"><?= htmlspecialchars($row['item_name'] ?? '—') ?></td>
+                <td><?= htmlspecialchars($row['request_description'] ?? '—') ?></td>
+                <td><?= htmlspecialchars($row['quantity_requested'] ?? '0') ?> <?= htmlspecialchars($row['unit'] ?? '') ?></td>
+                <td>₱<?= number_format((float)($row['unit_cost'] ?? 0), 2) ?></td>
+                <td class="fw-bold">₱<?= number_format($total, 2) ?></td>
+                <td><span class="<?= $badge ?>"><?= htmlspecialchars($st) ?></span></td>
+            </tr>
+        <?php endwhile; ?>
+            <tr class="fw-bold bg-light">
+                <td colspan="6" class="text-end">Grand Total Cost:</td>
+                <td colspan="2">₱<?= number_format($grand_total, 2) ?></td>
+            </tr>
+        <?php else: ?>
+            <tr><td colspan="8" class="text-center text-muted py-3">No office requisition records match the selected filters.</td></tr>
+        <?php endif; ?>
+        </tbody>
+    </table>
+    <?php
+    echo ob_get_clean();
+}
 ?>
+
