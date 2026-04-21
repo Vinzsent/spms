@@ -791,7 +791,6 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <a href="pages/received_items.php" class="card-button">Access</a>
       </div>
 
-      <!-- Inventory Card -->
       <div class="menu-card card-info">
         <div class="card-icon">
           <i class="fas fa-warehouse"></i>
@@ -799,6 +798,15 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <h3 class="card-title">Supply Inventory Management</h3>
         <p class="card-description">Track real-time stock levels with detailed logs. Get alerts for low inventory and manage supplies.</p>
         <a href="pages/Inventory.php" class="card-button">Access</a>
+      </div>
+
+      <div class="menu-card card-primary">
+        <div class="card-icon" style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d);">
+          <i class="fas fa-building"></i>
+        </div>
+        <h3 class="card-title">Supply Offices</h3>
+        <p class="card-description">Manage and view supply requisitions filtered by office. Access the paper-form layout for each department.</p>
+        <a href="pages/supply_offices_request.php" class="card-button">Access</a>
       </div>
 
       <div class="menu-card card-dark">
@@ -809,6 +817,7 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <p class="card-description">Generate comprehensive reports on supply requisitions, inventory, and usage.</p>
         <a href="pages/supply_reports.php" class="card-button">Access</a>
       </div>
+
     <?php else: ?>
       <!-- All other cards for non-Faculty users -->
       <!-- Supply Requisition Card -->
@@ -830,6 +839,18 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <p class="card-description">Request property items and track approvals. Choose between consumable and non-consumable items.</p>
         <button onclick="showPropertyRequestTypeModal()" class="card-button">Access</button>
       </div>
+
+      <?php if (in_array($user_type, ['admin', 'administrator'])): ?>
+      <!-- Supply Offices Card for Admin (Promoted to Top) -->
+      <div class="menu-card card-primary">
+        <div class="card-icon" style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d);">
+          <i class="fas fa-building"></i>
+        </div>
+        <h3 class="card-title">Supply Offices</h3>
+        <p class="card-description">Manage and view supply requisitions filtered by office. Access the paper-form layout for each department.</p>
+        <a href="pages/supply_offices_request.php" class="card-button">Access</a>
+      </div>
+      <?php endif; ?>
 
       <!-- Assignment Card -->
       <div class="menu-card card-primary">
@@ -896,7 +917,11 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <p class="card-description">Register assets with specifications, values, and documents. Generate tags or barcodes automatically.</p>
         <a href="pages/assets_page.php" class="card-button">Access</a>
       </div>
+
+
+
       <!-- Maintenance Card -->
+
       <div class="menu-card card-success">
         <div class="card-icon">
           <i class="fas fa-tools"></i>
