@@ -924,6 +924,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             <i class="fas fa-chart-bar"></i> Supply Reports
                         </a></li>
                 <?php endif; ?>
+                <?php if (in_array($user_type, ['supplyincharge', 'admin'])): ?>
+                <li><a href="supply_offices_request.php" class="nav-link"><i class="fas fa-building"></i> Office Requisitions</a></li>
+            <?php endif; ?>
                 <li><a href="../logout.php" class="nav-link logout">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a></li>
