@@ -549,6 +549,27 @@ function getCourseLogoPath($course_name, $course_id)
                 <li><a href="notifications.php" class="nav-link">
                         <i class="fas fa-bell"></i> notifications
                     </a></li>
+                <li><a href="other_property_logs.php" class="nav-link">
+                        <i class="fas fa-box"></i> Other Property Logs
+                    </a></li>
+            <?php 
+            $user_role_norm = str_replace([' ', '-'], '', strtolower($_SESSION['user_type'] ?? ''));
+            if (in_array($user_role_norm, ['propertycustodian', 'admin'])): ?>
+                <li><a href="canvass_form_list.php" class="nav-link <?= ($pageTitle == 'Canvass List') ? 'active' : '' ?>">
+                        <i class="fas fa-list"></i> Canvass Form List
+                    </a></li>
+                <li><a href="property_reports.php" class="nav-link <?= ($pageTitle == 'Property Reports') ? 'active' : '' ?>">
+                        <i class="fas fa-chart-bar"></i> Property Reports
+                    </a></li>
+            <?php endif; ?>
+            <?php if (in_array($user_role_norm, ['supplyincharge', 'admin'])): ?>
+                <li><a href="supply_reports.php" class="nav-link <?= ($pageTitle == 'Supply Reports') ? 'active' : '' ?>">
+                        <i class="fas fa-chart-bar"></i> Supply Reports
+                    </a></li>
+            <?php endif; ?>
+                <?php if (in_array($user_type, ['supplyincharge', 'admin'])): ?>
+                <li><a href="supply_offices_request.php" class="nav-link"><i class="fas fa-building"></i> Office Requisitions</a></li>
+            <?php endif; ?>
                 <li><a href="../logout.php" class="nav-link logout">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a></li>
