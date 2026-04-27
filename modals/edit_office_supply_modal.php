@@ -74,13 +74,13 @@
                                             <input type="text" name="unit" id="edit_unit" class="form-control form-control-sm border-2 shadow-none" placeholder="pcs / box / ream" required>
                                         </div>
                                         <div class="col-md-4">
-                                            <label class="form-label small fw-bold">Quantity Requested</label>
+                                            <label class="form-label small fw-bold">Quantity Issued</label>
                                             <input type="number" step="0.01" name="quantity_requested" id="edit_quantity" class="form-control form-control-sm border-2 shadow-none" required>
                                         </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label small fw-bold">Quantity Issued</label>
+                                        <!--<div class="col-md-4">
+                                            <label class="form-label small fw-bold">Quantity Issued (Optional)</label>
                                             <input type="number" step="0.01" name="quality_issued" id="edit_quantity_issued" class="form-control form-control-sm border-2 shadow-none">
-                                        </div>
+                                        </div>-->
                                         <div class="col-md-6">
                                             <label class="form-label small fw-bold">Unit Cost (₱)</label>
                                             <div class="input-group input-group-sm">
