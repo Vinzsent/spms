@@ -818,8 +818,29 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <a href="pages/supply_reports.php" class="card-button">Access</a>
       </div>
 
+    <?php elseif ($user_type === 'gsogeneralserviceofficer'): ?>
+      <!-- Service Form Card for GSO -->
+      <div class="menu-card card-info">
+        <div class="card-icon">
+          <i class="fas fa-clipboard-check"></i>
+        </div>
+        <h3 class="card-title">Service Form</h3>
+        <p class="card-description">Manage and process general service forms and requests.</p>
+        <a href="pages/service_forms.php" class="card-button">Access</a>
+      </div>
+
+      <!-- Service Form Reports Card for GSO -->
+      <div class="menu-card card-dark">
+        <div class="card-icon">
+          <i class="fas fa-file-invoice"></i>
+        </div>
+        <h3 class="card-title">Service Form Reports</h3>
+        <p class="card-description">Generate comprehensive reports based on service forms and actions taken.</p>
+        <a href="pages/service_form_reports.php" class="card-button">Access</a>
+      </div>
+
     <?php else: ?>
-      <!-- All other cards for non-Faculty users -->
+      <!-- All other cards for Admin and other non-specific roles -->
       <!-- Supply Requisition Card -->
       <div class="menu-card card-success">
         <div class="card-icon">
@@ -841,16 +862,38 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
       </div>
 
       <?php if (in_array($user_type, ['admin', 'administrator'])): ?>
-      <!-- Supply Offices Card for Admin (Promoted to Top) -->
-      <div class="menu-card card-primary">
-        <div class="card-icon" style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d);">
-          <i class="fas fa-building"></i>
+        <!-- Supply Offices Card for Admin -->
+        <div class="menu-card card-primary">
+          <div class="card-icon" style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d);">
+            <i class="fas fa-building"></i>
+          </div>
+          <h3 class="card-title">Supply Offices</h3>
+          <p class="card-description">Manage and view supply requisitions filtered by office. Access the paper-form layout for each department.</p>
+          <a href="pages/supply_offices_request.php" class="card-button">Access</a>
         </div>
-        <h3 class="card-title">Supply Offices</h3>
-        <p class="card-description">Manage and view supply requisitions filtered by office. Access the paper-form layout for each department.</p>
-        <a href="pages/supply_offices_request.php" class="card-button">Access</a>
-      </div>
+
+        <!-- Service Form Card for Admin -->
+        <div class="menu-card card-info">
+          <div class="card-icon">
+            <i class="fas fa-clipboard-check"></i>
+          </div>
+          <h3 class="card-title">Service Form</h3>
+          <p class="card-description">Manage and process general service forms and requests.</p>
+          <a href="pages/service_forms.php" class="card-button">Access</a>
+        </div>
+
+        <!-- Service Form Reports Card for Admin -->
+        <div class="menu-card card-dark">
+          <div class="card-icon">
+            <i class="fas fa-file-invoice"></i>
+          </div>
+          <h3 class="card-title">Service Form Reports</h3>
+          <p class="card-description">Generate comprehensive reports based on service forms and actions taken.</p>
+          <a href="pages/service_forms_reports.php" class="card-button">Access</a>
+        </div>
       <?php endif; ?>
+
+
 
       <!-- Assignment Card -->
       <div class="menu-card card-primary">
