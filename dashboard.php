@@ -889,7 +889,7 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
           </div>
           <h3 class="card-title">Service Form Reports</h3>
           <p class="card-description">Generate comprehensive reports based on service forms and actions taken.</p>
-          <a href="pages/service_forms_reports.php" class="card-button">Access</a>
+          <a href="pages/service_form_reports.php" class="card-button">Access</a>
         </div>
       <?php endif; ?>
 
