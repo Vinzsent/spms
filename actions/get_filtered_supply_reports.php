@@ -40,7 +40,6 @@ if ($report_type === 'inventory') {
               $where ORDER BY i.item_name ASC";
     $res   = $conn->query($sql);
 
-    $grand_total = 0;
     ob_start();
     ?>
     <h3 class="section-title"><i class="fas fa-boxes me-2"></i>Supply Items</h3>
@@ -48,37 +47,20 @@ if ($report_type === 'inventory') {
         <thead>
             <tr>
                 <th>Item Name</th>
-                <th>Supplier</th>
                 <th>Stock</th>
-                <th>Reorder Lvl</th>
-                <th>Unit Cost</th>
-                <th>Total Value</th>
-                <th>Date Added</th>
             </tr>
         </thead>
         <tbody>
         <?php if ($res && $res->num_rows > 0):
             while ($row = $res->fetch_assoc()):
-                $uc = isset($row['unit_cost']) ? (float)$row['unit_cost'] : 0;
-                $tv = $row['current_stock'] * $uc;
-                $grand_total += $tv;
                 $cls = $row['current_stock'] == 0 ? 'stock-out' : ($row['current_stock'] <= $row['reorder_level'] ? 'stock-warn' : ''); ?>
             <tr>
                 <td><?= htmlspecialchars($row['item_name']) ?></td>
-                <td><?= htmlspecialchars($row['supplier_name'] ?? '—') ?></td>
                 <td class="<?= $cls ?>"><?= htmlspecialchars($row['current_stock']) ?></td>
-                <td><?= htmlspecialchars($row['reorder_level']) ?></td>
-                <td>₱<?= number_format($uc, 2) ?></td>
-                <td>₱<?= number_format($tv, 2) ?></td>
-                <td><?= isset($row['date_created']) ? date('M d, Y', strtotime($row['date_created'])) : '—' ?></td>
             </tr>
         <?php endwhile; ?>
-            <tr class="fw-bold bg-light">
-                <td colspan="5" class="text-end">Total Valuation:</td>
-                <td colspan="2">₱<?= number_format($grand_total, 2) ?></td>
-            </tr>
         <?php else: ?>
-            <tr><td colspan="7" class="text-center text-muted py-3">No items match the selected filters.</td></tr>
+            <tr><td colspan="2" class="text-center text-muted py-3">No items match the selected filters.</td></tr>
         <?php endif; ?>
         </tbody>
     </table>
