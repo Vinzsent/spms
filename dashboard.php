@@ -716,6 +716,26 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <a href="pages/procurement.php" class="card-button">Access</a>
       </div>
 
+      <!-- Canvass Form Card -->
+      <div class="menu-card card-info">
+        <div class="card-icon">
+          <i class="fas fa-file-invoice"></i>
+        </div>
+        <h3 class="card-title">Canvass Form</h3>
+        <p class="card-description">Compare supplier prices and create canvass reports for procurement.</p>
+        <a href="pages/canvass_form.php" class="card-button">Access</a>
+      </div>
+
+      <!-- Canvass Form List Card -->
+      <div class="menu-card card-info">
+        <div class="card-icon">
+          <i class="fas fa-list"></i>
+        </div>
+        <h3 class="card-title">Canvass Form List</h3>
+        <p class="card-description">View all canvass request data submitted to multiple suppliers.</p>
+        <a href="pages/canvass_form_list.php" class="card-button">Access</a>
+      </div>
+
     <?php elseif ($user_type === 'propertycustodian'): ?>
       <!-- Supply Requisition Card ONLY for School President -->
 
@@ -816,6 +836,15 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <h3 class="card-title">Supply Reports</h3>
         <p class="card-description">Generate comprehensive reports on supply requisitions, inventory, and usage.</p>
         <a href="pages/supply_reports.php" class="card-button">Access</a>
+      </div>
+
+      <div class="menu-card card-info">
+        <div class="card-icon">
+          <i class="fas fa-list"></i>
+        </div>
+        <h3 class="card-title">Canvass Form List</h3>
+        <p class="card-description">View all canvass request data submitted to multiple suppliers.</p>
+        <a href="pages/canvass_form_list.php" class="card-button">Access</a>
       </div>
 
     <?php elseif ($user_type === 'gsogeneralserviceofficer'): ?>
