@@ -47,10 +47,13 @@
                                         <label class="form-label small fw-bold">Department / Unit</label>
                                         <input type="text" class="form-control form-control-sm bg-light border-2 shadow-none fw-bold" value="<?= htmlspecialchars($office ?? '') ?>" disabled>
                                     </div>
+
+                                    <!--
                                     <div class="mb-0">
                                         <label class="form-label small fw-bold">Purpose</label>
                                         <input type="text" name="purpose" class="form-control form-control-sm border-2 shadow-none" placeholder="e.g., Office Operations" required>
                                     </div>
+                                    -->
                                 </div>
                             </div>
                         </div>
