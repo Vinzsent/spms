@@ -55,32 +55,15 @@
         </label>
         <select class="form-select" name="user_type" id="edit-usertype" required>
           <option value="">-- Select Position --</option>
-          <option value="Admin">Administrator</option>
-          <option value="Immediate Head">Immediate Head</option>
-          <option value="Immediate Head - CELA">Immediate Head - CELA</option>
-          <option value="Immediate Head - CJE">Immediate Head - CJE</option>
-          <option value="Immediate Head - CBM">Immediate Head - CBM</option>
-          <option value="Immediate Head - ITE">Immediate Head - ITE</option>
-          <option value="Immediate Head - HRM">Immediate Head - HRM</option>
-          <option value="Faculty">Faculty</option>
-          <option value="Faculty - CELA">Faculty - CELA</option>
-          <option value="Faculty - CJE">Faculty - CJE</option>
-          <option value="Faculty - CBM">Faculty - CBM</option>
-          <option value="Faculty - ITE">Faculty - ITE</option>
-          <option value="Faculty - HRM">Faculty - HRM</option>
-          <option value="Staff">Staff</option>
-          <option value="MIS Head">MIS Head</option>
-          <option value="MIS Computer Programmer">MIS Computer Programmer</option>
-          <option value="School President">School President</option>
-          <option value="Supply In-charge">Supply In-charge</option>
-          <option value="Property Custodian">Property Custodian</option>
-          <option value="Purchasing Officer">Purchasing Officer</option>
-          <option value="Purchasing Staff">Purchasing Staff</option>
-          <option value="VP for Finance & Administration">VP for Finance & Administration</option>
-          <option value="Finance Officer">Finance Officer</option>
-          <option value="VP for Academic Affairs">VP for Academic Affairs</option>
-          <option value="Admistrative Officer">Admistrative Officer</option>
-          <option value="Accounting Officer">Accounting Officer</option>
+          <?php
+          $pos_query = $conn->query("SELECT position_name FROM positions ORDER BY position_name ASC");
+          if ($pos_query && $pos_query->num_rows > 0) {
+              while ($p_row = $pos_query->fetch_assoc()) {
+                  $pos_name = htmlspecialchars($p_row['position_name']);
+                  echo '<option value="' . $pos_name . '">' . $pos_name . '</option>';
+              }
+          }
+          ?>
         </select>
       </div>
     </div>
