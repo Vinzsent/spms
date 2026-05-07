@@ -106,6 +106,8 @@ function saveCanvass($data, $conn, $user_id) {
                 if (!empty($item['supplier']) && !empty($item['description'])) {
                     $item_number = $index + 1;
                     $supplier_name = $conn->real_escape_string(trim($item['supplier']));
+                    $department = $conn->real_escape_string(trim($item['department'] ?? ''));
+                    $campus = $conn->real_escape_string(trim($item['campus'] ?? ''));
                     $description = $conn->real_escape_string(trim($item['description']));
                     $quantity = floatval($item['quantity'] ?? 0);
                     $unit_cost = floatval($item['unit_cost'] ?? 0);
@@ -113,8 +115,8 @@ function saveCanvass($data, $conn, $user_id) {
                     $total_amount += $total_cost;
                     
                     $item_sql = "INSERT INTO canvass_items 
-                                (canvass_id, item_number, supplier_name, item_description, quantity, unit_cost, total_cost)
-                                VALUES ($canvass_id, $item_number, '$supplier_name', '$description', $quantity, $unit_cost, $total_cost)";
+                                (canvass_id, item_number, supplier_name, department, campus, item_description, quantity, unit_cost, total_cost)
+                                VALUES ($canvass_id, $item_number, '$supplier_name', '$department', '$campus', '$description', $quantity, $unit_cost, $total_cost)";
                     
                     if (!$conn->query($item_sql)) {
                         throw new Exception('Failed to save item: ' . $conn->error);
