@@ -182,8 +182,8 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
 
         /* Main Content */
         .main-content {
-            margin-left: 240px;
-            padding: 20px;
+            margin-left: 280px;
+            padding: 30px;
             min-height: 100vh;
             background-color: var(--bg-light);
         }
@@ -718,63 +718,14 @@ while ($row = mysqli_fetch_assoc($budget_result)) {
                 padding: 12px;
             }
             
-            .course-logo-card img {
-                max-height: 70px;
-                margin-bottom: 8px;
-            }
-            
-            .course-logo-card p {
-                font-size: 0.75rem;
-                line-height: 1.2;
             }
         }
     </style>
+</head>
 
+<body>
     <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h3>DARTS</h3>
-            <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
-        </div>
-
-        <nav class="sidebar-nav">
-            <ul class="nav-item">
-                <li><a href="<?= $dashboard_link ?>" class="nav-link">
-                        <i class="fas fa-chart-line"></i> Dashboard
-                    </a></li>
-                <li><a href="assets.php" class="nav-link active">
-                        <i class="fas fa-wallet"></i> Budgets
-                    </a></li>
-                <li><a href="assets.php" class="nav-link">
-                        <i class="fas fa-boxes"></i> Assets
-                    </a></li>
-                <li><a href="other_property_logs.php" class="nav-link">
-                        <i class="fas fa-box"></i> Other Property Logs
-                    </a></li>
-            <?php 
-            $user_role_norm = str_replace([' ', '-'], '', strtolower($_SESSION['user_type'] ?? ''));
-            if (in_array($user_role_norm, ['propertycustodian', 'admin'])): ?>
-                <li><a href="canvass_form_list.php" class="nav-link <?= ($pageTitle == 'Canvass List') ? 'active' : '' ?>">
-                        <i class="fas fa-list"></i> Canvass Form List
-                    </a></li>
-                <li><a href="property_reports.php" class="nav-link <?= ($pageTitle == 'Property Reports') ? 'active' : '' ?>">
-                        <i class="fas fa-chart-bar"></i> Property Reports
-                    </a></li>
-            <?php endif; ?>
-            <?php if (in_array($user_role_norm, ['supplyincharge', 'admin'])): ?>
-                <li><a href="supply_reports.php" class="nav-link <?= ($pageTitle == 'Supply Reports') ? 'active' : '' ?>">
-                        <i class="fas fa-chart-bar"></i> Supply Reports
-                    </a></li>
-            <?php endif; ?>
-                <?php if (in_array($user_type, ['supplyincharge', 'admin'])): ?>
-                <li><a href="supply_offices_request.php" class="nav-link"><i class="fas fa-building"></i> Office Requisitions</a></li>
-            <?php endif; ?>
-                <li><a href="../logout.php" class="nav-link logout">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a></li>
-            </ul>
-        </nav>
-    </div>
+    <?php include '../includes/sidebar.php'; ?>
 
     <div class="main-content">
         <div class="content-header">
