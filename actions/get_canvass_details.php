@@ -45,6 +45,8 @@ try {
             canvass_item_id,
             item_number,
             supplier_name,
+            department,
+            campus,
             item_description,
             quantity,
             unit_cost,
