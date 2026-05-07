@@ -19,6 +19,8 @@ if (!$input) {
 
 $canvass_item_id = $input['canvass_item_id'] ?? null;
 $supplier_name = $input['supplier_name'] ?? '';
+$department = $input['department'] ?? '';
+$campus = $input['campus'] ?? '';
 $item_description = $input['item_description'] ?? '';
 $quantity = floatval($input['quantity'] ?? 0);
 $unit_cost = floatval($input['unit_cost'] ?? 0);
@@ -50,6 +52,8 @@ try {
 
     $update_sql = "UPDATE canvass_items SET 
                    supplier_name = ?, 
+                   department = ?, 
+                   campus = ?, 
                    item_description = ?, 
                    quantity = ?, 
                    unit_cost = ?, 
@@ -57,7 +61,7 @@ try {
                    WHERE canvass_item_id = ?";
 
     $stmt = $conn->prepare($update_sql);
-    $stmt->bind_param("ssiddi", $supplier_name, $item_description, $quantity, $unit_cost, $total_cost, $canvass_item_id);
+    $stmt->bind_param("ssssiddi", $supplier_name, $department, $campus, $item_description, $quantity, $unit_cost, $total_cost, $canvass_item_id);
 
     if (!$stmt->execute()) {
         throw new Exception('Failed to update item');
