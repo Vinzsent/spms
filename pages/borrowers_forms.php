@@ -242,7 +242,7 @@ if (isset($_SESSION['error'])) {
 
         /* Main Content */
         .main-content {
-            margin-left: 240px;
+            margin-left: 280px;
             padding: 20px;
             min-height: 100vh;
             background-color: var(--bg-light);
@@ -603,86 +603,13 @@ if (isset($_SESSION['error'])) {
             }
 
             .alert .flex-grow-1 {
-                max-width: 100%;
                 margin-right: 30px;
             }
         }
     </style>
 
     <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h3>DARTS</h3>
-            <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
-        </div>
-
-        <nav class="sidebar-nav">
-            <ul class="nav-item">
-                <li><a href="<?= $dashboard_link ?>" class="nav-link">
-                        <i class="fas fa-chart-line"></i> Dashboard
-                    </a></li>
-                <li><a href="property_inventory.php" class="nav-link">
-                        <i class="fas fa-boxes"></i> Property Inventory
-                    </a></li>
-                <li><a href="rooms_inventory.php" class="nav-link">
-                        <i class="fas fa-door-open"></i> Rooms Inventory
-                    </a></li>
-                <li>
-                    <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
-                        <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
-                    </a>
-                    <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
-                        <li>
-                            <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
-                        </li>
-                        <li>
-                            <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
-                        </li>
-                    </ul>
-                </li>
-                <li><a href="aircon_list.php" class="nav-link">
-                        <i class="fas fa-snowflake"></i> Aircons
-                    </a></li>
-                <li><a href="office_inventory.php" class="nav-link">
-                        <i class="fas fa-building"></i> Office Inventory Form
-                    </a></li>
-                <li><a href="property_issuance.php" class="nav-link">
-                        <i class="fas fa-hand-holding"></i> Property Issuance
-                    </a></li>
-                <li><a href="equipment_transfer_request.php" class="nav-link">
-                        <i class="fas fa-exchange-alt"></i> Transfer Request
-                    </a></li>
-                <li><a href="borrowers_forms.php" class="nav-link active">
-                        <i class="fas fa-hand-holding"></i> Borrower Forms
-                    </a></li>
-                <li><a href="other_property_logs.php" class="nav-link">
-                        <i class="fas fa-box"></i> Other Property Logs
-                    </a></li>
-            <?php 
-            $user_role_norm = str_replace([' ', '-'], '', strtolower($_SESSION['user_type'] ?? ''));
-            if (in_array($user_role_norm, ['propertycustodian', 'admin'])): ?>
-                <li><a href="canvass_form_list.php" class="nav-link <?= ($pageTitle == 'Canvass List') ? 'active' : '' ?>">
-                        <i class="fas fa-list"></i> Canvass Form List
-                    </a></li>
-                <li><a href="property_reports.php" class="nav-link <?= ($pageTitle == 'Property Reports') ? 'active' : '' ?>">
-                        <i class="fas fa-chart-bar"></i> Property Reports
-                    </a></li>
-            <?php endif; ?>
-            <?php if (in_array($user_role_norm, ['supplyincharge', 'admin'])): ?>
-                <li><a href="supply_reports.php" class="nav-link <?= ($pageTitle == 'Supply Reports') ? 'active' : '' ?>">
-                        <i class="fas fa-chart-bar"></i> Supply Reports
-                    </a></li>
-            <?php endif; ?>
-                <?php if (in_array($user_type, ['supplyincharge', 'admin'])): ?>
-                <li><a href="supply_offices_request.php" class="nav-link"><i class="fas fa-building"></i> Office Requisitions</a></li>
-            <?php endif; ?>
-                <li><a href="../logout.php" class="nav-link logout">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a></li>
-                </a></li>
-            </ul>
-        </nav>
-    </div>
+    <?php include '../includes/sidebar.php'; ?>
 
     <!-- Main Content -->
     <div class="main-content">
