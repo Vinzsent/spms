@@ -46,6 +46,20 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         $suppliers_array[] = $supplier;
     }
 }
+
+// Departments list
+$departments = [
+    "Admin Office", "BSBA", "BSHM", "ELEMENTARY DEPT. BASIC EDUCATION",
+    "JHS/ BASIC EDUCATION", "CELA OFFICE", "CES", "CJE", "CLINIC",
+    "FINANCE/ ACCOUNTING", "GSO/ Security officer", "GUIDANCE/Chaplain",
+    "HUMAN RESOURCE MANAGEMENT", "ITE Program", "MIS", "NSTP", "OSAS",
+    "PHOTOCOPY ROOM", "PRESIDENT'S OFFICE", "Property Custodian",
+    "REGISTRAR'S OFFICE", "SENIOR HIGH SCHOOL PROGRAM", "SUPPLY ROOM",
+    "VPAA OFFICE", "OSSD", "MAIN LIBRARY", "BED LIBRARY"
+];
+sort($departments);
+
+$campuses = ["MAIN", "BED"];
 ?>
 
 <style>
@@ -152,7 +166,7 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
 
     /* Main Content */
     .main-content {
-        margin-left: 240px;
+        margin-left: 280px;
         padding: 20px;
         min-height: 100vh;
         background-color: var(--bg-light);
@@ -478,53 +492,7 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
 </style>
 
 <!-- Sidebar -->
-<div class="sidebar">
-    <div class="sidebar-header">
-        <h4>DARTS</h4>
-        <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
-    </div>
-
-    <nav class="sidebar-nav">
-        <ul>
-            <li><a href="../dashboard.php" class="nav-link">
-                    <i class="fas fa-chart-line"></i> Dashboard
-                </a></li>
-            <li><a href="suppliers.php" class="nav-link">
-                    <i class="fas fa-users"></i> Suppliers
-                </a></li>
-            <li><a href="received_items.php" class="nav-link">
-                    <i class="fas fa-box-open"></i> Received Items
-                </a></li>
-            <li><a href="procurement_statistics.php" class="nav-link">
-                    <i class="fas fa-chart-line"></i> Procurement Statistics
-                </a></li>
-            <li><a href="procurement.php" class="nav-link">
-                    <i class="fas fa-shopping-cart"></i> Procurement Tables
-                </a></li>
-            <li><a href="canvass_form.php" class="nav-link active">
-                    <i class="fas fa-file-invoice"></i> Canvass Form
-                </a></li>
-            <li><a href="canvass_form_list.php" class="nav-link">
-                    <i class="fas fa-list"></i> Canvass Form List
-                </a></li>
-            <li><a href="purchase_order.php" class="nav-link">
-                    <i class="fas fa-shopping-basket"></i> Purchase Order
-                </a></li>
-            <li><a href="purchase_order_list.php" class="nav-link">
-                    <i class="fas fa-file-invoice"></i> Purchase Order List
-                </a></li>
-            <li><a href="Inventory.php" class="nav-link">
-                    <i class="fas fa-box"></i> Supply Inventory
-                </a></li>
-            <li><a href="property_inventory.php" class="nav-link">
-                    <i class="fas fa-boxes"></i> Property Inventory
-                </a></li>
-            <li><a href="../logout.php" class="nav-link logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a></li>
-        </ul>
-    </nav>
-</div>
+<?php include '../includes/sidebar.php'; ?>
 
 <!-- Main Content -->
 <div class="main-content">
@@ -549,33 +517,44 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         <table class="canvass-table" id="canvassTable">
             <thead>
                 <tr>
-                    <th style="width: 20%;">SUPPLIER</th>
-                    <th style="width: 35%;">ITEM DESCRIPTION</th>
-                    <th style="width: 15%;">QUANTITY</th>
-                    <th style="width: 15%;">UNIT COST</th>
-                    <th style="width: 15%;">TOTAL COST</th>
+                    <th style="width: 15%;">SUPPLIER</th>
+                    <th style="width: 12%;">DEPARTMENT</th>
+                    <th style="width: 12%;">CAMPUS</th>
+                    <th style="width: 25%;">ITEM DESCRIPTION</th>
+                    <th style="width: 10%;">QUANTITY</th>
+                    <th style="width: 12%;">UNIT COST</th>
+                    <th style="width: 14%;">TOTAL COST</th>
                 </tr>
             </thead>
             <tbody id="canvassTableBody">
                 <!-- Dynamic rows will be added here -->
+                <?php if (in_array($user_role_norm, ['supplyincharge', 'propertycustodian']) && !$edit_mode): ?>
+                    <tr style="background-color: #f8f9fa;">
+                        <td colspan="7" class="text-center p-5">
+                            <i class="fas fa-lock mb-3" style="font-size: 2rem; color: #6c757d;"></i>
+                            <h4 style="color: #6c757d;">View Only Access</h4>
+                            <p style="color: #6c757d;">You don't have permission to create new canvass forms. Please go to the <a href="canvass_form_list.php">Canvass List</a> to view existing records.</p>
+                        </td>
+                    </tr>
+                <?php endif; ?>
                 <tr style="background-color: var(--primary-green); color: white; font-weight: bold;">
-                    <td colspan="4" style="text-align: right; padding-right: 20px;">GRAND TOTAL:</td>
+                    <td colspan="6" style="text-align: right; padding-right: 20px;">GRAND TOTAL:</td>
                     <td id="grandTotal">₱0.00</td>
                 </tr>
             </tbody>
         </table>
 
-
-
         <!-- Row Management Buttons -->
-        <div class="row-management" style="margin: 20px 0; text-align: center;">
-            <button type="button" class="btn-canvass btn-success" onclick="addRow()">
-                <i class="fas fa-plus"></i> Add Row
-            </button>
-            <button type="button" class="btn-danger btn-canvass" onclick="removeLastRow()">
-                <i class="fas fa-minus"></i> Remove Row
-            </button>
-        </div>
+        <?php if (!in_array($user_role_norm, ['supplyincharge', 'propertycustodian'])): ?>
+            <div class="row-management" style="margin: 20px 0; text-align: center;">
+                <button type="button" class="btn-canvass btn-success" onclick="addRow()">
+                    <i class="fas fa-plus"></i> Add Row
+                </button>
+                <button type="button" class="btn-danger btn-canvass" onclick="removeLastRow()">
+                    <i class="fas fa-minus"></i> Remove Row
+                </button>
+            </div>
+        <?php endif; ?>
 
         <!-- Signature Section -->
         <div class="signature-section">
@@ -588,15 +567,19 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
 
         <!-- Action Buttons -->
         <div class="action-buttons">
-            <button type="button" class="btn-canvass btn-secondary" onclick="clearForm()">
-                <i class="fas fa-undo"></i> Clear
-            </button>
+            <?php if (!in_array($user_role_norm, ['supplyincharge', 'propertycustodian'])): ?>
+                <button type="button" class="btn-canvass btn-secondary" onclick="clearForm()">
+                    <i class="fas fa-undo"></i> Clear
+                </button>
+            <?php endif; ?>
             <button type="button" class="btn-canvass btn-success" onclick="printCanvass()">
                 <i class="fas fa-print"></i> Print
             </button>
-            <button type="button" class="btn-canvass btn-primary" onclick="saveCanvass()">
-                <i class="fas fa-save"></i> Save
-            </button>
+            <?php if (!in_array($user_role_norm, ['supplyincharge', 'propertycustodian'])): ?>
+                <button type="button" class="btn-canvass btn-primary" onclick="saveCanvass()">
+                    <i class="fas fa-save"></i> Save
+                </button>
+            <?php endif; ?>
         </div>
     </div>
 </div>
@@ -605,11 +588,11 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
     // Calculate row total when quantity or unit cost changes
     function calculateRowTotal(input) {
         const row = input.closest('tr');
-        const quantity = parseFloat(row.cells[2].querySelector('input').value) || 0;
-        const unitCost = parseFloat(row.cells[3].querySelector('input').value) || 0;
+        const quantity = parseFloat(row.cells[4].querySelector('input').value) || 0;
+        const unitCost = parseFloat(row.cells[5].querySelector('input').value) || 0;
         const totalCost = quantity * unitCost;
 
-        row.cells[4].textContent = '₱' + totalCost.toFixed(2);
+        row.cells[6].textContent = '₱' + totalCost.toFixed(2);
 
         calculateGrandTotal();
     }
@@ -620,7 +603,7 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         let total = 0;
 
         rows.forEach(row => {
-            const totalText = row.cells[4].textContent.replace('₱', '').replace(',', '');
+            const totalText = row.cells[6].textContent.replace('₱', '').replace(',', '');
             const amount = parseFloat(totalText) || 0;
             total += amount;
         });
@@ -667,14 +650,16 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             // Skip the grand total row
             if (row.querySelector('#grandTotal')) return;
 
-            const supplier = row.cells[0]?.querySelector('select')?.value?.trim() || '';
-            const description = row.cells[1]?.querySelector('textarea')?.value?.trim() || '';
-            const qty = row.cells[2]?.querySelector('input')?.value?.trim() || '';
-            const unit = row.cells[3]?.querySelector('input')?.value?.trim() || '';
-            const totalText = (row.cells[4]?.textContent || '').replace('₱', '').replace(/,/g, '').trim();
+            const supplier = row.cells[0]?.querySelector('input')?.value?.trim() || '';
+            const department = row.cells[1]?.querySelector('select')?.value?.trim() || '';
+            const campus = row.cells[2]?.querySelector('select')?.value?.trim() || '';
+            const description = row.cells[3]?.querySelector('textarea')?.value?.trim() || '';
+            const qty = row.cells[4]?.querySelector('input')?.value?.trim() || '';
+            const unit = row.cells[5]?.querySelector('input')?.value?.trim() || '';
+            const totalText = (row.cells[6]?.textContent || '').replace('₱', '').replace(/,/g, '').trim();
             const total = parseFloat(totalText) || 0;
 
-            if (!supplier && !description && !qty && !unit && total === 0) {
+            if (!supplier && !department && !campus && !description && !qty && !unit && total === 0) {
                 row.classList.add('print-hide');
                 modifiedRows.push(row);
             }
@@ -701,13 +686,17 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         rows.forEach((row, index) => {
             const supplierInput = row.cells[0].querySelector('.supplier-input');
             const supplier = supplierInput ? supplierInput.value : '';
-            const description = row.cells[1].querySelector('textarea').value;
-            const quantity = parseFloat(row.cells[2].querySelector('input').value) || 0;
-            const unit_cost = parseFloat(row.cells[3].querySelector('input').value) || 0;
+            const department = row.cells[1].querySelector('select').value;
+            const campus = row.cells[2].querySelector('select').value;
+            const description = row.cells[3].querySelector('textarea').value;
+            const quantity = parseFloat(row.cells[4].querySelector('input').value) || 0;
+            const unit_cost = parseFloat(row.cells[5].querySelector('input').value) || 0;
 
             if (supplier && description && (quantity > 0 || unit_cost > 0)) {
                 items.push({
                     supplier: supplier,
+                    department: department,
+                    campus: campus,
                     description: description,
                     quantity: quantity,
                     unit_cost: unit_cost
@@ -800,6 +789,22 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
                     </div>
                 </div>
             </td>
+            <td>
+                <select style="width: 100%; border: none; background: transparent; text-align: center; padding: 5px;">
+                    <option value="">Select Dept</option>
+                    <?php foreach ($departments as $dept): ?>
+                        <option value="<?= htmlspecialchars($dept) ?>"><?= htmlspecialchars($dept) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </td>
+            <td>
+                <select style="width: 100%; border: none; background: transparent; text-align: center; padding: 5px;">
+                    <option value="">Select Campus</option>
+                    <?php foreach ($campuses as $campus): ?>
+                        <option value="<?= htmlspecialchars($campus) ?>"><?= htmlspecialchars($campus) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </td>
             <td><textarea placeholder="Enter item description" onchange="calculateRowTotal(this)" oninput="autoResize(this)" style="resize: none; overflow: hidden; min-height: 20px; width: 100%; border: none; background: transparent; text-align: left; padding: 5px;"></textarea></td>
             <td><input type="number" placeholder="0" onchange="calculateRowTotal(this)" min="0"></td>
             <td><input type="number" placeholder="0.00" onchange="calculateRowTotal(this)" min="0" step="0.01"></td>
@@ -811,15 +816,20 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
     }
 
     // Add row with existing data for edit mode
-    function addRowWithData(supplier, description, quantity, unitCost) {
+    function addRowWithData(supplier, department, campus, description, quantity, unitCost) {
         const tbody = document.getElementById('canvassTableBody');
         const grandTotalRow = tbody.lastElementChild; // Get the grand total row
 
         const newRow = document.createElement('tr');
+        const totalCost = quantity * unitCost;
+
+        const isReadOnly = <?php echo (in_array($user_role_norm, ['supplyincharge', 'propertycustodian'])) ? 'true' : 'false'; ?>;
+
         newRow.innerHTML = `
             <td>
                 <div class="supplier-dropdown-container">
-                    <input type="text" class="supplier-input" placeholder="Select Supplier" 
+                    <input type="text" class="supplier-input" placeholder="Select Supplier" value="${supplier}" 
+                        ${isReadOnly ? 'disabled' : ''}
                         onfocus="showSupplierDropdown(this)" 
                         oninput="filterSuppliers(this)" 
                         onblur="hideSupplierDropdown(this)">
@@ -835,285 +845,109 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
                     </div>
                 </div>
             </td>
-            <td><textarea placeholder="Enter item description" onchange="calculateRowTotal(this)" oninput="autoResize(this)" style="resize: none; overflow: hidden; min-height: 20px; width: 100%; border: none; background: transparent; text-align: left; padding: 5px;"></textarea></td>
-            <td><input type="number" placeholder="0" onchange="calculateRowTotal(this)" min="0"></td>
-            <td><input type="number" placeholder="0.00" onchange="calculateRowTotal(this)" min="0" step="0.01"></td>
-            <td class="total-cost-cell">₱0.00</td>
+            <td>
+                <select ${isReadOnly ? 'disabled' : ''} style="width: 100%; border: none; background: transparent; text-align: center; padding: 5px;">
+                    <option value="">Select Dept</option>
+                    <?php foreach ($departments as $dept): ?>
+                        <option value="<?= htmlspecialchars($dept) ?>" \${department === <?= json_encode($dept) ?> ? 'selected' : ''}><?= htmlspecialchars($dept) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </td>
+            <td>
+                <select ${isReadOnly ? 'disabled' : ''} style="width: 100%; border: none; background: transparent; text-align: center; padding: 5px;">
+                    <option value="">Select Campus</option>
+                    <?php foreach ($campuses as $campus): ?>
+                        <option value="<?= htmlspecialchars($campus) ?>" \${campus === <?= json_encode($campus) ?> ? 'selected' : ''}><?= htmlspecialchars($campus) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </td>
+            <td><textarea placeholder="Enter item description" ${isReadOnly ? 'disabled' : ''} onchange="calculateRowTotal(this)" oninput="autoResize(this)" style="resize: none; overflow: hidden; min-height: 20px; width: 100%; border: none; background: transparent; text-align: left; padding: 5px;">${description}</textarea></td>
+            <td><input type="number" placeholder="0" value="${quantity}" ${isReadOnly ? 'disabled' : ''} onchange="calculateRowTotal(this)" min="0"></td>
+            <td><input type="number" placeholder="0.00" value="${unitCost}" ${isReadOnly ? 'disabled' : ''} onchange="calculateRowTotal(this)" min="0" step="0.01"></td>
+            <td class="total-cost-cell">₱${totalCost.toFixed(2)}</td>
         `;
 
         // Insert before the grand total row
         tbody.insertBefore(newRow, grandTotalRow);
 
-        // Populate the row with existing data
-        const supplierInput = newRow.querySelector('.supplier-input');
-        const textarea = newRow.cells[1].querySelector('textarea');
-        const quantityInput = newRow.cells[2].querySelector('input');
-        const unitCostInput = newRow.cells[3].querySelector('input');
-
-        supplierInput.value = supplier;
-        textarea.value = description;
-        quantityInput.value = quantity;
-        unitCostInput.value = unitCost;
-
-        // Calculate and display total
-        const totalCost = quantity * unitCost;
-        newRow.cells[4].textContent = '₱' + totalCost.toFixed(2);
-
-        // Auto-resize textarea
+        // Auto-resize the textarea
+        const textarea = newRow.querySelector('textarea');
         autoResize(textarea);
-
-        // Recalculate grand total
-        calculateGrandTotal();
     }
 
-    // Searchable Dropdown Functions
+    // Remove last row
+    function removeLastRow() {
+        const tbody = document.getElementById('canvassTableBody');
+        const rows = tbody.querySelectorAll('tr:not(:last-child)');
+        if (rows.length > 0) {
+            tbody.removeChild(rows[rows.length - 1]);
+            calculateGrandTotal();
+        }
+    }
+
+    // Supplier Dropdown Functions
     function showSupplierDropdown(input) {
         const list = input.nextElementSibling;
         list.style.display = 'block';
     }
 
     function hideSupplierDropdown(input) {
-        const list = input.nextElementSibling;
-        // Use timeout to allow mousedown on items to fire first
         setTimeout(() => {
-            list.style.display = 'none';
+            const list = input.nextElementSibling;
+            if (list) list.style.display = 'none';
         }, 200);
     }
 
     function filterSuppliers(input) {
         const filter = input.value.toLowerCase();
         const list = input.nextElementSibling;
-        const items = list.getElementsByClassName('supplier-item');
+        const items = list.querySelectorAll('.supplier-item');
 
-        for (let i = 0; i < items.length; i++) {
-            const txtValue = items[i].textContent || items[i].innerText;
-            if (txtValue.toLowerCase().indexOf(filter) > -1) {
-                items[i].style.display = "";
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            if (text.includes(filter)) {
+                item.style.display = 'block';
             } else {
-                items[i].style.display = "none";
+                item.style.display = 'none';
             }
-        }
+        });
     }
 
-    function selectSupplier(item, name) {
+    function selectSupplier(item, supplierName) {
         const container = item.closest('.supplier-dropdown-container');
         const input = container.querySelector('.supplier-input');
-        input.value = name;
-        container.querySelector('.supplier-list').style.display = 'none';
-
-        // Trigger calculation
-        calculateRowTotal(input);
+        input.value = supplierName;
+        const list = container.querySelector('.supplier-list');
+        list.style.display = 'none';
     }
 
-    // Remove last row from the table
-    function removeLastRow() {
-        const tbody = document.getElementById('canvassTableBody');
-        const rows = tbody.querySelectorAll('tr:not(:last-child)'); // Exclude grand total row
-
-        if (rows.length > 0) {
-            rows[rows.length - 1].remove();
-            calculateGrandTotal();
-        }
-    }
-
-    // Initialize with one empty row or load existing data
+    // Load existing data if in edit mode
     document.addEventListener('DOMContentLoaded', function() {
         <?php if ($edit_mode && !empty($canvass_items)): ?>
-            // Load existing canvass items
             <?php foreach ($canvass_items as $item): ?>
                 addRowWithData(
                     <?= json_encode($item['supplier_name']) ?>,
+                    <?= json_encode($item['department'] ?? '') ?>,
+                    <?= json_encode($item['campus'] ?? '') ?>,
                     <?= json_encode($item['item_description']) ?>,
-                    <?= floatval($item['quantity']) ?>,
-                    <?= floatval($item['unit_cost']) ?>
+                    <?= $item['quantity'] ?>,
+                    <?= $item['unit_cost'] ?>
                 );
             <?php endforeach; ?>
+            calculateGrandTotal();
         <?php else: ?>
-            addRow();
+            // Add 10 initial rows
+            for (let i = 0; i < 10; i++) {
+                addRow();
+            }
         <?php endif; ?>
+
+        // Disable date input if read-only
+        const isReadOnly = <?php echo (in_array($user_role_norm, ['supplyincharge', 'propertycustodian'])) ? 'true' : 'false'; ?>;
+        if (isReadOnly) {
+            document.getElementById('canvassDate').disabled = true;
+        }
     });
 </script>
-
-<style media="print">
-    @page {
-        size: auto;
-        /* Auto-size based on content */
-        margin: 0;
-        /* No margins - use full paper size */
-    }
-
-    body {
-        font-family: Arial, sans-serif;
-        font-size: 9pt;
-        /* slightly smaller overall text */
-        line-height: 1.2;
-        margin: 0;
-        padding: 0;
-        background: white;
-        color: black;
-    }
-
-    .sidebar,
-    .action-buttons,
-    .content-header,
-    .no-print,
-    .row-management .view-button {
-        display: none !important;
-    }
-
-    .view-button {
-        display: none !important;
-    }
-
-    .canvass-container {
-        width: 100%;
-        margin: 0;
-        padding: 0.2cm;
-        /* tighter container padding */
-        box-shadow: none;
-        border: 0.4px solid #bbb;
-        /* thinner border */
-        page-break-after: avoid;
-        page-break-inside: avoid;
-    }
-
-    .canvass-header {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 0.2cm;
-        /* reduce spacing */
-        padding-bottom: 0.1cm;
-        border-bottom: 0.5px solid #000;
-        /* thinner divider */
-    }
-
-    .canvass-title {
-        font-size: 11pt;
-        /* smaller title for print */
-        font-weight: bold;
-        margin: 0;
-    }
-
-    .canvass-info {
-        text-align: right;
-    }
-
-    .canvass-table {
-        width: 100%;
-        border-collapse: collapse;
-        table-layout: fixed;
-        /* keep cells compact */
-        margin: 0.2cm 0;
-        /* reduce vertical margin */
-        font-size: 7pt;
-        /* more compact font size */
-        page-break-inside: avoid;
-    }
-
-    .canvass-table th,
-    .canvass-table td {
-        border: 0.3px solid #888;
-        /* thinner cell borders */
-        padding: 0 1px;
-        /* tighter cell padding */
-        text-align: left;
-    }
-
-    .canvass-table tr {
-        height: 10px !important;
-        /* reduce row height more */
-        line-height: 1 !important;
-    }
-
-    .canvass-table th {
-        background-color: #fff;
-        /* remove shading to look thinner */
-        font-weight: 600;
-        text-align: center;
-        padding: 1px 1px;
-        /* thinner header cells */
-        font-size: 7pt;
-        /* smaller header text */
-    }
-
-    .canvass-table input,
-    .canvass-table select,
-    .canvass-table textarea {
-        width: 100%;
-        border: none;
-        background: transparent;
-        font-size: 7.5pt;
-        /* smaller form control text */
-        padding: 0 1px;
-        /* minimal padding */
-        line-height: 1.05;
-        height: 12px;
-        /* compress control height */
-    }
-
-    /* Make selects visually thinner in print */
-    .canvass-table select {
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        background-image: none !important;
-        height: 12px;
-        /* align with row height */
-    }
-
-    /* Make the grand total row minimal in print */
-    .canvass-table tbody tr:last-child {
-        background: #fff !important;
-        color: #000 !important;
-    }
-
-    .canvass-table tbody tr:last-child td {
-        font-weight: 600;
-        padding: 0 1px !important;
-        border-top: 0.3px solid #000;
-    }
-
-    .signature-section {
-        margin-top: 0.5cm;
-        /* tighter space before signatures */
-        display: flex;
-        justify-content: space-between;
-    }
-
-    .signature-box {
-        text-align: center;
-        width: 48%;
-    }
-
-    .signature-line {
-        border-top: none;
-        /* Remove underline in print */
-        margin: 0.3cm 0;
-        padding-top: 0.3cm;
-    }
-
-    .print-only {
-        display: block !important;
-    }
-
-    .main-content {
-        margin-left: 0 !important;
-    }
-
-    .canvass-container {
-        box-shadow: none !important;
-        padding: 8px !important;
-        /* more compact */
-    }
-
-    body {
-        background: white !important;
-    }
-
-    /* Hide helper class applied before printing */
-    .print-hide {
-        display: none !important;
-    }
-</style>
 
 <?php include '../includes/footer.php'; ?>
