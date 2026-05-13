@@ -12,6 +12,18 @@ include '../includes/header.php';
 
 $user_type = $_SESSION['user_type'] ?? '';
 
+// Pagination settings
+$items_per_page = 15;
+$current_page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($current_page < 1) $current_page = 1;
+$offset = ($current_page - 1) * $items_per_page;
+
+// Get total count for pagination
+$count_query = "SELECT COUNT(DISTINCT c.canvass_id) as total FROM canvass c WHERE (c.hide_canvass = '0' OR c.hide_canvass IS NULL)";
+$total_result = $conn->query($count_query);
+$total_rows = $total_result->fetch_assoc()['total'];
+$total_pages = ceil($total_rows / $items_per_page);
+
 // Fetch canvass records with user information
 $canvass_query = "
     SELECT 
@@ -24,6 +36,8 @@ $canvass_query = "
         c.created_at,
         ci.supplier_name,
         ci.item_description,
+        ci.department,
+        ci.campus,
         CONCAT(u.first_name, ' ', u.last_name) as created_by_name,
         COUNT(ci.canvass_item_id) as item_count
     FROM canvass c
@@ -32,6 +46,7 @@ $canvass_query = "
     WHERE (c.hide_canvass = '0' OR c.hide_canvass IS NULL)
     GROUP BY c.canvass_id
     ORDER BY c.created_at DESC
+    LIMIT $items_per_page OFFSET $offset
 ";
 
 $canvass_result = $conn->query($canvass_query);
@@ -57,7 +72,551 @@ if ($canvass_items_result && $canvass_items_result->num_rows > 0) {
         $canvass_items[] = $row;
     }
 }
+
+// Shared lists for dropdowns
+$departments = [
+    "Admin Office",
+    "BSBA",
+    "BSHM",
+    "ELEMENTARY DEPT. BASIC EDUCATION",
+    "JHS/ BASIC EDUCATION",
+    "CELA OFFICE",
+    "CES",
+    "CJE",
+    "CLINIC",
+    "FINANCE/ ACCOUNTING",
+    "GSO/ Security officer",
+    "GUIDANCE/Chaplain",
+    "HUMAN RESOURCE MANAGEMENT",
+    "ITE Program",
+    "MIS",
+    "NSTP",
+    "OSAS",
+    "PHOTOCOPY ROOM",
+    "PRESIDENT'S OFFICE",
+    "Property Custodian",
+    "REGISTRAR'S OFFICE",
+    "SENIOR HIGH SCHOOL PROGRAM",
+    "SUPPLY ROOM",
+    "VPAA OFFICE",
+    "OSSD",
+    "MAIN LIBRARY",
+    "BED LIBRARY"
+];
+sort($departments);
+
+$campuses = ["MAIN", "BED"];
 ?>
+
+
+<script>
+    /**
+     * Core Canvass Functions
+     * Consolidated and cleaned for DARTS Procurement System
+     */
+
+    // Available suppliers, departments, and campuses from PHP
+    const availableSuppliers = <?= json_encode($suppliers ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?: '[]' ?>;
+    const availableDepartments = <?= json_encode($departments ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?: '[]' ?>;
+    const availableCampuses = <?= json_encode($campuses ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?: '[]' ?>;
+    const userRole = '<?= str_replace("'", "\\'", $user_role_norm ?? '') ?>';
+
+    let currentCanvassId = null;
+    let canvassModalInstance = null;
+
+    /**
+     * Display an error message on the page for better visibility
+     */
+    function showPageError(message) {
+        const errorContainer = document.getElementById('pageErrorContainer');
+        if (errorContainer) {
+            errorContainer.innerHTML = `
+                <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert" style="border-left: 5px solid #dc3545;">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle me-3" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <strong class="d-block">Action Failed</strong>
+                            <span>${message}</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            errorContainer.style.display = 'block';
+            errorContainer.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        } else {
+            alert('Error: ' + message);
+        }
+    }
+
+    /**
+     * Create the view modal dynamically if it doesn't exist in the DOM
+     */
+    function createDynamicModal() {
+        if (document.getElementById('viewCanvassModal')) return;
+
+        const modalHtml = `
+            <div class="modal fade" id="viewCanvassModal" tabindex="-1" aria-labelledby="viewCanvassModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-2xl rounded-3xl overflow-hidden">
+                        <div class="modal-header bg-slate-800 text-white border-0 py-6 px-8">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-xl">
+                                    <i class="fas fa-file-invoice"></i>
+                                </div>
+                                <div>
+                                    <h5 class="modal-title font-black text-xl tracking-tight leading-none" id="viewCanvassModalLabel">Canvass Details</h5>
+                                    <p class="text-white/60 text-[10px] uppercase font-bold tracking-widest mt-1">Detailed Record Preview</p>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white opacity-50 hover:opacity-100 transition-opacity" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-0" id="canvassDetailsContent">
+                            <div class="p-20 text-center text-slate-400">
+                                <div class="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-primary rounded-full mb-4" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="font-bold text-sm uppercase tracking-widest">Fetching details...</p>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-slate-50 border-0 py-4 px-8 flex justify-between items-center">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">DARTS Procurement System</p>
+                            <button type="button" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2.5 rounded-xl font-bold transition-all text-sm" data-bs-dismiss="modal">Close Preview</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        console.log('Dynamic modal created successfully.');
+    }
+
+    /**
+     * Fetch and view canvass details in a modal
+     */
+    function viewCanvass(canvassId) {
+        if (!canvassId) {
+            showPageError('Invalid Canvass ID.');
+            return;
+        }
+
+        console.log('Viewing canvass:', canvassId);
+        currentCanvassId = canvassId;
+
+        // Find modal element, create if missing
+        let modalEl = document.getElementById('viewCanvassModal');
+        if (!modalEl) {
+            console.warn('Modal element #viewCanvassModal not found in DOM. Creating dynamically...');
+            createDynamicModal();
+            modalEl = document.getElementById('viewCanvassModal');
+        }
+
+        if (!modalEl) {
+            console.error('CRITICAL: Modal element could not be found or created.');
+            showPageError('Modal initialization failed.');
+            return;
+        }
+
+        // Initialize modal if not already done
+        if (!canvassModalInstance && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            try {
+                canvassModalInstance = new bootstrap.Modal(modalEl);
+            } catch (e) {
+                console.error('Bootstrap Modal initialization failed:', e);
+            }
+        }
+
+        // Show loading state in modal body BEFORE showing modal
+        const detailsContent = document.getElementById('canvassDetailsContent');
+        if (detailsContent) {
+            detailsContent.innerHTML = `
+                <div class="p-20 text-center text-slate-400">
+                    <div class="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-primary rounded-full mb-4" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="font-bold text-sm uppercase tracking-widest">Fetching details...</p>
+                </div>
+            `;
+        }
+
+        // Show the modal
+        if (canvassModalInstance) {
+            canvassModalInstance.show();
+        } else if (typeof $ !== 'undefined' && typeof $.fn.modal !== 'undefined') {
+            $(modalEl).modal('show');
+        } else {
+            // Manual fallback if bootstrap JS isn't working/loaded
+            console.warn('Using manual modal display fallback');
+            modalEl.classList.add('show');
+            modalEl.style.display = 'block';
+            modalEl.style.zIndex = '1060';
+            modalEl.style.backgroundColor = 'rgba(0,0,0,0.6)';
+            document.body.classList.add('modal-open');
+
+            // Ensure close buttons work in manual mode
+            const closeBtns = modalEl.querySelectorAll('[data-bs-dismiss="modal"]');
+            closeBtns.forEach(btn => {
+                btn.onclick = () => {
+                    modalEl.classList.remove('show');
+                    modalEl.style.display = 'none';
+                    document.body.classList.remove('modal-open');
+                };
+            });
+        }
+
+        // Fetch data
+        fetch(`../actions/get_canvass_details.php?id=${canvassId}`)
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    displayCanvassDetails(data.canvass, data.items);
+                } else {
+                    showPageError(data.message || 'Failed to load canvass details.');
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                showPageError(`Connection Error: ${error.message}`);
+            });
+    }
+
+    /**
+     * Build and display canvass details HTML
+     */
+    function displayCanvassDetails(canvass, items) {
+        currentCanvassId = canvass.canvass_id;
+        let itemsHtml = '';
+        let grandTotal = 0;
+
+        items.forEach(item => {
+            const showActions = !['propertycustodian', 'supplyincharge'].includes(userRole);
+            itemsHtml += `
+                <tr data-id="${item.canvass_item_id}">
+                    <td class="supplier_name p-3 border-b border-slate-100">${item.supplier_name}</td>
+                    <td class="department p-3 border-b border-slate-100">${item.department || ''}</td>
+                    <td class="campus p-3 border-b border-slate-100">${item.campus || ''}</td>
+                    <td class="item_description p-3 border-b border-slate-100">${item.item_description}</td>
+                    <td class="quantity p-3 border-b border-slate-100">${parseFloat(item.quantity)}</td>
+                    <td class="unit_cost p-3 border-b border-slate-100">₱${parseFloat(item.unit_cost).toFixed(2)}</td>
+                    <td class="total_cost p-3 border-b border-slate-100 font-bold">₱${parseFloat(item.total_cost).toFixed(2)}</td>
+                    ${showActions ? `
+                    <td class="p-3 border-b border-slate-100">
+                        <div class="flex gap-1">
+                            <button class="bg-amber-50 text-amber-600 hover:bg-amber-100 p-1.5 rounded-lg transition-all" onclick="editItem(this)">
+                                <i class="fas fa-edit text-xs"></i>
+                            </button>
+                            <button class="bg-rose-50 text-rose-600 hover:bg-rose-100 p-1.5 rounded-lg transition-all" onclick="deleteCanvassItem(${item.canvass_item_id})">
+                                <i class="fas fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                    </td>` : ''}
+                </tr>
+            `;
+            grandTotal += parseFloat(item.total_cost);
+        });
+
+        const showTableActions = !['propertycustodian', 'supplyincharge'].includes(userRole);
+
+        const content = `
+            <div class="canvass-details space-y-6 p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                    <div class="space-y-2">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Canvass Information</h4>
+                        <div class="space-y-1">
+                            <p class="text-sm"><strong>ID:</strong> <span class="text-slate-600">#${canvass.canvass_id}</span></p>
+                            <p class="text-sm"><strong>Date:</strong> <span class="text-slate-600">${new Date(canvass.canvass_date).toLocaleDateString()}</span></p>
+                            <p class="text-sm"><strong>Status:</strong> <span class="status-badge status-${canvass.status.toLowerCase()}">${canvass.status}</span></p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 md:text-right">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Financial Summary</h4>
+                        <div class="space-y-1">
+                            <p class="text-2xl font-black text-slate-800">₱${parseFloat(canvass.total_amount).toFixed(2)}</p>
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">Created by ${canvass.created_by_name || 'System'}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-bold text-slate-800">Canvassed Items</h4>
+                        <button onclick="printCanvassDetails(${canvass.canvass_id})" class="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 bg-blue-50 px-3 py-1.5 rounded-lg transition-all">
+                            <i class="fas fa-print"></i> Print Details
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto rounded-xl border border-slate-100 shadow-sm">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-800 text-white">
+                                <tr>
+                                    <th class="p-3 font-bold uppercase text-[10px]">Supplier</th>
+                                    <th class="p-3 font-bold uppercase text-[10px]">Dept</th>
+                                    <th class="p-3 font-bold uppercase text-[10px]">Campus</th>
+                                    <th class="p-3 font-bold uppercase text-[10px]">Description</th>
+                                    <th class="p-3 font-bold uppercase text-[10px]">Qty</th>
+                                    <th class="p-3 font-bold uppercase text-[10px]">Unit</th>
+                                    <th class="p-3 font-bold uppercase text-[10px]">Total</th>
+                                    ${showTableActions ? `<th class="p-3 font-bold uppercase text-[10px]">Action</th>` : ''}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${itemsHtml}
+                                <tr class="bg-slate-50 font-bold text-slate-800">
+                                    <td colspan="6" class="p-3 text-right text-xs uppercase">Grand Total</td>
+                                    <td class="p-3 text-base">₱${grandTotal.toFixed(2)}</td>
+                                    ${showTableActions ? `<td class="p-3"></td>` : ''}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                ${canvass.notes ? `
+                <div class="p-4 bg-amber-50 rounded-xl border border-amber-100">
+                    <h5 class="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-1">Internal Notes</h5>
+                    <p class="text-sm text-amber-900 italic">"${canvass.notes}"</p>
+                </div>` : ''}
+            </div>
+        `;
+
+        const container = document.getElementById('canvassDetailsContent');
+        if (container) container.innerHTML = content;
+    }
+
+    function editCanvass(canvassId) {
+        window.location.href = `canvass_form.php?edit=${canvassId}`;
+    }
+
+    function deleteCanvass(canvassId) {
+        if (confirm('Are you sure you want to delete this canvass? This action cannot be undone.')) {
+            fetch('../actions/delete_canvass.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        canvass_id: canvassId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Canvass deleted successfully');
+                        location.reload();
+                    } else {
+                        showPageError(data.message || 'Failed to delete.');
+                    }
+                })
+                .catch(error => showPageError(`Delete Failed: ${error.message}`));
+        }
+    }
+
+    function toggleSelectMode() {
+        const selectCells = document.querySelectorAll('.select-cell');
+        const selectHeader = document.getElementById('selectHeader');
+        const selectBtn = document.getElementById('selectForPrintBtn');
+        const printBtn = document.getElementById('printSelectedBtn');
+        const cancelBtn = document.getElementById('cancelSelectBtn');
+        const selectHeaderCell = document.getElementById('selectHeaderCell');
+
+        const isShowing = selectHeader && selectHeader.style.display !== 'none';
+
+        if (selectCells) selectCells.forEach(cell => cell.style.display = isShowing ? 'none' : 'table-cell');
+        if (selectHeader) selectHeader.style.display = isShowing ? 'none' : 'table-row';
+        if (selectHeaderCell) selectHeaderCell.style.display = isShowing ? 'none' : 'table-cell';
+        if (selectBtn) selectBtn.style.display = isShowing ? 'inline-block' : 'none';
+        if (printBtn) printBtn.style.display = isShowing ? 'none' : 'inline-block';
+        if (cancelBtn) cancelBtn.style.display = isShowing ? 'none' : 'inline-block';
+    }
+
+    function cancelSelectMode() {
+        const selectHeader = document.getElementById('selectHeader');
+        if (selectHeader) selectHeader.style.display = 'table-row'; // Force toggle back
+        toggleSelectMode();
+        document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = false);
+    }
+
+    function toggleSelectAll(source) {
+        document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = source.checked);
+    }
+
+    function printSelected() {
+        const selected = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.closest('tr').dataset.canvassId);
+        if (selected.length === 0) return alert('Please select at least one record.');
+
+        // Use the detailed printing logic
+        const loadingMessage = document.createElement('div');
+        loadingMessage.innerHTML = `<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 10000; text-align: center;">
+            <p><i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #073b1d;"></i></p>
+            <p style="margin-top: 15px; font-weight: 600;">Preparing print document...</p>
+        </div>`;
+        document.body.appendChild(loadingMessage);
+
+        const fetchPromises = selected.map(id => fetch(`../actions/get_canvass_details.php?id=${id}`).then(res => res.json()));
+
+        Promise.all(fetchPromises).then(results => {
+            document.body.removeChild(loadingMessage);
+            generatePrintView(results.filter(r => r.success));
+        }).catch(err => {
+            document.body.removeChild(loadingMessage);
+            alert('Error loading details: ' + err.message);
+        });
+    }
+
+    function printCanvassDetails(id) {
+        if (!id) {
+            // If called without ID, try to use currentCanvassId
+            id = currentCanvassId;
+        }
+        if (!id) return;
+
+        fetch(`../actions/get_canvass_details.php?id=${id}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) generatePrintView([data]);
+            });
+    }
+
+    function generatePrintView(canvassData) {
+        let printContent = '<div class="print-container">';
+        canvassData.forEach((data, index) => {
+            const canvass = data.canvass;
+            const items = data.items;
+            let itemsHtml = '';
+            let total = 0;
+
+            items.forEach(item => {
+                itemsHtml += `<tr><td>${item.supplier_name}</td><td>${item.department || ''}</td><td>${item.campus || ''}</td><td>${item.item_description}</td><td style="text-align:right">${parseFloat(item.quantity).toFixed(2)}</td><td style="text-align:right">₱${parseFloat(item.unit_cost).toFixed(2)}</td><td style="text-align:right">₱${parseFloat(item.total_cost).toFixed(2)}</td></tr>`;
+                total += parseFloat(item.total_cost);
+            });
+
+            printContent += `
+                <div class="canvass-detail-section" style="${index > 0 ? 'page-break-before: always; margin-top: 30px;' : ''}">
+                    <div style="text-align:center; border-bottom:2px solid #333; margin-bottom:20px; padding-bottom:10px">
+                        <h2>CANVASS RECORD #${canvass.canvass_id}</h2>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:20px">
+                        <div>
+                            <p><strong>Date:</strong> ${new Date(canvass.canvass_date).toLocaleDateString()}</p>
+                            <p><strong>Status:</strong> ${canvass.status}</p>
+                        </div>
+                        <div style="text-align:right">
+                            <p><strong>Created By:</strong> ${canvass.created_by_name || 'System'}</p>
+                            <p><strong>Total:</strong> ₱${parseFloat(canvass.total_amount).toFixed(2)}</p>
+                        </div>
+                    </div>
+                    <table style="width:100%; border-collapse:collapse; font-size:11px">
+                        <thead style="background:#f5f5f5">
+                            <tr><th>Supplier</th><th>Dept</th><th>Campus</th><th>Description</th><th style="text-align:right">Qty</th><th style="text-align:right">Unit</th><th style="text-align:right">Total</th></tr>
+                        </thead>
+                        <tbody>
+                            ${itemsHtml}
+                            <tr style="font-weight:bold; background:#eee"><td colspan="6" style="text-align:right">GRAND TOTAL:</td><td style="text-align:right">₱${total.toFixed(2)}</td></tr>
+                        </tbody>
+                    </table>
+                    ${canvass.notes ? `<div style="margin-top:20px; padding:10px; background:#f9f9f9; border:1px solid #ddd"><strong>Notes:</strong><p>${canvass.notes}</p></div>` : ''}
+                </div>`;
+        });
+        printContent += '</div>';
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html><head><title>Print Canvass</title><style>
+                body { font-family: sans-serif; padding: 20px; }
+                table th, table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                @media print { .no-print { display: none; } }
+            </style></head><body>${printContent}<script>window.onload=function(){window.print();window.close();}<\/script></body></html>
+        `);
+        printWindow.document.close();
+    }
+
+    function editItem(btn) {
+        const row = btn.closest('tr');
+        const supplier = row.querySelector('.supplier_name').innerText;
+        const department = row.querySelector('.department').innerText;
+        const campus = row.querySelector('.campus').innerText;
+        const description = row.querySelector('.item_description').innerText;
+        const quantity = row.querySelector('.quantity').innerText;
+        const unitCost = row.querySelector('.unit_cost').innerText.replace(/[^\d.-]/g, '');
+
+        let supplierOptions = availableSuppliers.map(s => `<option value="${s}" ${s === supplier ? 'selected' : ''}>${s}</option>`).join('');
+        row.querySelector('.supplier_name').innerHTML = `<select class="form-control form-control-sm">${supplierOptions}</select>`;
+
+        let deptOptions = '<option value="">Select Dept</option>' + availableDepartments.map(d => `<option value="${d}" ${d === department ? 'selected' : ''}>${d}</option>`).join('');
+        row.querySelector('.department').innerHTML = `<select class="form-control form-control-sm">${deptOptions}</select>`;
+
+        let campusOptions = '<option value="">Select Campus</option>' + availableCampuses.map(c => `<option value="${c}" ${c === campus ? 'selected' : ''}>${c}</option>`).join('');
+        row.querySelector('.campus').innerHTML = `<select class="form-control form-control-sm">${campusOptions}</select>`;
+
+        row.querySelector('.item_description').innerHTML = `<input type="text" class="form-control form-control-sm" value="${description}">`;
+        row.querySelector('.quantity').innerHTML = `<input type="number" class="form-control form-control-sm" value="${quantity}" step="0.01">`;
+        row.querySelector('.unit_cost').innerHTML = `<input type="number" class="form-control form-control-sm" value="${unitCost}" step="0.01">`;
+
+        const actionCell = row.querySelector('td:last-child');
+        actionCell.innerHTML = `
+            <div class="flex gap-1">
+                <button class="bg-green-50 text-green-600 hover:bg-green-100 p-1.5 rounded-lg transition-all" onclick="saveItem(this)">
+                    <i class="fas fa-save text-xs"></i>
+                </button>
+                <button class="bg-slate-50 text-slate-600 hover:bg-slate-100 p-1.5 rounded-lg transition-all" onclick="viewCanvass(currentCanvassId)">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+        `;
+    }
+
+    function saveItem(btn) {
+        const row = btn.closest('tr');
+        const canvassItemId = row.getAttribute('data-id');
+        const data = {
+            canvass_id: currentCanvassId,
+            canvass_item_id: canvassItemId,
+            supplier_name: row.querySelector('.supplier_name select').value,
+            department: row.querySelector('.department select').value,
+            campus: row.querySelector('.campus select').value,
+            item_description: row.querySelector('.item_description input').value,
+            quantity: row.querySelector('.quantity input').value,
+            unit_cost: row.querySelector('.unit_cost input').value
+        };
+
+        fetch('../actions/update_canvass_item.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) viewCanvass(currentCanvassId);
+                else alert('Update failed: ' + data.message);
+            });
+    }
+
+    function deleteCanvassItem(itemId) {
+        if (!confirm('Delete this item?')) return;
+        fetch('../actions/delete_canvass_item.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    canvass_item_id: itemId
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) viewCanvass(currentCanvassId);
+                else alert('Delete failed: ' + data.message);
+            });
+    }
+</script>
+
 
 <style>
     :root {
@@ -163,7 +722,7 @@ if ($canvass_items_result && $canvass_items_result->num_rows > 0) {
 
     /* Main Content */
     .main-content {
-        margin-left: 240px;
+        margin-left: 280px;
         padding: 20px;
         min-height: 100vh;
         background-color: var(--bg-light);
@@ -397,59 +956,77 @@ if ($canvass_items_result && $canvass_items_result->num_rows > 0) {
             gap: 5px;
         }
     }
+
+    /* Pagination Styles */
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+        background: #fff;
+        border-top: 1px solid #eee;
+    }
+
+    .pagination {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        gap: 5px;
+    }
+
+    .page-item .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 40px;
+        padding: 0 15px;
+        text-decoration: none;
+        color: var(--primary-green);
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .page-item.active .page-link {
+        background-color: var(--primary-green);
+        color: #fff;
+        border-color: var(--primary-green);
+    }
+
+    .page-item.disabled .page-link {
+        color: #ccc;
+        pointer-events: none;
+        background: #f9f9f9;
+    }
+
+    .page-item .page-link:hover:not(.active):not(.disabled) {
+        background-color: #f0f0f0;
+        border-color: #ccc;
+    }
+
+    @media (max-width: 768px) {
+        .page-item .page-link {
+            min-width: 50px;
+            height: 50px;
+            font-size: 1rem;
+        }
+    }
 </style>
 
-<!-- Sidebar -->
-<div class="sidebar">
-    <div class="sidebar-header">
-        <h4>DARTS</h4>
-        <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
-    </div>
 
-    <nav class="sidebar-nav">
-        <ul>
-            <li><a href="../dashboard.php" class="nav-link">
-                    <i class="fas fa-chart-line"></i> Dashboard
-                </a></li>
-            <li><a href="suppliers.php" class="nav-link">
-                    <i class="fas fa-users"></i> Suppliers
-                </a></li>
-            <li><a href="received_items.php" class="nav-link">
-                    <i class="fas fa-box-open"></i> Received Items
-                </a></li>
-            <li><a href="procurement_statistics.php" class="nav-link">
-                    <i class="fas fa-chart-line"></i> Procurement Statistics
-                </a></li>
-            <li><a href="procurement.php" class="nav-link">
-                    <i class="fas fa-shopping-cart"></i> Procurement Tables
-                </a></li>
-            <li><a href="canvass_form.php" class="nav-link">
-                    <i class="fas fa-file-invoice"></i> Canvass Form
-                </a></li>
-            <li><a href="canvass_form_list.php" class="nav-link active">
-                    <i class="fas fa-list"></i> Canvass Form List
-                </a></li>
-            <li><a href="purchase_order.php" class="nav-link">
-                    <i class="fas fa-shopping-basket"></i> Purchase Order
-                </a></li>
-            <li><a href="purchase_order_list.php" class="nav-link">
-                    <i class="fas fa-file-invoice"></i> Purchase Order List
-                </a></li>
-            <li><a href="Inventory.php" class="nav-link">
-                    <i class="fas fa-box"></i> Supply Inventory
-                </a></li>
-            <li><a href="property_inventory.php" class="nav-link">
-                    <i class="fas fa-boxes"></i> Property Inventory
-                </a></li>
-            <li><a href="../logout.php" class="nav-link logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a></li>
-        </ul>
-    </nav>
-</div>
+
+
+<!-- Sidebar -->
+<?php include '../includes/sidebar.php'; ?>
 
 <!-- Main Content -->
 <div class="main-content">
+    <!-- Error Message Container -->
+    <div id="pageErrorContainer" style="display: none; margin: 20px;"></div>
+
     <div class="content-header">
         <h1>Canvass List</h1>
         <p>View and manage all canvass records</p>
@@ -460,18 +1037,20 @@ if ($canvass_items_result && $canvass_items_result->num_rows > 0) {
         <div class="list-header">
             <h2 class="list-title">All Canvass Records</h2>
             <div class="table-actions">
-                <a href="canvass_form.php" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> New Canvass
-                </a>
-                <button id="selectForPrintBtn" class="btn btn-info" onclick="toggleSelectMode()">
-                    <i class="fas fa-print"></i> Select for Print
-                </button>
-                <button id="printSelectedBtn" class="btn btn-success" onclick="printSelected()" style="display: none;">
-                    <i class="fas fa-print"></i> Print Selected
-                </button>
-                <button id="cancelSelectBtn" class="btn btn-secondary" onclick="cancelSelectMode()" style="display: none;">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
+                <?php if (!in_array($user_role_norm, ['propertycustodian', 'supplyincharge'])): ?>
+                    <a href="canvass_form.php" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> New Canvass
+                    </a>
+                    <button id="selectForPrintBtn" class="btn btn-info" onclick="toggleSelectMode()">
+                        <i class="fas fa-print"></i> Select for Print
+                    </button>
+                    <button id="printSelectedBtn" class="btn btn-success" onclick="printSelected()" style="display: none;">
+                        <i class="fas fa-print"></i> Print Selected
+                    </button>
+                    <button id="cancelSelectBtn" class="btn btn-secondary" onclick="cancelSelectMode()" style="display: none;">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -482,12 +1061,13 @@ if ($canvass_items_result && $canvass_items_result->num_rows > 0) {
                         <th style="width: 40px;">
                             <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)">
                         </th>
-                        <th colspan="9">Select All to print</th>
+                        <th colspan="10">Select All to print</th>
                     </tr>
                     <tr>
                         <th id="selectHeaderCell" style="display: none; width: 40px;"></th>
                         <th>Supplier Name</th>
-                        <th>Date</th>
+                        <th>Department</th>
+                        <th>Campus</th>
                         <th>Canvass Description</th>
                         <th>Total Amount</th>
                         <th>Items</th>
@@ -507,7 +1087,10 @@ if ($canvass_items_result && $canvass_items_result->num_rows > 0) {
                                 <strong><?= htmlspecialchars($row['supplier_name'] ?? '—') ?></strong>
                             </td>
                             <td>
-                                <?= date('M d, Y', strtotime($row['canvass_date'])) ?>
+                                <?= htmlspecialchars($row['department'] ?? '—') ?>
+                            </td>
+                            <td>
+                                <?= htmlspecialchars($row['campus'] ?? '—') ?>
                             </td>
                             <td>
                                 <?= htmlspecialchars($row['item_description'] ?? '—') ?>
@@ -534,717 +1117,92 @@ if ($canvass_items_result && $canvass_items_result->num_rows > 0) {
                                     <button class="btn btn-info btn-sm" onclick="viewCanvass(<?= $row['canvass_id'] ?>)">
                                         <i class="fas fa-eye"></i> View
                                     </button>
-                                    <button class="btn btn-warning btn-sm" onclick="editCanvass(<?= $row['canvass_id'] ?>)">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteCanvass(<?= $row['canvass_id'] ?>)">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </button>
+                                    <?php if (!in_array($user_role_norm, ['propertycustodian', 'supplyincharge'])): ?>
+                                        <button class="btn btn-warning btn-sm" onclick="editCanvass(<?= $row['canvass_id'] ?>)">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteCanvass(<?= $row['canvass_id'] ?>)">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
                     <?php endwhile; ?>
                 </tbody>
             </table>
+
+            <!-- Pagination UI -->
+            <?php if ($total_pages > 1): ?>
+                <div class="pagination-container">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            <!-- Previous Button -->
+                            <li class="page-item <?= ($current_page <= 1) ? 'disabled' : '' ?>">
+                                <a class="page-link" href="?page=<?= $current_page - 1 ?>" aria-label="Previous">
+                                    <i class="fas fa-chevron-left"></i> <span class="d-none d-md-inline ms-1">Prev</span>
+                                </a>
+                            </li>
+
+                            <!-- Current Page (Always shown) -->
+                            <li class="page-item active">
+                                <a class="page-link" href="#"><?= $current_page ?></a>
+                            </li>
+
+                            <!-- Next Button -->
+                            <li class="page-item <?= ($current_page >= $total_pages) ? 'disabled' : '' ?>">
+                                <a class="page-link" href="?page=<?= $current_page + 1 ?>" aria-label="Next">
+                                    <span class="d-none d-md-inline me-1">Next</span> <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            <?php endif; ?>
+
         <?php else: ?>
             <div class="empty-state">
                 <i class="fas fa-clipboard-list"></i>
                 <h3>No Canvass Records Found</h3>
                 <p>Start by creating your first canvass form.</p>
-                <a href="canvass_form.php" class="btn btn-primary text-dark">
-                    <i class="fas fa-plus"></i> Create New Canvass
-                </a>
+                <?php if (!in_array($user_role_norm, ['propertycustodian', 'supplyincharge'])): ?>
+                    <a href="canvass_form.php" class="btn btn-primary text-dark">
+                        <i class="fas fa-plus"></i> Create New Canvass
+                    </a>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
     </div>
-</div>
-
-<!-- View Canvass Modal -->
-<div class="modal fade" id="viewCanvassModal" tabindex="-1" aria-labelledby="viewCanvassLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%); color: white;">
-                <h5 class="modal-title" id="viewCanvassLabel">Canvass Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
-            </div>
-            <div class="modal-body" id="canvassDetailsContent">
-                <!-- Content will be loaded here -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="printCanvassDetails()">
-                    <i class="fas fa-print"></i> Print
-                </button>
+    <div class="modal fade" id="viewCanvassModal" tabindex="-1" aria-labelledby="viewCanvassModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 shadow-2xl rounded-3xl overflow-hidden">
+                <div class="modal-header bg-slate-800 text-white border-0 py-6 px-8">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-xl">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title font-black text-xl tracking-tight leading-none" id="viewCanvassModalLabel">Canvass Details</h5>
+                            <p class="text-white/60 text-[10px] uppercase font-bold tracking-widest mt-1">Detailed Record Preview</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white opacity-50 hover:opacity-100 transition-opacity" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0" id="canvassDetailsContent">
+                    <div class="p-20 text-center text-slate-400">
+                        <div class="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-primary rounded-full mb-4" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="font-bold text-sm uppercase tracking-widest">Fetching details...</p>
+                    </div>
+                </div>
+                <div class="modal-footer bg-slate-50 border-0 py-4 px-8 flex justify-between items-center">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">DARTS Procurement System</p>
+                    <button type="button" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2.5 rounded-xl font-bold transition-all text-sm" data-bs-dismiss="modal">Close Preview</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-    // Available suppliers from PHP
-    const availableSuppliers = <?= json_encode($suppliers) ?>;
-
-    // Toggle select mode for printing
-    function toggleSelectMode() {
-        const selectCells = document.querySelectorAll('.select-cell');
-        const selectHeader = document.getElementById('selectHeader');
-        const selectBtn = document.getElementById('selectForPrintBtn');
-        const printBtn = document.getElementById('printSelectedBtn');
-        const cancelBtn = document.getElementById('cancelSelectBtn');
-
-        if (selectCells && selectCells.length > 0) {
-            selectCells.forEach(cell => {
-                if (cell && cell.style) {
-                    cell.style.display = cell.style.display === 'none' ? 'table-cell' : 'none';
-                }
-            });
-        }
-
-        if (selectHeader) {
-            selectHeader.style.display = selectHeader.style.display === 'none' ? 'table-row' : 'none';
-        }
-        // Toggle header placeholder cell for checkbox column
-        const selectHeaderCell = document.getElementById('selectHeaderCell');
-        if (selectHeaderCell) {
-            selectHeaderCell.style.display = selectHeaderCell.style.display === 'none' ? 'table-cell' : 'none';
-        }
-
-        if (selectBtn) {
-            selectBtn.style.display = selectBtn.style.display === 'none' ? 'inline-block' : 'none';
-        }
-
-        if (printBtn) {
-            printBtn.style.display = printBtn.style.display === 'none' ? 'inline-block' : 'none';
-        }
-
-        if (cancelBtn) {
-            cancelBtn.style.display = cancelBtn.style.display === 'none' ? 'inline-block' : 'none';
-        }
-    }
-
-    // Cancel select mode
-    function cancelSelectMode() {
-        const selectCells = document.querySelectorAll('.select-cell');
-        const selectHeader = document.getElementById('selectHeader');
-        const selectBtn = document.getElementById('selectForPrintBtn');
-        const printBtn = document.getElementById('printSelectedBtn');
-        const cancelBtn = document.getElementById('cancelSelectBtn');
-
-        if (selectCells && selectCells.length > 0) {
-            selectCells.forEach(cell => {
-                if (cell && cell.style) {
-                    cell.style.display = 'none';
-                }
-            });
-        }
-
-        if (selectHeader) selectHeader.style.display = 'none';
-        const selectHeaderCell2 = document.getElementById('selectHeaderCell');
-        if (selectHeaderCell2) selectHeaderCell2.style.display = 'none';
-        if (selectBtn) selectBtn.style.display = 'inline-block';
-        if (printBtn) printBtn.style.display = 'none';
-        if (cancelBtn) cancelBtn.style.display = 'none';
-
-        // Uncheck all checkboxes
-        document.querySelectorAll('.row-checkbox').forEach(checkbox => {
-            if (checkbox) checkbox.checked = false;
-        });
-    }
-
-    // Toggle select all checkboxes
-    function toggleSelectAll(source) {
-        if (!source) return;
-        const checkboxes = document.querySelectorAll('.row-checkbox');
-        if (checkboxes && checkboxes.length > 0) {
-            checkboxes.forEach(checkbox => {
-                if (checkbox) {
-                    checkbox.checked = source.checked;
-                }
-            });
-        }
-    }
-
-    // Print selected rows with detailed information
-    function printSelected() {
-        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
-
-        if (!checkboxes || checkboxes.length === 0) {
-            alert('Please select at least one row to print');
-            return;
-        }
-
-        // Collect canvass IDs from selected rows
-        const canvassIds = [];
-        checkboxes.forEach(checkbox => {
-            const row = checkbox.closest('tr');
-            if (row) {
-                const canvassId = row.getAttribute('data-canvass-id');
-                if (canvassId) {
-                    canvassIds.push(canvassId);
-                }
-            }
-        });
-
-        if (canvassIds.length === 0) {
-            alert('No valid canvass records selected for printing');
-            return;
-        }
-
-        // Show loading message
-        const loadingMessage = document.createElement('div');
-        loadingMessage.innerHTML = `
-            <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-                        background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); 
-                        z-index: 10000; text-align: center;">
-                <p><i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #073b1d;"></i></p>
-                <p style="margin-top: 15px; font-weight: 600;">Loading canvass details...</p>
-                <p style="font-size: 0.9rem; color: #666;">Please wait while we prepare your print document</p>
-            </div>
-        `;
-        document.body.appendChild(loadingMessage);
-
-        // Fetch detailed information for each selected canvass
-        const fetchPromises = canvassIds.map(id =>
-            fetch(`../actions/get_canvass_details.php?id=${id}`)
-            .then(response => response.json())
-        );
-
-        Promise.all(fetchPromises)
-            .then(results => {
-                document.body.removeChild(loadingMessage);
-
-                // Filter successful results
-                const canvassData = results.filter(result => result.success);
-
-                if (canvassData.length === 0) {
-                    alert('Failed to load canvass details');
-                    return;
-                }
-
-                // Generate detailed print content
-                let printContent = `
-                    <div class="print-container">`;
-
-                // Add detailed information for each canvass
-                canvassData.forEach((data, index) => {
-                    const canvass = data.canvass;
-                    const items = data.items;
-
-                    let itemsHtml = '';
-                    let grandTotal = 0;
-
-                    items.forEach(item => {
-                        itemsHtml += `
-                             <tr>
-                                 <td>${item.supplier_name || ''}</td>
-                                 <td>${item.item_description || ''}</td>
-                                 <td style="text-align: right;">${parseFloat(item.quantity || 0).toFixed(2)}</td>
-                                 <td style="text-align: right;">₱${parseFloat(item.unit_cost || 0).toFixed(2)}</td>
-                                 <td style="text-align: right;">₱${parseFloat(item.total_cost || 0).toFixed(2)}</td>
-                             </tr>
-                         `;
-                        grandTotal += parseFloat(item.total_cost || 0);
-                    });
-
-                    const statusColors = {
-                        'draft': '#6c757d',
-                        'completed': '#4a90e2',
-                        'approved': '#28a745',
-                        'cancelled': '#e74c3c'
-                    };
-
-                    const statusColor = statusColors[canvass.status?.toLowerCase()] || '#6c757d';
-
-                    printContent += `
-                         <div class="canvass-detail-section" ${index > 0 ? 'style="page-break-before: always; margin-top: 30px;"' : ''}>
-                             <div class="canvass-info-grid">
-                                 <div class="info-section">
-                                     <p><strong>Canvass Number:</strong> ${canvass.canvass_id}</p>
-                                     <p><strong>Date:</strong> ${new Date(canvass.canvass_date).toLocaleDateString()}</p>
-                                     <p><strong>Status:</strong> <span class="status-badge" style="background-color: ${statusColor}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600;">${canvass.status || 'DRAFT'}</span></p>
-                                 </div>
-                                 <div class="info-section">
-                                     <p><strong>Total Amount:</strong> ₱${parseFloat(canvass.total_amount || 0).toFixed(2)}</p>
-                                     <p><strong>Created By:</strong> ${canvass.created_by_name || 'Unknown'}</p>
-                                     <p><strong>Created At:</strong> ${new Date(canvass.created_at).toLocaleString()}</p>
-                                 </div>
-                             </div>
-                             
-                             <div class="items-section">
-                                 <h4>Items</h4>
-                                 <table class="items-table">
-                                     <thead>
-                                         <tr>
-                                             <th>Supplier</th>
-                                             <th>Item Description</th>
-                                             <th style="text-align: right;">Quantity</th>
-                                             <th style="text-align: right;">Unit Cost</th>
-                                             <th style="text-align: right;">Total Cost</th>
-                                         </tr>
-                                     </thead>
-                                     <tbody>
-                                         ${itemsHtml}
-                                         <tr class="grand-total-row">
-                                             <td colspan="4" style="text-align: right;">GRAND TOTAL:</td>
-                                             <td style="text-align: right;">₱${grandTotal.toFixed(2)}</td>
-                                         </tr>
-                                     </tbody>
-                                 </table>
-                             </div>
-                             
-                             ${canvass.notes ? `<div class="notes-section"><h5>Notes:</h5><p>${canvass.notes}</p></div>` : ''}
-                         </div>
-                     `;
-                });
-
-                printContent += `</div>`;
-
-                // Add print styles
-                printContent += `
-                    <style>
-                        @page { size: 8.5in 11in; margin: 10mm; }
-                        body { 
-                            font-family: 'Segoe UI', Arial, sans-serif; 
-                            margin: 20px; 
-                            color: #333;
-                            background: white;
-                            font-size: 11px;
-                        }
-                        .print-container { 
-                            max-width: 100%; 
-                        }
-                        .print-header { 
-                             text-align: center; 
-                            margin-bottom: 24px;
-                            padding-bottom: 8px;
-                            border-bottom: 2px solid #333;
-                         }
-                         .print-header h2 {
-                             color: #333;
-                            margin: 0 0 6px 0;
-                            font-size: 1.2rem;
-                             font-weight: bold;
-                         }
-                         .print-date { 
-                             text-align: right; 
-                            margin-top: 6px; 
-                             color: #666;
-                            font-size: 0.8em;
-                         }
-                                                                                                .canvass-detail-section {
-                            margin-bottom: 18px;
-                            padding: 12px;
-                            border: 1px solid #333;
-                            border-radius: 4px;
-                            background: white;
-                            page-break-inside: avoid;
-                        }
-                         .canvass-info-grid {
-                             display: grid;
-                             grid-template-columns: 1fr 1fr;
-                            gap: 16px;
-                            margin-bottom: 16px;
-                             padding: 0;
-                             align-items: start;
-                         }
-                         .info-section {
-                             display: flex;
-                             flex-direction: column;
-                         }
-                         .info-section p {
-                            margin: 6px 0;
-                            line-height: 1.4;
-                             color: #333;
-                         }
-                         .info-section strong {
-                             color: #333;
-                             font-weight: 600;
-                         }
-                         .items-section {
-                            margin-top: 12px;
-                         }
-                         .items-section h4 {
-                             color: #333;
-                            margin: 0 0 8px 0;
-                            padding-bottom: 6px;
-                             border-bottom: 2px solid #ddd;
-                            font-size: 0.95rem;
-                             font-weight: 600;
-                         }
-                         .items-table {
-                             width: 100%;
-                             border-collapse: collapse;
-                            margin-top: 10px;
-                             background: white;
-                             border: 1px solid #333;
-                         }
-                         .items-table th {
-                             background: #f5f5f5;
-                             color: #333;
-                            font-weight: 700;
-                             text-transform: uppercase;
-                            font-size: 0.75em;
-                             letter-spacing: 0.5px;
-                            padding: 6px 8px;
-                            border: 1px solid #ddd;
-                            border-bottom: 1px solid #333;
-                             text-align: left;
-                         }
-                         .items-table td {
-                             background: white;
-                            padding: 6px 8px;
-                             border: 1px solid #ddd;
-                             color: #333;
-                         }
-                         .items-table tbody tr:nth-child(even) td {
-                             background-color: #f9f9f9;
-                         }
-                         .grand-total-row td {
-                             background-color: #f5f5f5 !important;
-                            font-weight: bold;
-                            font-size: 0.95em;
-                             color: #333;
-                            border-top: 1px solid #333 !important;
-                            padding: 8px 8px !important;
-                         }
-                         .notes-section {
-                             margin-top: 25px;
-                             padding: 15px;
-                             background: #f9f9f9;
-                             border: 1px solid #ddd;
-                             border-radius: 5px;
-                         }
-                         .notes-section h5 {
-                             color: #333;
-                             margin: 0 0 10px 0;
-                             font-weight: 600;
-                         }
-                         .notes-section p {
-                             margin: 0;
-                             color: #333;
-                             line-height: 1.6;
-                         }
-                         .status-badge {
-                             display: inline-block;
-                         }
-                        @media print {
-                            body { 
-                                margin: 0; 
-                                padding: 8mm; 
-                                -webkit-print-color-adjust: exact;
-                                print-color-adjust: exact;
-                            }
-                            .no-print { 
-                                display: none !important; 
-                            }
-                            .canvass-detail-section {
-                                page-break-inside: avoid;
-                                break-inside: avoid;
-                                border: 1px solid #ccc;
-                            }
-                            .items-table {
-                                page-break-inside: auto;
-                            }
-                            .items-table tbody tr {
-                                page-break-inside: avoid;
-                                break-inside: avoid;
-                            }
-                            .items-table thead {
-                                display: table-header-group;
-                            }
-                        }
-                    </style>
-                `;
-
-                // Open print window
-                const printWindow = window.open('', '_blank');
-                printWindow.document.write(`
-                    <!DOCTYPE html>
-                    <html>
-                        <head>
-                            <title>Canvass Details</title>
-                            <meta charset="UTF-8">
-                        </head>
-                        <body>
-                            ${printContent}
-                            <script>
-                                window.onload = function() {
-                                    setTimeout(function() {
-                                        window.print();
-                                        setTimeout(function() { window.close(); }, 100);
-                                    }, 500);
-                                };
-                            <\/script>
-                        </body>
-                    </html>
-                `);
-                printWindow.document.close();
-            })
-            .catch(error => {
-                document.body.removeChild(loadingMessage);
-                alert('Error loading canvass details: ' + error.message);
-                console.error('Error:', error);
-            });
-    }
-
-    // View canvass details
-    function viewCanvass(canvassId) {
-        fetch(`../actions/get_canvass_details.php?id=${canvassId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    displayCanvassDetails(data.canvass, data.items);
-                    $('#viewCanvassModal').modal('show');
-                } else {
-                    alert('Error loading canvass details: ' + data.message);
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error.message);
-            });
-    }
-
-    let currentCanvassId = null;
-
-    // Display canvass details in modal
-    function displayCanvassDetails(canvass, items) {
-        currentCanvassId = canvass.canvass_id;
-        let itemsHtml = '';
-        let grandTotal = 0;
-
-        items.forEach(item => {
-            itemsHtml += `
-                <tr data-id="${item.canvass_item_id}">
-                    <td class="supplier_name">${item.supplier_name}</td>
-                    <td class="item_description">${item.item_description}</td>
-                    <td class="quantity">${parseFloat(item.quantity)}</td>
-                    <td class="unit_cost">₱${parseFloat(item.unit_cost).toFixed(2)}</td>
-                    <td class="total_cost">₱${parseFloat(item.total_cost).toFixed(2)}</td>
-                    <td>
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-primary" onclick="editItem(this)">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-danger" onclick="deleteCanvassItem(${item.canvass_item_id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `;
-            grandTotal += parseFloat(item.total_cost);
-        });
-
-        const content = `
-            <div class="canvass-details">
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <h4>Canvass Information</h4>
-                        <p><strong>Canvass Number:</strong> ${canvass.canvass_id}</p>
-                        <p><strong>Date:</strong> ${new Date(canvass.canvass_date).toLocaleDateString()}</p>
-                        <p><strong>Status:</strong> <span class="status-badge status-${canvass.status.toLowerCase()}">${canvass.status}</span></p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Total Amount:</strong> ₱${parseFloat(canvass.total_amount).toFixed(2)}</p>
-                        <p><strong>Created By:</strong> ${canvass.created_by_name || 'Unknown'}</p>
-                        <p><strong>Created At:</strong> ${new Date(canvass.created_at).toLocaleString()}</p>
-                    </div>
-                </div>
-                
-                <h4>Items</h4>
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <thead style="background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%); color: white;">
-                            <tr>
-                                <th>Supplier</th>
-                                <th>Item Description</th>
-                                <th>Quantity</th>
-                                <th>Unit Cost</th>
-                                <th>Total Cost</th>
-                                <th style="width: 100px;">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${itemsHtml}
-                            <tr style="background-color: var(--primary-green); color: white; font-weight: bold;">
-                                <td colspan="4" style="text-align: right;">GRAND TOTAL:</td>
-                                <td colspan="2">₱${grandTotal.toFixed(2)}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                
-                ${canvass.notes ? `<div class="mt-3"><h5>Notes:</h5><p>${canvass.notes}</p></div>` : ''}
-            </div>
-        `;
-
-        document.getElementById('canvassDetailsContent').innerHTML = content;
-    }
-
-    function editItem(btn) {
-        const row = btn.closest('tr');
-        const supplier = row.querySelector('.supplier_name').innerText;
-        const description = row.querySelector('.item_description').innerText;
-        const quantity = row.querySelector('.quantity').innerText;
-        // Remove currency symbol and commas
-        const unitCost = row.querySelector('.unit_cost').innerText.replace(/[^\d.-]/g, '');
-
-        // Create supplier dropdown
-        let supplierOptions = '';
-        availableSuppliers.forEach(s => {
-            const isSelected = s === supplier ? 'selected' : '';
-            supplierOptions += `<option value="${s}" ${isSelected}>${s}</option>`;
-        });
-
-        row.querySelector('.supplier_name').innerHTML = `<select class="form-control form-control-sm">${supplierOptions}</select>`;
-        row.querySelector('.item_description').innerHTML = `<input type="text" class="form-control form-control-sm" value="${description}">`;
-        row.querySelector('.quantity').innerHTML = `<input type="number" class="form-control form-control-sm" value="${quantity}" step="0.01">`;
-        row.querySelector('.unit_cost').innerHTML = `<input type="number" class="form-control form-control-sm" value="${unitCost}" step="0.01">`;
-
-        // Change button to Save/Cancel
-        const actionCell = btn.parentElement;
-        actionCell.innerHTML = `
-            <div class="btn-group btn-group-sm">
-                <button class="btn btn-success" onclick="saveItem(this)">
-                    <i class="fas fa-save"></i>
-                </button>
-                <button class="btn btn-secondary" onclick="cancelEdit(${currentCanvassId})">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
-    }
-
-    function cancelEdit(canvassId) {
-        viewCanvass(canvassId);
-    }
-
-    function saveItem(btn) {
-        const row = btn.closest('tr');
-        const canvassItemId = row.getAttribute('data-id');
-
-        const supplier = row.querySelector('.supplier_name select').value;
-        const description = row.querySelector('.item_description input').value;
-        const quantity = row.querySelector('.quantity input').value;
-        const unitCost = row.querySelector('.unit_cost input').value;
-
-        const data = {
-            canvass_item_id: canvassItemId,
-            supplier_name: supplier,
-            item_description: description,
-            quantity: quantity,
-            unit_cost: unitCost
-        };
-
-        fetch('../actions/update_canvass_item.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Reload modal to show updated values and totals
-                    viewCanvass(currentCanvassId);
-                } else {
-                    alert('Error updating item: ' + data.message);
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error.message);
-            });
-    }
-
-    function deleteCanvassItem(canvassItemId) {
-        if (!confirm('Are you sure you want to delete this item? This will also update the total amount of this canvass.')) {
-            return;
-        }
-
-        fetch('../actions/delete_canvass_item.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    canvass_item_id: canvassItemId
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Reload modal to show updated values and totals
-                    viewCanvass(currentCanvassId);
-                } else {
-                    alert('Error deleting item: ' + data.message);
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error.message);
-            });
-    }
-
-    // Edit canvass
-    function editCanvass(canvassId) {
-        window.location.href = `canvass_form.php?edit=${canvassId}`;
-    }
-
-    // Delete canvass
-    function deleteCanvass(canvassId) {
-        if (confirm('Are you sure you want to delete this canvass? This action cannot be undone.')) {
-            fetch('../actions/delete_canvass.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        canvass_id: canvassId
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Canvass deleted successfully');
-                        location.reload();
-                    } else {
-                        alert('Error deleting canvass: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    alert('Error: ' + error.message);
-                });
-        }
-    }
-
-    // Print canvass details
-    function printCanvassDetails() {
-        const printContent = document.getElementById('canvassDetailsContent').innerHTML;
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(`
-            <html>
-                <head>
-                    <title>Canvass Details</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; margin: 20px; }
-                        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                        th { background-color: #f2f2f2; }
-                        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8em; }
-                        .status-draft { background-color: #6c757d; color: white; }
-                        .status-completed { background-color: #4a90e2; color: white; }
-                        .status-approved { background-color: #28a745; color: white; }
-                        .status-cancelled { background-color: #e74c3c; color: white; }
-                    </style>
-                </head>
-                <body>
-                    ${printContent}
-                </body>
-            </html>
-        `);
-        printWindow.document.close();
-        printWindow.print();
-    }
-</script>
 
 <?php include '../includes/footer.php'; ?>
