@@ -12,7 +12,9 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
     $isAjax = false;
 }
 
-$user_type = $_SESSION['user_type'] ?? '';
+$user_type = $_SESSION['user_type'] ?? $_SESSION['user']['user_type'] ?? '';
+$user_role_norm = str_replace([' ', '-'], '', strtolower($user_type));
+$can_manage_aircon = !in_array($user_role_norm, ['purchasingstaff', 'purchasingofficer']);
 $dashboard_link = ($user_type == 'Admin') ? '../dashboard.php' : '../dashboard.php';
 
 // Helpers: parse School Year input into start/end dates (July 1 to June 30)
@@ -936,7 +938,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <th>Unit</th>
                                             <th>Supplier</th>
                                             <th>Last Updated</th>
-                                            <th>Actions</th>
+                                            <?php if ($can_manage_aircon): ?>
+                                                <th>Actions</th>
+                                            <?php endif; ?>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -953,14 +957,16 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <td><?= htmlspecialchars($item['unit']) ?></td>
                                                 <td><?= htmlspecialchars($item['supplier_name'] ?? 'N/A') ?></td>
                                                 <td><?= date('M d, Y', strtotime($item['date_updated'])) ?></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-success" onclick="stockIn(<?= $item['inventory_id'] ?>); $('#lowStockModal').modal('hide');" title="Add Stock">
-                                                        <i class="fas fa-plus"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-info" onclick="editInventoryItem(<?= (int)$item['inventory_id'] ?>, 'lowStockModal');" title="Edit">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                </td>
+                                                <?php if ($can_manage_aircon): ?>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-success" onclick="stockIn(<?= $item['inventory_id'] ?>); $('#lowStockModal').modal('hide');" title="Add Stock">
+                                                            <i class="fas fa-plus"></i>
+                                                        </button>
+                                                        <button class="btn btn-sm btn-info" onclick="editInventoryItem(<?= (int)$item['inventory_id'] ?>, 'lowStockModal');" title="Edit">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+                                                    </td>
+                                                <?php endif; ?>
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>
@@ -1008,7 +1014,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <th>Unit</th>
                                             <th>Supplier</th>
                                             <th>Last Updated</th>
-                                            <th>Actions</th>
+                                            <?php if ($can_manage_aircon): ?>
+                                                <th>Actions</th>
+                                            <?php endif; ?>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1025,14 +1033,16 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <td><?= htmlspecialchars($item['unit']) ?></td>
                                                 <td><?= htmlspecialchars($item['supplier_name'] ?? 'N/A') ?></td>
                                                 <td><?= date('M d, Y', strtotime($item['date_updated'])) ?></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-success" onclick="stockIn(<?= $item['inventory_id'] ?>); $('#outOfStockModal').modal('hide');" title="Add Stock">
-                                                        <i class="fas fa-plus"></i> Restock
-                                                    </button>
-                                                    <button class="btn btn-sm btn-info" onclick="editInventoryItem(<?= (int)$item['inventory_id'] ?>, 'outOfStockModal');" title="Edit">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                </td>
+                                                <?php if ($can_manage_aircon): ?>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-success" onclick="stockIn(<?= $item['inventory_id'] ?>); $('#outOfStockModal').modal('hide');" title="Add Stock">
+                                                            <i class="fas fa-plus"></i> Restock
+                                                        </button>
+                                                        <button class="btn btn-sm btn-info" onclick="editInventoryItem(<?= (int)$item['inventory_id'] ?>, 'outOfStockModal');" title="Edit">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+                                                    </td>
+                                                <?php endif; ?>
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>
@@ -1080,7 +1090,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <th>Status</th>
                                             <th>Serial No.</th>
                                             <th>Last Service</th>
-                                            <th>Actions</th>
+                                            <?php if ($can_manage_aircon): ?><th>Actions</th><?php endif; ?>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1093,35 +1103,37 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <td><span class="badge bg-success"><?= htmlspecialchars($aircon['status']) ?></span></td>
                                                 <td><?= htmlspecialchars($aircon['serial_number'] ?? 'N/A') ?></td>
                                                 <td><?= !empty($aircon['last_service_date']) ? date('M d, Y', strtotime($aircon['last_service_date'])) : 'N/A' ?></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-primary view-aircon-details-btn"
-                                                        title="View Details"
-                                                        data-aircon-id="<?= (int)$aircon['aircon_id'] ?>"
-                                                        data-item-number="<?= htmlspecialchars($aircon['item_number'] ?? '', ENT_QUOTES) ?>"
-                                                        data-brand="<?= htmlspecialchars($aircon['brand'] ?? '', ENT_QUOTES) ?>"
-                                                        data-model="<?= htmlspecialchars($aircon['model'] ?? '', ENT_QUOTES) ?>"
-                                                        data-type="<?= htmlspecialchars($aircon['type'] ?? '', ENT_QUOTES) ?>"
-                                                        data-capacity="<?= htmlspecialchars($aircon['capacity'] ?? '', ENT_QUOTES) ?>"
-                                                        data-serial-number="<?= htmlspecialchars($aircon['serial_number'] ?? '', ENT_QUOTES) ?>"
-                                                        data-location="<?= htmlspecialchars($aircon['location'] ?? '', ENT_QUOTES) ?>"
-                                                        data-status="<?= htmlspecialchars($aircon['status'] ?? '', ENT_QUOTES) ?>"
-                                                        data-purchase-date="<?= htmlspecialchars($aircon['purchase_date'] ?? '', ENT_QUOTES) ?>"
-                                                        data-warranty-expiry="<?= htmlspecialchars($aircon['warranty_expiry'] ?? '', ENT_QUOTES) ?>"
-                                                        data-last-service-date="<?= htmlspecialchars($aircon['last_service_date'] ?? '', ENT_QUOTES) ?>"
-                                                        data-maintenance-schedule="<?= htmlspecialchars($aircon['maintenance_schedule'] ?? '', ENT_QUOTES) ?>"
-                                                        data-supplier-info="<?= htmlspecialchars($aircon['supplier_name'] ?? '', ENT_QUOTES) ?>"
-                                                        data-installation-date="<?= htmlspecialchars($aircon['installation_date'] ?? '', ENT_QUOTES) ?>"
-                                                        data-energy-efficiency="<?= htmlspecialchars($aircon['energy_efficiency_rating'] ?? '', ENT_QUOTES) ?>"
-                                                        data-power-consumption="<?= htmlspecialchars($aircon['power_consumption'] ?? '', ENT_QUOTES) ?>"
-                                                        data-notes="<?= htmlspecialchars($aircon['notes'] ?? '', ENT_QUOTES) ?>"
-                                                        data-purchase-price="<?= htmlspecialchars($aircon['purchase_price'] ?? '0', ENT_QUOTES) ?>"
-                                                        data-depreciated-value="<?= htmlspecialchars($aircon['depreciated_value'] ?? '0', ENT_QUOTES) ?>"
-                                                        data-receiver="<?= htmlspecialchars($aircon['receiver'] ?? '', ENT_QUOTES) ?>"
-                                                        data-created-by="<?= htmlspecialchars($aircon['created_by'] ?? '', ENT_QUOTES) ?>"
-                                                        data-date-created="<?= htmlspecialchars($aircon['date_created'] ?? '', ENT_QUOTES) ?>">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                </td>
+                                                <?php if ($can_manage_aircon): ?>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-primary view-aircon-details-btn"
+                                                            title="View Details"
+                                                            data-aircon-id="<?= (int)$aircon['aircon_id'] ?>"
+                                                            data-item-number="<?= htmlspecialchars($aircon['item_number'] ?? '', ENT_QUOTES) ?>"
+                                                            data-brand="<?= htmlspecialchars($aircon['brand'] ?? '', ENT_QUOTES) ?>"
+                                                            data-model="<?= htmlspecialchars($aircon['model'] ?? '', ENT_QUOTES) ?>"
+                                                            data-type="<?= htmlspecialchars($aircon['type'] ?? '', ENT_QUOTES) ?>"
+                                                            data-capacity="<?= htmlspecialchars($aircon['capacity'] ?? '', ENT_QUOTES) ?>"
+                                                            data-serial-number="<?= htmlspecialchars($aircon['serial_number'] ?? '', ENT_QUOTES) ?>"
+                                                            data-location="<?= htmlspecialchars($aircon['location'] ?? '', ENT_QUOTES) ?>"
+                                                            data-status="<?= htmlspecialchars($aircon['status'] ?? '', ENT_QUOTES) ?>"
+                                                            data-purchase-date="<?= htmlspecialchars($aircon['purchase_date'] ?? '', ENT_QUOTES) ?>"
+                                                            data-warranty-expiry="<?= htmlspecialchars($aircon['warranty_expiry'] ?? '', ENT_QUOTES) ?>"
+                                                            data-last-service-date="<?= htmlspecialchars($aircon['last_service_date'] ?? '', ENT_QUOTES) ?>"
+                                                            data-maintenance-schedule="<?= htmlspecialchars($aircon['maintenance_schedule'] ?? '', ENT_QUOTES) ?>"
+                                                            data-supplier-info="<?= htmlspecialchars($aircon['supplier_name'] ?? '', ENT_QUOTES) ?>"
+                                                            data-installation-date="<?= htmlspecialchars($aircon['installation_date'] ?? '', ENT_QUOTES) ?>"
+                                                            data-energy-efficiency="<?= htmlspecialchars($aircon['energy_efficiency_rating'] ?? '', ENT_QUOTES) ?>"
+                                                            data-power-consumption="<?= htmlspecialchars($aircon['power_consumption'] ?? '', ENT_QUOTES) ?>"
+                                                            data-notes="<?= htmlspecialchars($aircon['notes'] ?? '', ENT_QUOTES) ?>"
+                                                            data-purchase-price="<?= htmlspecialchars($aircon['purchase_price'] ?? '0', ENT_QUOTES) ?>"
+                                                            data-depreciated-value="<?= htmlspecialchars($aircon['depreciated_value'] ?? '0', ENT_QUOTES) ?>"
+                                                            data-receiver="<?= htmlspecialchars($aircon['receiver'] ?? '', ENT_QUOTES) ?>"
+                                                            data-created-by="<?= htmlspecialchars($aircon['created_by'] ?? '', ENT_QUOTES) ?>"
+                                                            data-date-created="<?= htmlspecialchars($aircon['date_created'] ?? '', ENT_QUOTES) ?>">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                    </td>
+                                                <?php endif; ?>
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>
@@ -1169,7 +1181,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <th>Status</th>
                                             <th>Serial No.</th>
                                             <th>Last Service</th>
-                                            <th>Actions</th>
+                                            <?php if ($can_manage_aircon): ?><th>Actions</th><?php endif; ?>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1192,37 +1204,39 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 </td>
                                                 <td><?= htmlspecialchars($aircon['serial_number'] ?? 'N/A') ?></td>
                                                 <td><?= !empty($aircon['last_service_date']) ? date('M d, Y', strtotime($aircon['last_service_date'])) : 'N/A' ?></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-primary view-aircon-details-btn"
-                                                        title="View Details"
-                                                        data-aircon-id="<?= (int)$aircon['aircon_id'] ?>"
-                                                        data-item-number="<?= htmlspecialchars($aircon['item_number'] ?? '', ENT_QUOTES) ?>"
-                                                        data-brand="<?= htmlspecialchars($aircon['brand'] ?? '', ENT_QUOTES) ?>"
-                                                        data-model="<?= htmlspecialchars($aircon['model'] ?? '', ENT_QUOTES) ?>"
-                                                        data-type="<?= htmlspecialchars($aircon['type'] ?? '', ENT_QUOTES) ?>"
-                                                        data-capacity="<?= htmlspecialchars($aircon['capacity'] ?? '', ENT_QUOTES) ?>"
-                                                        data-serial-number="<?= htmlspecialchars($aircon['serial_number'] ?? '', ENT_QUOTES) ?>"
-                                                        data-location="<?= htmlspecialchars($aircon['location'] ?? '', ENT_QUOTES) ?>"
-                                                        data-status="<?= htmlspecialchars($aircon['status'] ?? '', ENT_QUOTES) ?>"
-                                                        data-purchase-date="<?= htmlspecialchars($aircon['purchase_date'] ?? '', ENT_QUOTES) ?>"
-                                                        data-warranty-expiry="<?= htmlspecialchars($aircon['warranty_expiry'] ?? '', ENT_QUOTES) ?>"
-                                                        data-last-service-date="<?= htmlspecialchars($aircon['last_service_date'] ?? '', ENT_QUOTES) ?>"
-                                                        data-maintenance-schedule="<?= htmlspecialchars($aircon['maintenance_schedule'] ?? '', ENT_QUOTES) ?>"
-                                                        data-supplier-info="<?= htmlspecialchars($aircon['supplier_name'] ?? '', ENT_QUOTES) ?>"
-                                                        data-installation-date="<?= htmlspecialchars($aircon['installation_date'] ?? '', ENT_QUOTES) ?>"
-                                                        data-energy-efficiency="<?= htmlspecialchars($aircon['energy_efficiency_rating'] ?? '', ENT_QUOTES) ?>"
-                                                        data-power-consumption="<?= htmlspecialchars($aircon['power_consumption'] ?? '', ENT_QUOTES) ?>"
-                                                        data-notes="<?= htmlspecialchars($aircon['notes'] ?? '', ENT_QUOTES) ?>"
-                                                        data-purchase-price="<?= htmlspecialchars($aircon['purchase_price'] ?? '0', ENT_QUOTES) ?>"
-                                                        data-depreciated-value="<?= htmlspecialchars($aircon['depreciated_value'] ?? '0', ENT_QUOTES) ?>"
-                                                        data-receiver="<?= htmlspecialchars($aircon['receiver'] ?? '', ENT_QUOTES) ?>"
-                                                        data-created-by="<?= htmlspecialchars($aircon['created_by'] ?? '', ENT_QUOTES) ?>"
-                                                        data-date-created="<?= htmlspecialchars($aircon['date_created'] ?? '', ENT_QUOTES) ?>"
-                                                        data-picture="<?= htmlspecialchars($aircon['picture'] ?? '', ENT_QUOTES) ?>"
-                                                        data-modal-id="needsAttentionModal">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                </td>
+                                                <?php if ($can_manage_aircon): ?>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-primary view-aircon-details-btn"
+                                                            title="View Details"
+                                                            data-aircon-id="<?= (int)$aircon['aircon_id'] ?>"
+                                                            data-item-number="<?= htmlspecialchars($aircon['item_number'] ?? '', ENT_QUOTES) ?>"
+                                                            data-brand="<?= htmlspecialchars($aircon['brand'] ?? '', ENT_QUOTES) ?>"
+                                                            data-model="<?= htmlspecialchars($aircon['model'] ?? '', ENT_QUOTES) ?>"
+                                                            data-type="<?= htmlspecialchars($aircon['type'] ?? '', ENT_QUOTES) ?>"
+                                                            data-capacity="<?= htmlspecialchars($aircon['capacity'] ?? '', ENT_QUOTES) ?>"
+                                                            data-serial-number="<?= htmlspecialchars($aircon['serial_number'] ?? '', ENT_QUOTES) ?>"
+                                                            data-location="<?= htmlspecialchars($aircon['location'] ?? '', ENT_QUOTES) ?>"
+                                                            data-status="<?= htmlspecialchars($aircon['status'] ?? '', ENT_QUOTES) ?>"
+                                                            data-purchase-date="<?= htmlspecialchars($aircon['purchase_date'] ?? '', ENT_QUOTES) ?>"
+                                                            data-warranty-expiry="<?= htmlspecialchars($aircon['warranty_expiry'] ?? '', ENT_QUOTES) ?>"
+                                                            data-last-service-date="<?= htmlspecialchars($aircon['last_service_date'] ?? '', ENT_QUOTES) ?>"
+                                                            data-maintenance-schedule="<?= htmlspecialchars($aircon['maintenance_schedule'] ?? '', ENT_QUOTES) ?>"
+                                                            data-supplier-info="<?= htmlspecialchars($aircon['supplier_name'] ?? '', ENT_QUOTES) ?>"
+                                                            data-installation-date="<?= htmlspecialchars($aircon['installation_date'] ?? '', ENT_QUOTES) ?>"
+                                                            data-energy-efficiency="<?= htmlspecialchars($aircon['energy_efficiency_rating'] ?? '', ENT_QUOTES) ?>"
+                                                            data-power-consumption="<?= htmlspecialchars($aircon['power_consumption'] ?? '', ENT_QUOTES) ?>"
+                                                            data-notes="<?= htmlspecialchars($aircon['notes'] ?? '', ENT_QUOTES) ?>"
+                                                            data-purchase-price="<?= htmlspecialchars($aircon['purchase_price'] ?? '0', ENT_QUOTES) ?>"
+                                                            data-depreciated-value="<?= htmlspecialchars($aircon['depreciated_value'] ?? '0', ENT_QUOTES) ?>"
+                                                            data-receiver="<?= htmlspecialchars($aircon['receiver'] ?? '', ENT_QUOTES) ?>"
+                                                            data-created-by="<?= htmlspecialchars($aircon['created_by'] ?? '', ENT_QUOTES) ?>"
+                                                            data-date-created="<?= htmlspecialchars($aircon['date_created'] ?? '', ENT_QUOTES) ?>"
+                                                            data-picture="<?= htmlspecialchars($aircon['picture'] ?? '', ENT_QUOTES) ?>"
+                                                            data-modal-id="needsAttentionModal">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                    </td>
+                                                <?php endif; ?>
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>
@@ -1270,7 +1284,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <th>Status</th>
                                             <th>Serial No.</th>
                                             <th>Last Service</th>
-                                            <th>Actions</th>
+                                            <?php if ($can_manage_aircon): ?><th>Actions</th><?php endif; ?>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1283,37 +1297,39 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <td><span class="badge bg-danger"><?= htmlspecialchars($aircon['status']) ?></span></td>
                                                 <td><?= htmlspecialchars($aircon['serial_number'] ?? 'N/A') ?></td>
                                                 <td><?= !empty($aircon['last_service_date']) ? date('M d, Y', strtotime($aircon['last_service_date'])) : 'N/A' ?></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-primary view-aircon-details-btn"
-                                                        title="View Details"
-                                                        data-aircon-id="<?= (int)$aircon['aircon_id'] ?>"
-                                                        data-item-number="<?= htmlspecialchars($aircon['item_number'] ?? '', ENT_QUOTES) ?>"
-                                                        data-brand="<?= htmlspecialchars($aircon['brand'] ?? '', ENT_QUOTES) ?>"
-                                                        data-model="<?= htmlspecialchars($aircon['model'] ?? '', ENT_QUOTES) ?>"
-                                                        data-type="<?= htmlspecialchars($aircon['type'] ?? '', ENT_QUOTES) ?>"
-                                                        data-capacity="<?= htmlspecialchars($aircon['capacity'] ?? '', ENT_QUOTES) ?>"
-                                                        data-serial-number="<?= htmlspecialchars($aircon['serial_number'] ?? '', ENT_QUOTES) ?>"
-                                                        data-location="<?= htmlspecialchars($aircon['location'] ?? '', ENT_QUOTES) ?>"
-                                                        data-status="<?= htmlspecialchars($aircon['status'] ?? '', ENT_QUOTES) ?>"
-                                                        data-purchase-date="<?= htmlspecialchars($aircon['purchase_date'] ?? '', ENT_QUOTES) ?>"
-                                                        data-warranty-expiry="<?= htmlspecialchars($aircon['warranty_expiry'] ?? '', ENT_QUOTES) ?>"
-                                                        data-last-service-date="<?= htmlspecialchars($aircon['last_service_date'] ?? '', ENT_QUOTES) ?>"
-                                                        data-maintenance-schedule="<?= htmlspecialchars($aircon['maintenance_schedule'] ?? '', ENT_QUOTES) ?>"
-                                                        data-supplier-info="<?= htmlspecialchars($aircon['supplier_name'] ?? '', ENT_QUOTES) ?>"
-                                                        data-installation-date="<?= htmlspecialchars($aircon['installation_date'] ?? '', ENT_QUOTES) ?>"
-                                                        data-energy-efficiency="<?= htmlspecialchars($aircon['energy_efficiency_rating'] ?? '', ENT_QUOTES) ?>"
-                                                        data-power-consumption="<?= htmlspecialchars($aircon['power_consumption'] ?? '', ENT_QUOTES) ?>"
-                                                        data-notes="<?= htmlspecialchars($aircon['notes'] ?? '', ENT_QUOTES) ?>"
-                                                        data-purchase-price="<?= htmlspecialchars($aircon['purchase_price'] ?? '0', ENT_QUOTES) ?>"
-                                                        data-depreciated-value="<?= htmlspecialchars($aircon['depreciated_value'] ?? '0', ENT_QUOTES) ?>"
-                                                        data-receiver="<?= htmlspecialchars($aircon['receiver'] ?? '', ENT_QUOTES) ?>"
-                                                        data-created-by="<?= htmlspecialchars($aircon['created_by'] ?? '', ENT_QUOTES) ?>"
-                                                        data-date-created="<?= htmlspecialchars($aircon['date_created'] ?? '', ENT_QUOTES) ?>"
-                                                        data-picture="<?= htmlspecialchars($aircon['picture'] ?? '', ENT_QUOTES) ?>"
-                                                        data-modal-id="decommissionedModal">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                </td>
+                                                <?php if ($can_manage_aircon): ?>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-primary view-aircon-details-btn"
+                                                            title="View Details"
+                                                            data-aircon-id="<?= (int)$aircon['aircon_id'] ?>"
+                                                            data-item-number="<?= htmlspecialchars($aircon['item_number'] ?? '', ENT_QUOTES) ?>"
+                                                            data-brand="<?= htmlspecialchars($aircon['brand'] ?? '', ENT_QUOTES) ?>"
+                                                            data-model="<?= htmlspecialchars($aircon['model'] ?? '', ENT_QUOTES) ?>"
+                                                            data-type="<?= htmlspecialchars($aircon['type'] ?? '', ENT_QUOTES) ?>"
+                                                            data-capacity="<?= htmlspecialchars($aircon['capacity'] ?? '', ENT_QUOTES) ?>"
+                                                            data-serial-number="<?= htmlspecialchars($aircon['serial_number'] ?? '', ENT_QUOTES) ?>"
+                                                            data-location="<?= htmlspecialchars($aircon['location'] ?? '', ENT_QUOTES) ?>"
+                                                            data-status="<?= htmlspecialchars($aircon['status'] ?? '', ENT_QUOTES) ?>"
+                                                            data-purchase-date="<?= htmlspecialchars($aircon['purchase_date'] ?? '', ENT_QUOTES) ?>"
+                                                            data-warranty-expiry="<?= htmlspecialchars($aircon['warranty_expiry'] ?? '', ENT_QUOTES) ?>"
+                                                            data-last-service-date="<?= htmlspecialchars($aircon['last_service_date'] ?? '', ENT_QUOTES) ?>"
+                                                            data-maintenance-schedule="<?= htmlspecialchars($aircon['maintenance_schedule'] ?? '', ENT_QUOTES) ?>"
+                                                            data-supplier-info="<?= htmlspecialchars($aircon['supplier_name'] ?? '', ENT_QUOTES) ?>"
+                                                            data-installation-date="<?= htmlspecialchars($aircon['installation_date'] ?? '', ENT_QUOTES) ?>"
+                                                            data-energy-efficiency="<?= htmlspecialchars($aircon['energy_efficiency_rating'] ?? '', ENT_QUOTES) ?>"
+                                                            data-power-consumption="<?= htmlspecialchars($aircon['power_consumption'] ?? '', ENT_QUOTES) ?>"
+                                                            data-notes="<?= htmlspecialchars($aircon['notes'] ?? '', ENT_QUOTES) ?>"
+                                                            data-purchase-price="<?= htmlspecialchars($aircon['purchase_price'] ?? '0', ENT_QUOTES) ?>"
+                                                            data-depreciated-value="<?= htmlspecialchars($aircon['depreciated_value'] ?? '0', ENT_QUOTES) ?>"
+                                                            data-receiver="<?= htmlspecialchars($aircon['receiver'] ?? '', ENT_QUOTES) ?>"
+                                                            data-created-by="<?= htmlspecialchars($aircon['created_by'] ?? '', ENT_QUOTES) ?>"
+                                                            data-date-created="<?= htmlspecialchars($aircon['date_created'] ?? '', ENT_QUOTES) ?>"
+                                                            data-picture="<?= htmlspecialchars($aircon['picture'] ?? '', ENT_QUOTES) ?>"
+                                                            data-modal-id="decommissionedModal">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                    </td>
+                                                <?php endif; ?>
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>
@@ -1500,9 +1516,11 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     <a class="btn btn-success" href="../actions/export_aircons.php?search=<?= urlencode($search_term) ?>&sy_inv=<?= urlencode($sy_inv_raw) ?>&campus=<?= urlencode($campus_raw) ?>">
                         <i class="fas fa-file-export"></i> Export
                     </a>
-                    <button class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
-                        <i class="fas fa-plus"></i> Add Aircon
-                    </button>
+                    <?php if ($can_manage_aircon): ?>
+                        <button class="btn btn-add text-dark" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                            <i class="fas fa-plus"></i> Add Aircon
+                        </button>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -1549,7 +1567,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <th>Maintenance Schedule</th>
                                 <th>Installation Date/ Release Date</th>
                                 <th>Notes</th>
-                                <th>Actions</th>
+                                <?php if ($can_manage_aircon): ?>
+                                    <th>Actions</th>
+                                <?php endif; ?>
                             </tr>
                         </thead>
                         <tbody>
@@ -1590,67 +1610,69 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         </td>
                                         <td data-label="Installation Date"><?= !empty($row['installation_date']) ? date('M d, Y', strtotime($row['installation_date'])) : 'N/A' ?></td>
                                         <td data-label="Notes"><?= htmlspecialchars($row['notes'] ?? 'N/A') ?></td>
-                                        <td data-label="Actions" class="actions">
-                                            <button class="btn btn-sm btn-primary view-aircon-details-btn"
-                                                title="View Details"
-                                                data-aircon-id="<?= (int)$row['aircon_id'] ?>"
-                                                data-item-number="<?= htmlspecialchars($row['item_number'] ?? '', ENT_QUOTES) ?>"
-                                                data-brand="<?= htmlspecialchars($row['brand'] ?? '', ENT_QUOTES) ?>"
-                                                data-model="<?= htmlspecialchars($row['model'] ?? '', ENT_QUOTES) ?>"
-                                                data-type="<?= htmlspecialchars($row['type'] ?? '', ENT_QUOTES) ?>"
-                                                data-capacity="<?= htmlspecialchars($row['capacity'] ?? '', ENT_QUOTES) ?>"
-                                                data-serial-number="<?= htmlspecialchars($row['serial_number'] ?? '', ENT_QUOTES) ?>"
-                                                data-location="<?= htmlspecialchars($row['location'] ?? '', ENT_QUOTES) ?>"
-                                                data-status="<?= htmlspecialchars($row['status'] ?? '', ENT_QUOTES) ?>"
-                                                data-purchase-date="<?= htmlspecialchars($row['purchase_date'] ?? '', ENT_QUOTES) ?>"
-                                                data-warranty-expiry="<?= htmlspecialchars($row['warranty_expiry'] ?? '', ENT_QUOTES) ?>"
-                                                data-last-service-date="<?= htmlspecialchars($row['last_service_date'] ?? '', ENT_QUOTES) ?>"
-                                                data-maintenance-schedule="<?= htmlspecialchars($row['maintenance_schedule'] ?? '', ENT_QUOTES) ?>"
-                                                data-supplier-info="<?= htmlspecialchars($row['supplier_name'] ?? '', ENT_QUOTES) ?>"
-                                                data-installation-date="<?= htmlspecialchars($row['installation_date'] ?? '', ENT_QUOTES) ?>"
-                                                data-energy-efficiency="<?= htmlspecialchars($row['energy_efficiency_rating'] ?? '', ENT_QUOTES) ?>"
-                                                data-power-consumption="<?= htmlspecialchars($row['power_consumption'] ?? '', ENT_QUOTES) ?>"
-                                                data-notes="<?= htmlspecialchars($row['notes'] ?? '', ENT_QUOTES) ?>"
-                                                data-purchase-price="<?= htmlspecialchars($row['purchase_price'] ?? '0', ENT_QUOTES) ?>"
-                                                data-depreciated-value="<?= htmlspecialchars($row['depreciated_value'] ?? '0', ENT_QUOTES) ?>"
-                                                data-receiver="<?= htmlspecialchars($row['receiver'] ?? '', ENT_QUOTES) ?>"
-                                                data-created-by="<?= htmlspecialchars($row['created_by'] ?? '', ENT_QUOTES) ?>"
-                                                data-date-created="<?= htmlspecialchars($row['date_created'] ?? '', ENT_QUOTES) ?>"
-                                                data-picture="<?= htmlspecialchars($row['first_image'] ?? '', ENT_QUOTES) ?>">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-info" title="Edit"
-                                                onclick="openEditAirconModal(
-                                                <?= (int)$row['aircon_id'] ?>,
-                                                <?= htmlspecialchars(json_encode($row['item_number'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= htmlspecialchars(json_encode($row['category'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= htmlspecialchars(json_encode($row['brand'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= htmlspecialchars(json_encode($row['model'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= htmlspecialchars(json_encode($row['type'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= htmlspecialchars(json_encode($row['capacity'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= htmlspecialchars(json_encode($row['serial_number'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= htmlspecialchars(json_encode($row['location'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= htmlspecialchars(json_encode($row['status'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= htmlspecialchars(json_encode($row['purchase_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= htmlspecialchars(json_encode($row['warranty_expiry'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= htmlspecialchars(json_encode($row['last_service_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= htmlspecialchars(json_encode($row['maintenance_schedule'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= (int)($row['supplier_id'] ?? 0) ?>,
-                                                <?= htmlspecialchars(json_encode($row['installation_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= htmlspecialchars(json_encode($row['energy_efficiency_rating'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= htmlspecialchars(json_encode($row['power_consumption'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= htmlspecialchars(json_encode($row['notes'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= htmlspecialchars(json_encode($row['purchase_price'] ?? '0'), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= htmlspecialchars(json_encode($row['depreciated_value'] ?? '0'), ENT_QUOTES, 'UTF-8') ?>,
-                                                <?= htmlspecialchars(json_encode($row['first_image'] ?? ''), ENT_QUOTES, 'UTF-8') ?>
-                                                )">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger" title="Delete"
-                                                onclick='deleteAircon(<?= (int)$row['aircon_id'] ?>, <?= json_encode($row['brand'] ?? '') ?>)'>
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </td>
+                                        <?php if ($can_manage_aircon): ?>
+                                            <td data-label="Actions" class="actions">
+                                                <button class="btn btn-sm btn-primary view-aircon-details-btn"
+                                                    title="View Details"
+                                                    data-aircon-id="<?= (int)$row['aircon_id'] ?>"
+                                                    data-item-number="<?= htmlspecialchars($row['item_number'] ?? '', ENT_QUOTES) ?>"
+                                                    data-brand="<?= htmlspecialchars($row['brand'] ?? '', ENT_QUOTES) ?>"
+                                                    data-model="<?= htmlspecialchars($row['model'] ?? '', ENT_QUOTES) ?>"
+                                                    data-type="<?= htmlspecialchars($row['type'] ?? '', ENT_QUOTES) ?>"
+                                                    data-capacity="<?= htmlspecialchars($row['capacity'] ?? '', ENT_QUOTES) ?>"
+                                                    data-serial-number="<?= htmlspecialchars($row['serial_number'] ?? '', ENT_QUOTES) ?>"
+                                                    data-location="<?= htmlspecialchars($row['location'] ?? '', ENT_QUOTES) ?>"
+                                                    data-status="<?= htmlspecialchars($row['status'] ?? '', ENT_QUOTES) ?>"
+                                                    data-purchase-date="<?= htmlspecialchars($row['purchase_date'] ?? '', ENT_QUOTES) ?>"
+                                                    data-warranty-expiry="<?= htmlspecialchars($row['warranty_expiry'] ?? '', ENT_QUOTES) ?>"
+                                                    data-last-service-date="<?= htmlspecialchars($row['last_service_date'] ?? '', ENT_QUOTES) ?>"
+                                                    data-maintenance-schedule="<?= htmlspecialchars($row['maintenance_schedule'] ?? '', ENT_QUOTES) ?>"
+                                                    data-supplier-info="<?= htmlspecialchars($row['supplier_name'] ?? '', ENT_QUOTES) ?>"
+                                                    data-installation-date="<?= htmlspecialchars($row['installation_date'] ?? '', ENT_QUOTES) ?>"
+                                                    data-energy-efficiency="<?= htmlspecialchars($row['energy_efficiency_rating'] ?? '', ENT_QUOTES) ?>"
+                                                    data-power-consumption="<?= htmlspecialchars($row['power_consumption'] ?? '', ENT_QUOTES) ?>"
+                                                    data-notes="<?= htmlspecialchars($row['notes'] ?? '', ENT_QUOTES) ?>"
+                                                    data-purchase-price="<?= htmlspecialchars($row['purchase_price'] ?? '0', ENT_QUOTES) ?>"
+                                                    data-depreciated-value="<?= htmlspecialchars($row['depreciated_value'] ?? '0', ENT_QUOTES) ?>"
+                                                    data-receiver="<?= htmlspecialchars($row['receiver'] ?? '', ENT_QUOTES) ?>"
+                                                    data-created-by="<?= htmlspecialchars($row['created_by'] ?? '', ENT_QUOTES) ?>"
+                                                    data-date-created="<?= htmlspecialchars($row['date_created'] ?? '', ENT_QUOTES) ?>"
+                                                    data-picture="<?= htmlspecialchars($row['first_image'] ?? '', ENT_QUOTES) ?>">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-info" title="Edit"
+                                                    onclick="openEditAirconModal(
+                                                    <?= (int)$row['aircon_id'] ?>,
+                                                    <?= htmlspecialchars(json_encode($row['item_number'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['category'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['brand'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['model'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['type'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['capacity'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['serial_number'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['location'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['status'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['purchase_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['warranty_expiry'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['last_service_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['maintenance_schedule'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= (int)($row['supplier_id'] ?? 0) ?>,
+                                                    <?= htmlspecialchars(json_encode($row['installation_date'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['energy_efficiency_rating'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['power_consumption'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['notes'] ?? ''), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['purchase_price'] ?? '0'), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['depreciated_value'] ?? '0'), ENT_QUOTES, 'UTF-8') ?>,
+                                                    <?= htmlspecialchars(json_encode($row['first_image'] ?? ''), ENT_QUOTES, 'UTF-8') ?>
+                                                    )">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" title="Delete"
+                                                    onclick='deleteAircon(<?= (int)$row['aircon_id'] ?>, <?= json_encode($row['brand'] ?? '') ?>)'>
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        <?php endif; ?>
                                     </tr>
                                 <?php endwhile; ?>
                             <?php else: ?>
@@ -2389,9 +2411,11 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <a id="exportMaintCsv" class="btn btn-outline-primary btn-sm" href="#" target="_blank">
                                         <i class="fas fa-file-csv"></i> Export CSV
                                     </a>
-                                    <button type="button" class="btn btn-success btn-sm" id="addMaintenanceBtn">
-                                        <i class="fas fa-plus"></i> Add Maintenance Record
-                                    </button>
+                                    <?php if ($can_manage_aircon): ?>
+                                        <button type="button" class="btn btn-success btn-sm" id="addMaintenanceBtn">
+                                            <i class="fas fa-plus"></i> Add Maintenance Record
+                                        </button>
+                                    <?php endif; ?>
                                 </div>
                             </div>
 
@@ -2406,12 +2430,12 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <th>Next Scheduled</th>
                                             <th>Remarks</th>
                                             <th>Created By</th>
-                                            <th>Actions</th>
+                                            <?php if ($can_manage_aircon): ?><th>Actions</th><?php endif; ?>
                                         </tr>
                                     </thead>
                                     <tbody id="maintenanceTableBody">
                                         <tr>
-                                            <td colspan="7" class="text-center">
+                                             <td colspan="<?= $can_manage_aircon ? 7 : 6 ?>" class="text-center">
                                                 <div class="spinner-border text-info" role="status">
                                                     <span class="visually-hidden">Loading...</span>
                                                 </div>
@@ -2662,6 +2686,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
                 // Maintenance Records Modal Handler - Global scope
                 let currentAirconId = null;
+                const canManageAircon = <?= $can_manage_aircon ? 'true' : 'false' ?>;
 
                 $(document).ready(function() {
                     $(document).on('click', '.view-maintenance-btn', function() {
@@ -2743,7 +2768,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 function loadMaintenanceRecords(airconId) {
                     $('#maintenanceTableBody').html(`
                         <tr>
-                            <td colspan="7" class="text-center">
+                            <td colspan="${canManageAircon ? 7 : 6}" class="text-center">
                                 <div class="spinner-border text-info" role="status">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
@@ -2787,6 +2812,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <td>${nextDate}</td>
                                                 <td>${remarks}</td>
                                                 <td>${record.created_by || 'N/A'}</td>
+                                                ${canManageAircon ? `
                                                 <td>
                                                     <button type="button" class="btn btn-sm btn-secondary view-maint-btn" 
                                                         data-id="${record.maintenance_id}"
@@ -2809,6 +2835,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </td>
+                                                ` : ''}
                                             </tr>
                                         `;
                                     });
@@ -2818,7 +2845,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             } else {
                                 $('#maintenanceTableBody').html(`
                                     <tr>
-                                        <td colspan="7" class="text-center text-danger">
+                                        <td colspan="${canManageAircon ? 7 : 6}" class="text-center text-danger">
                                             <i class="fas fa-exclamation-triangle"></i> ${response.message}
                                         </td>
                                     </tr>
@@ -2828,7 +2855,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         error: function() {
                             $('#maintenanceTableBody').html(`
                                 <tr>
-                                    <td colspan="7" class="text-center text-danger">
+                                    <td colspan="${canManageAircon ? 7 : 6}" class="text-center text-danger">
                                         <i class="fas fa-exclamation-triangle"></i> Error loading maintenance records
                                     </td>
                                 </tr>
@@ -3828,7 +3855,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '<th>Maintenance Schedule</th>';
             echo '<th>Installation Date/ Release Date</th>';
             echo '<th>Notes</th>';
-            echo '<th>Actions</th>';
+                    if ($can_manage_aircon) echo '<th>Actions</th>';
             echo '</tr>';
             echo '</thead><tbody>';
 
@@ -3870,6 +3897,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
                     echo '<td data-label="Installation Date/ Release Date">' . (!empty($row['installation_date']) ? date('M d, Y', strtotime($row['installation_date'])) : 'N/A') . '</td>';
                     echo '<td data-label="Notes">' . htmlspecialchars($row['notes'] ?? 'N/A') . '</td>';
+                    if ($can_manage_aircon) {
                     echo '<td data-label="Actions" class="actions">';
                     echo '<button class="btn btn-sm btn-primary" title="View Details" onclick=\'viewAirconDetails('
                         . (int)$row['aircon_id'] . ', '
@@ -3922,7 +3950,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         . htmlspecialchars(json_encode($row['picture'] ?? ''), ENT_QUOTES, 'UTF-8')
                         . ')\'><i class="fas fa-edit"></i></button> ';
 
-                    echo '<button class="btn btn-sm btn-danger" title="Delete" onclick=\'deleteAircon(' . (int)$row['aircon_id'] . ', ' . htmlspecialchars(json_encode($row['brand'] ?? ''), ENT_QUOTES, 'UTF-8') . ')\'><i class="fas fa-trash"></i></button></td></tr>';
+                    echo '<button class="btn btn-sm btn-danger" title="Delete" onclick=\'deleteAircon(' . (int)$row['aircon_id'] . ', ' . htmlspecialchars(json_encode($row['brand'] ?? ''), ENT_QUOTES, 'UTF-8') . ')\'><i class="fas fa-trash"></i></button></td>';
+                    } // end if can_manage_aircon
+                    echo '</tr>';
                 }
             } else {
                 echo '<tr><td colspan="14" class="text-center py-4"><i class="fas fa-snowflake fa-3x text-muted mb-3"></i><p class="text-muted">No aircon units found</p></td></tr>';
