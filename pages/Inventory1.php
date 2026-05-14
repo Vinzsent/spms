@@ -343,39 +343,7 @@ if (isset($_SESSION['error'])) {
 </style>
 
 <!-- Sidebar -->
-<div class="sidebar">
-    <div class="sidebar-header">
-        <h4 class="">ASSET</h4>
-        <h4>MANAGEMENT</h4>
-        <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
-    </div>
-
-    <nav class="sidebar-nav">
-        <ul class="nav-item">
-            <li><a href="<?= $dashboard_link ?>" class="nav-link">
-                    <i class="fas fa-chart-line"></i> Dashboard
-                </a></li>
-            <li><a href="suppliers.php" class="nav-link">
-                    <i class="fas fa-users"></i> Supplier List
-                </a></li>
-            <li><a href="supply_request.php" class="nav-link">
-                    <i class="fas fa-clipboard-list"></i> Supply Request
-                </a></li>
-            <li><a href="procurement.php" class="nav-link">
-                    <i class="fas fa-shopping-cart"></i> Procurement
-                </a></li>
-            <li><a href="Inventory.php" class="nav-link active">
-                    <i class="fas fa-boxes"></i> Inventory
-                </a></li>
-            <li><a href="transaction_list.php" class="nav-link">
-                    <i class="fas fa-exchange-alt"></i> Transactions
-                </a></li>
-            <li><a href="../logout.php" class="nav-link logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a></li>
-        </ul>
-    </nav>
-</div>
+<?php include '../includes/sidebar.php'; ?>
 
 <!-- Main Content -->
 <div class="main-content">
