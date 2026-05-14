@@ -331,10 +331,11 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
         /* Main Content */
         .main-content {
-            margin-left: 240px;
-            padding: 15px;
+            margin-left: 280px; /* Created a visible gap (Sidebar is ~256px) */
+            padding: 30px;      /* Added more breathing room */
             min-height: 100vh;
             background-color: var(--bg-light);
+            transition: all 0.3s ease;
         }
 
         .content-header {
@@ -658,55 +659,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
     </style>
 
     <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <a href="../dashboard.php" style="text-decoration: none; color: inherit;">
-                <h3>DARTS</h3>
-            </a>
-            <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
-        </div>
-
-        <nav class="sidebar-nav">
-            <?php if (strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasing staff' && strtolower($user_type) != 'purchasingstaff'): ?>
-                <ul class="nav-item">
-                    <li><a href="<?= $dashboard_link ?>" class="nav-link">
-                            <i class="fas fa-chart-line"></i> Dashboard
-                        </a></li>
-                    <li><a href="issuance.php" class="nav-link">
-                            <i class="fas fa-hand-holding"></i> Issuance
-                        </a></li>
-                    <li><a href="Inventory.php" class="nav-link active">
-                            <i class="fas fa-boxes"></i> Inventory
-                        </a></li>
-                    <li><a href="notifications.php" class="nav-link">
-                            <i class="fas fa-bell"></i> Notifications
-                        </a></li>
-                    <li><a href="../logout.php" class="nav-link logout">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </a></li>
-                </ul>
-            <?php endif; ?>
-            <?php if (strtolower($user_type) == 'purchasing officer' || strtolower($user_type) == 'purchasing staff' || strtolower($user_type) == 'purchasingstaff'): ?>
-                <ul class="nav-item">
-                    <li><a href="<?= $dashboard_link ?>" class="nav-link">
-                            <i class="fas fa-chart-line"></i> Dashboard
-                        </a></li>
-                    <li><a href="../logout.php" class="nav-link logout">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </a></li>
-                </ul>
-            <?php endif; ?>
-        </nav>
-    </div>
+    <?php include '../includes/sidebar.php'; ?>
 
     <!-- Main Content -->
     <div class="main-content">
         <div class="content-header">
             <h1>Inventory Management</h1>
             <p>Track supplies, monitor stock levels, and manage inventory movements</p>
-            <?php if (strtolower($user_type) == 'purchasing officer' || strtolower($user_type) == 'admin' || strtolower($user_type) == 'purchasing staff' || strtolower($user_type) == 'purchasingstaff'): ?>
-                <button class="btn btn-sm" style="background-color: var(--accent-orange);" onclick="window.location.href='received_items.php'">Back to received page</button>
-            <?php endif; ?>
         </div>
 
         <!-- Low Stock Alerts -->
