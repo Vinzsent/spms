@@ -57,6 +57,17 @@ $departments = [
     "REGISTRAR'S OFFICE", "SENIOR HIGH SCHOOL PROGRAM", "SUPPLY ROOM",
     "VPAA OFFICE", "OSSD", "MAIN LIBRARY", "BED LIBRARY"
 ];
+
+// Fetch unique departments from existing canvass items to supplement the list
+$db_depts_query = "SELECT DISTINCT department FROM canvass_items WHERE department IS NOT NULL AND department != ''";
+$db_depts_result = $conn->query($db_depts_query);
+if ($db_depts_result) {
+    while ($row = $db_depts_result->fetch_assoc()) {
+        if (!in_array($row['department'], $departments)) {
+            $departments[] = $row['department'];
+        }
+    }
+}
 sort($departments);
 
 $campuses = ["MAIN", "BED"];
@@ -489,6 +500,52 @@ $campuses = ["MAIN", "BED"];
         background: var(--dark-green);
         color: var(--accent-orange) !important;
     }
+
+    /* Department Dropdown Styles */
+    .department-dropdown-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .department-input {
+        width: 100%;
+        padding: 8px;
+        border: none !important;
+        background: transparent !important;
+        text-align: center !important;
+    }
+
+    .department-input:focus {
+        outline: 1px solid var(--primary-green) !important;
+        background: white !important;
+    }
+
+    .department-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        max-height: 200px;
+        overflow-y: auto;
+        background: white;
+        border: 1px solid #ddd;
+        z-index: 1001;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: left;
+        display: none;
+    }
+
+    .department-item {
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: background 0.2s;
+        color: var(--text-dark);
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .department-item:hover {
+        background: rgba(7, 59, 29, 0.1);
+    }
 </style>
 
 <!-- Sidebar -->
@@ -686,7 +743,8 @@ $campuses = ["MAIN", "BED"];
         rows.forEach((row, index) => {
             const supplierInput = row.cells[0].querySelector('.supplier-input');
             const supplier = supplierInput ? supplierInput.value : '';
-            const department = row.cells[1].querySelector('select').value;
+            const departmentInput = row.cells[1].querySelector('.department-input');
+            const department = departmentInput ? departmentInput.value : '';
             const campus = row.cells[2].querySelector('select').value;
             const description = row.cells[3].querySelector('textarea').value;
             const quantity = parseFloat(row.cells[4].querySelector('input').value) || 0;
@@ -790,12 +848,19 @@ $campuses = ["MAIN", "BED"];
                 </div>
             </td>
             <td>
-                <select style="width: 100%; border: none; background: transparent; text-align: center; padding: 5px;">
-                    <option value="">Select Dept</option>
-                    <?php foreach ($departments as $dept): ?>
-                        <option value="<?= htmlspecialchars($dept) ?>"><?= htmlspecialchars($dept) ?></option>
-                    <?php endforeach; ?>
-                </select>
+                <div class="department-dropdown-container">
+                    <input type="text" class="department-input" placeholder="Select Dept" 
+                        onfocus="showDepartmentDropdown(this)" 
+                        oninput="filterDepartments(this)" 
+                        onblur="hideDepartmentDropdown(this)">
+                    <div class="department-list">
+                        <?php foreach ($departments as $dept): ?>
+                            <div class="department-item" onmousedown="selectDepartment(this, <?= htmlspecialchars(json_encode($dept)) ?>)">
+                                <?= htmlspecialchars($dept) ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
             </td>
             <td>
                 <select style="width: 100%; border: none; background: transparent; text-align: center; padding: 5px;">
@@ -846,12 +911,20 @@ $campuses = ["MAIN", "BED"];
                 </div>
             </td>
             <td>
-                <select ${isReadOnly ? 'disabled' : ''} style="width: 100%; border: none; background: transparent; text-align: center; padding: 5px;">
-                    <option value="">Select Dept</option>
-                    <?php foreach ($departments as $dept): ?>
-                        <option value="<?= htmlspecialchars($dept) ?>" \${department === <?= json_encode($dept) ?> ? 'selected' : ''}><?= htmlspecialchars($dept) ?></option>
-                    <?php endforeach; ?>
-                </select>
+                <div class="department-dropdown-container">
+                    <input type="text" class="department-input" placeholder="Select Dept" value="${department}" 
+                        ${isReadOnly ? 'disabled' : ''}
+                        onfocus="showDepartmentDropdown(this)" 
+                        oninput="filterDepartments(this)" 
+                        onblur="hideDepartmentDropdown(this)">
+                    <div class="department-list">
+                        <?php foreach ($departments as $dept): ?>
+                            <div class="department-item" onmousedown="selectDepartment(this, <?= htmlspecialchars(json_encode($dept)) ?>)">
+                                <?= htmlspecialchars($dept) ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
             </td>
             <td>
                 <select ${isReadOnly ? 'disabled' : ''} style="width: 100%; border: none; background: transparent; text-align: center; padding: 5px;">
@@ -918,6 +991,42 @@ $campuses = ["MAIN", "BED"];
         const input = container.querySelector('.supplier-input');
         input.value = supplierName;
         const list = container.querySelector('.supplier-list');
+        list.style.display = 'none';
+    }
+
+    // Department Dropdown Functions
+    function showDepartmentDropdown(input) {
+        const list = input.nextElementSibling;
+        list.style.display = 'block';
+    }
+
+    function hideDepartmentDropdown(input) {
+        setTimeout(() => {
+            const list = input.nextElementSibling;
+            if (list) list.style.display = 'none';
+        }, 200);
+    }
+
+    function filterDepartments(input) {
+        const filter = input.value.toLowerCase();
+        const list = input.nextElementSibling;
+        const items = list.querySelectorAll('.department-item');
+
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            if (text.includes(filter)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    function selectDepartment(item, deptName) {
+        const container = item.closest('.department-dropdown-container');
+        const input = container.querySelector('.department-input');
+        input.value = deptName;
+        const list = container.querySelector('.department-list');
         list.style.display = 'none';
     }
 
