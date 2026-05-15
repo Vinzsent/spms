@@ -10,14 +10,16 @@ $user_role_norm = str_replace([' ', '-'], '', strtolower($raw_user_type));
 
 // Map role to sidebar file
 $sidebar_map = [
-    'supplyincharge'           => 'supply_incharge.php',
-    'propertycustodian'        => 'custodian.php',
-    'purchasingofficer'        => 'purchasing.php',
-    'purchasingstaff'          => 'purchasing.php',
-    'purcashingstaff'          => 'purchasing.php', // Typos
-    'purchsingstaff'           => 'purchasing.php', // Typos
-    'generalsecurityoffice'    => 'gso.php',
-    'gso'                      => 'gso.php'
+    'supplyincharge'              => 'supply_incharge.php',
+    'propertycustodian'           => 'custodian.php',
+    'purchasingofficer'           => 'purchasing.php',
+    'purchasingstaff'             => 'purchasing.php',
+    'purcashingstaff'             => 'purchasing.php', // Typos
+    'purchsingstaff'              => 'purchasing.php', // Typos
+    'generalsecurityoffice'       => 'gso.php',
+    'generalserviceofficer'       => 'gso.php',
+    'gsogeneralserviceofficer'    => 'gso.php',
+    'gso'                         => 'gso.php',
 ];
 
 $sidebar_file = $sidebar_map[$user_role_norm] ?? null;
