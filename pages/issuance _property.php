@@ -205,7 +205,8 @@ if (isset($_SESSION['error'])) {
 
     /* Main Content */
     .main-content {
-        margin-left: 240px;
+        margin-left: 280px;
+        padding: 30px;
         min-height: 100vh;
         background: var(--light-bg);
     }
@@ -648,54 +649,7 @@ if (isset($_SESSION['error'])) {
 </style>
 
 <!-- Sidebar -->
-<div class="sidebar">
-    <div class="sidebar-header">
-        <div class="sidebar-brand">
-            DARTS
-        </div>
-        <div class="sidebar-user">
-            Welcome, <?= htmlspecialchars($user_name) ?>
-        </div>
-    </div>
-
-    <nav class="sidebar-nav">
-        <div class="nav-item">
-            <a href="../dashboard.php" class="nav-link">
-                <i class="fas fa-chart-line"></i>
-                Dashboard
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="issuance_property.php" class="nav-link active">
-                <i class="fas fa-hand-holding"></i>
-                Property Issuance
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="property_Inventory.php" class="nav-link">
-                <i class="fas fa-boxes"></i> Property Inventory
-            </a>
-        </div>
-        <!--<div class="nav-item">
-            <a href="transaction_list.php" class="nav-link">
-                <i class="fas fa-exchange-alt"></i>
-                Transactions
-            </a>
-        </div>-->
-        <div class="nav-item">
-            <a href="notifications.php" class="nav-link">
-                <i class="fas fa-bell"></i>
-                Notifications
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="../logout.php" class="nav-link logout">
-                <i class="fas fa-sign-out-alt"></i>
-                Logout
-            </a>
-        </div>
-    </nav>
-</div>
+<?php include '../includes/sidebar.php'; ?>
 
 <!-- Main Content -->
 <div class="main-content">
