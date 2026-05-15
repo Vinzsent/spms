@@ -176,7 +176,7 @@ if (isset($_SESSION['error'])) {
 
     /* Main Content */
     .main-content {
-        margin-left: 240px;
+        margin-left: 280px;
         min-height: 100vh;
         background: var(--light-bg);
     }
@@ -580,69 +580,7 @@ if (isset($_SESSION['error'])) {
     }
 </style>
 
-<!-- Sidebar -->
-<div class="sidebar">
-    <div class="sidebar-header">
-        <div class="sidebar-brand">
-            <i class="fas fa-cubes me-2"></i>
-            ASSET MANAGEMENT
-        </div>
-        <div class="sidebar-user">
-            Welcome, <?= htmlspecialchars($user_name) ?>
-        </div>
-    </div>
-
-    <nav class="sidebar-nav">
-        <div class="nav-item">
-            <a href="../dashboard.php" class="nav-link">
-                <i class="fas fa-chart-line"></i>
-                Dashboard
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="suppliers.php" class="nav-link">
-                <i class="fas fa-users"></i>
-                Supplier List
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="supply_request.php" class="nav-link">
-                <i class="fas fa-clipboard-list"></i>
-                Request List
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="procurement.php" class="nav-link">
-                <i class="fas fa-shopping-cart"></i>
-                Procurement
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="inventory.php" class="nav-link">
-                <i class="fas fa-box"></i>
-                Inventory
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="transaction_list.php" class="nav-link">
-                <i class="fas fa-exchange-alt"></i>
-                Transactions
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="issuance.php" class="nav-link active">
-                <i class="fas fa-hand-holding-usd"></i>
-                Issuance
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="../logout.php" class="nav-link logout">
-                <i class="fas fa-sign-out-alt"></i>
-                Logout
-            </a>
-        </div>
-    </nav>
-</div>
+<?php include '../includes/sidebar.php'; ?>
 
 <!-- Main Content -->
 <div class="main-content">
@@ -1094,76 +1032,7 @@ if (isset($_SESSION['error'])) {
                 error: function(xhr, status, error) {
                     submitBtn.prop('disabled', false).html(originalText);
                     console.log('AJAX Error:', xhr.responseText);
-                    alert('An error occurred while updating the status. Please try again.');
-                }
-            });
-        });
-    });
-</script>
-
-<!-- Sidebar -->
-<div class="sidebar">
-    <div class="sidebar-header">
-        <div class="sidebar-brand">
-            <i class="fas fa-cubes me-2"></i>
-            ASSET MANAGEMENT
-        </div>
-        <div class="sidebar-user">
-            Welcome, <?= htmlspecialchars($user_name) ?>
-        </div>
-    </div>
-
-    <nav class="sidebar-nav">
-        <div class="nav-item">
-            <a href="../dashboard.php" class="nav-link">
-                <i class="fas fa-chart-line"></i>
-                Dashboard
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="suppliers.php" class="nav-link">
-                <i class="fas fa-users"></i>
-                Supplier List
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="supply_request.php" class="nav-link">
-                <i class="fas fa-clipboard-list"></i>
-                Supply Request
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="procurement.php" class="nav-link">
-                <i class="fas fa-shopping-cart"></i>
-                Procurement
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="inventory.php" class="nav-link">
-                <i class="fas fa-box"></i>
-                Inventory
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="transaction_list.php" class="nav-link">
-                <i class="fas fa-exchange-alt"></i>
-                Transactions
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="issuance.php" class="nav-link active">
-                <i class="fas fa-hand-holding-usd"></i>
-                Issuance
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="../logout.php" class="nav-link logout">
-                <i class="fas fa-sign-out-alt"></i>
-                Logout
-            </a>
-        </div>
-    </nav>
-</div>
+<?php include '../includes/sidebar.php'; ?>
 
 <!-- View Request Modal -->
 <div class="modal fade modal-modern" id="viewRequestModal" tabindex="-1" aria-labelledby="viewRequestModalLabel" aria-hidden="true">
@@ -1303,8 +1172,8 @@ if (isset($_SESSION['error'])) {
                             <option value="noted">Mark as Noted</option>
                             <option value="checked">Mark as Checked</option>
                             <option value="verified">Mark as Verified</option>
-                            <option value="issued">Mark as Issued</option>
                             <option value="approved">Mark as Approved</option>
+                            <option value="issued">Mark as Issued</option>
                         </select>
                     </div>
 
@@ -1362,8 +1231,8 @@ if (isset($_SESSION['error'])) {
             updateTimelineStatus('noted', data.noted, data.notedDate);
             updateTimelineStatus('checked', data.checked, data.checkedDate);
             updateTimelineStatus('verified', data.verified, data.verifiedDate);
-            updateTimelineStatus('issued', data.issued, data.issuedDate);
             updateTimelineStatus('approved', data.approved, data.approvedDate);
+            updateTimelineStatus('issued', data.issued, data.issuedDate);
         });
 
         function updateTimelineStatus(type, user, date) {
