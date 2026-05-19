@@ -60,10 +60,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->close();
             $check_stmt->close();
 
-            // 3. Insert or update inventory
+            // 3. Map procurement supplier to supply_supplier table
+            $sup_stmt = $conn->prepare("SELECT supplier_name FROM supplier WHERE supplier_id = ?");
+            $sup_stmt->bind_param("i", $transaction['supplier_id']);
+            $sup_stmt->execute();
+            $sup_res = $sup_stmt->get_result()->fetch_assoc();
+            $supplier_name = $sup_res ? trim($sup_res['supplier_name']) : 'Default Vendor';
+            $sup_stmt->close();
+
+            $supply_supplier_id = 27; // default
+            if (!empty($supplier_name)) {
+                $s_check = $conn->prepare("SELECT supplier_id FROM supply_supplier WHERE LOWER(TRIM(supplier_name)) = LOWER(?) LIMIT 1");
+                $s_check->bind_param("s", $supplier_name);
+                $s_check->execute();
+                $s_res = $s_check->get_result()->fetch_assoc();
+                $s_check->close();
+
+                if ($s_res && isset($s_res['supplier_id'])) {
+                    $supply_supplier_id = (int)$s_res['supplier_id'];
+                } else {
+                    $s_ins = $conn->prepare("INSERT INTO supply_supplier (supplier_name, status) VALUES (?, 'Active')");
+                    $s_ins->bind_param("s", $supplier_name);
+                    $s_ins->execute();
+                    $supply_supplier_id = $conn->insert_id;
+                    $s_ins->close();
+                }
+            }
+
             // Check if item already exists in inventory (no status filter here)
             $checkStmt = $conn->prepare("SELECT inventory_id, current_stock FROM inventory WHERE item_name = ? AND supplier_id = ? LIMIT 1");
-            $checkStmt->bind_param("si", $transaction['item_name'], $transaction['supplier_id']);
+            $checkStmt->bind_param("si", $transaction['item_name'], $supply_supplier_id);
             $checkStmt->execute();
             $result = $checkStmt->get_result();
 
@@ -91,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $transaction['quantity'],
                     $transaction['unit'],
                     $transaction['unit_price'],
-                    $transaction['supplier_id'],
+                    $supply_supplier_id,
                     $user_id,
                     $user_id,
                     $transaction['receiver']
