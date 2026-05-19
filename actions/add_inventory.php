@@ -9,7 +9,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $current_stock = intval($_POST['current_stock']);
     $unit = trim($_POST['unit']);
     $reorder_level = intval($_POST['reorder_level']);
-    $supplier_id = intval($_POST['supplier_id']);
+    $supplier_input = trim($_POST['supplier_id'] ?? '');
+    $supplier_id = null;
+    if (is_numeric($supplier_input) && (int)$supplier_input > 0) {
+        $supplier_id = (int)$supplier_input;
+    } elseif (!empty($supplier_input)) {
+        $stmt_check = $conn->prepare("SELECT supplier_id FROM `supply_supplier` WHERE LOWER(TRIM(supplier_name)) = LOWER(?)");
+        $stmt_check->bind_param("s", $supplier_input);
+        $stmt_check->execute();
+        $res_check = $stmt_check->get_result();
+        if ($res_check && $res_check->num_rows > 0) {
+            $row_check = $res_check->fetch_assoc();
+            $supplier_id = (int)$row_check['supplier_id'];
+        } else {
+            $stmt_ins = $conn->prepare("INSERT INTO `supply_supplier` (supplier_name, date_created, status) VALUES (?, NOW(), 'Active')");
+            $stmt_ins->bind_param("s", $supplier_input);
+            if ($stmt_ins->execute()) {
+                $supplier_id = $conn->insert_id;
+            }
+            $stmt_ins->close();
+        }
+        $stmt_check->close();
+    }
     $unit_cost = floatval($_POST['unit_cost']);
     $brand = trim($_POST['brand'] ?? '');
     $color = trim($_POST['color'] ?? '');
