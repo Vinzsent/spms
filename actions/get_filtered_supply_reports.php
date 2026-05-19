@@ -36,7 +36,7 @@ if ($report_type === 'inventory') {
 
     $where = !empty($w) ? "WHERE " . implode(' AND ', $w) : "";
     $sql   = "SELECT i.*, s.supplier_name FROM inventory i
-              LEFT JOIN supplier s ON i.supplier_id = s.supplier_id
+              LEFT JOIN supply_supplier s ON i.supplier_id = s.supplier_id
               $where ORDER BY i.item_name ASC";
     $res   = $conn->query($sql);
 
