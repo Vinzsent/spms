@@ -53,7 +53,7 @@ try {
     // Get inventory data with pagination
     $sql = "SELECT i.*, s.supplier_name 
             FROM inventory i 
-            LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
+            LEFT JOIN supply_supplier s ON i.supplier_id = s.supplier_id 
             $inv_where
             ORDER BY i.date_created DESC
             LIMIT $records_per_page OFFSET $offset";
