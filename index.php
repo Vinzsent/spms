@@ -10,41 +10,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // Debug: Log the attempted username
   error_log('Login attempt with username: ' . $username);
 
-  $stmt = $conn->prepare("SELECT * FROM user WHERE username = ?");
-  $stmt->bind_param("s", $username);
-  $stmt->execute();
-  $result = $stmt->get_result();
-
-  // Debug: Log query result count
-  error_log('Query returned ' . $result->num_rows . ' rows for username: ' . $username);
-
-  if ($result->num_rows === 1) {
-    $user = $result->fetch_assoc();
-    if (password_verify($password, $user['password'])) {
-      // Store user data in session with proper keys
-      $_SESSION['user'] = $user;
-      $_SESSION['user_id'] = $user['id']; // Store user ID separately
-      $_SESSION['id'] = $user['id']; // Alternative key for compatibility
-      $_SESSION['user_type'] = $user['user_type'];
-      $_SESSION['name'] = $user['name'] ?? $user['first_name'] . ' ' . $user['last_name'] ?? $user['username'];
-      $_SESSION['title'] = $user['title'];
-      $_SESSION['username'] = $user['username'];
-
-      // Set flag to show login success modal on dashboard
-      $_SESSION['show_login_modal'] = true;
-
-      // Debug: Log session data
-      error_log('Login successful - User ID: ' . $user['id'] . ', User Type: ' . $user['user_type']);
-
-      header("Location: dashboard.php");
-      exit;
-    } else {
-      $error = "Incorrect password.";
-      error_log('Password verification failed for username: ' . $username);
-    }
+  // Guard: db.php already die()s on failure, but be safe for edge cases
+  if (!$conn || mysqli_connect_error()) {
+    $error = 'Database connection error. Please try again later.';
+    error_log('Login failed because database connection was not available.');
   } else {
-    $error = "User not found.";
-    error_log('User not found for username: ' . $username);
+    $stmt = $conn->prepare("SELECT * FROM user WHERE username = ?");
+    if ($stmt) {
+      $stmt->bind_param("s", $username);
+      $stmt->execute();
+      $result = $stmt->get_result();
+
+      // Debug: Log query result count
+      error_log('Query returned ' . $result->num_rows . ' rows for username: ' . $username);
+
+      if ($result->num_rows === 1) {
+        $user = $result->fetch_assoc();
+        if (password_verify($password, $user['password'])) {
+          // Store user data in session with proper keys
+          $_SESSION['user'] = $user;
+          $_SESSION['user_id'] = $user['id']; // Store user ID separately
+          $_SESSION['id'] = $user['id']; // Alternative key for compatibility
+          $_SESSION['user_type'] = $user['user_type'];
+          $_SESSION['name'] = $user['name'] ?? $user['first_name'] . ' ' . $user['last_name'] ?? $user['username'];
+          $_SESSION['title'] = $user['title'];
+          $_SESSION['username'] = $user['username'];
+
+          // Set flag to show login success modal on dashboard
+          $_SESSION['show_login_modal'] = true;
+
+          // Debug: Log session data
+          error_log('Login successful - User ID: ' . $user['id'] . ', User Type: ' . $user['user_type']);
+
+          header("Location: dashboard.php");
+          exit;
+        } else {
+          $error = "Incorrect password.";
+          error_log('Password verification failed for username: ' . $username);
+        }
+      } else {
+        $error = "User not found.";
+        error_log('User not found for username: ' . $username);
+      }
+
+      $stmt->close();
+    } else {
+      $error = 'Login query failed. Please try again.';
+      error_log('Failed to prepare login statement: ' . $conn->error);
+    }
   }
 }
 ?>
