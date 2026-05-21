@@ -47,7 +47,7 @@ try {
     $logs_count_sql = "SELECT COUNT(*) as total 
                        FROM stock_logs sl 
                        LEFT JOIN inventory i ON sl.inventory_id = i.inventory_id 
-                       LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
+                       LEFT JOIN supply_supplier s ON i.supplier_id = s.supplier_id 
                        $logs_where";
     $logs_count_result = $conn->query($logs_count_sql);
     $total_logs = $logs_count_result->fetch_assoc()['total'];
@@ -57,7 +57,7 @@ try {
     $stock_logs_sql = "SELECT sl.log_id, sl.inventory_id, sl.movement_type, sl.quantity, sl.previous_stock, sl.new_stock, sl.notes, sl.date_created, sl.receiver, i.item_name, s.supplier_name 
                        FROM stock_logs sl 
                        LEFT JOIN inventory i ON sl.inventory_id = i.inventory_id 
-                       LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
+                       LEFT JOIN supply_supplier s ON i.supplier_id = s.supplier_id 
                        $logs_where
                        ORDER BY sl.date_created DESC 
                        LIMIT $logs_per_page OFFSET $logs_offset";
