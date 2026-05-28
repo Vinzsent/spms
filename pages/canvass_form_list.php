@@ -6,50 +6,257 @@ ini_set('display_errors', 1);
 $pageTitle = 'Canvass List';
 include '../includes/auth.php';
 include '../includes/db.php';
-include '../includes/header.php';
 
-
-
+// Normalize user role early for both standard and AJAX requests
 $user_type = $_SESSION['user_type'] ?? '';
+$user_role_norm = str_replace([' ', '-'], '', strtolower($user_type));
+
+// Capture search term from GET query parameter
+$search = isset($_GET['q']) ? trim($_GET['q']) : '';
 
 // Pagination settings
-$items_per_page = 15;
-$current_page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
-if ($current_page < 1) $current_page = 1;
-$offset = ($current_page - 1) * $items_per_page;
+$items_per_page = 10; // 10 rows per page
+$current_page_num = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($current_page_num < 1) $current_page_num = 1;
+$offset = ($current_page_num - 1) * $items_per_page;
 
-// Get total count for pagination
-$count_query = "SELECT COUNT(DISTINCT c.canvass_id) as total FROM canvass c WHERE (c.hide_canvass = '0' OR c.hide_canvass IS NULL)";
-$total_result = $conn->query($count_query);
-$total_rows = $total_result->fetch_assoc()['total'];
+if ($search !== '') {
+    $search_param = '%' . $search . '%';
+    
+    // Get total count for pagination with search filter (GEMINI.md optimized search query)
+    $count_query = "
+        SELECT COUNT(DISTINCT c.canvass_id) as total 
+        FROM canvass c 
+        LEFT JOIN user u ON c.created_by = u.id
+        LEFT JOIN canvass_items ci ON c.canvass_id = ci.canvass_id
+        WHERE (c.hide_canvass = '0' OR c.hide_canvass IS NULL)
+          AND (
+               ci.supplier_name LIKE ? 
+               OR ci.item_description LIKE ? 
+               OR ci.department LIKE ? 
+               OR ci.campus LIKE ? 
+               OR CONCAT(u.first_name, ' ', u.last_name) LIKE ? 
+               OR c.status LIKE ?
+          )
+    ";
+    $count_stmt = $conn->prepare($count_query);
+    $count_stmt->bind_param("ssssss", $search_param, $search_param, $search_param, $search_param, $search_param, $search_param);
+    $count_stmt->execute();
+    $total_result = $count_stmt->get_result();
+    $total_rows = $total_result ? $total_result->fetch_assoc()['total'] : 0;
+    $count_stmt->close();
+} else {
+    // Get total count for pagination (no search)
+    $count_query = "SELECT COUNT(DISTINCT c.canvass_id) as total FROM canvass c WHERE (c.hide_canvass = '0' OR c.hide_canvass IS NULL)";
+    $total_result = $conn->query($count_query);
+    $total_rows = $total_result ? $total_result->fetch_assoc()['total'] : 0;
+}
+
 $total_pages = ceil($total_rows / $items_per_page);
 
-// Fetch canvass records with user information
-$canvass_query = "
-    SELECT 
-        c.canvass_id,
-        c.hide_canvass,
-        c.canvass_date,
-        c.total_amount,
-        c.status,
-        c.notes,
-        c.created_at,
-        ci.supplier_name,
-        ci.item_description,
-        ci.department,
-        ci.campus,
-        CONCAT(u.first_name, ' ', u.last_name) as created_by_name,
-        COUNT(ci.canvass_item_id) as item_count
-    FROM canvass c
-    LEFT JOIN user u ON c.created_by = u.id
-    LEFT JOIN canvass_items ci ON c.canvass_id = ci.canvass_id
-    WHERE (c.hide_canvass = '0' OR c.hide_canvass IS NULL)
-    GROUP BY c.canvass_id
-    ORDER BY c.created_at DESC
-    LIMIT $items_per_page OFFSET $offset
-";
+// Guard: if current page exceeds total pages, set to last page
+if ($current_page_num > $total_pages && $total_pages > 0) {
+    $current_page_num = $total_pages;
+    $offset = ($current_page_num - 1) * $items_per_page;
+}
 
-$canvass_result = $conn->query($canvass_query);
+// Fetch canvass records with user information (using prepared statements for efficiency and security)
+if ($search !== '') {
+    $search_param = '%' . $search . '%';
+    $canvass_query = "
+        SELECT 
+            c.canvass_id,
+            c.hide_canvass,
+            c.canvass_date,
+            c.total_amount,
+            c.status,
+            c.notes,
+            c.created_at,
+            ci.supplier_name,
+            ci.item_description,
+            ci.department,
+            ci.campus,
+            CONCAT(u.first_name, ' ', u.last_name) as created_by_name,
+            COUNT(ci.canvass_item_id) as item_count
+        FROM canvass c
+        LEFT JOIN user u ON c.created_by = u.id
+        LEFT JOIN canvass_items ci ON c.canvass_id = ci.canvass_id
+        WHERE (c.hide_canvass = '0' OR c.hide_canvass IS NULL)
+          AND (
+               ci.supplier_name LIKE ? 
+               OR ci.item_description LIKE ? 
+               OR ci.department LIKE ? 
+               OR ci.campus LIKE ? 
+               OR CONCAT(u.first_name, ' ', u.last_name) LIKE ? 
+               OR c.status LIKE ?
+          )
+        GROUP BY c.canvass_id
+        ORDER BY c.created_at DESC
+        LIMIT ? OFFSET ?
+    ";
+    $stmt = $conn->prepare($canvass_query);
+    $stmt->bind_param("ssssssii", $search_param, $search_param, $search_param, $search_param, $search_param, $search_param, $items_per_page, $offset);
+    $stmt->execute();
+    $canvass_result = $stmt->get_result();
+    $stmt->close();
+} else {
+    $canvass_query = "
+        SELECT 
+            c.canvass_id,
+            c.hide_canvass,
+            c.canvass_date,
+            c.total_amount,
+            c.status,
+            c.notes,
+            c.created_at,
+            ci.supplier_name,
+            ci.item_description,
+            ci.department,
+            ci.campus,
+            CONCAT(u.first_name, ' ', u.last_name) as created_by_name,
+            COUNT(ci.canvass_item_id) as item_count
+        FROM canvass c
+        LEFT JOIN user u ON c.created_by = u.id
+        LEFT JOIN canvass_items ci ON c.canvass_id = ci.canvass_id
+        WHERE (c.hide_canvass = '0' OR c.hide_canvass IS NULL)
+        GROUP BY c.canvass_id
+        ORDER BY c.created_at DESC
+        LIMIT ? OFFSET ?
+    ";
+    $stmt = $conn->prepare($canvass_query);
+    $stmt->bind_param("ii", $items_per_page, $offset);
+    $stmt->execute();
+    $canvass_result = $stmt->get_result();
+    $stmt->close();
+}
+
+/**
+ * Helper to render canvass table rows HTML
+ */
+function get_table_rows_html($canvass_result, $user_role_norm, $search = '') {
+    ob_start();
+    if ($canvass_result && $canvass_result->num_rows > 0) {
+        while ($row = $canvass_result->fetch_assoc()): ?>
+            <tr data-canvass-id="<?= $row['canvass_id'] ?>">
+                <td class="select-cell" style="display: none;">
+                    <input type="checkbox" class="row-checkbox">
+                </td>
+                <td>
+                    <strong><?= htmlspecialchars($row['supplier_name'] ?? '—') ?></strong>
+                </td>
+                <td>
+                    <?= htmlspecialchars($row['department'] ?? '—') ?>
+                </td>
+                <td>
+                    <?= htmlspecialchars($row['campus'] ?? '—') ?>
+                </td>
+                <td>
+                    <?= htmlspecialchars($row['item_description'] ?? '—') ?>
+                </td>
+                <td>
+                    <strong>₱<?= number_format($row['total_amount'], 2) ?></strong>
+                </td>
+                <td>
+                    <span class="badge badge-info" style="background-color: var(--primary-green); color: white; font-weight: bold; font-size: 14px; padding: 5px 10px; border-radius: 4px; display: inline-block;"><?= $row['item_count'] ?> items</span>
+                </td>
+                <td>
+                    <span class="status-badge status-<?= strtolower($row['status'] ?? 'draft') ?>">
+                        <?= htmlspecialchars($row['status'] ?? 'Draft') ?>
+                    </span>
+                </td>
+                <td>
+                    <?= htmlspecialchars($row['created_by_name'] ?? 'Unknown') ?>
+                </td>
+                <td>
+                    <?= date('M d, Y g:i A', strtotime($row['created_at'])) ?>
+                </td>
+                <td>
+                    <div class="table-actions">
+                        <button class="btn btn-info btn-sm" onclick="viewCanvass(<?= $row['canvass_id'] ?>)">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <?php if (!in_array($user_role_norm, ['propertycustodian', 'supplyincharge'])): ?>
+                            <button class="btn btn-warning btn-sm" onclick="editCanvass(<?= $row['canvass_id'] ?>)">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteCanvass(<?= $row['canvass_id'] ?>)">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        <?php endif; ?>
+                    </div>
+                </td>
+            </tr>
+        <?php endwhile;
+    } else { ?>
+        <tr class="empty-row-placeholder">
+            <td colspan="11" class="text-center py-5 text-slate-500">
+                <div class="empty-state" style="padding: 40px 20px; text-align: center;">
+                    <i class="fas <?= $search !== '' ? 'fa-search' : 'fa-clipboard-list' ?>" style="font-size: 3rem; opacity: 0.4; margin-bottom: 15px; display: block; color: var(--primary-green);"></i>
+                    <h3 style="font-size: 1.25rem; margin-bottom: 8px; font-weight: 600; color: #334155;"><?= $search !== '' ? 'No Matching Records Found' : 'No Canvass Records Found' ?></h3>
+                    <p style="font-size: 0.95rem; color: #64748b;"><?= $search !== '' ? 'No records match your search criteria. Try a different query.' : 'Start by creating your first canvass form.' ?></p>
+                    <?php if ($search !== ''): ?>
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('table-search-input').value = ''; document.getElementById('clear-search-btn').style.display = 'none'; loadPage(1);" style="display: inline-flex; margin-top: 15px; background-color: var(--primary-green); color: white;">
+                            <i class="fas fa-undo"></i> Clear Search
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </td>
+        </tr>
+    <?php }
+    return ob_get_clean();
+}
+
+/**
+ * Helper to render pagination controls HTML (preserves search criteria)
+ */
+function get_pagination_html($current_page, $total_pages, $search = '') {
+    if ($total_pages <= 1) {
+        return '';
+    }
+    $q_param = $search !== '' ? '&q=' . urlencode($search) : '';
+    ob_start();
+    ?>
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <!-- Previous Button -->
+            <li class="page-item <?= ($current_page <= 1) ? 'disabled' : '' ?>">
+                <a class="page-link" href="?page=<?= $current_page - 1 ?><?= $q_param ?>" aria-label="Previous" data-page="<?= $current_page - 1 ?>">
+                    <i class="fas fa-chevron-left"></i> <span class="d-none d-md-inline ms-1">Prev</span>
+                </a>
+            </li>
+
+            <!-- Current Page (Always shown) -->
+            <li class="page-item active">
+                <a class="page-link" href="#" data-page="<?= $current_page ?>"><?= $current_page ?></a>
+            </li>
+
+            <!-- Next Button -->
+            <li class="page-item <?= ($current_page >= $total_pages) ? 'disabled' : '' ?>">
+                <a class="page-link" href="?page=<?= $current_page + 1 ?><?= $q_param ?>" aria-label="Next" data-page="<?= $current_page + 1 ?>">
+                    <span class="d-none d-md-inline me-1">Next</span> <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <?php
+    return ob_get_clean();
+}
+
+// Self-contained AJAX Request Handler
+if (isset($_GET['ajax'])) {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => true,
+        'rows' => get_table_rows_html($canvass_result, $user_role_norm, $search),
+        'pagination' => get_pagination_html($current_page_num, $total_pages, $search),
+        'current_page' => $current_page_num,
+        'total_pages' => $total_pages
+    ]);
+    exit;
+}
+
+// Continue with full page load header
+include '../includes/header.php';
 
 // Fetch suppliers for dropdown
 $suppliers_query = "SELECT supplier_name FROM supplier ORDER BY supplier_name ASC";
@@ -449,6 +656,15 @@ $campuses = ["MAIN", "BED"];
         const selected = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.closest('tr').dataset.canvassId);
         if (selected.length === 0) return alert('Please select at least one record.');
 
+        // Open window synchronously to avoid popup blockers
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+            printWindow.document.write('<div style="font-family: sans-serif; padding: 20px; text-align: center;"><h2>Preparing Document...</h2><p>Please wait while we gather the details.</p></div>');
+        } else {
+            alert('Popup blocker prevented printing. Please allow popups for this site.');
+            return;
+        }
+
         // Use the detailed printing logic
         const loadingMessage = document.createElement('div');
         loadingMessage.innerHTML = `<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 10000; text-align: center;">
@@ -461,9 +677,10 @@ $campuses = ["MAIN", "BED"];
 
         Promise.all(fetchPromises).then(results => {
             document.body.removeChild(loadingMessage);
-            generatePrintView(results.filter(r => r.success));
+            generatePrintView(results.filter(r => r.success), printWindow);
         }).catch(err => {
             document.body.removeChild(loadingMessage);
+            printWindow.close();
             alert('Error loading details: ' + err.message);
         });
     }
@@ -474,15 +691,33 @@ $campuses = ["MAIN", "BED"];
             id = currentCanvassId;
         }
         if (!id) return;
+        
+        // Open window synchronously to avoid popup blockers
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+            printWindow.document.write('<div style="font-family: sans-serif; padding: 20px; text-align: center;"><h2>Preparing Document...</h2><p>Please wait while we gather the details.</p></div>');
+        } else {
+            alert('Popup blocker prevented printing. Please allow popups for this site.');
+            return;
+        }
 
         fetch(`../actions/get_canvass_details.php?id=${id}`)
             .then(res => res.json())
             .then(data => {
-                if (data.success) generatePrintView([data]);
+                if (data.success) {
+                    generatePrintView([data], printWindow);
+                } else {
+                    printWindow.close();
+                    alert('Failed to load details.');
+                }
+            })
+            .catch(err => {
+                printWindow.close();
+                alert('Error loading details: ' + err.message);
             });
     }
 
-    function generatePrintView(canvassData) {
+    function generatePrintView(canvassData, printWindow) {
         let printContent = '<div class="print-container">';
         canvassData.forEach((data, index) => {
             const canvass = data.canvass;
@@ -524,15 +759,26 @@ $campuses = ["MAIN", "BED"];
         });
         printContent += '</div>';
 
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(`
-            <html><head><title>Print Canvass</title><style>
-                body { font-family: sans-serif; padding: 20px; }
-                table th, table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                @media print { .no-print { display: none; } }
-            </style></head><body>${printContent}<script>window.onload=function(){window.print();window.close();}<\/script></body></html>
-        `);
-        printWindow.document.close();
+        if (!printWindow) {
+            printWindow = window.open('', '_blank');
+        }
+        
+        if (printWindow) {
+            printWindow.document.open();
+            printWindow.document.write(`
+                <html><head><title>Print Canvass</title><style>
+                    body { font-family: sans-serif; padding: 20px; }
+                    table th, table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    @media print { .no-print { display: none; } }
+                </style></head><body>${printContent}<script>
+                    setTimeout(function() {
+                        window.print();
+                        window.close();
+                    }, 500);
+                <\/script></body></html>
+            `);
+            printWindow.document.close();
+        }
     }
 
     function editItem(btn) {
@@ -615,6 +861,218 @@ $campuses = ["MAIN", "BED"];
                 else alert('Delete failed: ' + data.message);
             });
     }
+
+    /**
+     * Text highlighter function to draw attention to matching search terms (GEMINI.md rule UX Enhancement)
+     */
+    function highlightSearchText(query) {
+        if (!query) return;
+        const tableBody = document.getElementById('canvass-table-body');
+        if (!tableBody) return;
+        
+        // Escape special regex characters
+        const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const regex = new RegExp(`(${escapedQuery})`, 'gi');
+        
+        function traverseAndHighlight(node) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                const text = node.nodeValue;
+                if (regex.test(text)) {
+                    const span = document.createElement('span');
+                    span.innerHTML = text.replace(regex, '<mark style="background-color: rgba(234, 202, 38, 0.3); color: #073b1d; padding: 1px 3px; border-radius: 3px; font-weight: 600;">$1</mark>');
+                    node.parentNode.replaceChild(span, node);
+                }
+            } else if (node.nodeType === Node.ELEMENT_NODE && node.nodeName !== 'SCRIPT' && node.nodeName !== 'STYLE' && node.nodeName !== 'BUTTON' && !node.classList.contains('status-badge') && !node.classList.contains('badge')) {
+                const children = Array.from(node.childNodes);
+                children.forEach(child => traverseAndHighlight(child));
+            }
+        }
+        
+        traverseAndHighlight(tableBody);
+    }
+
+    /**
+     * AJAX Pagination & Search Handler
+     * Prevents page reloading and updates only the list table and pagination wrapper
+     */
+    function loadPage(page) {
+        // Build relative URL to ensure perfect adaptability to any online environment
+        const url = new URL(window.location.href);
+        url.searchParams.set('ajax', '1');
+        url.searchParams.set('page', page);
+        
+        const searchInput = document.getElementById('table-search-input');
+        const q = searchInput ? searchInput.value.trim() : '';
+        if (q) {
+            url.searchParams.set('q', q);
+        } else {
+            url.searchParams.delete('q');
+        }
+
+        // Show loading indicator during search (GEMINI.md rule UI/UX Standard)
+        const searchLoader = document.getElementById('search-loading-indicator');
+        if (searchLoader) searchLoader.style.display = 'flex';
+
+        // Visual feedback during AJAX loading
+        const tableBody = document.getElementById('canvass-table-body');
+        if (tableBody) {
+            tableBody.style.opacity = '0.5';
+            tableBody.style.transition = 'opacity 0.15s ease';
+        }
+
+        fetch(url.toString(), {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Update table body content dynamically
+                if (tableBody) {
+                    tableBody.innerHTML = data.rows;
+                    tableBody.style.opacity = '1';
+                }
+
+                // Update pagination controls wrapper
+                const paginationWrapper = document.getElementById('pagination-wrapper');
+                if (paginationWrapper) {
+                    if (data.total_pages > 1) {
+                        paginationWrapper.innerHTML = `<div class="pagination-container">${data.pagination}</div>`;
+                    } else {
+                        paginationWrapper.innerHTML = '';
+                    }
+                }
+
+                // Update browser URL state without reloading (Option A)
+                const pushUrl = new URL(window.location.href);
+                pushUrl.searchParams.set('page', page);
+                if (q) {
+                    pushUrl.searchParams.set('q', q);
+                } else {
+                    pushUrl.searchParams.delete('q');
+                }
+                window.history.pushState({ page: page, q: q }, '', pushUrl.toString());
+
+                // If checkbox selection mode is active, make sure rows adjust
+                const selectHeader = document.getElementById('selectHeader');
+                const isSelectionMode = selectHeader && selectHeader.style.display !== 'none';
+                if (isSelectionMode) {
+                    const selectCells = document.querySelectorAll('.select-cell');
+                    if (selectCells) {
+                        selectCells.forEach(cell => cell.style.display = 'table-cell');
+                    }
+                }
+
+                // Highlight search text after rendering rows (GEMINI.md rule UX Enhancement)
+                if (q) {
+                    highlightSearchText(q);
+                }
+            } else {
+                showPageError(data.message || 'Failed to load page content.');
+                if (tableBody) tableBody.style.opacity = '1';
+            }
+        })
+        .catch(error => {
+            console.error('AJAX pagination error:', error);
+            showPageError('Failed to fetch page. Please check your network connection.');
+            if (tableBody) tableBody.style.opacity = '1';
+        })
+        .finally(() => {
+            if (searchLoader) searchLoader.style.display = 'none';
+        });
+    }
+
+    // Attach click listeners to pagination links dynamically using Event Delegation
+    document.addEventListener('DOMContentLoaded', () => {
+        const paginationWrapper = document.getElementById('pagination-wrapper');
+        if (paginationWrapper) {
+            paginationWrapper.addEventListener('click', (e) => {
+                const link = e.target.closest('.page-link');
+                if (link) {
+                    e.preventDefault();
+                    
+                    const item = link.closest('.page-item');
+                    if (item && (item.classList.contains('disabled') || item.classList.contains('active'))) {
+                        return;
+                    }
+
+                    const page = link.getAttribute('data-page');
+                    if (page) {
+                        loadPage(page);
+                    }
+                }
+            });
+        }
+
+        // Handle back/forward browser buttons seamlessly
+        window.addEventListener('popstate', (e) => {
+            const page = (e.state && e.state.page) ? e.state.page : 1;
+            const q = (e.state && e.state.q !== undefined) ? e.state.q : '';
+            const searchInput = document.getElementById('table-search-input');
+            if (searchInput) {
+                searchInput.value = q;
+            }
+            const clearSearchBtn = document.getElementById('clear-search-btn');
+            if (clearSearchBtn) {
+                clearSearchBtn.style.display = q ? 'inline-block' : 'none';
+            }
+            loadPage(page);
+        });
+        
+        // Save initial state to history for back/forward support
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialPage = urlParams.get('page') || 1;
+        const initialQ = urlParams.get('q') || '';
+        window.history.replaceState({ page: initialPage, q: initialQ }, '', window.location.href);
+
+        // Search input event listener with 400ms debounce (GEMINI.md Search behavior rules)
+        const searchInput = document.getElementById('table-search-input');
+        const clearSearchBtn = document.getElementById('clear-search-btn');
+        let searchTimeout = null;
+
+        if (searchInput) {
+            // Apply initial highlighting if page was loaded with a query parameter
+            const initialQuery = searchInput.value.trim();
+            if (initialQuery) {
+                highlightSearchText(initialQuery);
+            }
+
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.trim();
+                
+                // Show/hide clear button (GEMINI.md rule UX Enhancement)
+                if (clearSearchBtn) {
+                    clearSearchBtn.style.display = query ? 'inline-block' : 'none';
+                }
+
+                // Debounce search
+                clearTimeout(searchTimeout);
+                
+                // Show loading indicator instantly for active response feel
+                const searchLoader = document.getElementById('search-loading-indicator');
+                if (searchLoader) searchLoader.style.display = 'flex';
+
+                searchTimeout = setTimeout(() => {
+                    loadPage(1); // Search resets to page 1
+                }, 400);
+            });
+        }
+
+        // Clear search click listener
+        if (clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', () => {
+                if (searchInput) {
+                    searchInput.value = '';
+                    clearSearchBtn.style.display = 'none';
+                    loadPage(1);
+                }
+            });
+        }
+    });
 </script>
 
 
@@ -966,6 +1424,11 @@ $campuses = ["MAIN", "BED"];
         border-top: 1px solid #eee;
     }
 
+    /* Stable height prevents layout shift when rows are swapped via AJAX */
+    #canvass-table-body {
+        min-height: 520px;
+    }
+
     .pagination {
         display: flex;
         list-style: none;
@@ -1014,6 +1477,87 @@ $campuses = ["MAIN", "BED"];
             font-size: 1rem;
         }
     }
+
+    /* Search Bar Styles */
+    .search-bar-container {
+        padding: 15px 30px;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .search-input-wrapper {
+        position: relative;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-input-wrapper .search-icon {
+        position: absolute;
+        left: 15px;
+        color: #adb5bd;
+        font-size: 1rem;
+        pointer-events: none;
+    }
+
+    .search-input-wrapper input {
+        width: 100%;
+        padding: 12px 40px 12px 45px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        color: var(--text-dark);
+        background-color: #fff;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+
+    .search-input-wrapper input:focus {
+        border-color: var(--primary-green);
+        box-shadow: 0 0 0 3px rgba(7, 59, 29, 0.15);
+        outline: none;
+    }
+
+    .search-input-wrapper #clear-search-btn {
+        position: absolute;
+        right: 15px;
+        background: none;
+        border: none;
+        color: #94a3b8;
+        cursor: pointer;
+        font-size: 1rem;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+    }
+
+    .search-input-wrapper #clear-search-btn:hover {
+        background-color: #f1f5f9;
+        color: var(--accent-red);
+    }
+
+    .search-loader {
+        color: var(--primary-green);
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+    }
+
+    @media (max-width: 768px) {
+        .search-bar-container {
+            padding: 15px;
+        }
+        .search-input-wrapper input {
+            padding: 10px 35px 10px 40px;
+            font-size: 0.9rem;
+        }
+    }
 </style>
 
 
@@ -1054,7 +1598,21 @@ $campuses = ["MAIN", "BED"];
             </div>
         </div>
 
-        <?php if ($canvass_result && $canvass_result->num_rows > 0): ?>
+        <!-- Search Bar Section (GEMINI.md compliant modern search bar) -->
+        <div class="search-bar-container">
+            <div class="search-input-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="table-search-input" placeholder="Search by supplier, items, department, campus, status or creator..." value="<?= htmlspecialchars($search) ?>" autocomplete="off">
+                <button type="button" id="clear-search-btn" style="display: <?= $search !== '' ? 'inline-block' : 'none' ?>;" title="Clear search">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="search-loading-indicator" class="search-loader" style="display: none;">
+                <i class="fas fa-circle-notch fa-spin"></i>
+            </div>
+        </div>
+
+        <?php if ($total_rows > 0 || $search !== ''): ?>
             <table class="canvass-table">
                 <thead>
                     <tr id="selectHeader" style="display: none;">
@@ -1077,88 +1635,19 @@ $campuses = ["MAIN", "BED"];
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <?php while ($row = $canvass_result->fetch_assoc()): ?>
-                        <tr data-canvass-id="<?= $row['canvass_id'] ?>">
-                            <td class="select-cell" style="display: none;">
-                                <input type="checkbox" class="row-checkbox">
-                            </td>
-                            <td>
-                                <strong><?= htmlspecialchars($row['supplier_name'] ?? '—') ?></strong>
-                            </td>
-                            <td>
-                                <?= htmlspecialchars($row['department'] ?? '—') ?>
-                            </td>
-                            <td>
-                                <?= htmlspecialchars($row['campus'] ?? '—') ?>
-                            </td>
-                            <td>
-                                <?= htmlspecialchars($row['item_description'] ?? '—') ?>
-                            </td>
-                            <td>
-                                <strong>₱<?= number_format($row['total_amount'], 2) ?></strong>
-                            </td>
-                            <td>
-                                <span class="badge badge-info" style="background-color: var(--primary-green); color: white; font-weight: bold; font-size: 14px; padding: 5px 10px; border-radius: 4px; display: inline-block;"><?= $row['item_count'] ?> items</span>
-                            </td>
-                            <td>
-                                <span class="status-badge status-<?= strtolower($row['status'] ?? 'draft') ?>">
-                                    <?= htmlspecialchars($row['status'] ?? 'Draft') ?>
-                                </span>
-                            </td>
-                            <td>
-                                <?= htmlspecialchars($row['created_by_name'] ?? 'Unknown') ?>
-                            </td>
-                            <td>
-                                <?= date('M d, Y g:i A', strtotime($row['created_at'])) ?>
-                            </td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="btn btn-info btn-sm" onclick="viewCanvass(<?= $row['canvass_id'] ?>)">
-                                        <i class="fas fa-eye"></i> View
-                                    </button>
-                                    <?php if (!in_array($user_role_norm, ['propertycustodian', 'supplyincharge'])): ?>
-                                        <button class="btn btn-warning btn-sm" onclick="editCanvass(<?= $row['canvass_id'] ?>)">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </button>
-                                        <button class="btn btn-danger btn-sm" onclick="deleteCanvass(<?= $row['canvass_id'] ?>)">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </button>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endwhile; ?>
+                <tbody id="canvass-table-body">
+                    <?= get_table_rows_html($canvass_result, $user_role_norm, $search) ?>
                 </tbody>
             </table>
 
-            <!-- Pagination UI -->
-            <?php if ($total_pages > 1): ?>
-                <div class="pagination-container">
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination">
-                            <!-- Previous Button -->
-                            <li class="page-item <?= ($current_page <= 1) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="?page=<?= $current_page - 1 ?>" aria-label="Previous">
-                                    <i class="fas fa-chevron-left"></i> <span class="d-none d-md-inline ms-1">Prev</span>
-                                </a>
-                            </li>
-
-                            <!-- Current Page (Always shown) -->
-                            <li class="page-item active">
-                                <a class="page-link" href="#"><?= $current_page ?></a>
-                            </li>
-
-                            <!-- Next Button -->
-                            <li class="page-item <?= ($current_page >= $total_pages) ? 'disabled' : '' ?>">
-                                <a class="page-link" href="?page=<?= $current_page + 1 ?>" aria-label="Next">
-                                    <span class="d-none d-md-inline me-1">Next</span> <i class="fas fa-chevron-right"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            <?php endif; ?>
+            <!-- Pagination UI Wrapper -->
+            <div id="pagination-wrapper">
+                <?php if ($total_pages > 1): ?>
+                    <div class="pagination-container">
+                        <?= get_pagination_html($current_page_num, $total_pages, $search) ?>
+                    </div>
+                <?php endif; ?>
+            </div>
 
         <?php else: ?>
             <div class="empty-state">
