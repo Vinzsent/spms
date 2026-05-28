@@ -141,7 +141,7 @@ $total_requests = $result->num_rows;
 
     /* Main Content */
     .main-content {
-        margin-left: 240px;
+        margin-left: 280px;
         min-height: 100vh;
         background: var(--light-bg);
     }
@@ -416,68 +416,7 @@ $total_requests = $result->num_rows;
 </style>
 
 <!-- Sidebar -->
-<div class="sidebar">
-    <div class="sidebar-header">
-        <div class="sidebar-brand">
-            <i class="fas fa-cubes me-2"></i>
-            ASSET MANAGEMENT
-        </div>
-        <div class="sidebar-user">
-            Welcome, <?= htmlspecialchars($user_name) ?>
-        </div>
-    </div>
-
-    <nav class="sidebar-nav">
-        <div class="nav-item">
-            <a href="../dashboard.php" class="nav-link">
-                <i class="fas fa-chart-line"></i>
-                Dashboard
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="suppliers.php" class="nav-link">
-                <i class="fas fa-users"></i>
-                Supplier List
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="supply_request.php" class="nav-link">
-                <i class="fas fa-clipboard-list"></i>
-                Supply Request
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="procurement.php" class="nav-link">
-                <i class="fas fa-shopping-cart"></i>
-                Procurement
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="inventory.php" class="nav-link">
-                <i class="fas fa-box"></i>
-                Inventory
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="transaction_list.php" class="nav-link">
-                <i class="fas fa-exchange-alt"></i>
-                Transactions
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="issuance.php" class="nav-link active">
-                <i class="fas fa-hand-holding-usd"></i>
-                Issuance
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="../logout.php" class="nav-link logout">
-                <i class="fas fa-sign-out-alt"></i>
-                Logout
-            </a>
-        </div>
-    </nav>
-</div>
+<?php include '../includes/sidebar.php'; ?>
 
 <!-- Main Content -->
 <div class="main-content">
