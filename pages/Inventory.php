@@ -86,14 +86,14 @@ $logs_where = !empty($logs_where_conditions) ? ' WHERE ' . implode(' AND ', $log
 // Get purchased data
 $sql = "SELECT i.*, s.supplier_name 
         FROM inventory i 
-        LEFT JOIN supplier s ON i.supplier_id = s.supplier_id
+        LEFT JOIN supply_supplier s ON i.supplier_id = s.supplier_id
         ORDER BY i.date_created DESC";
 $result = $conn->query($sql);
 
 // Get inventory data
 $sql = "SELECT i.*, s.supplier_name 
         FROM inventory i 
-        LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
+        LEFT JOIN supply_supplier s ON i.supplier_id = s.supplier_id 
         $inv_where
         ORDER BY i.date_created DESC";
 $result = $conn->query($sql);
@@ -115,7 +115,7 @@ $logs_offset = ($logs_page - 1) * $logs_per_page;
 $logs_count_sql = "SELECT COUNT(*) as total 
                    FROM stock_logs sl 
                    LEFT JOIN inventory i ON sl.inventory_id = i.inventory_id 
-                   LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
+                   LEFT JOIN supply_supplier s ON i.supplier_id = s.supplier_id 
                    $logs_where";
 $logs_count_result = $conn->query($logs_count_sql);
 $total_logs = $logs_count_result->fetch_assoc()['total'];
@@ -124,15 +124,21 @@ $total_logs_pages = ceil($total_logs / $logs_per_page);
 $stock_logs_sql = "SELECT sl.log_id, sl.inventory_id, sl.movement_type, sl.quantity, sl.previous_stock, sl.new_stock, sl.notes, sl.date_created, sl.receiver, i.item_name, s.supplier_name 
                    FROM stock_logs sl 
                    LEFT JOIN inventory i ON sl.inventory_id = i.inventory_id 
-                   LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
+                   LEFT JOIN supply_supplier s ON i.supplier_id = s.supplier_id 
                    $logs_where
                    ORDER BY sl.date_created DESC 
                    LIMIT $logs_per_page OFFSET $logs_offset";
 $stock_logs_result = $conn->query($stock_logs_sql);
 
 // Get suppliers for dropdown
-$suppliers_sql = "SELECT supplier_id, supplier_name FROM supplier WHERE status = 'Active' ORDER BY supplier_name";
-$suppliers_result = $conn->query($suppliers_sql);
+$active_suppliers = [];
+$suppliers_sql = "SELECT supplier_id, supplier_name FROM supply_supplier WHERE status = 'Active' ORDER BY supplier_name";
+$suppliers_res = $conn->query($suppliers_sql);
+if ($suppliers_res) {
+    while ($r = $suppliers_res->fetch_assoc()) {
+        $active_suppliers[] = $r;
+    }
+}
 
 // Build School Year options for dropdowns (last 10 years)
 $currYear = (int)date('Y');
@@ -331,8 +337,10 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
         /* Main Content */
         .main-content {
-            margin-left: 280px; /* Created a visible gap (Sidebar is ~256px) */
-            padding: 30px;      /* Added more breathing room */
+            margin-left: 280px;
+            /* Created a visible gap (Sidebar is ~256px) */
+            padding: 30px;
+            /* Added more breathing room */
             min-height: 100vh;
             background-color: var(--bg-light);
             transition: all 0.3s ease;
@@ -846,7 +854,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             // Get inventory data with pagination
             $sql = "SELECT i.*, s.supplier_name 
         FROM inventory i 
-        LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
+        LEFT JOIN supply_supplier s ON i.supplier_id = s.supplier_id 
         $inv_where
         ORDER BY i.date_created DESC
         LIMIT $records_per_page OFFSET $offset";
@@ -1567,21 +1575,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <div class="row g-3">
                                         <div class="col-md-6">
                                             <label class="form-label">Supplier <span class="text-danger">*</span></label>
-                                            <select name="supplier_id" class="form-select" required>
-                                                <option value="">Select Supplier</option>
-                                                <?php
-                                                if ($suppliers_result) {
-                                                    $suppliers_result->data_seek(0);
-                                                    while ($supplier = $suppliers_result->fetch_assoc()):
-                                                ?>
-                                                        <option value="<?= $supplier['supplier_id'] ?>">
-                                                            <?= htmlspecialchars($supplier['supplier_name']) ?>
-                                                        </option>
-                                                <?php
-                                                    endwhile;
-                                                }
-                                                ?>
+                                            <select name="supplier_id" id="add_supplier_select" class="form-select supplier-select2" required style="width: 100%;">
+                                                <option value="">Select or Type New Supplier...</option>
+                                                <?php foreach ($active_suppliers as $sup): ?>
+                                                    <option value="<?= $sup['supplier_id'] ?>"><?= htmlspecialchars($sup['supplier_name']) ?></option>
+                                                <?php endforeach; ?>
                                             </select>
+                                            <small class="form-text text-muted" style="font-size: 12px;">Select an existing supplier or type a new one to add directly</small>
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Location</label>
@@ -1849,17 +1849,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <div class="row g-3">
                                             <div class="col-md-6">
                                                 <label class="form-label">Supplier</label>
-                                                <select class="form-select" name="supplier_id" id="ei_supplier_id" required>
-                                                    <option value="">Select Supplier</option>
-                                                    <?php
-                                                    if ($suppliers_result) {
-                                                        $suppliers_result->data_seek(0);
-                                                        while ($supplier = $suppliers_result->fetch_assoc()):
-                                                    ?>
-                                                            <option value="<?= $supplier['supplier_id'] ?>"><?= htmlspecialchars($supplier['supplier_name']) ?></option>
-                                                    <?php endwhile;
-                                                    } ?>
+                                                <select name="supplier_id" id="ei_supplier_id" class="form-select supplier-select2" style="width: 100%;">
+                                                    <option value="">Select or Type New Supplier...</option>
+                                                    <?php foreach ($active_suppliers as $sup): ?>
+                                                        <option value="<?= $sup['supplier_id'] ?>"><?= htmlspecialchars($sup['supplier_name']) ?></option>
+                                                    <?php endforeach; ?>
                                                 </select>
+                                                <small class="form-text text-muted" style="font-size: 12px;">Select an existing supplier or type a new one to add directly</small>
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Location</label>
@@ -1890,6 +1886,18 @@ if ($categories_result && $categories_result->num_rows > 0) {
                 console.log('Server-generated API base URL:', API_BASE_URL);
 
                 $(document).ready(function() {
+                    $('.supplier-select2').each(function() {
+                        var modal = $(this).closest('.modal');
+                        $(this).select2({
+                            theme: 'bootstrap-5',
+                            width: '100%',
+                            tags: true,
+                            placeholder: "Select or type to add new supplier...",
+                            allowClear: true,
+                            dropdownParent: modal.length ? modal : $(document.body)
+                        });
+                    });
+
                     // Show session message alert if there are messages
                     if (sessionMessage || sessionError) {
                         showSessionMessageAlert();
@@ -2511,6 +2519,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             success: function(data) {
                                 console.log('AJAX response:', data);
                                 if (data.success) {
+                                    console.log('Item data for modal:', data.item);
                                     openEditInventoryModal(
                                         data.item.inventory_id,
                                         data.item.item_name,
@@ -2523,7 +2532,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         data.item.unit,
                                         data.item.current_stock,
                                         data.item.reorder_level,
-                                        data.item.supplier_id,
+                                        data.item.supplier_id || '',
                                         data.item.location || '',
                                         data.item.unit_cost
                                     );
@@ -2546,11 +2555,17 @@ if ($categories_result && $categories_result->num_rows > 0) {
                         name,
                         category,
                         unit,
-                        stock
+                        stock,
+                        supplierId,
+                        location
                     });
 
-                    document.getElementById('ei_inventory_id').value = id;
-                    document.getElementById('ei_item_name').value = name;
+                    const eiInvId = document.getElementById('ei_inventory_id');
+                    if (eiInvId) eiInvId.value = id;
+                    
+                    const eiItemName = document.getElementById('ei_item_name');
+                    if (eiItemName) eiItemName.value = name;
+                    
                     // Populate specifications
                     const eiBrand = document.getElementById('ei_brand');
                     if (eiBrand) eiBrand.value = brand || '';
@@ -2636,11 +2651,11 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             unitSelect.value = '';
                         }
                     })();
-                    document.getElementById('ei_current_stock').value = stock;
-                    document.getElementById('ei_reorder_level').value = reorder;
-                    document.getElementById('ei_supplier_id').value = supplierId || '';
-                    document.getElementById('ei_location').value = location || '';
-                    document.getElementById('ei_unit_cost').value = unitCost || 0;
+                    $('#ei_current_stock').val(stock);
+                    $('#ei_reorder_level').val(reorder);
+                    $('#ei_supplier_id').val(supplierId || '').trigger('change');
+                    $('#ei_location').val(location || '');
+                    $('#ei_unit_cost').val(unitCost || 0);
 
                     console.log('Opening edit inventory modal...');
                     const modal = new bootstrap.Modal(document.getElementById('editInventoryModal'));
@@ -2708,7 +2723,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             // Get inventory data with pagination
             $sql = "SELECT i.*, s.supplier_name 
             FROM inventory i 
-            LEFT JOIN supplier s ON i.supplier_id = s.supplier_id 
+            LEFT JOIN supply_supplier s ON i.supplier_id = s.supplier_id 
             $inv_where_ajax
             ORDER BY i.date_created DESC
             LIMIT $records_per_page OFFSET $offset";
