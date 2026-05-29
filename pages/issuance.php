@@ -122,69 +122,7 @@ if (isset($_SESSION['error'])) {
         padding: 0;
     }
 
-    /* Sidebar Styles */
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        width: 240px;
-        background: linear-gradient(135deg, var(--primary-color), #0d4a2a);
-        color: var(--text-light);
-        z-index: 1000;
-        overflow-y: auto;
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    }
 
-    .sidebar-header {
-        padding: 1.25rem 1rem 0.75rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .sidebar-brand {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--text-light);
-        text-decoration: none;
-        display: block;
-        margin-bottom: 0.25rem;
-    }
-
-    .sidebar-user {
-        font-size: 0.8rem;
-        opacity: 0.9;
-    }
-
-    .sidebar-nav {
-        padding: 0.5rem 0;
-    }
-
-    .nav-item {
-        margin-bottom: 0.15rem;
-    }
-
-    .nav-link {
-        display: flex;
-        align-items: center;
-        padding: 8px 15px;
-        color: var(--text-light);
-        text-decoration: none;
-        transition: all 0.3s ease;
-        border-radius: 0;
-        position: relative;
-        font-size: 0.85rem;
-    }
-
-    .nav-link:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: var(--text-light);
-        transform: translateX(3px);
-    }
-
-    .nav-link.active {
-        background: rgba(255, 255, 255, 0.2);
-        border-left: 3px solid var(--secondary-color);
-        font-weight: 600;
     }
 
     .nav-link i {
@@ -200,7 +138,8 @@ if (isset($_SESSION['error'])) {
 
     /* Main Content */
     .main-content {
-        margin-left: 240px;
+        margin-left: 280px;
+        padding: 30px;
         min-height: 100vh;
         background: var(--light-bg);
     }
@@ -652,55 +591,7 @@ if (isset($_SESSION['error'])) {
 </style>
 
 <!-- Sidebar -->
-<div class="sidebar">
-    <div class="sidebar-header">
-        <div class="sidebar-brand">
-            DARTS
-        </div>
-        <div class="sidebar-user">
-            Welcome, <?= htmlspecialchars($user_name) ?>
-        </div>
-    </div>
-
-    <nav class="sidebar-nav">
-        <div class="nav-item">
-            <a href="../dashboard.php" class="nav-link">
-                <i class="fas fa-chart-line"></i>
-                Dashboard
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="budget.php" class="nav-link">
-                <i class="fas fa-wallet"></i>
-                Budget Overview
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="issuance.php" class="nav-link active">
-                <i class="fas fa-hand-holding"></i>
-                Issuance
-            </a>
-        </div>
-        <!--<div class="nav-item">
-            <a href="transaction_list.php" class="nav-link">
-                <i class="fas fa-exchange-alt"></i>
-                Transactions
-            </a>
-        </div>-->
-        <div class="nav-item">
-            <a href="notifications.php" class="nav-link">
-                <i class="fas fa-bell"></i>
-                Notifications
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="../logout.php" class="nav-link logout" style="color: #e74c3c;">
-                <i class="fas fa-sign-out-alt"></i>
-                Logout
-            </a>
-        </div>
-    </nav>
-</div>
+<?php include '../includes/sidebar.php'; ?>
 
 <!-- Main Content -->
 <div class="main-content">
