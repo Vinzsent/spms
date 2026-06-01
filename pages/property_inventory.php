@@ -418,8 +418,8 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
         /* Main Content */
         .main-content {
-            margin-left: 240px;
-            padding: 15px;
+            margin-left: 280px;
+            padding: 30px;
             min-height: 100vh;
             background-color: var(--bg-light);
         }
@@ -992,72 +992,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
     </style>
 
     <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <a href="../dashboard.php" style="text-decoration: none; color: inherit;">
-                <h3>DARTS</h3>
-            </a>
-            <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
-        </div>
-
-        <nav class="sidebar-nav">
-            <?php if (strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasing staff' && strtolower($user_type) != 'purchasingstaff'): ?>
-                <ul class="nav-item">
-                    <li><a href="<?= $dashboard_link ?>" class="nav-link">
-                            <i class="fas fa-chart-line"></i> Dashboard
-                        </a></li>
-                    <li><a href="property_inventory.php" class="nav-link active">
-                            <i class="fas fa-boxes"></i> Property Inventory
-                        </a></li>
-                    <li><a href="rooms_inventory.php" class="nav-link">
-                            <i class="fas fa-door-open"></i> Rooms Inventory
-                        </a></li>
-                    <li>
-                        <a href="#releaseRecordsSubmenu" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="releaseRecordsSubmenu">
-                            <i class="fas fa-file"></i> Release Records <i class="fas fa-chevron-down ms-1"></i>
-                        </a>
-                        <ul class="collapse list-unstyled ps-4" id="releaseRecordsSubmenu">
-                            <li>
-                                <a href="property_release_logs.php" class="nav-link">Property Release Logs</a>
-                            </li>
-                            <li>
-                                <a href="bulb_release_logs.php" class="nav-link">Bulb Release Logs</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li><a href="aircon_list.php" class="nav-link">
-                            <i class="fas fa-snowflake"></i> Aircons
-                        </a></li>
-                    <li><a href="office_inventory.php" class="nav-link">
-                            <i class="fas fa-building"></i> Office Inventory Form
-                        </a></li>
-                    <li><a href="property_issuance.php" class="nav-link">
-                            <i class="fas fa-hand-holding"></i> Property Issuance
-                        </a></li>
-                    <li><a href="equipment_transfer_request.php" class="nav-link">
-                            <i class="fas fa-exchange-alt"></i> Transfer Request
-                        </a></li>
-                    <li><a href="borrowers_forms.php" class="nav-link">
-                            <i class="fas fa-hand-holding"></i> Borrower Forms
-                        </a></li>
-                    <li><a href="../logout.php" class="nav-link logout">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </a></li>
-                    </a></li>
-                </ul>
-            <?php endif; ?>
-            <?php if (strtolower($user_type) == 'purchasing officer'): ?>
-                <ul class="nav-item">
-                    <li><a href="../dashboard.php" class="nav-link">
-                            <i class="fas fa-chart-line"></i> Dashboard
-                        </a></li>
-                    <li><a href="../logout.php" class="nav-link logout">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </a></li>
-                </ul>
-            <?php endif; ?>
-        </nav>
-    </div>
+    <?php include '../includes/sidebar.php'; ?>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -1605,9 +1540,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <th>Current Stock</th>
                                 <th>Unit</th>
                                 <th>Brand</th>
-                                <th>Color</th>
-                                <th>Size</th>
-                                <th>Type</th>
                                 <th>Status</th>
                                 <th>Date Created</th>
                                 <?php if (strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasing staff' && strtolower($user_type) != 'purchasingstaff'): ?>
@@ -1634,9 +1566,6 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         <td class="text-center"><strong><?= $row['current_stock'] ?></strong></td>
                                         <td><?= $row['unit'] ?></td>
                                         <td><?= htmlspecialchars($row['brand']) ?></td>
-                                        <td><?= htmlspecialchars($row['color']) ?></td>
-                                        <td><?= htmlspecialchars($row['size']) ?></td>
-                                        <td><?= htmlspecialchars($row['type'] ?? '') ?></td>
                                         <td>
                                             <span class="badge bg-<?= $stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success') ?>">
                                                 <?= ucfirst($stock_level) ?>
@@ -1683,7 +1612,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="11" class="text-center py-4">
+                                    <td colspan="8" class="text-center py-4">
                                         <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
                                         <p class="text-muted">No inventory items found</p>
                                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
@@ -1848,7 +1777,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                     <?php endwhile; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="9" class="text-center py-4">
+                                        <td colspan="8" class="text-center py-4">
                                             <i class="fas fa-history fa-3x text-muted mb-3"></i>
                                             <p class="text-muted">No stock movements recorded</p>
                                         </td>
@@ -2081,21 +2010,9 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <label class="form-label">Brand <span class="text-danger">*</span></label>
                                             <input type="text" name="brand" class="form-control" required>
                                         </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Size</label>
-                                            <input type="size" name="size" class="form-control">
-                                            <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Color</label>
-                                            <input type="text" name="color" class="form-control">
-                                            <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Type</label>
-                                            <input type="text" name="type" class="form-control">
-                                            <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
-                                        </div>
+                                        <input type="hidden" name="size" class="form-control">
+                                        <input type="hidden" name="color" class="form-control">
+                                        <input type="hidden" name="type" class="form-control">
                                         <div class="col-12">
                                             <label class="form-label">Description</label>
                                             <textarea name="description" class="form-control" rows="2" placeholder="Optional description..."></textarea>
@@ -2111,11 +2028,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <label class="form-label">Initial Stock <span class="text-danger">*</span></label>
                                             <input type="number" name="current_stock" class="form-control" required min="0">
                                         </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Reorder Level</label>
-                                            <input type="number" name="reorder_level" class="form-control" required min="0" value="0">
-                                            <small class="text-muted" style="font-size: 12px;">Leave blank if not applicable</small>
-                                        </div>
+                                        <input type="hidden" name="reorder_level" value="0">
                                         <div class="col-md-3">
                                             <label class="form-label">Unit <span class="text-danger">*</span></label>
                                             <select name="unit" class="form-select" required>
@@ -2142,10 +2055,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             </select>
                                         </div>
                                         <input type="hidden" name="quantity" class="form-control" required min="0">
-                                        <div class="col-md-3">
-                                            <label class="form-label">Unit Cost </label>
-                                            <input type="number" name="unit_cost" step="0.01" class="form-control">
-                                        </div>
+                                        <input type="hidden" name="unit_cost" value="0">
                                     </div>
                                 </div>
 
@@ -2355,28 +2265,14 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                         </div>
                                     </div>
                                     <div class="row g-3 mt-2">
-                                        <div class="col-3">
+                                        <div class="col-6">
                                             <label class="form-label">Brand</label>
                                             <input class="form-control" name="brand" id="ei_brand">
                                         </div>
 
-                                        <div class="col-3">
-                                            <label class="form-label">Color</label>
-                                            <input class="form-control" name="color" id="ei_color">
-                                            <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
-                                        </div>
-
-                                        <div class="col-3">
-                                            <label class="form-label">Size</label>
-                                            <input class="form-control" name="size" id="ei_size">
-                                            <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
-                                        </div>
-
-                                        <div class="col-3">
-                                            <label class="form-label">Type</label>
-                                            <input class="form-control" name="type" id="ei_type">
-                                            <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
-                                        </div>
+                                        <input type="hidden" name="color" id="ei_color">
+                                        <input type="hidden" name="size" id="ei_size">
+                                        <input type="hidden" name="type" id="ei_type">
 
                                         <div class="col-12">
                                             <label class="form-label">Description</label>
@@ -2393,11 +2289,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                             <label class="form-label">Current Stock</label>
                                             <input type="number" class="form-control" name="current_stock" id="ei_current_stock" min="0" required>
                                         </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Reorder Level</label>
-                                            <input type="number" class="form-control" name="reorder_level" id="ei_reorder_level" min="0">
-                                            <small style="color: gray; font-size: 12px;">Leave blank if not applicable</small>
-                                        </div>
+                                        <input type="hidden" name="reorder_level" id="ei_reorder_level" value="0">
                                         <div class="col-md-3">
                                             <label class="form-label">Unit</label>
                                             <select name="unit" id="ei_unit" class="form-select" required>
@@ -2423,11 +2315,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                                                 <option value="none">Others</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Unit Cost</label>
-                                            <input type="number" step="0.01" class="form-control" name="unit_cost" id="ei_unit_cost" required>
-                                            <small class="text-muted" style="font-size: 12px;">leave black if not applicable</small>
-                                        </div>
+                                        <input type="hidden" name="unit_cost" id="ei_unit_cost" value="0">
                                     </div>
                                 </div>
 
@@ -3165,7 +3053,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     // Show loading state
                     const tableBody = document.querySelector('#stock-movements tbody');
                     if (tableBody) {
-                        tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>';
+                        tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>';
                     }
 
                     // Build URL parameters
@@ -3205,14 +3093,14 @@ if ($categories_result && $categories_result->num_rows > 0) {
                             } else {
                                 console.error('Error:', data.message);
                                 if (tableBody) {
-                                    tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle"></i> ' + data.message + '</td></tr>';
+                                    tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle"></i> ' + data.message + '</td></tr>';
                                 }
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
                             if (tableBody) {
-                                tableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle"></i> Error loading stock movements. Please try again.</td></tr>';
+                                tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle"></i> Error loading stock movements. Please try again.</td></tr>';
                             }
                         });
                 }
@@ -3284,7 +3172,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
             echo '<div id="inventoryTable">';
             echo '<table class="table table-hover mb-0">';
             echo '<thead class="table-dark">';
-            echo '<tr><th>Item Name</th><th>Description</th><th>Current Stock</th><th>Unit</th><th>Brand</th><th>Color</th><th>Size</th><th>Type</th><th>Status</th><th>Date Created</th>';
+            echo '<tr><th>Item Name</th><th>Description</th><th>Current Stock</th><th>Unit</th><th>Brand</th><th>Status</th><th>Date Created</th>';
             if (strtolower($user_type ?? '') != 'purchasing officer' && strtolower($user_type ?? '') != 'purchasing staff' && strtolower($user_type ?? '') != 'purchasingstaff') {
                 echo '<th>Actions</th>';
             }
@@ -3308,9 +3196,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '<td class="text-center"><strong>' . $row['current_stock'] . '</strong></td>';
                     echo '<td>' . $row['unit'] . '</td>';
                     echo '<td>' . htmlspecialchars($row['brand']) . '</td>';
-                    echo '<td>' . htmlspecialchars($row['color']) . '</td>';
-                    echo '<td>' . htmlspecialchars($row['size']) . '</td>';
-                    echo '<td>' . htmlspecialchars($row['type'] ?? '') . '</td>';
+
                     echo '<td><span class="badge bg-' . ($stock_level == 'out' ? 'danger' : ($stock_level == 'critical' ? 'warning' : 'success')) . '">' . ucfirst($stock_level) . '</span></td>';
                     echo '<td>' . ($row['date_created'] ? date('M d, Y', strtotime($row['date_created'])) : 'N/A') . '</td>';
                     if (strtolower($user_type ?? '') != 'purchasing officer' && strtolower($user_type ?? '') != 'purchasing staff' && strtolower($user_type ?? '') != 'purchasingstaff') {
@@ -3348,7 +3234,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     echo '</tr>';
                 }
             } else {
-                echo '<tr><td colspan="11" class="text-center py-4"><i class="fas fa-boxes fa-3x text-muted mb-3"></i><p class="text-muted">No inventory items found</p></td></tr>';
+                echo '<tr><td colspan="8" class="text-center py-4"><i class="fas fa-boxes fa-3x text-muted mb-3"></i><p class="text-muted">No inventory items found</p></td></tr>';
             }
 
             echo '</tbody></table></div>';
