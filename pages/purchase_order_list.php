@@ -134,7 +134,7 @@ $po_result = $conn->query($po_query);
 
     /* Main Content */
     .main-content {
-        margin-left: 240px;
+        margin-left: 280px;
         padding: 20px;
         min-height: 100vh;
         background-color: var(--bg-light);
@@ -380,52 +380,7 @@ $po_result = $conn->query($po_query);
 </style>
 
 <!-- Sidebar -->
-<div class="sidebar">
-    <div class="sidebar-header">
-        <h4>DARTS</h4>
-        <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
-    </div>
-
-    <nav class="sidebar-nav">
-        <ul class="nav-item">
-            <li><a href="../dashboard.php" class="nav-link">
-                    <i class="fas fa-chart-line"></i> Dashboard
-                </a></li>
-            <li><a href="suppliers.php" class="nav-link">
-                    <i class="fas fa-users"></i> Supplier List
-                </a></li>
-            <li><a href="received_items.php" class="nav-link">
-                    <i class="fas fa-box-open"></i> Received Items
-                </a></li>
-            <li><a href="procurement_statistics.php" class="nav-link"><i class="fas fa-chart-line"></i> Procurement Statistics
-                </a></li>
-            <li><a href="procurement.php" class="nav-link">
-                    <i class="fas fa-shopping-cart"></i> Procurement Tables
-                </a></li>
-            <li><a href="canvass_form.php" class="nav-link">
-                    <i class="fas fa-clipboard-list"></i> Canvass Form
-                </a></li>
-            <li><a href="canvass_form_list.php" class="nav-link">
-                    <i class="fas fa-list"></i> Canvass Form List
-                </a></li>
-            <li><a href="purchase_order.php" class="nav-link">
-                    <i class="fas fa-shopping-basket"></i> Purchase Order
-                </a></li>
-            <li><a href="purchase_order_list.php" class="nav-link active">
-                    <i class="fas fa-file-invoice"></i> Purchase Order List
-                </a></li>
-            <li><a href="Inventory.php" class="nav-link">
-                    <i class="fas fa-box"></i> Supply Inventory
-                </a></li>
-            <li><a href="property_inventory.php" class="nav-link">
-                    <i class="fas fa-box"></i> Property Inventory
-                </a></li>
-            <li><a href="../logout.php" class="nav-link logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a></li>
-        </ul>
-    </nav>
-</div>
+<?php include '../includes/sidebar.php'; ?>
 
 <!-- Main Content -->
 <div class="main-content">
@@ -442,9 +397,11 @@ $po_result = $conn->query($po_query);
                 <a href="../actions/export_purchase_orders_excel.php" class="btn btn-success">
                     <i class="fas fa-file-excel"></i> Export to Excel
                 </a>
+                <?php if ($user_role_norm !== 'propertycustodian'): ?>
                 <a href="purchase_order.php" class="btn btn-primary text-dark">
                     <i class="fas fa-plus"></i> New Purchase Order
                 </a>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -502,12 +459,14 @@ $po_result = $conn->query($po_query);
                                     <button class="btn btn-info btn-sm" onclick="viewPurchaseOrder(<?= $po['po_id'] ?>)">
                                         <i class="fas fa-eye"></i> View
                                     </button>
+                                    <?php if ($user_role_norm !== 'propertycustodian'): ?>
                                     <button class="btn btn-warning btn-sm" onclick="editPurchaseOrder(<?= $po['po_id'] ?>)">
                                         <i class="fas fa-edit"></i> Edit
                                     </button>
                                     <button class="btn btn-danger btn-sm" onclick="deletePurchaseOrder(<?= $po['po_id'] ?>)">
                                         <i class="fas fa-trash"></i> Delete
                                     </button>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
@@ -519,9 +478,11 @@ $po_result = $conn->query($po_query);
                 <i class="fas fa-file-invoice"></i>
                 <h3>No Purchase Order Records Found</h3>
                 <p>Start by creating your first purchase order.</p>
+                <?php if ($user_role_norm !== 'propertycustodian'): ?>
                 <a href="purchase_order.php" class="btn btn-primary text-dark">
                     <i class="fas fa-plus"></i> Create New Purchase Order
                 </a>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
     </div>
