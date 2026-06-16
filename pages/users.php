@@ -270,8 +270,8 @@ if ($isAjax) {
 
         /* Main Content */
         .main-content {
-            margin-left: 240px;
-            padding: 20px;
+            margin-left: 280px;
+            padding: 30px;
             min-height: 100vh;
             background-color: var(--bg-light);
         }
@@ -479,7 +479,8 @@ if ($isAjax) {
             background: transparent;
         }
 
-        .btn-ellipsis:hover, .btn-ellipsis:focus {
+        .btn-ellipsis:hover,
+        .btn-ellipsis:focus {
             background-color: rgba(0, 0, 0, 0.05);
             color: var(--primary-green);
             box-shadow: none;
@@ -512,36 +513,7 @@ if ($isAjax) {
     </style>
 
     <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <a href="../dashboard.php" style="text-decoration: none; color: inherit;">
-                <h3>DARTS</h3>
-            </a>
-            <div class="welcome-text">Welcome, <?= htmlspecialchars($_SESSION['user']['first_name'] ?? 'User') ?></div>
-        </div>
-
-        <nav class="sidebar-nav">
-            <?php if (strtolower($user_type) != 'purchasing officer' && strtolower($user_type) != 'purchasingstaff'): ?>
-                <ul class="nav-item">
-                    <li><a href="<?= $dashboard_link ?>" class="nav-link">
-                            <i class="fas fa-chart-line"></i> Dashboard
-                        </a></li>
-                    <li><a href="suppliers.php" class="nav-link">
-                            <i class="fas fa-users"></i> Suppliers
-                        </a></li>
-                    <li><a href=" Inventory.php" class="nav-link">
-                            <i class="fas fa-boxes"></i> Inventory
-                        </a></li>
-                    <li><a href="notifications.php" class="nav-link">
-                            <i class="fas fa-bell"></i> Notifications
-                        </a></li>
-                    <li><a href="../logout.php" class="nav-link logout">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </a></li>
-                </ul>
-            <?php endif; ?>
-        </nav>
-    </div>
+    <?php include '../includes/sidebar.php'; ?>
 
     <!-- Main Content -->
     <div class="main-content">
