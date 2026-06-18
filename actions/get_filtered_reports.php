@@ -13,6 +13,34 @@ $report_type = $_GET['report_type'] ?? 'inventory';
 // ─── HELPER ───────────────────────────────────────────────────────────────
 function safe($conn, $v) { return $conn->real_escape_string(trim($v)); }
 
+function renderPagination($total_rows, $limit, $page, $report_type) {
+    $total_pages = ceil($total_rows / $limit);
+    if ($total_pages <= 1) return '';
+
+    ob_start();
+    ?>
+    <div class="d-flex justify-content-between align-items-center mt-3 no-print">
+        <div class="text-secondary small">
+            Showing <?= min($total_rows, ($page - 1) * $limit + 1) ?> to <?= min($total_rows, $page * $limit) ?> of <?= $total_rows ?> entries
+        </div>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                    <a class="page-link" href="javascript:void(0)" onclick="preview('<?= $report_type ?>', <?= $page - 1 ?>)">Previous</a>
+                </li>
+                <li class="page-item active">
+                    <span class="page-link"><?= $page ?></span>
+                </li>
+                <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                    <a class="page-link" href="javascript:void(0)" onclick="preview('<?= $report_type ?>', <?= $page + 1 ?>)">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // 1. PROPERTY INVENTORY
 // ═══════════════════════════════════════════════════════════════════════════
@@ -40,9 +68,21 @@ if ($report_type === 'inventory') {
     }
 
     $where = "WHERE " . implode(' AND ', $w);
+    $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+    $limit = 10;
+
+    $count_sql = "SELECT COUNT(*) as total FROM property_inventory i $where";
+    $count_res = $conn->query($count_sql);
+    $total_rows = ($count_res) ? (int)$count_res->fetch_assoc()['total'] : 0;
+
+    $total_pages = ceil($total_rows / $limit);
+    if ($total_pages < 1) $total_pages = 1;
+    if ($page > $total_pages) $page = $total_pages;
+    $offset = ($page - 1) * $limit;
+
     $sql   = "SELECT i.*, s.supplier_name FROM property_inventory i
               LEFT JOIN supplier s ON i.supplier_id = s.supplier_id
-              $where ORDER BY i.item_name ASC";
+              $where ORDER BY i.item_name ASC LIMIT $limit OFFSET $offset";
     $res   = $conn->query($sql);
 
     $grand_total = 0;
@@ -51,6 +91,9 @@ if ($report_type === 'inventory') {
     <h3 class="section-title"><i class="fas fa-boxes me-2"></i>Property Items</h3>
     <table class="table table-bordered report-table w-100">
         <thead>
+            <tr class="print-spacer-row">
+                <th colspan="10"></th>
+            </tr>
             <tr>
                 <th>Item Name</th>
                 <th>Category</th>
@@ -92,6 +135,7 @@ if ($report_type === 'inventory') {
         <?php endif; ?>
         </tbody>
     </table>
+    <?= renderPagination($total_rows, $limit, $page, 'inventory') ?>
     <?php
     echo ob_get_clean();
 }
@@ -121,16 +165,31 @@ if ($report_type === 'stocklogs') {
     }
 
     $where = "WHERE " . implode(' AND ', $w);
+    $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+    $limit = 10;
+
+    $count_sql = "SELECT COUNT(*) as total FROM property_stock_logs sl LEFT JOIN property_inventory pi ON sl.inventory_id = pi.inventory_id $where";
+    $count_res = $conn->query($count_sql);
+    $total_rows = ($count_res) ? (int)$count_res->fetch_assoc()['total'] : 0;
+
+    $total_pages = ceil($total_rows / $limit);
+    if ($total_pages < 1) $total_pages = 1;
+    if ($page > $total_pages) $page = $total_pages;
+    $offset = ($page - 1) * $limit;
+
     $sql   = "SELECT sl.*, pi.item_name, pi.unit
               FROM property_stock_logs sl
               LEFT JOIN property_inventory pi ON sl.inventory_id = pi.inventory_id
-              $where ORDER BY sl.date_created DESC";
+              $where ORDER BY sl.date_created DESC LIMIT $limit OFFSET $offset";
     $res   = $conn->query($sql);
 
     ob_start(); ?>
     <h3 class="section-title"><i class="fas fa-exchange-alt me-2"></i>Stock Movement Logs</h3>
     <table class="table table-bordered report-table w-100">
         <thead>
+            <tr class="print-spacer-row">
+                <th colspan="9"></th>
+            </tr>
             <tr>
                 <th>Date & Time</th>
                 <th>Item Name</th>
@@ -165,6 +224,7 @@ if ($report_type === 'stocklogs') {
         <?php endif; ?>
         </tbody>
     </table>
+    <?= renderPagination($total_rows, $limit, $page, 'stocklogs') ?>
     <?php
     echo ob_get_clean();
 }
@@ -192,9 +252,21 @@ if ($report_type === 'aircon') {
     if (!empty($date_end))   $w[] = "a.date_created <= '" . safe($conn, $date_end) . " 23:59:59'";
 
     $where = !empty($w) ? "WHERE " . implode(' AND ', $w) : '';
+    $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+    $limit = 10;
+
+    $count_sql = "SELECT COUNT(*) as total FROM aircons a $where";
+    $count_res = $conn->query($count_sql);
+    $total_rows = ($count_res) ? (int)$count_res->fetch_assoc()['total'] : 0;
+
+    $total_pages = ceil($total_rows / $limit);
+    if ($total_pages < 1) $total_pages = 1;
+    if ($page > $total_pages) $page = $total_pages;
+    $offset = ($page - 1) * $limit;
+
     $sql   = "SELECT a.*, s.supplier_name FROM aircons a
               LEFT JOIN supplier s ON a.supplier_id = s.supplier_id
-              $where ORDER BY a.campus, a.location, a.brand ASC";
+              $where ORDER BY a.campus, a.location, a.brand ASC LIMIT $limit OFFSET $offset";
     $res   = $conn->query($sql);
 
     $status_colors = [
@@ -210,6 +282,9 @@ if ($report_type === 'aircon') {
     <h3 class="section-title"><i class="fas fa-snowflake me-2"></i>Aircon Inventory</h3>
     <table class="table table-bordered report-table w-100">
         <thead>
+            <tr class="print-spacer-row">
+                <th colspan="12"></th>
+            </tr>
             <tr>
                 <th>Campus</th>
                 <th>Brand</th>
@@ -249,6 +324,7 @@ if ($report_type === 'aircon') {
         <?php endif; ?>
         </tbody>
     </table>
+    <?= renderPagination($total_rows, $limit, $page, 'aircon') ?>
     <?php
     echo ob_get_clean();
 }
