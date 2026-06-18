@@ -930,6 +930,16 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
           <p class="card-description">Generate comprehensive reports based on service forms and actions taken.</p>
           <a href="pages/service_form_reports.php" class="card-button">Access</a>
         </div>
+
+        <!-- Printing Header Settings Card for Admin -->
+        <div class="menu-card card-success">
+          <div class="card-icon" style="background: linear-gradient(135deg, #073b1d, #0a4f28);">
+            <i class="fas fa-print"></i>
+          </div>
+          <h3 class="card-title">Printing Header Settings</h3>
+          <p class="card-description">Customize the school letterhead logo, phone, fax, email, and website printed globally on system sheets.</p>
+          <a href="pages/printer_header.php" class="card-button">Access</a>
+        </div>
       <?php endif; ?>
 
 
