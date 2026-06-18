@@ -12,6 +12,35 @@ $report_type = $_GET['report_type'] ?? 'inventory';
 
 function safe($conn, $v) { return $conn->real_escape_string(trim($v)); }
 
+function renderPagination($total_rows, $limit, $page, $report_type) {
+    $total_pages = ceil($total_rows / $limit);
+    if ($total_pages <= 1) return '';
+
+    ob_start();
+    ?>
+    <div class="d-flex justify-content-between align-items-center mt-3 no-print">
+        <div class="text-secondary small">
+            Showing <?= min($total_rows, ($page - 1) * $limit + 1) ?> to <?= min($total_rows, $page * $limit) ?> of <?= $total_rows ?> entries
+        </div>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                    <a class="page-link" href="javascript:void(0)" onclick="preview('<?= $report_type ?>', <?= $page - 1 ?>)">Previous</a>
+                </li>
+                <li class="page-item active">
+                    <span class="page-link"><?= $page ?></span>
+                </li>
+                <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                    <a class="page-link" href="javascript:void(0)" onclick="preview('<?= $report_type ?>', <?= $page + 1 ?>)">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+
 // ═══════════════════════════════════════════════════════════════════════════
 // 1. SUPPLY INVENTORY
 // ═══════════════════════════════════════════════════════════════════════════
@@ -35,9 +64,21 @@ if ($report_type === 'inventory') {
     }
 
     $where = !empty($w) ? "WHERE " . implode(' AND ', $w) : "";
+    $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+    $limit = 10;
+
+    $count_sql = "SELECT COUNT(*) as total FROM inventory i $where";
+    $count_res = $conn->query($count_sql);
+    $total_rows = ($count_res) ? (int)$count_res->fetch_assoc()['total'] : 0;
+
+    $total_pages = ceil($total_rows / $limit);
+    if ($total_pages < 1) $total_pages = 1;
+    if ($page > $total_pages) $page = $total_pages;
+    $offset = ($page - 1) * $limit;
+
     $sql   = "SELECT i.*, s.supplier_name FROM inventory i
               LEFT JOIN supply_supplier s ON i.supplier_id = s.supplier_id
-              $where ORDER BY i.item_name ASC";
+              $where ORDER BY i.item_name ASC LIMIT $limit OFFSET $offset";
     $res   = $conn->query($sql);
 
     ob_start();
@@ -45,18 +86,24 @@ if ($report_type === 'inventory') {
     <h3 class="section-title"><i class="fas fa-boxes me-2"></i>Supply Items</h3>
     <table class="table table-bordered report-table w-100">
         <thead>
+            <tr class="print-spacer-row">
+                <th colspan="2"></th>
+            </tr>
             <tr>
-                <th>Item Name</th>
-                <th>Stock</th>
+                <th style="width:62%; text-align:left;">ITEMS</th>
+                <th style="width:38%; text-align:right;">Quantity available</th>
             </tr>
         </thead>
         <tbody>
         <?php if ($res && $res->num_rows > 0):
             while ($row = $res->fetch_assoc()):
-                $cls = $row['current_stock'] == 0 ? 'stock-out' : ($row['current_stock'] <= $row['reorder_level'] ? 'stock-warn' : ''); ?>
+                $cls = $row['current_stock'] == 0 ? 'stock-out' : ($row['current_stock'] <= $row['reorder_level'] ? 'stock-warn' : '');
+                $unit = htmlspecialchars(trim($row['unit'] ?? ''));
+                $qty_display = htmlspecialchars($row['current_stock']) . ($unit ? ' ' . $unit : '');
+            ?>
             <tr>
                 <td><?= htmlspecialchars($row['item_name']) ?></td>
-                <td class="<?= $cls ?>"><?= htmlspecialchars($row['current_stock']) ?></td>
+                <td class="<?= $cls ?>" style="text-align:right;"><?= $qty_display ?></td>
             </tr>
         <?php endwhile; ?>
         <?php else: ?>
@@ -64,6 +111,7 @@ if ($report_type === 'inventory') {
         <?php endif; ?>
         </tbody>
     </table>
+    <?= renderPagination($total_rows, $limit, $page, 'inventory') ?>
     <?php
     echo ob_get_clean();
 }
@@ -94,16 +142,31 @@ if ($report_type === 'stocklogs') {
     }
 
     $where = !empty($w) ? "WHERE " . implode(' AND ', $w) : "";
+    $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+    $limit = 10;
+
+    $count_sql = "SELECT COUNT(*) as total FROM stock_logs sl LEFT JOIN inventory i ON sl.inventory_id = i.inventory_id $where";
+    $count_res = $conn->query($count_sql);
+    $total_rows = ($count_res) ? (int)$count_res->fetch_assoc()['total'] : 0;
+
+    $total_pages = ceil($total_rows / $limit);
+    if ($total_pages < 1) $total_pages = 1;
+    if ($page > $total_pages) $page = $total_pages;
+    $offset = ($page - 1) * $limit;
+
     $sql   = "SELECT sl.*, i.item_name
               FROM stock_logs sl
               LEFT JOIN inventory i ON sl.inventory_id = i.inventory_id
-              $where ORDER BY sl.date_created DESC";
+              $where ORDER BY sl.date_created DESC LIMIT $limit OFFSET $offset";
     $res   = $conn->query($sql);
 
     ob_start(); ?>
     <h3 class="section-title"><i class="fas fa-exchange-alt me-2"></i>Stock Movement Logs</h3>
     <table class="table table-bordered report-table w-100">
         <thead>
+            <tr class="print-spacer-row">
+                <th colspan="7"></th>
+            </tr>
             <tr>
                 <th>Date & Time</th>
                 <th>Item Name</th>
@@ -134,6 +197,7 @@ if ($report_type === 'stocklogs') {
         <?php endif; ?>
         </tbody>
     </table>
+    <?= renderPagination($total_rows, $limit, $page, 'stocklogs') ?>
     <?php
     echo ob_get_clean();
 }
@@ -164,17 +228,32 @@ if ($report_type === 'issuance') {
     if (!empty($date_end))   $w[] = "sr.date_requested <= '" . safe($conn, $date_end) . " 23:59:59'";
 
     $where = "WHERE " . implode(' AND ', $w);
+    $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+    $limit = 10;
+
+    $count_sql = "SELECT COUNT(*) as total FROM supply_request sr LEFT JOIN user u ON u.id = sr.user_id $where";
+    $count_res = $conn->query($count_sql);
+    $total_rows = ($count_res) ? (int)$count_res->fetch_assoc()['total'] : 0;
+
+    $total_pages = ceil($total_rows / $limit);
+    if ($total_pages < 1) $total_pages = 1;
+    if ($page > $total_pages) $page = $total_pages;
+    $offset = ($page - 1) * $limit;
+
     $sql   = "SELECT sr.*, 
               CONCAT_WS(' ', u.first_name, u.last_name) AS requester_name 
               FROM supply_request sr
               LEFT JOIN user u ON u.id = sr.user_id
-              $where ORDER BY sr.date_requested DESC";
+              $where ORDER BY sr.date_requested DESC LIMIT $limit OFFSET $offset";
     $res   = $conn->query($sql);
 
     ob_start(); ?>
     <h3 class="section-title"><i class="fas fa-hand-holding me-2"></i>Supply Issuance Logs</h3>
     <table class="table table-bordered report-table w-100">
         <thead>
+            <tr class="print-spacer-row">
+                <th colspan="7"></th>
+            </tr>
             <tr>
                 <th>Date Requested</th>
                 <th>Requester</th>
@@ -218,6 +297,7 @@ if ($report_type === 'issuance') {
         <?php endif; ?>
         </tbody>
     </table>
+    <?= renderPagination($total_rows, $limit, $page, 'issuance') ?>
     <?php
     echo ob_get_clean();
 }
@@ -240,7 +320,19 @@ if ($report_type === 'offices') {
     if (!empty($date_end))   $w[] = "sr.date_requested <= '" . safe($conn, $date_end) . " 23:59:59'";
 
     $where = "WHERE " . implode(' AND ', $w);
-    $sql   = "SELECT sr.* FROM supply_request sr $where ORDER BY sr.date_requested DESC";
+    $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+    $limit = 10;
+
+    $count_sql = "SELECT COUNT(*) as total FROM supply_request sr $where";
+    $count_res = $conn->query($count_sql);
+    $total_rows = ($count_res) ? (int)$count_res->fetch_assoc()['total'] : 0;
+
+    $total_pages = ceil($total_rows / $limit);
+    if ($total_pages < 1) $total_pages = 1;
+    if ($page > $total_pages) $page = $total_pages;
+    $offset = ($page - 1) * $limit;
+
+    $sql   = "SELECT sr.* FROM supply_request sr $where ORDER BY sr.date_requested DESC LIMIT $limit OFFSET $offset";
     $res   = $conn->query($sql);
 
     $grand_total = 0;
@@ -248,6 +340,9 @@ if ($report_type === 'offices') {
     <h3 class="section-title"><i class="fas fa-building me-2"></i>Office Requisitions Summary</h3>
     <table class="table table-bordered report-table w-100">
         <thead>
+            <tr class="print-spacer-row">
+                <th colspan="8"></th>
+            </tr>
             <tr>
                 <th>Date Requested</th>
                 <th>Office / Dept</th>
@@ -287,6 +382,7 @@ if ($report_type === 'offices') {
         <?php endif; ?>
         </tbody>
     </table>
+    <?= renderPagination($total_rows, $limit, $page, 'offices') ?>
     <?php
     echo ob_get_clean();
 }
