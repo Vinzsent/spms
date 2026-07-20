@@ -788,6 +788,17 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <p class="card-description">Generate comprehensive reports on property requisitions, inventory, and maintenance.</p>
         <a href="pages/property_reports.php" class="card-button">Access</a>
       </div>
+
+      <!-- Employee Inventory Section for Property Custodian -->
+      <div class="menu-card card-dark">
+        <div class="card-icon">
+          <i class="fas fa-user-tag"></i>
+        </div>
+        <h3 class="card-title">Employee Inventory</h3>
+        <p class="card-description">Generate comprehensive reports on property requisitions, inventory, and maintenance.</p>
+        <a href="pages/employee_inventory.php" class="card-button">Access</a>
+      </div>
+
       <div class="menu-card card-info">
         <div class="card-icon">
           <i class="fas fa-list"></i>
@@ -858,6 +869,7 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
       </div>
 
     <?php elseif ($user_type === 'gsogeneralserviceofficer'): ?>
+
       <!-- Service Form Card for GSO -->
       <div class="menu-card card-info">
         <div class="card-icon">
@@ -879,6 +891,7 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
       </div>
 
     <?php else: ?>
+
       <!-- All other cards for Admin and other non-specific roles -->
       <!-- Supply Requisition Card -->
       <div class="menu-card card-success">
@@ -901,6 +914,17 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
       </div>
 
       <?php if (in_array($user_type, ['admin', 'administrator'])): ?>
+
+        <!-- Supply Offices Card for Admin -->
+        <div class="menu-card card-primary">
+          <div class="card-icon" style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d);">
+            <i class="fas fa-building"></i>
+          </div>
+          <h3 class="card-title">School Year</h3>
+          <p class="card-description">Manage and view school year information.</p>
+          <a href="pages/school_year.php" class="card-button">Access</a>
+        </div>
+
         <!-- Supply Offices Card for Admin -->
         <div class="menu-card card-primary">
           <div class="card-icon" style="background: linear-gradient(135deg, #1a5f3c, #2d7a4d);">
@@ -973,6 +997,7 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <p class="card-description">Log purchased items with supplier details, costs, and receipts. Mark items as received when delivered.</p>
         <a href="pages/procurement_statistics.php" class="card-button">Access</a>
       </div>
+
       <!-- Received Items Card -->
       <div class="menu-card card-primary">
         <div class="card-icon">
@@ -982,6 +1007,7 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <p class="card-description">Record and track new supplier transactions. Manage incoming inventory and update stock levels.</p>
         <a href="pages/received_items.php" class="card-button">Access</a>
       </div>
+
       <!-- Inventory Card -->
       <div class="menu-card card-info">
         <div class="card-icon">
@@ -991,6 +1017,7 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <p class="card-description">Track real-time stock levels with detailed logs. Get alerts for low inventory and manage consumables supplies.</p>
         <a href="pages/Inventory.php" class="card-button">Access</a>
       </div>
+
       <!-- Property Inventory Card -->
       <div class="menu-card card-info">
         <div class="card-icon">
@@ -1000,6 +1027,7 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <p class="card-description">Track real-time stock levels with detailed logs. Get alerts for low inventory and manage property supplies.</p>
         <a href="pages/property_inventory.php" class="card-button">Access</a>
       </div>
+
       <!-- Asset Registration Card -->
       <div class="menu-card card-dark">
         <div class="card-icon">
@@ -1022,6 +1050,7 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <p class="card-description">Schedule and record asset maintenance with complete service history and cost tracking.</p>
         <a href="pages/under_construction.php" class="card-button">Access</a>
       </div>
+
       <!-- Audit Card -->
       <div class="menu-card card-warning">
         <div class="card-icon">
@@ -1031,7 +1060,8 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <p class="card-description">Conduct inventory audits by comparing system data with physical counts for accuracy.</p>
         <a href="pages/audit.php" class="card-button">Access</a>
       </div>
-      <!-- Disposal Card -->
+      <!-- Dis
+       posal Card -->
       <div class="menu-card card-info">
         <div class="card-icon">
           <i class="fas fa-trash-alt"></i>
@@ -1040,6 +1070,7 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <p class="card-description">Manage disposal of obsolete items with approval workflows and reason documentation.</p>
         <a href="pages/under_construction.php" class="card-button">Access</a>
       </div>
+
       <!-- Reports Card -->
       <?php if ($user_type === 'admin'): ?>
         <div class="menu-card card-dark">
@@ -1068,6 +1099,7 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
           <a href="pages/reports.php" class="card-button">Access</a>
         </div>
       <?php endif; ?>
+
       <!-- Notifications Card -->
       <div class="menu-card card-primary">
         <div class="card-icon">
@@ -1077,6 +1109,7 @@ $user_type = str_replace([' ', '-'], '', strtolower($raw_user_type));
         <p class="card-description">View and manage all your notifications for supply requests, approvals, and issuances.</p>
         <a href="pages/notifications.php" class="card-button">View Notifications</a>
       </div>
+
       <!-- Settings Card -->
       <div class="menu-card card-danger">
         <div class="card-icon">

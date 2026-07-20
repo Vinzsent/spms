@@ -12,6 +12,10 @@ if (!in_array($user_type, ['propertycustodian', 'admin'])) {
     exit;
 }
 
+// Fetch printer header settings for print letterhead
+$header_query = $conn->query("SELECT * FROM printer_header_settings WHERE id = 1");
+$print_header = $header_query->fetch_assoc();
+
 $category_list = [];
 $r = $conn->query("SELECT DISTINCT category FROM property_inventory WHERE receiver='Property Custodian' AND category IS NOT NULL AND category!='' ORDER BY category ASC");
 if ($r) while ($c = $r->fetch_assoc()) $category_list[] = $c['category'];
@@ -124,22 +128,216 @@ body { font-family:'Segoe UI',sans-serif; background:var(--bg); }
 .stock-warn  { color:#856404; font-weight:700; }
 .stock-out   { color:#842029; font-weight:700; }
 
+/* ─── Print Styles ─── */
+.print-header-container { display: none; }
+.print-title-section    { display: none; }
+.print-spacer-row { display: none; }
+
 @media print {
-    .sidebar,.filter-col,.ph,.rpt-tabs,.ptbar,.exp-btns,.no-print{display:none!important;}
-    body,.wrap{margin:0;background:#fff;}
-    .wrap{margin-left:0!important;}
-    .rpt-panel{display:none!important;}
-    .rpt-panel.active{display:block!important;}
-    .preview-col{padding:0;}
-    .box{border:none;padding:0;}
-    .report-table thead th{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    @page {
+        margin: 0;
+    }
+
+    /* Hide all UI chrome */
+    .sidebar, .filter-col, .ph, .rpt-tabs, .ptbar,
+    .exp-btns, .no-print, .section-title, .rmeta { display: none !important; }
+
+    body {
+        margin: 0 !important;
+        background: #fff !important;
+    }
+    .wrap        { margin: 0 !important; padding: 0 1.5cm 1.5cm 1.5cm !important; }
+    tr           { break-inside: avoid !important; }
+    .print-spacer-row {
+        display: table-row !important;
+    }
+    .report-table thead .print-spacer-row th,
+    .report-table thead .print-spacer-row td {
+        border: none !important;
+        background: transparent !important;
+        height: 1.5cm !important;
+        padding: 0 !important;
+    }
+    .rpt-panel   { display: none !important; }
+    .rpt-panel.active { display: block !important; }
+    .preview-col { padding: 0 !important; }
+    .box         { border: none !important; padding: 0 !important; box-shadow: none !important; }
+
+    /* ── Letterhead Header ── */
+    .print-header-container {
+        display: block !important;
+        width: 100% !important;
+        margin-top: 1.5cm !important;
+        margin-bottom: 18px !important;
+        padding-bottom: 0 !important;
+    }
+    .letterhead-container {
+        display: flex !important;
+        align-items: center !important;
+        gap: 18px !important;
+        margin-bottom: 10px !important;
+    }
+    .letterhead-logo {
+        width: 85px !important;
+        height: 85px !important;
+        object-fit: contain !important;
+        display: block !important;
+    }
+    .letterhead-details { flex: 1 !important; }
+    .letterhead-title {
+        font-family: Arial, sans-serif !important;
+        font-weight: 700 !important;
+        font-size: 22pt !important;
+        color: #073b1d !important;
+        margin: 0 !important;
+        text-transform: uppercase !important;
+        line-height: 1.1 !important;
+    }
+    .letterhead-text {
+        font-size: 9pt !important;
+        color: #333 !important;
+        margin: 3px 0 0 0 !important;
+    }
+    .letterhead-subtext {
+        font-size: 8pt !important;
+        color: #444 !important;
+        margin: 2px 0 0 0 !important;
+    }
+    .letterhead-banner {
+        background-color: #4a7c59 !important;
+        color: white !important;
+        padding: 5px 12px !important;
+        font-size: 8pt !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        border-radius: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* ── Report Title Block ── */
+    .print-title-section {
+        display: block !important;
+        text-align: center !important;
+        margin: 18px 0 10px !important;
+    }
+    .print-title-section .rpt-main-title {
+        font-family: Arial, sans-serif !important;
+        font-size: 13pt !important;
+        font-weight: 700 !important;
+        color: #000 !important;
+        margin: 0 !important;
+        letter-spacing: 0.5px !important;
+    }
+    .print-title-section .rpt-as-of {
+        font-size: 11pt !important;
+        color: #000 !important;
+        margin: 2px 0 0 0 !important;
+        font-weight: 400 !important;
+    }
+
+    /* ── Inventory Table — image-faithful design ── */
+    .report-table {
+        border-collapse: collapse !important;
+        font-family: Arial, sans-serif !important;
+        font-size: 10pt !important;
+        margin-top: 0 !important;
+    }
+    #panel-inventory .report-table,
+    #panel-stocklogs .report-table,
+    #panel-aircon .report-table {
+        width: 100% !important;
+    }
+    .report-table thead th {
+        background: #fff !important;
+        color: #000 !important;
+        border: 1px solid #000 !important;
+        padding: 6px 8px !important;
+        font-weight: 700 !important;
+        font-size: 10pt !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    .report-table thead th:first-child {
+        text-align: center !important;
+        font-style: italic !important;
+        font-weight: normal !important;
+    }
+    .report-table thead th:not(:first-child) {
+        text-align: center !important;
+        font-weight: normal !important;
+    }
+    .report-table tbody td {
+        border: 1px solid #000 !important;
+        padding: 5px 8px !important;
+        color: #000 !important;
+        background: #fff !important;
+        vertical-align: middle !important;
+    }
+    .report-table tbody td:first-child {
+        text-align: left !important;
+    }
+    .report-table tbody td:not(:first-child) {
+        text-align: center !important;
+    }
+    .report-table tbody tr:nth-child(even) {
+        background: #fff !important;
+    }
+    /* Remove coloured stock badges in print */
+    .stock-warn, .stock-out {
+        color: #000 !important;
+        font-weight: 400 !important;
+    }
+    /* Remove badge pills */
+    .badge-in, .badge-out, .badge-adj, .badge-decomm {
+        background: none !important;
+        color: #000 !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        font-size: 10pt !important;
+    }
 }
 </style>
+
 
 <?php include '../includes/sidebar.php'; ?>
 
 <div class="wrap">
+    <!-- Print Header (Hidden on screen, visible only in print) -->
+    <?php if ($print_header): ?>
+    <div class="print-header-container">
+        <div class="letterhead-container">
+            <img class="letterhead-logo" src="../<?= htmlspecialchars($print_header['logo_path']) ?>" alt="Logo" onerror="this.src='../assets/images/logo.png'">
+            <div class="letterhead-details">
+                <h2 class="letterhead-title"><?= htmlspecialchars(strtoupper($print_header['school_name'])) ?></h2>
+                <p class="letterhead-text"><?= htmlspecialchars($print_header['address']) ?></p>
+                <p class="letterhead-subtext">
+                    <?php 
+                    $tel_fax = [];
+                    if (!empty($print_header['telephone_number'])) $tel_fax[] = 'Tel. No. ' . $print_header['telephone_number'];
+                    if (!empty($print_header['fax_number'])) $tel_fax[] = 'Fax No. ' . $print_header['fax_number'];
+                    if (!empty($print_header['mobile_number'])) $tel_fax[] = 'Mobile: ' . $print_header['mobile_number'];
+                    echo htmlspecialchars(implode(' / ', $tel_fax));
+                    ?>
+                </p>
+            </div>
+        </div>
+        <div class="letterhead-banner">
+            <span>Email Address: <?= htmlspecialchars($print_header['email_address']) ?></span>
+            <span>Website: <?= htmlspecialchars($print_header['website']) ?></span>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Print Title (Hidden on screen, shown only when printing) -->
+    <div class="print-title-section" id="print-title-section">
+        <p class="rpt-main-title" id="print-rpt-title">PROPERTY INVENTORY REPORT</p>
+        <p class="rpt-as-of" id="print-rpt-asof">As of <?php $m = ["Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."]; echo $m[date('n') - 1] . ' ' . date('Y'); ?></p>
+    </div>
+
     <div class="ph no-print">
+
         <h1><i class="fas fa-chart-bar me-2"></i>Property Reports</h1>
         <p>Filter, preview, and export property data by report type</p>
     </div>
@@ -295,9 +493,13 @@ function switchTab(type, el) {
     document.getElementById('panel-' + type).classList.add('active');
 }
 
+// ── Pagination state ─────────────────────────────────────────
+const currentPages = { inventory: 1, stocklogs: 1, aircon: 1 };
+
 // ── Build params per report type ─────────────────────────────
 function buildParams(type) {
     const p = new URLSearchParams({ report_type: type });
+    p.append('page', currentPages[type] || 1);
     if (type === 'inventory') {
         const cat = document.getElementById('inv_cat').value;
         if (cat) p.append('category', cat);
@@ -331,7 +533,8 @@ const pdfMap  = { inventory:'inv-pdf',  stocklogs:'log-pdf', aircon:'ac-pdf'  };
 const xlsMap  = { inventory:'inv-xlsx', stocklogs:'log-xlsx',aircon:'ac-xlsx' };
 const titleMap= { inventory:'Property Inventory Report', stocklogs:'Stock Movement Log Report', aircon:'Aircon Inventory Report' };
 
-function preview(type) {
+function preview(type, page = 1) {
+    currentPages[type] = page;
     const box  = document.getElementById(boxMap[type]);
     const bPdf = document.getElementById(pdfMap[type]);
     const bXls = document.getElementById(xlsMap[type]);
@@ -352,7 +555,48 @@ function preview(type) {
 }
 
 // ── PDF ──────────────────────────────────────────────────────
-function doPDF() { window.print(); }
+const printTitleMap = {
+    inventory: 'INVENTORY of PROPERTIES',
+    stocklogs: 'STOCK MOVEMENT LOGS',
+    aircon:    'AIRCON INVENTORY REPORT'
+};
+
+function formatDateString(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
+    const monthNames = ["Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."];
+    return monthNames[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear();
+}
+
+function getFilteredDateRangeText(ds, de) {
+    const start = formatDateString(ds);
+    const end = formatDateString(de);
+    if (start && end) {
+        return `As of ${start} - ${end}`;
+    } else if (start) {
+        return `As of ${start} - Present`;
+    } else if (end) {
+        return `As of up to ${end}`;
+    }
+    return '';
+}
+
+function doPDF() {
+    // Determine active tab
+    const activeTab = document.querySelector('.rpt-tab.active');
+    let activeType = 'inventory';
+    if (activeTab) {
+        const onclick = activeTab.getAttribute('onclick') || '';
+        const match = onclick.match(/switchTab\('(\w+)'/);
+        if (match) activeType = match[1];
+    }
+    // Build params but exclude the pagination page param
+    const params = buildParams(activeType);
+    params.delete('page');
+    window.open('../pages/print_property_report.php?' + params.toString(), '_blank');
+}
+
 
 // ── CSV ──────────────────────────────────────────────────────
 function doCSV(panelId, filename) {

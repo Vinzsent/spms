@@ -65,6 +65,31 @@
         </select>
       </div>
     </div>
+
+    <div class="row g-3 mt-2">
+      <div class="col-md-12">
+        <label for="add-department" class="form-label">
+          <i class="fas fa-building me-1"></i>Office / Department
+        </label>
+        <select class="form-select" name="department" id="add-department">
+          <option value="">-- Select Office/Department --</option>
+          <?php
+          $departments = [
+            'Admin Office', 'BSBA', 'BSHM', 'ELEMENTARY DEPT. BASIC EDUCATION',
+            'JHS/ BASIC EDUCATION', 'CELA OFFICE', 'CES', 'CJE', 'CLINIC',
+            'FINANCE/ ACCOUNTING', 'GSO/ Security officer', 'GUIDANCE/Chaplain',
+            'HUMAN RESOURCE MANAGEMENT', 'ITE Program', 'MIS', 'NSTP', 'OSAS',
+            'PHOTOCOPY ROOM', "PRESIDENT'S OFFICE", 'Property Custodian',
+            "REGISTRAR'S OFFICE", 'SENIOR HIGH SCHOOL PROGRAM', 'SUPPLY ROOM',
+            'VPAA OFFICE', 'OSSD', 'MAIN LIBRARY', 'BED LIBRARY'
+          ];
+          foreach ($departments as $dept) {
+            echo '<option value="' . htmlspecialchars($dept) . '">' . htmlspecialchars($dept) . '</option>';
+          }
+          ?>
+        </select>
+      </div>
+    </div>
   </div>
 
   <!-- Account Information Section -->

@@ -50,8 +50,8 @@ $active_users = $conn->query("SELECT COUNT(*) as count FROM user WHERE user_type
 
 // Count for pagination (Filtered)
 if (!empty($search)) {
-    $count_stmt = $conn->prepare("SELECT COUNT(*) as count FROM user WHERE first_name LIKE ? OR last_name LIKE ? OR user_type LIKE ?");
-    $count_stmt->bind_param("sss", $search_param, $search_param, $search_param);
+    $count_stmt = $conn->prepare("SELECT COUNT(*) as count FROM user WHERE first_name LIKE ? OR last_name LIKE ? OR user_type LIKE ? OR department LIKE ?");
+    $count_stmt->bind_param("ssss", $search_param, $search_param, $search_param, $search_param);
     $count_stmt->execute();
     $total_filtered = $count_stmt->get_result()->fetch_assoc()['count'];
 } else {
@@ -65,8 +65,8 @@ if ($page > $total_pages) {
 $offset = ($page - 1) * $records_per_page;
 
 if (!empty($search)) {
-    $stmt = $conn->prepare("SELECT * FROM user WHERE first_name LIKE ? OR last_name LIKE ? OR user_type LIKE ? ORDER BY last_name, first_name LIMIT ?, ?");
-    $stmt->bind_param("sssii", $search_param, $search_param, $search_param, $offset, $records_per_page);
+    $stmt = $conn->prepare("SELECT * FROM user WHERE first_name LIKE ? OR last_name LIKE ? OR user_type LIKE ? OR department LIKE ? ORDER BY last_name, first_name LIMIT ?, ?");
+    $stmt->bind_param("ssssii", $search_param, $search_param, $search_param, $search_param, $offset, $records_per_page);
 } else {
     $stmt = $conn->prepare("SELECT * FROM user ORDER BY last_name, first_name LIMIT ?, ?");
     $stmt->bind_param("ii", $offset, $records_per_page);
@@ -95,6 +95,7 @@ while ($row = $result->fetch_assoc()):
                 <?= htmlspecialchars(strtoupper($row['user_type'])) ?>
             </span>
         </td>
+        <td><?= htmlspecialchars($row['department'] ?? 'N/A') ?></td>
         <td><?= htmlspecialchars($row['username']) ?></td>
         <td class="text-center">
             <div class="dropdown">
@@ -112,7 +113,8 @@ while ($row = $result->fetch_assoc()):
                                             '<?= addslashes($row['suffix'] ?? '') ?>',
                                             '<?= addslashes($row['academic_title'] ?? '') ?>',
                                             '<?= addslashes($row['user_type']) ?>',
-                                            '<?= addslashes($row['username']) ?>'
+                                            '<?= addslashes($row['username']) ?>',
+                                            '<?= addslashes($row['department'] ?? '') ?>'
                                           ); return false;">
                             <i class="fas fa-edit me-2 text-warning"></i>Edit
                         </a>
@@ -584,6 +586,7 @@ if ($isAjax) {
                         <tr>
                             <th>Name</th>
                             <th>Position</th>
+                            <th>Offices / Department</th>
                             <th>Username</th>
                             <th>Actions</th>
                         </tr>
@@ -669,7 +672,7 @@ if ($isAjax) {
             }
         }
 
-        function openEditModal(id, title, firstName, middleName, lastName, suffix, academicTitle, userType, username) {
+        function openEditModal(id, title, firstName, middleName, lastName, suffix, academicTitle, userType, username, department) {
             document.getElementById('edit-id').value = id;
             document.getElementById('edit-title').value = title;
             document.getElementById('edit-firstname').value = firstName;
@@ -679,6 +682,7 @@ if ($isAjax) {
             document.getElementById('edit-academictitle').value = academicTitle || '';
             document.getElementById('edit-usertype').value = userType;
             document.getElementById('edit-username').value = username;
+            document.getElementById('edit-department').value = department || '';
             document.getElementById('editUser').style.display = 'block';
         }
 
@@ -716,7 +720,7 @@ if ($isAjax) {
             const pagination = document.getElementById('users-pagination');
 
             // Show loading state
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Loading users...</p></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Loading users...</p></td></tr>';
 
             const url = new URL(window.location.href);
             url.searchParams.set('ajax', '1');
@@ -747,7 +751,7 @@ if ($isAjax) {
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error loading users.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error loading users.</td></tr>';
                 });
         }
     </script>

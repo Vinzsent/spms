@@ -11,6 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $suffix          = trim($_POST['suffix'] ?? '');
     $academic_title  = trim($_POST['academic_title'] ?? '');
     $user_type       = trim($_POST['user_type'] ?? '');
+    $department      = trim($_POST['department'] ?? '');
     $username        = trim($_POST['username'] ?? '');
     $password        = password_hash($_POST['password'] ?? '', PASSWORD_DEFAULT);
 
@@ -23,12 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Insert into the database
     $stmt = $conn->prepare("
         INSERT INTO user 
-        (title, first_name, middle_name, last_name, suffix, academic_title, user_type, username, password) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (title, first_name, middle_name, last_name, suffix, academic_title, user_type, department, username, password) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
-    $stmt->bind_param("sssssssss", 
+    $stmt->bind_param("ssssssssss", 
         $title, $first_name, $middle_name, $last_name, $suffix, 
-        $academic_title, $user_type, $username, $password
+        $academic_title, $user_type, $department, $username, $password
     );
 
     if ($stmt->execute()) {
