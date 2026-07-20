@@ -12,7 +12,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to /var/www/html/dcc-lib
+      - name: Deploy to /var/www/html/darts
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -21,10 +21,10 @@ jobs:
           port: 22
           script: |
             # Ensure the directory exists
-            sudo mkdir -p /var/www/html/dcc-lib
-            sudo chown -R systemserver:systemserver /var/www/html/dcc-lib
+            sudo mkdir -p /var/www/html/darts
+            sudo chown -R systemserver:systemserver /var/www/html/darts
             
-            cd /var/www/html/dcc-lib
+            cd /var/www/html/darts
             
             # If the repo is not cloned, clone it
             if [ ! -d ".git" ]; then
