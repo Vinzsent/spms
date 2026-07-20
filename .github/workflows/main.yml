@@ -1,0 +1,42 @@
+name: Deploy to Ubuntu Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to /var/www/html/dcc-lib
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            # Ensure the directory exists
+            sudo mkdir -p /var/www/html/dcc-lib
+            sudo chown -R systemserver:systemserver /var/www/html/dcc-lib
+            
+            cd /var/www/html/dcc-lib
+            
+            # If the repo is not cloned, clone it
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/Vinzsent/dcc-lib.git .
+              sudo chown -R systemserver:systemserver .
+            else
+              # Discard local changes to avoid merge conflicts
+              git reset --hard origin/main
+              git pull origin main
+            fi
+            
+            # Set proper permissions
+            sudo chown -R systemserver:systemserver .
+            sudo chmod -R 755 .
+            sudo systemctl restart apache2
