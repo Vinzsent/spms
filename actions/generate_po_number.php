@@ -19,21 +19,22 @@ if (!$user_id) {
 
 function generatePONumber($conn) {
     try {
-        $year = date('Y');
-        $query = "SELECT po_number FROM purchase_orders WHERE po_number LIKE 'PO-$year-%' ORDER BY po_number DESC LIMIT 1";
+        // Get the highest existing PO number from database
+        $query = "SELECT MAX(CAST(po_number AS UNSIGNED)) as max_po FROM purchase_orders WHERE po_number REGEXP '^[0-9]+$'";
         $result = $conn->query($query);
         
-        if ($result && $result->num_rows > 0) {
-            $lastPO = $result->fetch_assoc()['po_number'];
-            $lastNumber = intval(substr($lastPO, -3));
-            $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
-        } else {
-            $newNumber = '001';
+        $nextNumber = 4296; // Starting number
+        
+        if ($result) {
+            $row = $result->fetch_assoc();
+            if ($row['max_po'] && $row['max_po'] >= 4296) {
+                $nextNumber = $row['max_po'] + 1;
+            }
         }
         
         return [
             'success' => true, 
-            'po_number' => "PO-$year-$newNumber"
+            'po_number' => (string)$nextNumber
         ];
         
     } catch (Exception $e) {
