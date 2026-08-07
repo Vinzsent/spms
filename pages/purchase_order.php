@@ -63,19 +63,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 // Function to generate next PO number
 function generatePONumber($conn)
 {
-    $year = date('Y');
-    $query = "SELECT po_number FROM purchase_orders WHERE po_number LIKE 'PO-$year-%' ORDER BY po_number DESC LIMIT 1";
+    // Get the highest existing PO number from database
+    $query = "SELECT MAX(CAST(po_number AS UNSIGNED)) as max_po FROM purchase_orders WHERE po_number REGEXP '^[0-9]+$'";
     $result = $conn->query($query);
-
-    if ($result && $result->num_rows > 0) {
-        $lastPO = $result->fetch_assoc()['po_number'];
-        $lastNumber = intval(substr($lastPO, -3));
-        $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
-    } else {
-        $newNumber = '001';
+    
+    $nextNumber = 4296; // Starting number
+    
+    if ($result) {
+        $row = $result->fetch_assoc();
+        if ($row['max_po'] && $row['max_po'] >= 4296) {
+            $nextNumber = $row['max_po'] + 1;
+        }
     }
-
-    return ['success' => true, 'po_number' => "PO-$year-$newNumber"];
+    
+    return ['success' => true, 'po_number' => (string)$nextNumber];
 }
 
 // Function to save purchase order
@@ -212,6 +213,17 @@ $existing_pos_sql = "SELECT po_id, po_number, supplier_name, po_date, status FRO
 $existing_pos_result = $conn->query($existing_pos_sql);
 
 // Fetch suppliers from database for the searchable dropdown
+$next_po_number = 4296; // Starting PO number
+if (!$edit_mode) {
+    $max_query = "SELECT MAX(CAST(po_number AS UNSIGNED)) as max_po FROM purchase_orders WHERE po_number REGEXP '^[0-9]+$'";
+    $max_result = $conn->query($max_query);
+    if ($max_result) {
+        $max_row = $max_result->fetch_assoc();
+        if ($max_row['max_po'] && $max_row['max_po'] >= 4296) {
+            $next_po_number = $max_row['max_po'] + 1;
+        }
+    }
+}
 $suppliers_query = "SELECT supplier_id, supplier_name, address, city, province, zip_code FROM supplier ORDER BY supplier_name ASC";
 $suppliers_result = $conn->query($suppliers_query);
 $suppliers_array = [];
@@ -234,7 +246,6 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purchase Order</title>
-    <link rel="stylesheet" href="assets/css/dark-mode.css">
 </head>
 
 <body>
@@ -455,6 +466,27 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             border-bottom-color: var(--primary-green);
         }
 
+        .po-info-input,
+        .po-details-input,
+        .supplier-input,
+        .payment-input,
+        .po-table input,
+        .po-table select,
+        .po-table textarea {
+            color: var(--text-dark) !important;
+            -webkit-text-fill-color: var(--text-dark);
+            background-color: transparent !important;
+        }
+
+        .po-info-input::placeholder,
+        .po-details-input::placeholder,
+        .supplier-input::placeholder,
+        .payment-input::placeholder,
+        .po-table input::placeholder,
+        .po-table textarea::placeholder {
+            color: #6c757d;
+        }
+
         /* Searchable Dropdown Styles */
         .supplier-dropdown-container {
             position: relative;
@@ -530,7 +562,8 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
 
         .po-table th {
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
-            color: var(--text-white);
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
             padding: 15px 10px;
             text-align: center;
             font-weight: 600;
@@ -542,6 +575,8 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             border: 1px solid #ddd;
             text-align: center;
             vertical-align: middle;
+            color: var(--text-dark) !important;
+            -webkit-text-fill-color: var(--text-dark);
         }
 
         .po-table tbody tr:nth-child(even) {
@@ -617,11 +652,14 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             height: 60px;
             margin-bottom: 10px;
             position: relative;
+            color: var(--text-dark) !important;
+            -webkit-text-fill-color: var(--text-dark);
         }
 
         .signature-title {
             font-weight: 600;
-            color: var(--text-dark);
+            color: var(--text-dark) !important;
+            -webkit-text-fill-color: var(--text-dark) !important;
             margin-bottom: 5px;
         }
 
@@ -713,10 +751,8 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
                 gap: 30px;
             }
 
-                flex-direction: column;
-                gap: 15px;
+                
             }
-        }
     </style>
 </head>
 
@@ -733,12 +769,11 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         <div class="po-container">
             <div class="po-header">
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <h2 class="po-title" style="margin-bottom: 10px;">PURCHASE ORDER</h2>
                 </div>
                 <div class="po-info">
                     <div class="po-info-item">
                         <span class="po-info-label">PO No.:</span>
-                        <input type="text" class="po-info-input" id="poNumber" placeholder="Enter PO Number" value="<?= $edit_mode && $po_data ? htmlspecialchars($po_data['po_number']) : '' ?>">
+                        <input type="text" class="po-info-input" id="poNumber" placeholder="Enter PO Number" value="<?= $edit_mode && $po_data ? htmlspecialchars($po_data['po_number']) : $next_po_number ?>">
                     </div>
                     <div class="po-info-item">
                         <span class="po-info-label">Date:</span>
@@ -1084,6 +1119,33 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
 
         // Load canvass items for dropdown
         let canvassItems = [];
+        let suppliers = [];
+
+        function loadSuppliers() {
+            fetch('../api/get_suppliers.php')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.statusText);
+                    }
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        return response.text().then(text => {
+                            throw new Error('Expected JSON but received: ' + text.substring(0, 100));
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        suppliers = data.suppliers;
+                    } else {
+                        console.error('Failed to load suppliers:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading suppliers:', error.message);
+                });
+        }
 
         function loadCanvassItems() {
             fetch('../api/get_canvass_items.php')
@@ -1190,11 +1252,6 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            loadSuppliers();
-            loadCanvassItems();
-        });
-
         // Auto-fill item details based on description and selected supplier
         function autoFillItemDetails(selectElement) {
             const row = selectElement.closest('tr');
@@ -1296,7 +1353,8 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
 
         // Initialize with one empty row or load existing data
         document.addEventListener('DOMContentLoaded', function() {
-            // Load canvass items first
+            // Load suppliers and canvass items first
+            loadSuppliers();
             loadCanvassItems();
 
             <?php if ($edit_mode && !empty($po_items)): ?>
@@ -1312,7 +1370,7 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
                     <?php endforeach; ?>
                 }, 500);
             <?php else: ?>
-                // Wait for canvass items to load before adding empty row
+                // PO number is pre-filled server-side; just add an empty row
                 setTimeout(() => {
                     addPORow();
                 }, 500);
@@ -1457,6 +1515,8 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             font-weight: bold;
             display: inline-block;
             width: 80px;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
         }
 
         .po-details input {
@@ -1465,6 +1525,8 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             background: transparent;
             font-size: 9pt;
             padding: 2px;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
         }
 
         /* Table styling */
@@ -1481,6 +1543,8 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             padding: 4px;
             text-align: left;
             vertical-align: top;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
         }
 
         .po-table th {
@@ -1518,6 +1582,8 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             width: 100%;
             font-size: 9pt;
             padding: 2px;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
         }
 
         /* Total row styling */
@@ -1549,11 +1615,15 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             margin-top: 30px;
             padding-top: 5px;
             font-weight: bold;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
         }
 
         .signature-title {
             font-size: 8pt;
             margin-top: 2px;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
         }
 
         /* Payment section */
@@ -1582,6 +1652,8 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
         .payment-details label {
             font-weight: bold;
             margin-right: 5px;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
         }
 
         .payment-details input {
@@ -1591,6 +1663,8 @@ if ($suppliers_result && $suppliers_result->num_rows > 0) {
             font-size: 9pt;
             padding: 2px;
             width: 120px;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
         }
 
         /* Compact spacing for one-page fit */
