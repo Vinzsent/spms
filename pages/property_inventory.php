@@ -58,7 +58,7 @@ $logs_where_conditions[] = "sl.receiver = 'Property Custodian'";
 // Add search filter if search term is provided
 if (!empty($search_term)) {
     $search_escaped = $conn->real_escape_string($search_term);
-    $inv_where_conditions[] = "(i.item_name LIKE '%$search_escaped%' OR i.brand LIKE '%$search_escaped%' OR i.type LIKE '%$search_escaped%')";
+    $inv_where_conditions[] = "(i.item_name LIKE '%$search_escaped%' OR i.brand LIKE '%$search_escaped%' OR i.type LIKE '%$search_escaped%' OR i.description LIKE '%$search_escaped%')";
 }
 
 // Add school year filters if provided
@@ -3112,11 +3112,13 @@ if ($categories_result && $categories_result->num_rows > 0) {
                     loadInventory(parseInt(page));
                 });
 
-                // Load initial page
+                // Load initial page only when navigating to a specific page (not page 1 initial load)
                 document.addEventListener("DOMContentLoaded", function() {
                     const urlParams = new URLSearchParams(window.location.search);
-                    const page = urlParams.get('page') || 1;
-                    loadInventory(parseInt(page));
+                    const page = parseInt(urlParams.get('page') || 1);
+                    if (page > 1) {
+                        loadInventory(page);
+                    }
                 });
             </script>
         <?php endif; ?>
@@ -3141,7 +3143,7 @@ if ($categories_result && $categories_result->num_rows > 0) {
 
             if (!empty($search_term_ajax)) {
                 $search_escaped_ajax = $conn->real_escape_string($search_term_ajax);
-                $inv_where_conditions_ajax[] = "(pi.item_name LIKE '%$search_escaped_ajax%' OR pi.brand LIKE '%$search_escaped_ajax%' OR pi.type LIKE '%$search_escaped_ajax%')";
+                $inv_where_conditions_ajax[] = "(pi.item_name LIKE '%$search_escaped_ajax%' OR pi.brand LIKE '%$search_escaped_ajax%' OR pi.type LIKE '%$search_escaped_ajax%' OR pi.description LIKE '%$search_escaped_ajax%')";
             }
 
             list($sy_inv_start_ajax, $sy_inv_end_ajax) = parse_school_year_range($sy_inv_raw_ajax);
